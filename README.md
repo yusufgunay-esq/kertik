@@ -1,0 +1,2 @@
+# kertik
+Kertik - Gizlilik
