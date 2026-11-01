@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- de — kertik-android/dil/ sözlüğünden üretildi, elle düzenleme -->
+<resources>
+    <string name="bildirim_kanal">laufende sitzung</string>
+    <string name="bildirim_kanal_aciklama">zeigt den timer, solange eine sitzung läuft. ohne ton.</string>
+    <string name="bildirim_devam">weiter</string>
+    <string name="bildirim_mola">pause</string>
+    <string name="bildirim_bitir">beenden</string>
+    <string name="widget_baslat">start</string>
+    <string name="widget_calisiyor">läuft</string>
+    <string name="widget_molada">pause</string>
+    <string name="widget_duvar_aciklama">deine letzten 30 arbeitstage auf einen blick.</string>
+    <string name="widget_kontrol_aciklama">sitzungen starten, pausieren und beenden, ohne die app zu öffnen.</string>
+    <string name="resmi_kaydet">bild speichern</string>
+    <string name="yedegi_kaydet">backup speichern</string>
+    <string name="widget_bos">noch keine einträge</string>
+    <string name="widget_pomodoro">pomodoro</string>
+    <string name="widget_bugun">heute</string>
+    <string name="widget_gun_once">vor %1$d tagen</string>
+    <string name="widget_bugun_dk">heute · %1$d min.</string>
+    <string name="widget_mola_alt">in der pause · durchatmen</string>
+    <string name="widget_basladin">gestartet um %1$s</string>
+    <string name="widget_centik">kerbe %1$d</string>
+    <string name="widget_ilerleme">%1$d / %2$d min.</string>
+    <string name="widget_duvar_baslik">wand</string>
+    <string name="widget_otuz_gun">30 tage</string>
+    <string name="widget_gunde_seans">%1$d aktive tage</string>
+    <string name="odak_modu_tetik">während einer sitzung</string>
+</resources>

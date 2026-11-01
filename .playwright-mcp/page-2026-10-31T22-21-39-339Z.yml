@@ -1,0 +1,19 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - button "kronometre" [ref=e7] [cursor=pointer]
+      - button "pomodoro" [ref=e8] [cursor=pointer]
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]:
+          - generic [ref=e12]: hazır
+          - button "Masaüstü Odak Modu" [ref=e13] [cursor=pointer]
+        - generic [ref=e16]: 00:00
+      - generic [ref=e29]:
+        - generic: çalıştıkça bir şeyler oluyor
+        - button "başlat" [ref=e31] [cursor=pointer]
+  - navigation [ref=e32]:
+    - button "sayaç" [ref=e33] [cursor=pointer]
+    - button "görevler" [ref=e34] [cursor=pointer]
+    - button "kayıt" [ref=e35] [cursor=pointer]
+    - button "ayarlar" [ref=e36] [cursor=pointer]

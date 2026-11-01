@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kertik — Bütünleşik Sanat Laboratuvarı: Kronometre & Pomodoro Uyumu</title>
+<style>
+:root {
+  /* GÜNDÜZ: Gümüşi Kuarz & Derin İndigo / Lapis Lazuli & Altın Pirit */
+  --bg: #F4F2EE;
+  --bg2: #E9E5DA;
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-border: #DDD6C6;
+  --ink: #16181B;
+  --ink-sec: #3A404D;
+  --muted: #727986;
+  --faint: #9EA6B4;
+  --line: #D2DCE6;
+  
+  /* Kronometre: İndigo Ahşap Oyması & Buzul Suyu */
+  --accent: #24477A;
+  --is1: #1B3356;
+  --is2: #284B7E;
+  --is3: #3D6BAA;
+  --kopru: #869BB5;
+  --mola1: #356E69;
+  --mola2: #5CA39D;
+  
+  /* Pomodoro: Lapis & Altın Pirit */
+  --tas: #1E365C;
+  --tas-isik: #3D6BB0;
+  --altin: #D4AF37;
+  --altin-glow: #F9E29B;
+  --shadow: rgba(20, 35, 60, 0.20);
+}
+
+:root.dark {
+  /* GECE: Koyu Arduvaz & Saf Altın Kertikler & Beyaz Ay Taşı */
+  --bg: #111317;
+  --bg2: #181B22;
+  --surface: rgba(24, 26, 32, 0.85);
+  --surface-border: #2A2D36;
+  --ink: #F2EFE8;
+  --ink-sec: #C8C4B8;
+  --muted: #8E8A80;
+  --faint: #5C584E;
+  --line: #282B37;
+  
+  /* Kronometre: Koyu Arduvaz Kalas & Saf Altın Kertikler */
+  --accent: #D8AF54;
+  --is1: #9A7832;
+  --is2: #D8AF54;
+  --is3: #F4D98C;
+  --kopru: #383E4E;
+  --mola1: #4E8782;
+  --mola2: #7BBAB4;
+  
+  /* Pomodoro: Fildişi Ay Taşı & Kintsugi */
+  --tas: #E4E0D6;
+  --tas-isik: #FAF8F2;
+  --altin: #D8AF54;
+  --altin-glow: #F4D98C;
+  --shadow: rgba(0, 0, 0, 0.75);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--bg2);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding: 24px 20px 80px;
+  transition: background .4s cubic-bezier(0.4, 0, 0.2, 1), color .4s ease;
+}
+
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+
+/* Header */
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--surface-border);
+}
+.header-title h1 {
+  font-size: 24px;
+  font-weight: 350;
+  letter-spacing: -.03em;
+  margin: 0;
+}
+.header-title p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+.btn-pill {
+  border: 1px solid var(--surface-border);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .2s;
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-pill:hover { border-color: var(--ink); transform: translateY(-1px); }
+.btn-pill.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(36, 71, 122, 0.12);
+  font-weight: 600;
+}
+:root.dark .btn-pill.active {
+  background: rgba(216, 175, 84, 0.14);
+}
+
+/* Master 2-Phone Showcase Grid */
+.showcase-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-bottom: 28px;
+}
+@media(max-width: 780px) { .showcase-grid { grid-template-columns: 1fr; } }
+
+.card-device {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 36px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 20px 48px var(--shadow);
+  backdrop-filter: blur(16px);
+}
+
+.device-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+.device-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(36, 71, 122, 0.12);
+  color: var(--accent);
+}
+:root.dark .device-badge { background: rgba(216, 175, 84, 0.16); }
+
+.phone-view {
+  width: 100%;
+  max-width: 330px;
+  height: 640px;
+  border-radius: 40px;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg);
+  border: 1px solid var(--surface-border);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15), 0 16px 36px rgba(0,0,0,0.14);
+  cursor: pointer;
+  user-select: none;
+}
+
+.phone-view canvas, .phone-view svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.phone-hud {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 38px 20px 24px;
+  pointer-events: none;
+  z-index: 10;
+}
+.hud-head { display: flex; flex-direction: column; align-items: center; }
+.hud-tag {
+  font-size: 10.5px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--accent);
+}
+.hud-title { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+.hud-mid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 14%;
+}
+.hud-clock {
+  font-size: 46px;
+  font-weight: 200;
+  letter-spacing: -.04em;
+  color: var(--ink);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 12px rgba(255,255,255,0.4);
+}
+:root.dark .hud-clock { text-shadow: 0 2px 16px rgba(0,0,0,0.8); }
+
+.hud-foot {
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  padding: 4px 12px;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+}
+
+/* Master Control Dock */
+.control-dock {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 24px;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 32px var(--shadow);
+  margin-bottom: 24px;
+}
+.slider-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+.sim-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--line);
+  outline: none;
+  cursor: pointer;
+}
+.sim-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.dock-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Analysis Cards */
+.analysis-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media(max-width: 760px) { .analysis-grid { grid-template-columns: 1fr; } }
+.info-box {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 20px;
+  padding: 20px;
+  backdrop-filter: blur(12px);
+}
+.info-box h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: var(--ink);
+}
+.info-box p {
+  font-size: 13px;
+  color: var(--ink-sec);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Shake Animation */
+.impact-shake {
+  animation: shakeAnim .25s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes shakeAnim {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-2.5px, 0, 0); }
+  40%, 60% { transform: translate3d(2px, 0, 0); }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-title">
+      <h1>Kertik — Bütünleşik Sanat Laboratuvarı</h1>
+      <p>Kronometre (Sıvı & Ahşap) ile Pomodoro (Katı & Taş) modlarının kusursuz kromatik uyumu.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-pill active" id="themeToggleBtn" onclick="toggleTheme()">☀️ Gündüz: İndigo & Lapis</button>
+      <button class="btn-pill" onclick="triggerBothImpact()">⚡ Çentik & Taş Vur</button>
+    </div>
+  </header>
+
+  <!-- Side-by-Side 2 Phones -->
+  <div class="showcase-grid">
+
+    <!-- 1. SOL: KRONOMETRE MODU (HINOKI & INDIGO) -->
+    <div class="card-device">
+      <div class="device-header">
+        <strong style="font-size:15px;">⏱️ Kronometre Modu (Akış & Çubuk)</strong>
+        <span class="device-badge">Sıvı Zaman</span>
+      </div>
+      <div class="phone-view" id="phoneStopwatch" onclick="triggerStopwatchImpact()">
+        <!-- Arka Plan Akış Tuvali (Sumi-e Aizome Stream) -->
+        <canvas id="cvStream"></canvas>
+        <!-- Ön Plan Ahşap Kalas ve Çentik SVG -->
+        <svg id="svgBar"></svg>
+
+        <div class="phone-hud">
+          <div class="hud-head">
+            <span class="hud-tag">KRONOMETRE · AKIŞ</span>
+            <span class="hud-title">Mimari Tasarım Odak</span>
+          </div>
+
+          <div class="hud-mid">
+            <span class="hud-clock" id="stopwatchTime">01:42:15</span>
+          </div>
+
+          <div class="hud-foot">Ekrana tıkla: çentik kazı</div>
+        </div>
+      </div>
+      <div style="font-size:12.5px; color:var(--muted); margin-top:14px; text-align:center;">
+        <strong>Sanat Dili:</strong> Gümüş Sedir Ağacı Kalası + Derin Çivit/İndigo V-Çentikler + Safir Sumi-e Su Akıntısı.
+      </div>
+    </div>
+
+    <!-- 2. SAĞ: POMODORO MODU (LAPIS & QUARTZ SAND) -->
+    <div class="card-device">
+      <div class="device-header">
+        <strong style="font-size:15px;">⏳ Pomodoro Modu (Kum & Taş)</strong>
+        <span class="device-badge">Katı Kütle</span>
+      </div>
+      <div class="phone-view" id="phonePomodoro" onclick="triggerPomodoroImpact()">
+        <canvas id="cvPomodoro"></canvas>
+
+        <div class="phone-hud">
+          <div class="hud-head">
+            <span class="hud-tag">POMODORO · BAHÇE</span>
+            <span class="hud-title">Felsefe Makalesi</span>
+          </div>
+
+          <div class="hud-mid">
+            <span class="hud-clock" id="pomodoroTime">25:00</span>
+          </div>
+
+          <div class="hud-foot">Ekrana tıkla: taş düşür</div>
+        </div>
+      </div>
+      <div style="font-size:12.5px; color:var(--muted); margin-top:14px; text-align:center;">
+        <strong>Sanat Dili:</strong> Lapis Lazuli Mineral Monoliti + Altın Pirit Zerrecikleri + Gümüş Kuarz Kumu & Samon Tırmığı.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Master Control Dock -->
+  <div class="control-dock">
+    <div class="slider-row">
+      <span>⏱️ Eş Zamanlı İlerleme Simülasyonu:</span>
+      <span id="sliderLabel" style="color:var(--accent); font-weight:700;">%100 (Tam Seans)</span>
+    </div>
+    <input type="range" min="0" max="100" value="100" class="sim-slider" id="progressSlider" oninput="onProgressChange(this.value)">
+
+    <div class="dock-actions">
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span style="font-size:12.5px; font-weight:600; color:var(--muted);">Gece/Gündüz Geçişi:</span>
+        <button class="btn-pill" onclick="toggleTheme()">🌓 Temayı Değiştir</button>
+      </div>
+
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span style="font-size:12.5px; font-weight:600; color:var(--muted);">Pomodoro Durumu:</span>
+        <button class="btn-pill active" onclick="setStoneState('intact', this)">Sağlam</button>
+        <button class="btn-pill" onclick="setStoneState('kintsugi', this)">Kintsugi Altın</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deep Synergy Context -->
+  <div class="analysis-grid">
+    <div class="info-box">
+      <h3>🏛️ Neden Artık Kusursuz Uyum Sağlandı?</h3>
+      <p>Eski kiremit kırmızısı/terracotta çubuk tonu, Lapis Lazuli'nin mavi asaletiyle çatışıyordu. Şimdi her iki mod da <strong>Gümüş Kuarz zemini ve Derin İndigo / Altın</strong> ortak renk ailesinde buluştu.</p>
+    </div>
+
+    <div class="info-box">
+      <h3>🌙 Geceleyin Birlikte Parıldama (Tsukimi Sinerjisi)</h3>
+      <p>Karanlık moda geçtiğinizde: Pomodoro'da <strong>Beyaz Ay Taşı</strong> parıldarken, Kronometre modunda koyu arduvaz kalas üzerine kazınan <strong>Saf Altın Kertikler</strong> ışıldar.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================================
+   MATEMATİK & SOLFEGGIO SES MOTORU
+   ========================================================================== */
+function rng32(seed) {
+  let s = seed >>> 0;
+  return function() {
+    s = (s + 0x6D2B79F5) >>> 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function fbm(x, y, seed) {
+  const s = (seed || 0) * 17.13;
+  let v = 0, a = 0.5, f = 1.0;
+  for (let i = 0; i < 3; i++) {
+    v += a * Math.sin(x * f + s) * Math.cos(y * f - s * 0.7);
+    f *= 2.02; a *= 0.5;
+  }
+  return (v + 0.5);
+}
+
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) audioCtx = new AudioContext();
+  }
+  if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+}
+
+function playZenSound(freq, isClick) {
+  initAudio();
+  if (!audioCtx) return;
+  const now = audioCtx.currentTime;
+  
+  if (isClick) {
+    // Yontu / Çentik çıtırtısı
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(440, now);
+    osc.frequency.exponentialRampToValueAtTime(120, now + 0.08);
+    g.gain.setValueAtTime(0.3, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+    osc.connect(g); g.connect(audioCtx.destination);
+    osc.start(now); osc.stop(now + 0.1);
+  }
+
+  // Solfeggio Çan Frekansı
+  const bell = audioCtx.createOscillator();
+  const bg = audioCtx.createGain();
+  bell.type = "sine";
+  bell.frequency.setValueAtTime(freq, now + 0.01);
+  bg.gain.setValueAtTime(0.12, now + 0.01);
+  bg.gain.exponentialRampToValueAtTime(0.0001, now + 1.3);
+  bell.connect(bg); bg.connect(audioCtx.destination);
+  bell.start(now + 0.01); bell.stop(now + 1.35);
+}
+
+/* ==========================================================================
+   CANVAS & SVG RENDER MOTORU
+   ========================================================================== */
+let progressRatio = 1.0;
+let stoneState = "intact";
+
+function renderAll() {
+  renderStopwatch();
+  renderPomodoro();
+}
+
+/* --- 1. KRONOMETRE: AHŞAP KALAS + INDIGO AKINTISI ------------------------ */
+function renderStopwatch() {
+  const cv = document.getElementById("cvStream");
+  const svg = document.getElementById("svgBar");
+  const box = document.getElementById("phoneStopwatch");
+  const rect = box.getBoundingClientRect();
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const W = rect.width, H = rect.height;
+
+  cv.width = Math.round(W * dpr);
+  cv.height = Math.round(H * dpr);
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const isDark = document.documentElement.classList.contains("dark");
+  const bg = isDark ? "#111317" : "#F4F2EE";
+  const streamColor = isDark ? "rgba(100, 140, 200, 0.08)" : "rgba(36, 71, 122, 0.065)";
+  const streamHighlight = isDark ? "rgba(216, 175, 84, 0.06)" : "rgba(61, 107, 170, 0.09)";
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Aizome Sumi-e Su Akıntısı
+  ctx.save();
+  for (let s = 0; s < 5; s++) {
+    ctx.beginPath();
+    ctx.moveTo(W * (0.2 + s * 0.15), 0);
+    for (let y = 0; y <= H; y += 20) {
+      const x = W * (0.2 + s * 0.15) + Math.sin(y * 0.012 + s) * 28 + Math.cos(y * 0.006) * 16;
+      ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = s % 2 === 0 ? streamColor : streamHighlight;
+    ctx.lineWidth = 32 + s * 14;
+    ctx.lineCap = "round";
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Ön Plan: Gümüş Sedir Ahşap Kalası ve Çentikler (SVG)
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = "";
+
+  const kalX = W * 0.5 - 18;
+  const kalY0 = H * 0.28;
+  const kalY1 = kalY0 + (H * 0.58) * progressRatio;
+  const kalW = 36;
+
+  const kopruColor = isDark ? "#383E4E" : "#869BB5";
+  const is1 = isDark ? "#9A7832" : "#1B3356";
+  const is2 = isDark ? "#D8AF54" : "#284B7E";
+  const is3 = isDark ? "#F4D98C" : "#3D6BAA";
+  const altinGlow = "#D8AF54";
+
+  // Kalas Gövdesi
+  const kalasPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  let d = `M ${kalX} ${kalY0} L ${kalX + kalW} ${kalY0} L ${kalX + kalW} ${kalY1} L ${kalX} ${kalY1} Z`;
+  kalasPath.setAttribute("d", d);
+  kalasPath.setAttribute("fill", kopruColor);
+  kalasPath.setAttribute("opacity", isDark ? "0.35" : "0.22");
+  svg.appendChild(kalasPath);
+
+  // Kalas Kenar Çizgileri
+  const l1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  l1.setAttribute("x1", kalX); l1.setAttribute("y1", kalY0);
+  l1.setAttribute("x2", kalX); l1.setAttribute("y2", kalY1);
+  l1.setAttribute("stroke", kopruColor); l1.setAttribute("stroke-width", "1.5"); l1.setAttribute("opacity", "0.5");
+  svg.appendChild(l1);
+
+  const l2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  l2.setAttribute("x1", kalX + kalW); l2.setAttribute("y1", kalY0);
+  l2.setAttribute("x2", kalX + kalW); l2.setAttribute("y2", kalY1);
+  l2.setAttribute("stroke", kopruColor); l2.setAttribute("stroke-width", "1.2"); l2.setAttribute("opacity", "0.3");
+  svg.appendChild(l2);
+
+  // V-Çentikler (Dakika kertikleri)
+  const centikSayisi = Math.floor(28 * progressRatio);
+  for (let i = 0; i <= centikSayisi; i++) {
+    const cy = kalY0 + (i / 28) * (H * 0.58);
+    const isMajor = i % 5 === 0;
+    const derinlik = isMajor ? kalW * 0.85 : kalW * 0.55;
+    const kalinlik = isMajor ? 3.2 : 2.0;
+
+    const notch = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    const nd = `M ${kalX} ${cy - kalinlik} L ${kalX + derinlik} ${cy} L ${kalX} ${cy + kalinlik} Z`;
+    notch.setAttribute("d", nd);
+    notch.setAttribute("fill", isMajor ? is2 : is1);
+    notch.setAttribute("opacity", isMajor ? "0.95" : "0.75");
+    svg.appendChild(notch);
+
+    // Işık parıltısı (Gece altın, gündüz gümüş)
+    if (isMajor) {
+      const hl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      hl.setAttribute("x1", kalX); hl.setAttribute("y1", cy - kalinlik);
+      hl.setAttribute("x2", kalX + derinlik * 0.9); hl.setAttribute("y2", cy - 0.5);
+      hl.setAttribute("stroke", is3); hl.setAttribute("stroke-width", "1.2");
+      svg.appendChild(hl);
+    }
+  }
+}
+
+/* --- 2. POMODORO: LAPIS LAZULI & AY TAŞI BAHÇESİ ------------------------ */
+function renderPomodoro() {
+  const cv = document.getElementById("cvPomodoro");
+  const box = document.getElementById("phonePomodoro");
+  const rect = box.getBoundingClientRect();
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const W = rect.width, H = rect.height;
+
+  cv.width = Math.round(W * dpr);
+  cv.height = Math.round(H * dpr);
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const isDark = document.documentElement.classList.contains("dark");
+  const bg = isDark ? "#111317" : "#F4F2EE";
+  const sandLine = isDark ? "#282B37" : "#D2DCE6";
+  const sandHighlight = isDark ? "#3C4152" : "#E8EFF8";
+  const shadow = isDark ? "rgba(0,0,0,0.85)" : "rgba(18, 32, 55, 0.24)";
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  const st = { x: W * 0.50, y: H * 0.70, r: W * 0.20, e: 0.88, angle: -0.15, seed: 101 };
+
+  // Samon Su Dalgaları
+  ctx.save();
+  ctx.lineCap = "round";
+  for (let ring = 1; ring <= 4; ring++) {
+    const rad = st.r * (1.18 + ring * 0.32);
+    ctx.beginPath();
+    for (let i = 0; i <= 36; i++) {
+      const a = (i / 36) * Math.PI * 2;
+      const rx = Math.cos(a) * rad;
+      const ry = Math.sin(a) * rad * st.e;
+      i ? ctx.lineTo(st.x + rx, st.y + ry) : ctx.moveTo(st.x + rx, st.y + ry);
+    }
+    ctx.strokeStyle = sandLine;
+    ctx.lineWidth = Math.max(0.8, 1.9 - ring * 0.3);
+    ctx.globalAlpha = Math.max(0.18, 0.65 - ring * 0.12);
+    ctx.stroke();
+  }
+
+  // Yatay Tırmık Hatları
+  const maxY = Math.min(H, 24 + (H - 24) * progressRatio);
+  for (let y = 24; y < maxY; y += 18) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    for (let x = 0; x <= W; x += 10) {
+      let dy = Math.sin(x * 0.015 + y * 0.03) * 1.5;
+      const d = Math.hypot(x - st.x, y - st.y);
+      if (d < st.r * 2.2) dy += (y > st.y ? 1 : -1) * (1 - d / (st.r * 2.2)) * 16;
+      ctx.lineTo(x, y + dy);
+    }
+    ctx.strokeStyle = sandLine;
+    ctx.lineWidth = 1.4;
+    ctx.globalAlpha = 0.55;
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Taş Gövdesi
+  ctx.save();
+  ctx.translate(st.x, st.y);
+  ctx.rotate(st.angle);
+
+  // Kuyu Gölgesi
+  const gr = ctx.createRadialGradient(st.r * 0.15, st.r * 0.25, st.r * 0.2, st.r * 0.15, st.r * 0.25, st.r * 1.35);
+  gr.addColorStop(0, shadow);
+  gr.addColorStop(0.7, shadow);
+  gr.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = gr;
+  ctx.beginPath();
+  ctx.ellipse(st.r * 0.15, st.r * 0.25, st.r * 1.35, st.r * st.e * 1.35, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.scale(1, st.e);
+  const N = 32;
+  const pts = [];
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * Math.PI * 2;
+    const rr = st.r * (0.90 + fbm(Math.cos(a) * 2.2 + 2, Math.sin(a) * 2.2 + 6, st.seed) * 0.25);
+    pts.push([Math.cos(a) * rr, Math.sin(a) * rr]);
+  }
+
+  if (!isDark) {
+    // GÜNDÜZ: LAPIS LAZULI
+    ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fillStyle = "#1E365C";
+    ctx.fill();
+
+    // Üst Ultramarin Işığı
+    ctx.save();
+    ctx.beginPath();
+    for (let i = 0; i <= Math.floor(N * 0.55); i++) {
+      i ? ctx.lineTo(pts[i][0] * 0.88, pts[i][1] * 0.88) : ctx.moveTo(pts[i][0] * 0.88, pts[i][1] * 0.88);
+    }
+    for (let i = Math.floor(N * 0.55); i >= 0; i--) ctx.lineTo(pts[i][0] * 0.25, pts[i][1] * 0.25);
+    ctx.closePath();
+    ctx.fillStyle = "#3D6BB0";
+    ctx.globalAlpha = 0.75;
+    ctx.fill();
+    ctx.restore();
+
+    // Altın Pirit Taneleri
+    ctx.save();
+    const R_pyr = rng32(st.seed + 77);
+    ctx.fillStyle = "#D4AF37";
+    for (let i = 0; i < 16; i++) {
+      const px = (R_pyr() - 0.5) * st.r * 1.25;
+      const py = (R_pyr() - 0.5) * st.r * 1.25;
+      const sz = 0.8 + R_pyr() * 1.8;
+      ctx.globalAlpha = 0.75 + R_pyr() * 0.25;
+      ctx.fillRect(px, py, sz, sz);
+    }
+    ctx.restore();
+  } else {
+    // GECE: BEYAZ AY TAŞI
+    ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fillStyle = "#E4E0D6";
+    ctx.fill();
+
+    // Üst Ay Işığı
+    ctx.save();
+    ctx.beginPath();
+    for (let i = 0; i <= Math.floor(N * 0.55); i++) {
+      i ? ctx.lineTo(pts[i][0] * 0.88, pts[i][1] * 0.88) : ctx.moveTo(pts[i][0] * 0.88, pts[i][1] * 0.88);
+    }
+    for (let i = Math.floor(N * 0.55); i >= 0; i--) ctx.lineTo(pts[i][0] * 0.25, pts[i][1] * 0.25);
+    ctx.closePath();
+    ctx.fillStyle = "#FAF8F2";
+    ctx.globalAlpha = 0.85;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Kintsugi
+  if (stoneState === "kintsugi") {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    ctx.lineTo(pts[0][0] * 0.3 + pts[16][0] * 0.7 + st.r * 0.08, pts[0][1] * 0.3 + pts[16][1] * 0.7);
+    ctx.lineTo(pts[16][0], pts[16][1]);
+    ctx.strokeStyle = "#D8AF54";
+    ctx.lineWidth = Math.max(2.4, st.r * 0.12);
+    ctx.lineCap = "round";
+    ctx.shadowColor = "#F4D98C";
+    ctx.shadowBlur = 10;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+/* ==========================================================================
+   ETKİLEŞİMLER
+   ========================================================================== */
+function onProgressChange(val) {
+  progressRatio = val / 100;
+  document.getElementById("sliderLabel").innerText = `%${val} (${Math.round(25 * progressRatio)} dk)`;
+  
+  const sec = Math.round(25 * 60 * (1 - progressRatio));
+  const m = Math.floor(sec / 60), s = sec % 60;
+  document.getElementById("pomodoroTime").innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+  
+  renderAll();
+}
+
+function triggerStopwatchImpact() {
+  const box = document.getElementById("phoneStopwatch");
+  box.classList.remove("impact-shake");
+  void box.offsetWidth;
+  box.classList.add("impact-shake");
+  playZenSound(528, true);
+}
+
+function triggerPomodoroImpact() {
+  const box = document.getElementById("phonePomodoro");
+  box.classList.remove("impact-shake");
+  void box.offsetWidth;
+  box.classList.add("impact-shake");
+  const isDark = document.documentElement.classList.contains("dark");
+  playZenSound(isDark ? 432 : 528, false);
+  renderPomodoro();
+}
+
+function triggerBothImpact() {
+  triggerStopwatchImpact();
+  triggerPomodoroImpact();
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.classList.toggle("dark");
+  const btn = document.getElementById("themeToggleBtn");
+  if (isDark) {
+    btn.innerText = "🌙 Gece: Altın Kertik & Ay Taşı";
+  } else {
+    btn.innerText = "☀️ Gündüz: İndigo & Lapis";
+  }
+  renderAll();
+}
+
+function setStoneState(st, btn) {
+  stoneState = st;
+  document.querySelectorAll('.dock-actions .btn-pill').forEach((b, i) => {
+    if (i >= 1) b.classList.remove("active");
+  });
+  btn.classList.add("active");
+  renderPomodoro();
+}
+
+window.addEventListener("resize", renderAll);
+window.addEventListener("load", renderAll);
+</script>
+</body>
+</html>

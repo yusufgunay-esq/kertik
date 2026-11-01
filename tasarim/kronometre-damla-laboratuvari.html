@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kertik — Kronometre: Organik Vektör Akışı & Damla Laboratuvarı</title>
+<style>
+:root{
+  --bg:#F5F2EA; --bg2:#EFEBE1; --ink:#16181B; --ink2:#3E4148;
+  --muted:#726E65; --faint:#9C978C; --line:#DCD5C6; --track:#DCD6C7;
+  --acc:#3E7C77; --warm:#B05237; --fluid:#5A827E; --shadow:#CFC7B4;
+  --card-bg:rgba(255,255,255,0.65); --glass:rgba(239,235,225,0.75);
+}
+:root.dark{
+  --bg:#16171A; --bg2:#212227; --ink:#EDE9E0; --ink2:#BCB7AC;
+  --muted:#948F84; --faint:#6A665E; --line:#2E2F34; --track:#33343A;
+  --acc:#79B3AE; --warm:#D0785B; --fluid:#8FB6AF; --shadow:#0C0E11;
+  --card-bg:rgba(28,29,33,0.65); --glass:rgba(33,34,39,0.75);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{
+  background:var(--bg2);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  transition:background .4s ease,color .4s ease;
+  padding:28px 18px 80px;
+}
+.wrap{max-width:1260px;margin:0 auto}
+
+/* Header */
+.header{margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px}
+.header-titles h1{font-size:28px;font-weight:300;letter-spacing:-.03em;margin:0}
+.header-titles p{color:var(--muted);font-size:14px;margin:5px 0 0;max-width:82ch}
+.header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.theme-btn{
+  border:1px solid var(--line);background:var(--bg);color:var(--ink2);
+  border-radius:999px;padding:7px 16px;font-size:13px;cursor:pointer;
+  font-family:inherit;transition:.2s;backdrop-filter:blur(8px);
+}
+.theme-btn:hover{border-color:var(--ink);color:var(--ink)}
+.theme-btn.active{border-color:var(--acc);color:var(--acc);background:rgba(62,124,119,.08)}
+
+/* Layout Grid */
+.main-stage{
+  display:grid;grid-template-columns:360px 1fr;gap:28px;align-items:start;
+}
+@media(max-width:960px){
+  .main-stage{grid-template-columns:1fr}
+}
+
+/* Phone Mockup */
+.phone-column{display:flex;flex-direction:column;align-items:center;gap:14px}
+.phone{
+  position:relative;width:348px;height:734px;border-radius:44px;overflow:hidden;
+  background:var(--bg);border:1px solid var(--line);
+  box-shadow:0 24px 64px rgba(0,0,0,.18);flex-shrink:0;
+  transition:transform .15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.phone canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hud{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  padding:44px 22px 28px;pointer-events:none;z-index:10;
+}
+.hud .badge{
+  font-size:11.5px;letter-spacing:.20em;text-transform:uppercase;font-weight:600;
+  color:var(--acc);margin-top:24%;transition:color .3s;
+}
+.hud .glyph{margin:8px 0 4px;line-height:0;opacity:.9}
+.hud .time{
+  font-size:52px;font-weight:200;letter-spacing:-.045em;font-variant-numeric:tabular-nums;
+  color:var(--ink);line-height:1;
+}
+.hud .subline{font-size:13.5px;color:var(--muted);margin-top:4px}
+.hud .started{font-size:12.5px;color:var(--faint);margin-top:auto;margin-bottom:16px}
+.hud .ctrls{display:flex;gap:10px;align-items:center;pointer-events:auto}
+.hud .btn-p1{
+  border-radius:999px;padding:11px 28px;font-size:15px;font-weight:600;
+  background:var(--ink);color:var(--bg);border:none;cursor:pointer;
+  transition:transform .15s, opacity .2s;box-shadow:0 4px 14px rgba(0,0,0,.15);
+}
+.hud .btn-p1:active{transform:scale(0.96)}
+.hud .btn-p2{
+  font-size:14.5px;padding:11px 8px;background:none;border:none;
+  color:var(--muted);cursor:pointer;transition:color .2s;
+}
+.hud .btn-p2:hover{color:var(--ink)}
+
+/* Control Cards Grid */
+.control-column{display:flex;flex-direction:column;gap:16px}
+.card{
+  background:var(--card-bg);border:1px solid var(--line);border-radius:18px;
+  padding:16px 18px;backdrop-filter:blur(12px);
+}
+.card h2{font-size:15px;font-weight:600;letter-spacing:-.01em;margin:0 0 8px;color:var(--ink)}
+.card p{font-size:13px;color:var(--muted);margin:0 0 10px;line-height:1.45}
+
+.btn-group{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+button.chip{
+  border:1px solid var(--line);background:var(--bg);color:var(--ink2);
+  border-radius:999px;padding:6px 14px;font-size:12.5px;font-family:inherit;
+  cursor:pointer;transition:.18s;display:flex;align-items:center;gap:5px;
+}
+button.chip:hover{border-color:var(--ink2);color:var(--ink)}
+button.chip.active{border-color:var(--acc);color:var(--acc);background:rgba(62,124,119,.08);font-weight:500}
+button.chip.action{border-color:var(--acc);color:var(--acc);font-weight:600}
+button.chip.action:hover{background:rgba(62,124,119,.12)}
+button.chip.break{border-color:var(--warm);color:var(--warm)}
+button.chip.break:hover{background:rgba(176,82,55,.12)}
+
+.range-row{margin-bottom:10px}
+.range-row label{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-bottom:3px}
+.range-row label b{color:var(--ink);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--acc)}
+
+.physics-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));gap:8px}
+.physics-stat{
+  background:var(--glass);border:1px solid var(--line);border-radius:12px;
+  padding:8px 10px;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;
+}
+.physics-stat b{color:var(--ink);display:block;font-size:13.5px;margin-bottom:2px}
+
+/* Explanations */
+.details-section{margin-top:32px}
+.details-section h2{font-size:19px;font-weight:400;margin:0 0 12px}
+.details-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.detail-box{
+  background:var(--card-bg);border:1px solid var(--line);border-radius:14px;
+  padding:14px;backdrop-filter:blur(8px);
+}
+.detail-box h3{font-size:14px;font-weight:600;margin:0 0 4px;color:var(--acc)}
+.detail-box p{font-size:12.5px;color:var(--muted);margin:0;line-height:1.45}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="header">
+    <div class="header-titles">
+      <h1>Kertik — Kronometre: Organik Vektör Akışı & Damla Laboratuvarı</h1>
+      <p>Gerçek çoklu-oktav türbülans vektör alanı (*Perlin Vector Streamlines*). Her seans ve tohum tamamen benzersiz, kaotik ve akışkan bir ebru manzarası üretir. Damla doğuşu, fırça basıncı ve 67 saate kadar donmayan kademeli sıklaşma içerir.</p>
+    </div>
+    <div class="header-actions">
+      <button class="theme-btn active" id="btnSes" onclick="sesAcKapa()">Ses: Açık</button>
+      <button class="theme-btn" id="btnHaptikTest" onclick="manuelHaptikTest()">Damla Haptiği</button>
+      <button class="theme-btn" id="btnTema" onclick="temaDegis()">Karanlık Mod</button>
+    </div>
+  </header>
+
+  <div class="main-stage">
+    <!-- Phone Screen -->
+    <div class="phone-column">
+      <div class="phone" id="phoneBox">
+        <canvas id="cvFluid"></canvas>
+        <canvas id="cvDrop"></canvas>
+        <div class="hud">
+          <div class="badge" id="hudBadge">HAZIR</div>
+          <div class="glyph" id="hudGlyph">
+            <svg width="48" height="12" viewBox="0 0 48 12">
+              <circle cx="6" cy="6" r="3.2" fill="var(--acc)"/>
+              <path d="M 12 6 Q 24 2, 36 6 T 46 6" stroke="var(--acc)" stroke-width="1.3" fill="none" opacity=".8"/>
+            </svg>
+          </div>
+          <div class="time" id="hudTime">00:00</div>
+          <div class="subline" id="hudSub">Sıvı Vektör Akışı · 0. dk</div>
+          <div class="started" id="hudStarted">Başla'ya basınca damla düşer</div>
+          <div class="ctrls">
+            <button class="btn-p1" id="hudP1" onclick="seansButon()">Başla</button>
+            <button class="btn-p2" id="hudP2" onclick="seansSifirla()">Sıfırla</button>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--faint);text-align:center;">
+        Organik Akış Tuvali · 348 × 734 Retina
+      </div>
+    </div>
+
+    <!-- Controls Column -->
+    <div class="control-column">
+      <!-- 1. RASTGELE TOHUM & DAMLA DOĞUŞU -->
+      <div class="card" style="border-color:var(--acc);">
+        <h2 style="color:var(--acc);">🎲 Organik Rastgelelik & Damla Doğuşu</h2>
+        <p>Her tohum tamamen farklı bir girdap ve akış alanı hesaplar. Butonlara basarak bambaşka ebru manzaraları üretebilirsiniz:</p>
+        
+        <div class="btn-group">
+          <button class="chip action" onclick="rastgeleTohum()">🎲 Yeni Rastgele Akış Üret</button>
+          <button class="chip action" onclick="damlaDusurAnimasyonu(W*0.5, H*0.44)">💧 Damla Düşür & Canlandır</button>
+          <button class="chip action" onclick="seansıCanliOynat()">▶️ Canlı Akışı İzle</button>
+        </div>
+
+        <div class="physics-grid">
+          <div class="physics-stat">
+            <b id="statTohum">Tohum #108</b>
+            Aktif Akış Tohumu
+          </div>
+          <div class="physics-stat">
+            <b id="statSeritSayisi">32 Şerit</b>
+            Canlı Vektör Şeritleri
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. SINIRSIZ SÜRE & ZAMAN TESTLERİ (67 SAATE KADAR) -->
+      <div class="card">
+        <h2>⏳ Sınırsız Süre (Kademeli Sıklaşma & İpekleşme)</h2>
+        <p>Ekran 2 saatte dolup donmaz. Yeni şeritler eskilerin arasına paralel yerleşir; moiré olmadan desen ipekleşir:</p>
+        
+        <div class="btn-group">
+          <button class="chip" onclick="hazirSureAyarla(15)">15 dk (Geniş Şeritler)</button>
+          <button class="chip" onclick="hazirSureAyarla(47)">47 dk (Dengeli Ebru)</button>
+          <button class="chip" onclick="hazirSureAyarla(165)">2.5 Saat (Yoğun Akış)</button>
+          <button class="chip" onclick="hazirSureAyarla(720)">12 Saat (İnce Damarlar)</button>
+          <button class="chip" onclick="hazirSureAyarla(4020)">67 Saat (Stres Testi)</button>
+        </div>
+
+        <div class="range-row">
+          <label>Seansın Kaçıncı Dakikası <b id="lblDk">0 dk</b></label>
+          <input type="range" id="rngDk" min="0" max="720" step="1" value="0" oninput="dakikaKaydir(this.value)">
+        </div>
+      </div>
+
+      <!-- 3. MOLA DİFÜZYONU -->
+      <div class="card" style="border-color:var(--warm);">
+        <h2 style="color:var(--warm);">🌊 Mola Difüzyonu (Soluklaşma ve Sis)</h2>
+        <p>Molada yapay zıt renkler çıkmaz; çizgiler hafifçe soluklaşır ve yumuşar:</p>
+        
+        <div class="btn-group">
+          <button class="chip break" onclick="molaUygula(true)">☕ Molaya Geç (Silikleşme)</button>
+          <button class="chip action" onclick="molaUygula(false)">✨ Devam Et (Canlı Akış)</button>
+        </div>
+
+        <div class="physics-grid">
+          <div class="physics-stat">
+            <b id="statDurum">Çalışıyor</b>
+            Seans Durumu
+          </div>
+          <div class="physics-stat">
+            <b id="statMola">0 dk Mola</b>
+            Mola Kaydı
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. PALET SEÇİMİ -->
+      <div class="card">
+        <h2>Wabi-Sabi Sıvı Paletleri</h2>
+        <div class="btn-group" id="groupPal" style="margin-bottom:0">
+          <button class="chip active" onclick="paletSec('akik', this)">Akik</button>
+          <button class="chip" onclick="paletSec('sumi', this)">Sumi (Mürekkep)</button>
+          <button class="chip" onclick="paletSec('safir', this)">Safir</button>
+          <button class="chip" onclick="paletSec('gece', this)">Gece</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Philosophy Section -->
+  <section class="details-section">
+    <h2>Sıvı Vektör Akışının İlkeleri (27-sanat-ayrisimi.md §3)</h2>
+    <div class="details-grid">
+      <div class="detail-box">
+        <h3>1. Çoklu-Oktav Türbülans</h3>
+        <p>Üç katmanlı FBM açı alanı (`W/2.6, W/6, W/13`) sayesinde her tohumda tamamen doğal ve kaotik girdaplar oluşur.</p>
+      </div>
+      <div class="detail-box">
+        <h3>2. Fırça Basıncı</h3>
+        <p>Sabit kalınlıklı vektör çizgisi yok; şeritlerin uçları ince, gövdesi dolgundur ve el titremesiyle organik nefes alır.</p>
+      </div>
+      <div class="detail-box">
+        <h3>3. Paralel Kademeli Sıklaşma</h3>
+        <p>67 saatte bile moiré veya donma olmaz; yeni şeritler eskilerin arasına paralel yerleşerek deseni ipekleştirir.</p>
+      </div>
+      <div class="detail-box">
+        <h3>4. 44.1 kHz Kayıpsız Akustik</h3>
+        <p>Damla yüzeye çarptığında iki kademeli kavitasyon ve yüzey gerilimi pop sentezi ($380 \rightarrow 140\text{ Hz}$) çalar.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ==========================================================================
+   MATEMATİK & RASTLANTISALLIK ÇEKİRDEĞİ (afilli-cekirdek.js uyumlu)
+   ========================================================================== */
+function hash32(t){let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng32(a){a=a>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function h2i(i,j,s){let n=Math.imul(i|0,374761393)^Math.imul(j|0,668265263)^Math.imul(s|0,362437);
+  n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967296}
+function vnoise(x,y,s){const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j;
+  const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);
+  const a=h2i(i,j,s),b=h2i(i+1,j,s),c=h2i(i,j+1,s),d=h2i(i+1,j+1,s);
+  return(a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v}
+function fbm(x,y,s){return vnoise(x,y,s)*.6+vnoise(x*2.1,y*2.1,s+7)*.27+vnoise(x*4.3,y*4.3,s+19)*.13}
+
+function hexHsl(x){const m=/^#([0-9a-f]{6})$/i.exec(x||"");if(!m)return null;
+  const n=parseInt(m[1],16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255;
+  const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,d=mx-mn;
+  if(!d)return[0,0,l];
+  const s=l>.5?d/(2-mx-mn):d/(mx+mn);
+  let h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;
+  return[h*60,s,l]}
+
+/* ==========================================================================
+   WABI-SABI SIVI PALETLERİ
+   ========================================================================== */
+const PALETLER = {
+  akik: { su: "#F5F2EA", damar: "#3E7C77", damarEski: "#7C8885", golge: "#CFC7B4", vurgu: "#B05237", metin: "#16181B", acc: "#3E7C77", cool: "#B05237" },
+  sumi: { su: "#F3EFE5", damar: "#242528", damarEski: "#828385", golge: "#D4CDC0", vurgu: "#A85A3C", metin: "#181A1D", acc: "#242528", cool: "#A85A3C" },
+  safir:{ su: "#EEF3F2", damar: "#2E5E6B", damarEski: "#76979E", golge: "#CBD8D7", vurgu: "#9E5440", metin: "#142023", acc: "#2E5E6B", cool: "#9E5440" },
+  gece: { su: "#141619", damar: "#8FB6AF", damarEski: "#3E5552", golge: "#0A0C0E", vurgu: "#D0785B", metin: "#EDE9E0", acc: "#8FB6AF", cool: "#D0785B", gece: 1 }
+};
+
+let AKTIF_PAL = "akik";
+let SES_ACIK = true;
+
+/* ==========================================================================
+   44.1 kHz KAYIPSIZ SU DAMLASI SENTEZLEYİCİSİ
+   ========================================================================== */
+let audioCtx = null;
+function getAudioContext() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+
+function sesCalDamla() {
+  if (!SES_ACIK) return;
+  try {
+    const ctx = getAudioContext();
+    const sr = ctx.sampleRate || 44100;
+    const dur = 0.088;
+    const numSamples = Math.floor(sr * dur);
+    const buffer = ctx.createBuffer(1, numSamples, sr);
+    const data = buffer.getChannelData(0);
+
+    let phase = 0;
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sr;
+      const freqT = 140 + 260 * Math.exp(-t * 55);
+      phase += (2 * Math.PI * freqT) / sr;
+      const drop = Math.sin(phase) * Math.exp(-t / 0.038);
+      const cavity = Math.sin(phase * 1.85) * Math.exp(-t / 0.022) * 0.35;
+      data[i] = Math.tanh((drop + cavity) * 0.52);
+    }
+
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(ctx.destination);
+    src.start();
+  } catch (e) {}
+}
+
+function haptikDamla() {
+  if (navigator && navigator.vibrate) {
+    try { navigator.vibrate([10]); } catch (e) {}
+  }
+}
+
+function manuelHaptikTest() {
+  haptikDamla();
+  sesCalDamla();
+}
+
+function sesAcKapa() {
+  SES_ACIK = !SES_ACIK;
+  const btn = document.getElementById("btnSes");
+  btn.textContent = SES_ACIK ? "Ses: Açık" : "Ses: Kapalı";
+  btn.classList.toggle("active", SES_ACIK);
+}
+
+/* ==========================================================================
+   TUVAL VE SİSTEM DURUMU
+   ========================================================================== */
+const cvFluid = document.getElementById("cvFluid");
+const cvDrop = document.getElementById("cvDrop");
+const gFluid = cvFluid.getContext("2d");
+const gDrop = cvDrop.getContext("2d");
+const W = 348, H = 734;
+const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+[cvFluid, cvDrop].forEach(c => {
+  c.width = W * dpr; c.height = H * dpr;
+  c.style.width = W + "px"; c.style.height = H + "px";
+});
+gFluid.setTransform(dpr,0,0,dpr,0,0);
+gDrop.setTransform(dpr,0,0,dpr,0,0);
+
+const K = {
+  ilkDolum: 80, katOran: 3, kademeSayi: 5, dsep0: 1.7, bol: 1.5, dene0: 20000,
+  incelmeOran: .78, katki: .58, tonBuyume: .42, isikBuyume: .34, yikamaBuyume: .55,
+  maxl: 700, af: [2.6, 6, 13],
+  katman: [[.62, .80, .16, .11, 0], [.28, 1.35, .34, .24, 0], [.10, 2.30, .52, .40, 9]],
+  ton: 16, isik: .11, parca: 9, halo: [.46, .88], alt: .11
+};
+
+let seansDurum = {
+  durum: "calisiyor",
+  gecenDk: 0,
+  seed: Math.floor(Math.random() * 99999),
+  molada: false,
+  molaDk: 0,
+  onbellek: null
+};
+
+/* ==========================================================================
+   ORGANİK VEKTÖR AKIŞI ALAN VE ŞERİT HESABI
+   ========================================================================== */
+function aciAlani(seed, W, f) {
+  return (x, y) => (fbm(x / (W / f[0]), y / (W / f[0]), seed) * 2 - 1) * Math.PI * 1.9
+                 + (fbm(x / (W / f[1]), y / (W / f[1]), seed + 3) - .5) * 1.1
+                 + (f[2] ? (fbm(x / (W / f[2]), y / (W / f[2]), seed + 11) - .5) * .5 : 0);
+}
+
+function kademeler(K) {
+  const kd = [];
+  let d = K.dsep0, b = 0, inc = 1, dene = K.dene0;
+  for (let n = 0; n < K.kademeSayi; n++) {
+    const bit = n === 0 ? K.ilkDolum : b * K.katOran;
+    kd.push({ n, bas: b, bitis: bit, dsep: d, dene: Math.round(dene), incelme: inc });
+    b = bit;
+    d /= K.bol;
+    inc *= K.incelmeOran;
+    dene *= K.bol * .92;
+  }
+  return kd;
+}
+
+function kademeHesapla(seed, W, H, A, dsep, dene, eskiler, tohumEk) {
+  const R = rng32(seed + tohumEk);
+  const STEP = 2.0, MAXL = A.maxl;
+  const gw = Math.ceil(W / dsep) + 2, gh = Math.ceil(H / dsep) + 2;
+  const dolu = new Uint8Array(gw * gh);
+  const aci = aciAlani(seed, W, A.af);
+
+  const isaretle = (x, y) => {
+    const gi = (x / dsep | 0) + 1, gj = (y / dsep | 0) + 1;
+    if (gi >= 0 && gj >= 0 && gi < gw && gj < gh) dolu[gj * gw + gi] = 1;
+  };
+  const bosMu = (x, y) => {
+    const gi = (x / dsep | 0) + 1, gj = (y / dsep | 0) + 1;
+    if (gi < 0 || gj < 0 || gi >= gw || gj >= gh) return false;
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) {
+      const q = (gj + b) * gw + (gi + a);
+      if (q >= 0 && q < dolu.length && dolu[q]) return false;
+    }
+    return true;
+  };
+
+  for (const p of eskiler) for (let k = 0; k < p.length; k += 2) isaretle(p[k], p[k + 1]);
+
+  const seritler = [];
+  for (let i = 0; i < dene; i++) {
+    const x0 = R() * W, y0 = R() * H;
+    if (!bosMu(x0, y0)) continue;
+    const pts = [];
+    for (const yon of [1, -1]) {
+      let x = x0, y = y0;
+      const par = [];
+      for (let k = 0; k < MAXL / STEP; k++) {
+        const a = aci(x, y);
+        x += Math.cos(a) * STEP * yon;
+        y += Math.sin(a) * STEP * yon;
+        if (x < -14 || y < -14 || x > W + 14 || y > H + 14) break;
+        if (k > 2 && !bosMu(x, y)) break;
+        par.push(x, y);
+      }
+      if (yon === 1) pts.push(...par);
+      else {
+        const rev = [];
+        for (let k = par.length - 2; k >= 0; k -= 2) rev.push(par[k], par[k + 1]);
+        pts.unshift(...rev);
+      }
+    }
+    if (pts.length < 12) continue;
+    for (let k = 0; k < pts.length; k += 2) isaretle(pts[k], pts[k + 1]);
+    seritler.push(Float32Array.from(pts));
+  }
+  return seritler;
+}
+
+function agirlikSirasi(seritler, W, seed) {
+  const n = seritler.length, w = new Float32Array(n), idx = [];
+  const R = rng32(seed);
+  for (let i = 0; i < n; i++) {
+    const p = seritler[i];
+    let mx = 0;
+    for (let k = 0; k < p.length; k += 2) mx += p[k];
+    mx /= (p.length >> 1);
+    const dx = (mx - W * .5) / (W * .5);
+    w[i] = (1 - dx * dx) * .7 + R() * .3;
+    idx.push(i);
+  }
+  idx.sort((a, b) => w[b] - w[a]);
+  const sira = new Float32Array(n);
+  for (let rank = 0; rank < n; rank++) sira[idx[rank]] = rank / (n - 1 || 1);
+  return sira;
+}
+
+function doluluk(kd, dk) {
+  if (dk <= kd.bas) return 0;
+  if (dk >= kd.bitis) return 1;
+  const p = (dk - kd.bas) / (kd.bitis - kd.bas);
+  return p * (2 - p);
+}
+
+function firca(g, p, kal, seed, parcaSayisi) {
+  const n = p.length >> 1;
+  if (n < 3) return;
+  const adim = Math.max(1, Math.floor(n / parcaSayisi));
+  for (let i = 0; i < n - 1; i += adim) {
+    const son = Math.min(n - 1, i + adim);
+    const ort = (i + son) * .5 / n;
+    const profil = Math.sin(ort * Math.PI);
+    const gurluk = 1 + (vnoise(ort * 4, 0, seed) - .5) * .28;
+    const w = Math.max(.3, kal * profil * gurluk);
+
+    g.beginPath();
+    g.lineWidth = w;
+    g.moveTo(p[i * 2], p[i * 2 + 1]);
+    for (let k = i + 1; k <= son; k++) g.lineTo(p[k * 2], p[k * 2 + 1]);
+    g.stroke();
+  }
+}
+
+/* ==========================================================================
+   ÇİZİM VE ALAN MOTORU
+   ========================================================================== */
+function veriHesapla(seed) {
+  const KD = kademeler(K);
+  const veri = [];
+  let eskiler = [];
+  for (const kd of KD) {
+    const serit = kademeHesapla(seed, W, H, K, kd.dsep, kd.dene, eskiler, kd.n * 977);
+    veri.push({ kd, serit, sira: agirlikSirasi(serit, W, seed + kd.n * 13) });
+    eskiler = eskiler.concat(serit);
+    if (kd.bitis > 4200) break;
+  }
+  return veri;
+}
+
+function cizOrganikSiviAlani() {
+  const C = PALETLER[AKTIF_PAL];
+  gFluid.fillStyle = C.su;
+  gFluid.fillRect(0, 0, W, H);
+
+  // Doğal su dokusu
+  gFluid.save();
+  gFluid.globalAlpha = C.gece ? 0.045 : 0.035;
+  gFluid.fillStyle = C.golge;
+  const Rz = rng32(seansDurum.seed + 101);
+  for (let i = 0; i < (W * H) / 800; i++) {
+    gFluid.fillRect(Rz() * W, Rz() * H, 1.2, 1.2);
+  }
+  gFluid.restore();
+
+  if (!seansDurum.onbellek || seansDurum.onbellek.seed !== seansDurum.seed) {
+    seansDurum.onbellek = { seed: seansDurum.seed, veri: veriHesapla(seansDurum.seed) };
+  }
+
+  const dk = Math.max(0.5, seansDurum.gecenDk);
+  const veri = seansDurum.onbellek.veri;
+
+  // Plan oluştur
+  const plan = [];
+  for (const v of veri) {
+    const d = doluluk(v.kd, dk);
+    if (d <= 0) break;
+    plan.push({ ...v, d, adet: Math.floor(v.serit.length * d) });
+    if (d < 1) break;
+  }
+
+  const ilk = plan.length ? (plan[0].adet || 1) : 1;
+  for (const v of plan) {
+    v.alfaKat = v.kd.n === 0 ? 1 : Math.min(1, K.katki * ilk / Math.max(1, v.adet * v.kd.incelme));
+  }
+
+  let toplamCizilenSerit = 0;
+  for (const v of plan) {
+    for (let i = 0; i < v.adet; i++) {
+      toplamCizilenSerit++;
+      const q = v.sira[i];
+      let pay = 0, kat = K.katman[0];
+      for (const kk of K.katman) { pay += kk[0]; kat = kk; if (q < pay) break; }
+
+      const silik = seansDurum.molada;
+      const a = (C.gece ? kat[2] : kat[3]) * (silik ? 0.42 : 1) * v.alfaKat;
+      const kal = kat[1] * v.kd.incelme * (silik ? 0.85 : 1);
+      const p = v.serit[i];
+      if (!p || p.length < 6) continue;
+
+      // Çizgi Alt Yıkaması (Halo)
+      if (kat[4] && !silik) {
+        gFluid.save();
+        gFluid.strokeStyle = C.vurgu;
+        gFluid.lineWidth = kat[4] * v.kd.incelme * (1 + K.yikamaBuyume * v.kd.n);
+        gFluid.globalAlpha = a * 0.13;
+        gFluid.beginPath();
+        gFluid.moveTo(p[0], p[1]);
+        for (let k = 2; k < p.length; k += 2) gFluid.lineTo(p[k], p[k + 1]);
+        gFluid.stroke();
+        gFluid.restore();
+      }
+
+      // Fırça Basınçlı Ana Çizgi
+      gFluid.save();
+      gFluid.strokeStyle = silik ? C.damarEski : (q > 0.85 ? C.vurgu : (q < 0.35 ? C.damarEski : C.damar));
+      gFluid.globalAlpha = a;
+      firca(gFluid, p, kal, hash32("s_" + seansDurum.seed) + i, K.parca);
+      gFluid.restore();
+    }
+  }
+
+  document.getElementById("statSeritSayisi").textContent = toplamCizilenSerit + " Şerit";
+}
+
+/* ==========================================================================
+   DAMLA DÜŞÜŞ ANİMASYONU
+   ========================================================================== */
+let damlaAnimId = null;
+
+function damlaDusurAnimasyonu(hedefX, hedefY, tamamlandiCb) {
+  cancelAnimationFrame(damlaAnimId);
+  const C = PALETLER[AKTIF_PAL];
+  const t0 = performance.now();
+  const SURE_DUSUS = 420;
+  const SURE_HALKA = 550;
+  const TOPLAM_SURE = SURE_DUSUS + SURE_HALKA;
+
+  let darbeOldu = false;
+
+  function kare() {
+    const dt = performance.now() - t0;
+    const pGenel = Math.min(1.0, dt / TOPLAM_SURE);
+
+    gDrop.clearRect(0, 0, W, H);
+
+    if (dt < SURE_DUSUS) {
+      const p = dt / SURE_DUSUS;
+      const e = Math.pow(p, 2.2);
+      const curY = hedefY - (1 - e) * H * 0.35;
+      const kuyrukBoyu = (1 - p) * 16;
+
+      gDrop.save();
+      gDrop.beginPath();
+      gDrop.fillStyle = C.vurgu;
+      gDrop.globalAlpha = 0.35 + p * 0.65;
+      gDrop.ellipse(hedefX, curY, 3.4, 4.8 + kuyrukBoyu * 0.4, 0, 0, Math.PI * 2);
+      gDrop.fill();
+      gDrop.restore();
+
+    } else {
+      if (!darbeOldu) {
+        darbeOldu = true;
+        sesCalDamla();
+        haptikDamla();
+        cizOrganikSiviAlani();
+      }
+
+      const p = (dt - SURE_DUSUS) / SURE_HALKA;
+      const maxR = 48;
+      const r = Math.sqrt(p) * maxR;
+      const alfa = (1 - p) * 0.75;
+
+      gDrop.save();
+      gDrop.beginPath();
+      gDrop.strokeStyle = C.vurgu;
+      gDrop.lineWidth = Math.max(0.6, 2.2 * (1 - p));
+      gDrop.globalAlpha = alfa;
+      gDrop.ellipse(hedefX, hedefY, r, r * 0.85, 0, 0, Math.PI * 2);
+      gDrop.stroke();
+      gDrop.restore();
+    }
+
+    if (pGenel < 1.0) {
+      damlaAnimId = requestAnimationFrame(kare);
+    } else {
+      gDrop.clearRect(0, 0, W, H);
+      cizOrganikSiviAlani();
+      if (tamamlandiCb) tamamlandiCb();
+    }
+  }
+
+  damlaAnimId = requestAnimationFrame(kare);
+}
+
+/* ==========================================================================
+   KULLANICI ETKİLEŞİMİ & ZAMAN KONTROLLERİ
+   ========================================================================== */
+function rastgeleTohum() {
+  seansDurum.seed = Math.floor(Math.random() * 999999);
+  seansDurum.onbellek = null;
+  document.getElementById("statTohum").textContent = "Tohum #" + (seansDurum.seed % 1000);
+  cizOrganikSiviAlani();
+  damlaDusurAnimasyonu(W * 0.5, H * 0.44);
+}
+
+function dakikaKaydir(val) {
+  const dk = parseFloat(val);
+  seansDurum.gecenDk = dk;
+  
+  const saat = Math.floor(dk / 60);
+  const dak = Math.floor(dk % 60);
+  const str = saat > 0 ? (String(saat).padStart(2,"0") + ":" + String(dak).padStart(2,"0")) : (String(dak).padStart(2,"0") + ":00");
+  
+  document.getElementById("lblDk").textContent = dk >= 60 ? (saat + " sa " + dak + " dk (" + Math.round(dk) + " dk)") : (Math.round(dk) + " dk");
+  document.getElementById("hudTime").textContent = str;
+  document.getElementById("hudSub").textContent = "Sıvı Vektör Akışı · " + Math.round(dk) + ". dk";
+
+  cizOrganikSiviAlani();
+}
+
+function hazirSureAyarla(dk) {
+  document.getElementById("rngDk").max = Math.max(720, dk);
+  document.getElementById("rngDk").value = dk;
+  dakikaKaydir(dk);
+}
+
+function molaUygula(moladaMi) {
+  seansDurum.molada = moladaMi;
+  document.getElementById("statDurum").textContent = moladaMi ? "MOLADA (Silik)" : "Çalışıyor (Canlı)";
+  document.getElementById("hudBadge").textContent = moladaMi ? "MOLADA" : "ÇALIŞIYOR";
+  document.getElementById("hudBadge").style.color = moladaMi ? "var(--warm)" : "var(--acc)";
+  document.getElementById("hudP1").textContent = moladaMi ? "Devam" : "Mola";
+  cizOrganikSiviAlani();
+}
+
+let canliTimer = null;
+function seansıCanliOynat() {
+  if (canliTimer) {
+    clearInterval(canliTimer);
+    canliTimer = null;
+    return;
+  }
+  canliTimer = setInterval(() => {
+    let cur = parseFloat(document.getElementById("rngDk").value);
+    if (cur >= 360) { clearInterval(canliTimer); canliTimer = null; return; }
+    cur += 1.8;
+    document.getElementById("rngDk").value = cur;
+    dakikaKaydir(cur);
+  }, 65);
+}
+
+function seansBaslat() {
+  seansDurum.durum = "calisiyor";
+  seansDurum.gecenDk = 0;
+  seansDurum.molada = false;
+
+  document.getElementById("hudBadge").textContent = "ÇALIŞIYOR";
+  document.getElementById("hudBadge").style.color = "var(--acc)";
+  document.getElementById("hudP1").textContent = "Mola";
+  document.getElementById("hudStarted").textContent = "Damla suya düştü · Akış başladı";
+  document.getElementById("statDurum").textContent = "Çalışıyor";
+  document.getElementById("statTohum").textContent = "Tohum #" + (seansDurum.seed % 1000);
+
+  cizOrganikSiviAlani();
+  damlaDusurAnimasyonu(W * 0.5, H * 0.44, () => {});
+}
+
+function seansButon() {
+  if (seansDurum.durum === "hazir" || seansDurum.durum === "bitti") {
+    seansBaslat();
+  } else if (!seansDurum.molada) {
+    molaUygula(true);
+  } else {
+    molaUygula(false);
+    damlaDusurAnimasyonu(W * 0.5, H * 0.44);
+  }
+}
+
+function seansSifirla() {
+  seansDurum.durum = "hazir";
+  seansDurum.gecenDk = 0;
+  seansDurum.molada = false;
+  seansDurum.seed = Math.floor(Math.random() * 99999);
+  seansDurum.onbellek = null;
+
+  document.getElementById("hudBadge").textContent = "HAZIR";
+  document.getElementById("hudBadge").style.color = "var(--acc)";
+  document.getElementById("hudTime").textContent = "00:00";
+  document.getElementById("hudSub").textContent = "Sıvı Vektör Akışı · 0. dk";
+  document.getElementById("hudP1").textContent = "Başla";
+  document.getElementById("hudStarted").textContent = "Başla'ya basınca damla düşer";
+  document.getElementById("rngDk").value = 0;
+  document.getElementById("lblDk").textContent = "0 dk";
+  document.getElementById("statTohum").textContent = "Tohum #" + (seansDurum.seed % 1000);
+  document.getElementById("statSeritSayisi").textContent = "0 Şerit";
+
+  gDrop.clearRect(0, 0, W, H);
+  cizOrganikSiviAlani();
+}
+
+function paletSec(ad, el) {
+  AKTIF_PAL = ad;
+  document.querySelectorAll("#groupPal button").forEach(b => b.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById("phoneBox").style.background = PALETLER[ad].su;
+  cizOrganikSiviAlani();
+}
+
+function temaDegis() {
+  const isDark = document.documentElement.classList.toggle("dark");
+  document.getElementById("btnTema").textContent = isDark ? "Aydınlık Mod" : "Karanlık Mod";
+  paletSec(isDark ? "gece" : "akik", document.querySelector("#groupPal button"));
+}
+
+/* İlk Yükleme */
+cizOrganikSiviAlani();
+setTimeout(() => {
+  seansBaslat();
+}, 400);
+</script>
+</body>
+</html>

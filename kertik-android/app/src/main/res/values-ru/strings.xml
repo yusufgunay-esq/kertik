@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ru — kertik-android/dil/ sözlüğünden üretildi, elle düzenleme -->
+<resources>
+    <string name="bildirim_kanal">текущая сессия</string>
+    <string name="bildirim_kanal_aciklama">показывает таймер во время сессии. без звука.</string>
+    <string name="bildirim_devam">продолжить</string>
+    <string name="bildirim_mola">перерыв</string>
+    <string name="bildirim_bitir">завершить</string>
+    <string name="widget_baslat">начать</string>
+    <string name="widget_calisiyor">идёт</string>
+    <string name="widget_molada">перерыв</string>
+    <string name="widget_duvar_aciklama">ваши последние 30 дней работы — одним взглядом.</string>
+    <string name="widget_kontrol_aciklama">начинайте, приостанавливайте и завершайте сессии, не открывая приложение.</string>
+    <string name="resmi_kaydet">сохранить изображение</string>
+    <string name="yedegi_kaydet">сохранить резервную копию</string>
+    <string name="widget_bos">пока нет записей</string>
+    <string name="widget_pomodoro">помодоро</string>
+    <string name="widget_bugun">сегодня</string>
+    <string name="widget_gun_once">%1$d дн. назад</string>
+    <string name="widget_bugun_dk">сегодня · %1$d мин</string>
+    <string name="widget_mola_alt">перерыв · переведите дух</string>
+    <string name="widget_basladin">начато в %1$s</string>
+    <string name="widget_centik">насечка %1$d</string>
+    <string name="widget_ilerleme">%1$d / %2$d мин</string>
+    <string name="widget_duvar_baslik">стена</string>
+    <string name="widget_otuz_gun">30 дней</string>
+    <string name="widget_gunde_seans">%1$d активных дней</string>
+    <string name="odak_modu_tetik">во время сессии</string>
+</resources>

@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Duvar — Taş kompozisyonu denemeleri</title>
+<style>
+:root{
+  --bg:#F5F2EA; --bg2:#EFEBE1; --ink:#16181B; --ink2:#3E4148;
+  --muted:#726E65; --faint:#9C978C; --line:#DCD5C6; --track:#DCD6C7;
+  --accent:#B05237; --cool:#3E7C77;
+  --tas:#3A3A36; --tasgolge:#00000030;
+  --pad:24px;
+}
+:root.dark{
+  --bg:#16171A; --bg2:#212227; --ink:#EDE9E0; --ink2:#BCB7AC;
+  --muted:#948F84; --faint:#6A665E; --line:#2E2F34; --track:#33343A;
+  --accent:#D0785B; --cool:#79B3AE;
+  --tas:#D8DADB; --tasgolge:#00000060;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:17px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  transition:background .55s cubic-bezier(.4,0,.2,1), color .55s cubic-bezier(.4,0,.2,1);
+}
+#paper{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+.wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 var(--pad) 100px}
+header{padding:56px 0 10px}
+h1{font-size:34px;font-weight:400;letter-spacing:-.032em;margin:0}
+.sub{color:var(--muted);font-size:15px;margin-top:8px;max-width:64ch}
+h2{font-size:23px;font-weight:400;letter-spacing:-.02em;margin:58px 0 4px;display:flex;align-items:baseline;gap:10px}
+h2 .no{font-size:14px;color:var(--faint);font-variant-numeric:tabular-nums}
+h3{font-size:15px;font-weight:600;letter-spacing:.01em;margin:30px 0 4px;color:var(--ink2)}
+.note{color:var(--muted);font-size:15px;margin:0 0 20px;max-width:60ch}
+.tag{display:inline-block;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:3px 11px;margin:4px 6px 0 0}
+.tag.pro{border-color:var(--cool);color:var(--cool)}
+.tag.con{border-color:var(--accent);color:var(--accent)}
+
+.zoom{
+  display:flex;gap:22px;flex-wrap:wrap;align-items:flex-end;justify-content:center;
+  border:1px solid var(--line);border-radius:20px;background:var(--bg2);padding:30px 18px 22px;
+  transition:background .55s,border-color .55s
+}
+.zi{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:120px}
+.zi canvas{display:block}
+.zi .cap{font-size:13px;color:var(--muted);text-align:center}
+
+.wall{border:1px solid var(--line);border-radius:20px;background:var(--bg2);padding:26px 20px 20px;
+  transition:background .55s,border-color .55s}
+.wall canvas{display:block;width:100%;height:auto}
+.wallgrid{display:flex;flex-wrap:wrap;gap:14px 10px;align-items:flex-end}
+.day{display:flex;flex-direction:column;align-items:center;gap:6px;width:48px}
+.day canvas{display:block}
+.day .d{font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}
+
+.cap{margin-top:14px;font-size:13px;letter-spacing:.02em;color:var(--muted);text-align:center;max-width:60ch}
+
+.rec{border:1px solid var(--cool);border-radius:16px;padding:20px 22px;margin-top:16px;background:var(--bg2)}
+.rec b{color:var(--ink)}
+.rec p{margin:8px 0;font-size:15px;color:var(--ink2);max-width:62ch}
+.rec .lbl{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--cool);margin-bottom:6px}
+
+.themebtn{
+  position:fixed;top:16px;right:16px;z-index:5;border:1px solid var(--line);background:var(--bg);
+  color:var(--muted);border-radius:999px;padding:9px 16px;font-size:14px;font-family:inherit;cursor:pointer
+}
+@media (max-width:520px){ :root{--pad:18px} h1{font-size:29px} }
+hr{border:none;border-top:1px solid var(--line);margin:64px 0 0}
+</style>
+</head>
+<body>
+<canvas id="paper"></canvas>
+<button class="themebtn" id="th">gece</button>
+
+<div class="wrap">
+
+<header>
+  <h1>Duvar — taş kompozisyonu</h1>
+  <div class="sub">Pomodoro tarafının arşivi için üç kompozisyon denemesi. Aynı ay, aynı tohum,
+  aynı taş çizimi — değişen tek şey <b>taşların nasıl dizildiği</b>. Amaç, çubuğun kendi
+  arşiv formunu bulduğu gibi (kum bahçesinin küçültülmüş hali değil) taşın da kendi formunu bulması.</div>
+</header>
+
+<!-- ============ A: HESAP TAŞLARI ============ -->
+<h2><span class="no">A</span> Hesap taşları</h2>
+<p class="note">Tek uzun bir raf, ay boyunca soldan sağa akıyor. Her pomodoro rafa konan bir taş;
+aynı günün taşları yan yana küçük bir öbek kurar. Boş gün, rafta düz bırakılmış bir aralık —
+eksiklik değil, o günün sessizliği. <i>Calculus</i> — "hesaplamak" fiilinin kökü — Latincede
+küçük taş demek; Romalılar sayarken tam bunu yapıyordu.</p>
+<span class="tag pro">sayaç değil, kayıt gibi okunuyor</span>
+<span class="tag pro">çubukla aynı "tek uzun şerit" mantığı</span>
+<span class="tag con">çok yoğun aylarda öbekler sıkışabilir</span>
+
+<h3>Yakın plan</h3>
+<div class="zoom" id="zoomA"></div>
+
+<h3>Aylık duvar</h3>
+<div class="wall"><canvas id="wallA" width="1760" height="220"></canvas></div>
+<div class="cap">31 gün, tek raf. Konum kronolojik, x ekseni gün. Boş günler rafta düz bırakılan aralıklar.</div>
+
+<hr>
+
+<!-- ============ B: TAŞ İSTİFİ ============ -->
+<h2><span class="no">B</span> Taş istifi (cairn)</h2>
+<p class="note">Her gün kendi sütununda küçük bir istif. Yükseklik o günkü pomodoro sayısı,
+her taş hafifçe farklı açıyla oturuyor — doğal bir sendeleme, mimarlık değil.
+Görsel olarak en çarpıcısı ama dikkatli kullanılmalı: istif yükseldikçe göz bunu
+otomatik olarak "başarı kulesi" gibi okuyabilir.</p>
+<span class="tag pro">en yüksek "vay be" etkisi</span>
+<span class="tag con">yükseklik = rekabet hissi riski</span>
+<span class="tag con">kum bahçesindeki taş düşüşüyle malzeme çakışması var</span>
+
+<h3>Yakın plan</h3>
+<div class="zoom" id="zoomB"></div>
+
+<h3>Aylık duvar</h3>
+<div class="wallgrid" id="wallB"></div>
+
+<hr>
+
+<!-- ============ C: TAŞ PATİKASI ============ -->
+<h2><span class="no">C</span> Taş patikası (yol)</h2>
+<p class="note">Taşlar kıvrılan bir patika boyunca zamanla ilerliyor — bir bahçede adım adım
+yürünen taş yol gibi. Boş gün, patikada bırakılmış bir adımlık boşluk. Kertik'in kendi
+"yol haritası" diliyle örtüşüyor; istif gibi dikey yükselmediği için rekabet hissi taşımıyor.</p>
+<span class="tag pro">"yolculuk", istif değil — ödül hissi en zayıf</span>
+<span class="tag pro">Kertik'in kendi yol/yolculuk diliyle örtüşüyor</span>
+<span class="tag con">31 taşı okunur biçimde bir patikaya sığdırmak zor, geniş yer ister</span>
+
+<h3>Yakın plan</h3>
+<div class="zoom" id="zoomC"></div>
+
+<h3>Aylık duvar</h3>
+<div class="wall"><canvas id="wallC" width="1760" height="360"></canvas></div>
+<div class="cap">31 gün, tek patika. Patika soldan sağa kıvrılarak ilerliyor; boş günler bir adımlık boşluk bırakıyor.</div>
+
+<hr>
+
+<h2><span class="no">·</span> Önerim</h2>
+<div class="rec">
+  <div class="lbl">Kompozisyon</div>
+  <p><b>A — Hesap taşları.</b> En düşük ödül/rozet riski, çubuğun kendi mantığıyla ("tek uzun
+  şerit, kronolojik, boş gün = boşluk") en tutarlı olan, ve <i>calculus</i> göndermesi
+  malzemeye kavramsal bir ağırlık katıyor. Cairn (B) görsel olarak daha vurucu ama
+  "kule yükseltme" hissi tam da 27-sanat-ayrisimi.md'nin kaçındığı ödül diline kayıyor.
+  Patika (C) felsefi olarak en temiz ama 31 günü okunur bir yola sığdırmak ekranda çok yer
+  istiyor, widget/özet gibi küçük alanlarda zorlanır.</p>
+  <div class="lbl" style="margin-top:14px">Karışık mod sorusu</div>
+  <p>Baştan tek yüzeyde eritmeye çalışmam — mürekkep ve taş, seans ekranında bilerek
+  ayrıştırıldı (20-sanat-geri-bildirim.md, "iki mod aynı mantıkta çizmemeli"), duvarda da
+  aynı ayrım geçerli olmalı. Ama <b>aynı x eksenini</b> (gün sütunları) paylaşsınlar: çubuk
+  şeridi üstte, taş rafı altta, aynı ay için iki ince bant olarak yan yana. Böylece tek
+  bakışta o ayın hem kronometre hem pomodoro tarafı görünür ama iki malzeme birbirine
+  karışmaz — çubuk.html'deki <code>wallgrid</code>'in gün genişliğini iki kompozisyon da
+  zaten paylaşıyor, aşağıdaki denemeler o yüzden aynı ızgarayı kullanıyor.</p>
+</div>
+
+</div>
+
+<script>
+/* ---------- kâğıt dokusu (cubuk.html ile birebir) ---------- */
+function paper(){
+  const c=document.getElementById("paper"), x=c.getContext("2d");
+  const w=c.width=innerWidth, h=c.height=innerHeight;
+  const dark=document.documentElement.classList.contains("dark");
+  x.clearRect(0,0,w,h);
+  const img=x.createImageData(w,h), d=img.data;
+  for(let i=0;i<d.length;i+=4){
+    const v=Math.random();
+    d[i]=d[i+1]=d[i+2]= dark?255:0;
+    d[i+3]= v<.5 ? 0 : (dark? 5+v*7 : 7+v*10);
+  }
+  x.putImageData(img,0,0);
+  x.strokeStyle= dark? "rgba(255,255,255,.035)":"rgba(0,0,0,.045)";
+  x.lineWidth=1;
+  for(let i=0;i<w*h/2600;i++){
+    const px=Math.random()*w, py=Math.random()*h, a=Math.random()*Math.PI, L=4+Math.random()*16;
+    x.beginPath(); x.moveTo(px,py); x.lineTo(px+Math.cos(a)*L,py+Math.sin(a)*L); x.stroke();
+  }
+  x.strokeStyle= dark? "rgba(255,255,255,.018)":"rgba(0,0,0,.022)";
+  for(let y=0;y<h;y+=3){ x.beginPath(); x.moveTo(0,y+.5); x.lineTo(w,y+.5); x.stroke(); }
+}
+
+/* ---------- tohumlu rastgelelik + gürültü (kum-bahcesi.html ile birebir) ---------- */
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng32(sd){let a=sd>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function h2i(i,j,s){let n=Math.imul(i|0,374761393)^Math.imul(j|0,668265263)^Math.imul(s|0,362437);
+  n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967296}
+function vn(x,y,s){const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j;
+  const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);
+  const a=h2i(i,j,s),b=h2i(i+1,j,s),c=h2i(i,j+1,s),d=h2i(i+1,j+1,s);
+  return (a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v}
+const fbm=(x,y,s)=>vn(x,y,s)*.6+vn(x*2.07,y*2.07,s+7)*.27+vn(x*4.13,y*4.13,s+19)*.13;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* ---------- tek taş çizimi (kum-bahcesi.html'deki taş rutininin genellenmiş hali) ---------- */
+function tas(ctx,cx,cy,r,seed,o){
+  o=o||{};
+  const rot=o.rot!==undefined?o.rot:(rng32(seed)()-.5)*.6;
+  const el=o.el||(.82+rng32(seed+1)()*.3);
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(rot); ctx.scale(1,el);
+  ctx.beginPath(); ctx.ellipse(r*.10,r*.16,r*1.04,r*1.04,0,0,Math.PI*2);
+  ctx.fillStyle=o.golge||css("--tasgolge"); ctx.fill();
+  const N=15; ctx.beginPath();
+  for(let i=0;i<=N;i++){
+    const a=i/N*Math.PI*2;
+    const rr=r*(.82+fbm(Math.cos(a)*1.55+seed*3.7,Math.sin(a)*1.55+seed*2.1,seed%97)*.36);
+    const px=Math.cos(a)*rr, py=Math.sin(a)*rr;
+    i? ctx.lineTo(px,py) : ctx.moveTo(px,py);
+  }
+  ctx.closePath();
+  ctx.fillStyle=o.renk||css("--tas"); ctx.fill();
+  ctx.restore();
+}
+
+/* ---------- ortak ay verisi: her gün 0-4 pomodoro, dakikalar ---------- */
+function ayVerisi(seed){
+  const R=rng32(seed);
+  const gunler=[];
+  for(let g=1; g<=31; g++){
+    const bos = R()<.19;
+    if(bos){ gunler.push([]); continue; }
+    const n = 1 + Math.floor(R()*R()*4.2); // çoğunlukla 1-2, bazen 4
+    const seans=[];
+    for(let i=0;i<n;i++){
+      const havuz=[25,25,25,50,50,90];
+      seans.push(havuz[Math.floor(R()*havuz.length)]);
+    }
+    gunler.push(seans);
+  }
+  return gunler;
+}
+const AY = ayVerisi(20260818);
+/* stres testi: bu ayın içine bilerek iki uç gün yerleştiriliyor — komşu günleri
+   nasıl etkilediğini görmek için (aşırı sıkışma sadece o günle sınırlı kalmalı,
+   yan güne taşmamalı). 10. gün: 20×25dk. 22. gün: 7×60dk. */
+AY[9]  = Array(20).fill(25);
+AY[21] = Array(7).fill(60);
+const rYaricap = (dk,taban)=> taban*Math.sqrt(dk/25); // 25 dk referans
+
+/* ---------- yoğun günler için sıkıştırma: alan yetmezse taşlar küçülür,
+   ama bir tabanın altına inmez (o noktadan sonra taşmak kaçınılmaz —
+   bu bilerek görünür bırakılıyor, stres testinin amacı bu) ---------- */
+function paketle(seans, taban, mevcutAlan, adimKat, minOlcek){
+  const ham=seans.map(dk=>rYaricap(dk,taban));
+  if(!ham.length) return {r:[], olcek:1, gerekli:0, mevcut:mevcutAlan, tasar:false};
+  const gerekli=ham.reduce((a,r)=>a+r*adimKat,0);
+  const olcek= gerekli>mevcutAlan ? Math.max(minOlcek, mevcutAlan/gerekli) : 1;
+  return {r:ham.map(r=>r*olcek), olcek, gerekli:gerekli*olcek, mevcut:mevcutAlan, tasar: gerekli*olcek>mevcutAlan+.5};
+}
+
+/* ============================================================
+   A — HESAP TAŞLARI: tek uzun raf
+   ============================================================ */
+function cizRaf(cv, gunler, o){
+  const ctx=cv.getContext("2d"); const W=cv.width, H=cv.height;
+  const dpr=1; ctx.clearRect(0,0,W,H);
+  const rafY=H*o.rafYOrani;
+  const padL=o.padL, padR=o.padR;
+  const usableW=W-padL-padR;
+  const n=gunler.length;
+  const colW=usableW/n;
+
+  // raf çizgisi — hafif gölgeli
+  ctx.strokeStyle=css("--line"); ctx.lineWidth=o.rafKal||2;
+  ctx.beginPath(); ctx.moveTo(padL,rafY); ctx.lineTo(W-padR,rafY); ctx.stroke();
+  ctx.strokeStyle= document.documentElement.classList.contains("dark")?"rgba(0,0,0,.4)":"rgba(0,0,0,.10)";
+  ctx.lineWidth=(o.rafKal||2)+3; ctx.globalAlpha=.35;
+  ctx.beginPath(); ctx.moveTo(padL,rafY+2); ctx.lineTo(W-padR,rafY+2); ctx.stroke();
+  ctx.globalAlpha=1;
+
+  const SIKISMA=[];
+  gunler.forEach((seans,i)=>{
+    if(!seans.length){ SIKISMA.push(null); return; }
+    const cx0=padL+colW*(i+.5);
+    const R=rng32(hash32("raf"+i));
+    const pak=paketle(seans,o.taban,colW*(o.gunPay||.92),1.55,o.minOlcek!==undefined?o.minOlcek:.16);
+    SIKISMA.push(pak);
+    let ilerleme=-pak.r.reduce((a,r)=>a+r*1.55,0)/2;
+    seans.forEach((dk,k)=>{
+      const r=pak.r[k];
+      ilerleme+=r*.78;
+      const jy=(R()-.5)*r*.4;
+      tas(ctx, cx0+ilerleme, rafY-r*.88+jy, r, i*13+k*7+3, {});
+      ilerleme+=r*.77;
+    });
+  });
+  return SIKISMA;
+}
+
+/* ============================================================
+   B — TAŞ İSTİFİ: gün başına küçük cairn
+   ============================================================ */
+function cizIstif(cv, seans, o){
+  const ctx=cv.getContext("2d"); const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2; const taban0=H-o.taban*0.9;
+  if(!seans.length){
+    ctx.strokeStyle=css("--line"); ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(cx-W*.16,H-4); ctx.lineTo(cx+W*.16,H-4); ctx.stroke();
+    return null;
+  }
+  const R=rng32(hash32("istx"+o.gid));
+  const budceH=(o.maxH!==undefined?o.maxH:H*.86);
+  const pak=paketle(seans,o.taban*.86,budceH,1.75,o.minOlcek!==undefined?o.minOlcek:.14);
+  let y=taban0;
+  seans.forEach((dk,i)=>{
+    const r=pak.r[i];
+    const rot=(R()-.5)*.6;
+    const jx=(R()-.5)*r*.65;
+    y -= r*1.75;
+    tas(ctx,cx+jx,y,r,o.gid*11+i*5+9,{rot});
+  });
+  return pak;
+}
+
+/* ============================================================
+   C — TAŞ PATİKASI: kıvrılan tek yol
+   ============================================================ */
+function patikaNoktasi(t,W,H,o){
+  // t: 0..1 ilerleme. Kıvrılan S eğrisi, aşağı-yukarı sallanan.
+  const x=o.padL+t*(W-o.padL-o.padR);
+  const y=H*o.orta + Math.sin(t*Math.PI*o.dalga)*H*o.genlik;
+  return [x,y];
+}
+function cizPatika(cv, gunler, o){
+  const ctx=cv.getContext("2d"); const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);
+
+  // önce zayıf bir kılavuz iz — patikanın kendisi, taş olmayan yerlerde de belli belirsiz
+  ctx.strokeStyle=css("--line"); ctx.lineWidth=1.2; ctx.globalAlpha=.6;
+  ctx.beginPath();
+  for(let i=0;i<=200;i++){ const t=i/200; const [x,y]=patikaNoktasi(t,W,H,o);
+    i? ctx.lineTo(x,y):ctx.moveTo(x,y); }
+  ctx.stroke(); ctx.globalAlpha=1;
+
+  const n=gunler.length;
+  const segGenislik=(W-o.padL-o.padR)/n;
+  const SIKISMA=[];
+  gunler.forEach((seans,i)=>{
+    if(!seans.length){ SIKISMA.push(null); return; }
+    const t=(i+.5)/n;
+    const [x,y]=patikaNoktasi(t,W,H,o);
+    const R=rng32(hash32("pat"+i));
+    const pak=paketle(seans,o.taban,segGenislik*(o.gunPay||.86),1.75,o.minOlcek!==undefined?o.minOlcek:.15);
+    SIKISMA.push(pak);
+    let ilerleme=-pak.r.reduce((a,r)=>a+r*1.75,0)/2;
+    seans.forEach((dk,k)=>{
+      const r=pak.r[k];
+      ilerleme += r*.9;
+      const off=ilerleme;
+      ilerleme += r*.85;
+      tas(ctx, x+off, y+((R()-.5)*r*.4), r, i*17+k*3+21, {});
+    });
+  });
+  return SIKISMA;
+}
+
+/* ---------- yakın plan örnek günleri: az / orta / yoğun / boş / stres testi ---------- */
+const ORNEK_GUN = {
+  az:   [25],
+  orta: [25,50],
+  yogun:[25,25,50,90],
+  bos:  [],
+  asiri:Array(20).fill(25),
+  buyuk:Array(7).fill(60)
+};
+const ORNEK_AD = {
+  az:"az — 1 pomodoro", orta:"orta — 2 pomodoro", yogun:"yoğun — 4 pomodoro", bos:"boş gün",
+  asiri:"aşırı — 20×25 dk", buyuk:"büyük — 7×60 dk"
+};
+
+function sikismaEtiketi(pak){
+  if(!pak) return "";
+  if(pak.olcek>=.999) return "";
+  return " · sıkıştı ×"+pak.olcek.toFixed(2)+(pak.tasar?" (taşıyor)":"");
+}
+
+function zoomKur(hostId, tip){
+  const host=document.getElementById(hostId); host.innerHTML="";
+  Object.keys(ORNEK_GUN).forEach((k,gid)=>{
+    const seans=ORNEK_GUN[k];
+    const wrap=document.createElement("div"); wrap.className="zi";
+    const cv=document.createElement("canvas"); cv.width=170; cv.height=190;
+    wrap.appendChild(cv);
+    const cap=document.createElement("div"); cap.className="cap";
+    wrap.appendChild(cap);
+    host.appendChild(wrap);
+    let pak=null;
+    if(tip==="raf") pak=cizRaf(cv,[seans],{rafYOrani:.62,padL:14,padR:14,taban:20,rafKal:2.4,gunPay:.94})[0];
+    else if(tip==="istif") pak=cizIstif(cv,seans,{taban:15,gid:gid+1,maxH:170});
+    else if(tip==="patika") pak=cizPatika(cv,[seans],{padL:14,padR:14,orta:.5,dalga:.6,genlik:.10,taban:18,gunPay:.94})[0];
+    cap.textContent=ORNEK_AD[k]+sikismaEtiketi(pak);
+  });
+}
+
+/* ---------- ay duvarları ---------- */
+function wallARender(){
+  const cv=document.getElementById("wallA");
+  cizRaf(cv, AY, {rafYOrani:.78, padL:28, padR:28, taban:15, rafKal:2.2});
+}
+function wallBRender(){
+  const host=document.getElementById("wallB"); host.innerHTML="";
+  AY.forEach((seans,i)=>{
+    const d=document.createElement("div"); d.className="day";
+    const cv=document.createElement("canvas"); cv.width=96; cv.height=150;
+    d.appendChild(cv);
+    const lbl=document.createElement("div"); lbl.className="d"; lbl.textContent=i+1;
+    d.appendChild(lbl);
+    host.appendChild(d);
+    cizIstif(cv, seans, {taban:13, gid:i+1});
+  });
+}
+function wallCRender(){
+  const cv=document.getElementById("wallC");
+  cizPatika(cv, AY, {padL:40, padR:40, orta:.5, dalga:3.1, genlik:.11, taban:15});
+}
+
+function hepsiCiz(){
+  zoomKur("zoomA","raf"); zoomKur("zoomB","istif"); zoomKur("zoomC","patika");
+  wallARender(); wallBRender(); wallCRender();
+}
+
+document.getElementById("th").onclick=()=>{
+  const dark=document.documentElement.classList.toggle("dark");
+  document.getElementById("th").textContent=dark?"gündüz":"gece";
+  paper(); setTimeout(hepsiCiz,10);
+};
+addEventListener("resize",()=>paper());
+
+paper(); hepsiCiz();
+</script>
+</body>
+</html>

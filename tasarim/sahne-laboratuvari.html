@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sahne laboratuvarı</title>
+<style>
+:root{--bg:#F5F1E6;--ink:#1A1B1E;--muted:#6E6A61;--line:#DCD5C4;--accent:#B4432B;--sanat:#2C5473;--cool:#5A6B77;--warn:#9A7526}
+body{margin:0;background:#E4DECE;font:14px system-ui,sans-serif;color:#222;display:flex;gap:24px;flex-wrap:wrap;padding:20px}
+body.k{background:#0b0c0e;color:#ddd}
+canvas{width:412px;height:800px;border-radius:28px;display:block;box-shadow:0 0 0 1px #0002}
+.p{width:300px}.p h3{margin:.2em 0 .6em;font-weight:500}
+.p label{display:block;margin:10px 0 2px;color:#777}
+.p input[type=range]{width:100%}.p button{margin:3px 3px 3px 0;padding:6px 10px;border:1px solid #8886;background:none;color:inherit;border-radius:8px;cursor:pointer}
+.p button.on{background:#1A1B1E;color:#fff}body.k .p button.on{background:#EDE8DC;color:#111}
+.p small{color:#888;display:block;margin-top:14px;line-height:1.5}
+</style></head><body>
+<canvas id="c" width="824" height="1600"></canvas>
+<div class="p">
+<h3>Sahne laboratuvarı</h3>
+<div><button id="sEnso" class="on">kronometre: ensō</button><button id="sTutsu">pomodoro: tütsü</button></div>
+<div><button id="sDeniz">eski fikir: yolculuk</button><button id="sHavuz">eski fikir: havuz</button></div>
+<div id="kDeniz">
+<label>geçen süre: <b id="vM">0</b> dk (molalar 60–72 ve 130–142)</label><input id="rM" type="range" min="0" max="320" value="190">
+</div>
+<div id="kHavuz" style="display:none">
+<label>biten pomodoro: <b id="vN">0</b></label><input id="rN" type="range" min="0" max="8" value="4">
+<label>şimdiki pomodoro: <b id="vP">0</b>%</label><input id="rP" type="range" min="0" max="100" value="60">
+</div>
+<label>molada bekleme: <b id="vL">0</b> dk (45 dk'da iz tamamen aşınır)</label><input id="rL" type="range" min="0" max="60" value="0">
+<label>tohum: <b id="vS">7</b></label><input id="rS" type="range" min="1" max="60" value="7">
+<div style="margin-top:10px"><button id="bT">koyu tema</button><button id="bU" class="on">kadran ve saat</button></div>
+<small>Ekranda döngü yok: her kare, süreden ve tohumdan türeyen tek bir durağan resim. Aynı süre ve tohum aynı resmi verir.</small>
+</div>
+<script>
+const W=412,H=800,cv=document.getElementById('c'),g=cv.getContext('2d');g.scale(2,2);
+let sahne='enso',koyu=false,ui=true;
+const $=id=>document.getElementById(id);
+const rnd=s=>{s|=0;return()=>{s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}};
+const lerp=(a,b,t)=>a+(b-a)*t,cl=(x,a,b)=>Math.max(a,Math.min(b,x));
+const P=()=>koyu?{bg:'#131417',ink:'#EDE8DC',ink2:'#BAB4A7',acc:'#D3785A',sanat:'#6E9BB5',cool:'#8E9CA8',warn:'#C0994C',inkA:.8}
+ :{bg:'#F5F1E6',ink:'#1A1B1E',ink2:'#3C3E44',acc:'#B4432B',sanat:'#2C5473',cool:'#5A6B77',warn:'#9A7526',inkA:1};
+/* fırça: bristle'lar çizgi boyunca birleşip dağılır; uç kuruyabilir (dry) */
+function firca(pts,o,r){
+  const n=o.n||7,L=pts.length;g.lineCap='round';g.lineJoin='round';
+  for(let b=0;b<n;b++){
+    const off=n>1?b/(n-1)-.5:0;g.beginPath();let on=false,wm=0;
+    for(let i=0;i<L;i++){
+      const t=i/(L-1),a=pts[Math.max(0,i-1)],c=pts[Math.min(L-1,i+1)];
+      let dx=c.x-a.x,dy=c.y-a.y;const d=Math.hypot(dx,dy)||1;dx/=d;dy/=d;
+      const w=lerp(o.w0,o.w1,t)*(o.prof?o.prof(t):1);wm+=w;
+      if(o.dry&&r()<o.dry*t*t){on=false;continue}
+      const x=pts[i].x-dy*off*w,y=pts[i].y+dx*off*w;
+      if(!on){g.moveTo(x,y);on=true}else g.lineTo(x,y)
+    }
+    g.lineWidth=Math.max(.5,(wm/L)/n*1.9);g.strokeStyle=o.col;g.globalAlpha=o.a*(.55+.45*r());g.stroke()
+  }
+  g.globalAlpha=1
+}
+function egri(p0,p1,p2,k=18){const a=[];for(let i=0;i<=k;i++){const t=i/k,u=1-t;a.push({x:u*u*p0.x+2*u*t*p1.x+t*t*p2.x,y:u*u*p0.y+2*u*t*p1.y+t*t*p2.y})}return a}
+/* leke: kenarı düzensiz, üst üste binen su yıkaması */
+function leke(cx,cy,rx,ry,col,a,r,kat=3,rot=0,jit=1){
+  for(let k=0;k<kat;k++){
+    g.beginPath();const N=40,ph=r()*6,sc=1-k*.05;
+    for(let i=0;i<N;i++){const t=i/N*Math.PI*2,j=1+jit*(.13*Math.sin(t*3+ph)+.07*Math.sin(t*5+ph*2)+(r()-.5)*.05);
+      const x=Math.cos(t)*rx*sc*j,y=Math.sin(t)*ry*sc*j,c=Math.cos(rot),s=Math.sin(rot);
+      const X=cx+x*c-y*s,Y=cy+x*s+y*c;i?g.lineTo(X,Y):g.moveTo(X,Y)}
+    g.closePath();g.fillStyle=col;g.globalAlpha=a/kat*1.6;g.fill()}
+  g.globalAlpha=1
+}
+const kok=()=>{const p=P();g.fillStyle=p.bg;g.fillRect(0,0,W,H)};
+
+/* ---------- Kronometre: yolculuk ---------- */
+const MOLA=[[60,72],[130,142]],TAV=300;
+function calisan(m){let e=m;for(const[a,b]of MOLA)e-=cl(m-a,0,b-a);return e}
+function deniz(m,seed){
+  const p=P(),r=rnd(seed*131),HZ=250,ilerle=cl(calisan(m)/TAV,0,1);
+  // güneş: tek aksan, düz disk
+  leke(112,HZ-92,25,25,p.acc,.9,rnd(seed+1),2,0,.18);
+  // uzak dağ: yaklaştıkça yükselir, dibi sis
+  if(ilerle>.35){const h=lerp(0,120,cl((ilerle-.35)/.65,0,1)),bx=300,rr=rnd(seed+9);
+    for(let k=0;k<3;k++){g.beginPath();g.moveTo(bx-150-k*10,HZ);
+      for(let i=0;i<=24;i++){const t=i/24,x=bx-150+t*300,y=HZ-h*Math.pow(Math.sin(Math.PI*t),1.7)*(1+(rr()-.5)*.05)-k*2;g.lineTo(x,y)}
+      g.lineTo(bx+150,HZ);g.closePath();g.fillStyle=p.sanat;g.globalAlpha=.16;g.fill()}
+    g.globalAlpha=1}
+  // sis şeridi (ma): ufuk çizgisini yumuşatır, kâğıt renginde
+  for(let k=0;k<5;k++){g.fillStyle=p.bg;g.globalAlpha=.34;g.fillRect(0,HZ-8-k*7,W,14+k*7)}g.globalAlpha=1;
+  firca([{x:20,y:HZ+1},{x:W-20,y:HZ+1.5}],{w0:1.6,w1:1.2,col:p.ink2,a:.35,n:3,dry:.5},rnd(seed+2));
+  // dalga darbeleri: her dakika bir darbe, kronolojik tohumlu
+  const dar=[];const N=Math.min(Math.floor(m*.72),TAV);
+  for(let i=0;i<N;i++){const q=rnd(seed*7919+i*104729);const f=Math.pow(q(),.8);
+    dar.push({x:q()*W,y:HZ+14+f*(H-HZ-40),f,q:q(),mola:MOLA.some(([a,b])=>i>=a&&i<b)})}
+  dar.sort((a,b)=>a.y-b.y);
+  for(const d of dar){const s=lerp(.3,1.05,d.f),r2=rnd(Math.floor(d.x*91+d.y*17)+seed);
+    const L=(34+d.q*44)*s,x=d.x,y=d.y,rise=(10+d.q*16)*s;
+    const col=d.mola?p.cool:p.sanat;
+    // yatay gövde çizgisi + tepe kıvrımı
+    firca(egri({x:x-L/2,y:y},{x:x,y:y-rise*.35},{x:x+L*.35,y:y-rise*.8},14),{w0:1.4*s,w1:4.6*s,col:col,a:d.mola?.3:.5,n:6,dry:.45},r2);
+    firca(egri({x:x+L*.35,y:y-rise*.8},{x:x+L*.55,y:y-rise*1.25},{x:x+L*.5,y:y-rise*.55},10),{w0:4.6*s,w1:1*s,col:col,a:d.mola?.28:.46,n:6,dry:.5},r2);
+    if(d.q>.5)firca(egri({x:x-L*.7,y:y+5*s},{x:x-L*.2,y:y+2*s},{x:x+L*.3,y:y+6*s},10),{w0:1.1*s,w1:.9*s,col:col,a:.28,n:3,dry:.6},r2)}
+  // kadranın içi boş kâğıt (uygulamadaki akisBosluk gibi): dalga darbeleri çekilir, tekne ve iz kalır
+  if(ui){for(let k=0;k<7;k++){g.fillStyle=p.bg;g.globalAlpha=.3;g.beginPath();g.arc(206,388,150-k*5,0,6.283);g.fill()}g.globalAlpha=1}
+  // iz: çalışırken ikiye açılan, molada sönük tek çizgi
+  const yol=(u)=>({x:206+120*Math.sin(u*4.6+.3),y:lerp(704,330,Math.pow(u,.85))});
+  const adim=80,rz=rnd(seed+33);let prev=null;
+  const toplamDk=m;
+  for(let i=0;i<=adim;i++){const dk=i/adim*toplamDk,u=cl(calisan(dk)/TAV,0,1),pt=yol(u),ms=MOLA.some(([a,b])=>dk>=a&&dk<b);
+    if(prev){const yan=(1-i/adim)*0+Math.min(1,(adim-i)/adim);
+      firca([prev,pt],{w0:1.4,w1:1.4,col:ms?p.cool:p.ink2,a:ms?.25:.32,n:2},rz);
+      if(!ms){firca([{x:prev.x-5,y:prev.y+2},{x:pt.x-7,y:pt.y+3}],{w0:1,w1:1,col:p.ink2,a:.2,n:2},rz);
+              firca([{x:prev.x+5,y:prev.y+2},{x:pt.x+7,y:pt.y+3}],{w0:1,w1:1,col:p.ink2,a:.2,n:2},rz)}}
+    prev=pt}
+  yelkenli(yol(ilerle),lerp(1.45,.62,Math.pow(ilerle,.85)),seed,MOLA.some(([a,b])=>m>=a&&m<b))
+}
+function yelkenli(b,s,seed,demir){
+  const p=P(),r=rnd(seed+77),x=b.x,y=b.y;
+  // gövde: eğri, kalın kuru fırça
+  firca(egri({x:x-46*s,y:y-10*s},{x:x,y:y+16*s},{x:x+54*s,y:y-14*s},16),{w0:13*s,w1:9*s,col:p.ink,a:.9*p.inkA,n:10,dry:.3,prof:t=>Math.sin(Math.PI*(.1+.8*t))+.25},r);
+  // seren/direk
+  firca([{x:x+2*s,y:y-8*s},{x:x+3*s,y:y-120*s}],{w0:3*s,w1:2*s,col:p.ink,a:.9*p.inkA,n:3},r);
+  if(demir){ // mola: yelken indirilmiş, dar bohça
+    firca(egri({x:x+4*s,y:y-14*s},{x:x+14*s,y:y-50*s},{x:x+5*s,y:y-92*s},10),{w0:6*s,w1:3*s,col:p.ink2,a:.5,n:5,dry:.3},r)
+  }else{ // çalışma: dolu yelken, kâğıt rengi gibi açık yıkama + birkaç dikey fırça
+    leke(x+38*s,y-62*s,34*s,52*s,p.ink2,.22,rnd(seed+5),3,-.05);
+    for(let i=0;i<5;i++)firca(egri({x:x+6*s+i*14*s,y:y-110*s+i*4*s},{x:x+14*s+i*14*s,y:y-60*s},{x:x+6*s+i*14*s,y:y-16*s},12),{w0:2.4*s,w1:1.6*s,col:p.ink2,a:.3,n:3,dry:.5},r);
+    firca(egri({x:x-20*s,y:y-26*s},{x:x-22*s,y:y-62*s},{x:x-6*s,y:y-92*s},10),{w0:3*s,w1:1.4*s,col:p.ink2,a:.5,n:4,dry:.3},r)
+  }
+  // kıçta küçük kırmızı flama: tek aksan
+  g.fillStyle=p.acc;g.globalAlpha=.9;g.beginPath();g.moveTo(x+3*s,y-120*s);g.lineTo(x+26*s,y-114*s);g.lineTo(x+3*s,y-107*s);g.fill();g.globalAlpha=1
+}
+
+/* ---------- Pomodoro: havuz ---------- */
+function koi(x,y,ang,boy,seed,benek,tohum){
+  const p=P(),r=rnd(tohum),L=96*boy,ph=r()*6,bend=14*boy*(r()+.5);
+  const omur=[];for(let i=0;i<=20;i++){const t=i/20,u=t*L,v=Math.sin(t*3.4+ph)*bend*t;
+    const c=Math.cos(ang),s=Math.sin(ang);omur.push({x:x-(u*c-v*s),y:y-(u*s+v*c),t})}
+  const gen=t=>14*boy*Math.pow(Math.sin(Math.PI*Math.min(1,.08+t*.92)),.75)*(1-.45*t)+.4;
+  const nrm=i=>{const a=omur[Math.max(0,i-1)],b=omur[Math.min(20,i+1)];let dx=b.x-a.x,dy=b.y-a.y;const d=Math.hypot(dx,dy)||1;return{x:-dy/d,y:dx/d}};
+  // kuyruk: gövdenin ucundan yelpaze, çok seyrek
+  const T=omur[20],T2=omur[17],dx=T.x-T2.x,dy=T.y-T2.y,da=Math.atan2(dy,dx);
+  for(let k=-1;k<=1;k++){const a=da+k*.42,l=(32+r()*10)*boy;
+    firca(egri(T,{x:T.x+Math.cos(a+k*.2)*l*.5,y:T.y+Math.sin(a+k*.2)*l*.5},{x:T.x+Math.cos(a+k*.1)*l,y:T.y+Math.sin(a+k*.1)*l},10),{w0:7*boy,w1:.5,col:p.ink2,a:.22,n:6,dry:.3},r)}
+  // yüzgeçler
+  for(const sg of[-1,1]){const o=omur[5],n=nrm(5);
+    firca(egri({x:o.x+n.x*gen(.25)*sg,y:o.y+n.y*gen(.25)*sg},{x:o.x+n.x*(gen(.25)+14*boy)*sg-dx*.1,y:o.y+n.y*(gen(.25)+14*boy)*sg-dy*.1},{x:o.x+n.x*(gen(.25)+20*boy)*sg+dx*.45,y:o.y+n.y*(gen(.25)+20*boy)*sg+dy*.45},8),{w0:4*boy,w1:.6,col:p.ink2,a:.28,n:3},r)}
+  // gövde: iki kat yıkama
+  for(let k=0;k<3;k++){g.beginPath();const sc=1-k*.13;
+    for(let i=0;i<=20;i++){const n=nrm(i),w=gen(omur[i].t)*sc;(i?g.lineTo:g.moveTo).call(g,omur[i].x+n.x*w,omur[i].y+n.y*w)}
+    for(let i=20;i>=0;i--){const n=nrm(i),w=gen(omur[i].t)*sc;g.lineTo(omur[i].x-n.x*w,omur[i].y-n.y*w)}
+    g.closePath();g.fillStyle=benek?p.ink2:p.ink;g.globalAlpha=benek?.16:.26;g.fill()}
+  g.globalAlpha=1;
+  // sırt çizgisi: tek hızlı fırça
+  firca(omur.slice(1,19),{w0:2.2*boy,w1:1*boy,col:p.ink,a:.55*p.inkA,n:4,dry:.5},r);
+  if(benek){for(let i=0;i<3;i++){const o=omur[3+Math.floor(r()*11)],n=nrm(3);leke(o.x+(r()-.5)*5,o.y+(r()-.5)*5,(4+r()*6)*boy,(3+r()*4)*boy,p.acc,.82,r,2,r()*3)}}
+  // halka
+  g.strokeStyle=p.cool;g.globalAlpha=.13;g.lineWidth=1;g.beginPath();g.ellipse(omur[0].x,omur[0].y,12*boy,9*boy,ang,0,6.3);g.stroke();g.globalAlpha=1
+}
+function havuz(n,pct,mola,seed){
+  const p=P(),r=rnd(seed*313),cx=206,cy=400;
+  // havuz: düzensiz yıkama, kıyıda koyu taşlar
+  leke(cx,cy,176,300,p.sanat,koyu?.2:.13,rnd(seed+4),5,.1);
+  leke(cx+6,cy+10,150,266,p.sanat,koyu?.12:.08,rnd(seed+5),3,.05);
+  for(let i=0;i<9;i++){const t=i/9*Math.PI*2+r()*.4,x=cx+Math.cos(t)*172,y=cy+Math.sin(t)*296;
+    leke(x,y,(10+r()*12),(7+r()*8),p.ink,.35,r,2,r()*3)}
+  // nilüfer yaprakları
+  for(let i=0;i<5;i++){const x=70+r()*270,y=150+r()*500,s=16+r()*18;
+    g.beginPath();const a0=r()*6.28;g.moveTo(x,y);g.arc(x,y,s,a0+.35,a0+6.28-.1);g.closePath();
+    g.fillStyle=p.cool;g.globalAlpha=.26;g.fill();g.globalAlpha=1;
+    firca(egri({x:x,y:y},{x:x+Math.cos(a0)*s*.5,y:y+Math.sin(a0)*s*.5},{x:x+Math.cos(a0)*s,y:y+Math.sin(a0)*s},6),{w0:.8,w1:.6,col:p.ink2,a:.4,n:2},r)}
+  // biten pomodorolar: her biri bir koi, tohumdan sabit yer
+  for(let i=0;i<n;i++){const q=rnd(seed*991+i*7919),t=i*2.399+q();
+    const R=60+q()*100,x=cx+Math.cos(t)*R*1.05,y=cy+Math.sin(t)*R*1.9,ang=t+Math.PI/2+(q()-.5)*1.2;
+    koi(x,y,ang,.72+q()*.4,seed*50+i*13,q()<.72,seed+i)}
+  // şimdiki pomodoro: boyu ilerlemeyle büyüyen yavru
+  if(pct>0){const q=rnd(seed*5+n);koi(cx+30,cy-20,-1.2,lerp(.28,.9,pct/100),seed*50+n*13,true,seed+n)}
+  // mola uzadıkça yüzeye yaprak düşer: aşınma
+  const yaprak=Math.floor(mola/4);
+  for(let i=0;i<yaprak;i++){const q=rnd(seed*17+i*331),x=cx+(q()-.5)*300,y=cy+(q()-.5)*520,a=q()*6.28;
+    firca(egri({x:x-9,y:y-3},{x:x,y:y+4},{x:x+10,y:y-2},6),{w0:1,w1:4.5,col:p.warn,a:.55,n:4,prof:t=>Math.sin(Math.PI*t)+.15},q)}
+}
+
+/* ---------- Kronometre: ensō. Kadran tek fırça darbesi; süre = darbenin boyu ---------- */
+function enso(m,seed,bekle){
+  const p=P(),cx=206,cy=388,R=122,saat=m/60,K=Math.floor(saat),e=cl(bekle/45,0,1);
+  const mola=dk=>MOLA.some(([a,b])=>dk>=a&&dk<b);
+  for(let k=0;k<=K;k++){
+    const f=k<K?1:saat-K;if(f<=0)continue;
+    const r=rnd(seed*97+k*31),ph=r()*6,ph2=r()*6,Rk=R-k*10,a0=-Math.PI/2+(r()-.5)*.12;
+    const yas=K-k,alfa=Math.pow(.62,yas),nn=Math.max(8,Math.floor(f*180));
+    const nokta=[];
+    for(let i=0;i<=nn;i++){const t=i/nn*f,a=a0+t*Math.PI*2*1.02,rr=Rk+2.6*Math.sin(a*2+ph)+1.7*Math.sin(a*5+ph2)+t*2.2;
+      nokta.push({x:cx+Math.cos(a)*rr,y:cy+Math.sin(a)*rr,t:t,mo:mola(k*60+t*60)})}
+    // ardışık aynı türdeki parçaları tek fırça darbesi say
+    let s=0;
+    while(s<nokta.length-1){let en=s;while(en<nokta.length-1&&nokta[en+1].mo===nokta[s].mo)en++;
+      if(en>s){const seg=nokta.slice(s,en+1),t0=seg[0].t,t1=seg[seg.length-1].t;
+        const wAt=t=>lerp(15,3.2,Math.pow(t,.85))*(yas?.8:1);
+        firca(seg,{w0:wAt(t0),w1:wAt(t1),col:seg[0].mo?p.cool:p.ink,a:(seg[0].mo?.34:.78)*alfa*p.inkA*(1-.65*e),n:9,dry:Math.min(.97,(seg[0].mo?.7:.55*t1)+e*1.2)},r)}
+      s=en===s?s+1:en}
+    // darbenin başında mürekkep birikintisi (fırça ilk değdiği yer)
+    leke(nokta[0].x,nokta[0].y,5.5,5.5,p.ink,.5*alfa*(1-.6*e),r,2,0,.5);
+    if(k===K){const h=nokta[nokta.length-1];leke(h.x,h.y,4,4,e>0?p.cool:p.acc,.9*(1-.5*e),r,2,0,.3)}
+  }
+  if(K===0&&saat<.02){const x=cx,y=cy-R;leke(x,y,4,4,p.acc,.9,rnd(seed),2,0,.3)}
+}
+/* ---------- Pomodoro: spiral tütsü. Kadran içe doğru yanar; sonu var ---------- */
+function tutsu(pct,mola,seed){
+  const p=P(),cx=206,cy=388,Ro=124,Ri=66,TUR=3.4,N=420,f=pct/100,r=rnd(seed*53),e=cl(mola/45,0,1);
+  const nk=s=>{const a=-Math.PI/2+s*TUR*Math.PI*2,rr=lerp(Ro,Ri,s);return{x:cx+Math.cos(a)*rr,y:cy+Math.sin(a)*rr,s:s}};
+  const pts=[];for(let i=0;i<=N;i++)pts.push(nk(i/N));
+  const yanan=pts.filter(q=>q.s<=f),kalan=pts.filter(q=>q.s>=f);
+  // duman: yanma yolu boyunca her dakikada bir sap, yükselip kâğıda karışır (durağan iz)
+  const adet=Math.floor(f*25*(1-e));
+  for(let i=1;i<=adet;i++){const q=rnd(seed*7+i*131),b=nk(i/25),W=[];let x=b.x,y=b.y,ph=q()*6,sw=8+q()*14;
+    for(let j=0;j<=36;j++){const t=j/36;W.push({x:x+Math.sin(t*4.2+ph)*sw*t+Math.sin(t*9+ph*2)*2.5*t,y:y-t*(170+(i%5)*22)})}
+    firca(W,{w0:2.2,w1:7,col:p.ink2,a:.07,n:3,prof:t=>1-.85*t*t},q)}
+  // külün oturduğu iz: kuru fırça, düzensiz
+  if(yanan.length>1){firca(yanan.map((q,i)=>({x:q.x+Math.sin(i*.9)*.9,y:q.y+Math.cos(i*1.3)*.9})),{w0:7,w1:7,col:p.ink2,a:.4*(1-.7*e),n:7,dry:Math.min(.97,.5+e*.9)},r);
+    firca(yanan,{w0:2,w1:2,col:p.ink2,a:.28*(1-.7*e),n:2,dry:.3+e*.6},r);
+    // rüzgâr: kül kırıntıları ize sağa doğru savrulur, iz inceldikçe dağılır
+    const sav=Math.floor(e*90);for(let i=0;i<sav;i++){const q=yanan[Math.floor(r()*yanan.length)],d=e*(18+r()*70);
+      leke(q.x+d,q.y+d*.18*(r()-.3),1.2+r()*2.2,.9+r()*1.4,p.ink2,.22*(1-.4*e),r,1,r()*3,.4)}}
+  // yanmamış sap
+  if(kalan.length>1)firca(kalan,{w0:3.4,w1:3.4,col:p.warn,a:.9,n:4},r);
+  // kor: tek aksan
+  const kor=nk(f);leke(kor.x,kor.y,mola>0?3.5:4.6,mola>0?3.5:4.6,mola>0?p.cool:p.acc,.95,r,2,0,.25)
+}
+function arayuz(){
+  const p=P();g.save();
+  g.fillStyle=p.bg;
+  const hale=(f)=>{g.shadowColor=p.bg;g.shadowBlur=14;f();f();g.shadowBlur=0};
+  if(sahne==='deniz'||sahne==='havuz'){g.strokeStyle=p.ink2;g.globalAlpha=.3;g.lineWidth=1;g.beginPath();g.arc(206,388,122,0,6.283);g.stroke();g.globalAlpha=1}
+  g.textAlign='center';g.fillStyle=p.ink;g.font='200 54px system-ui,sans-serif';
+  const kron=sahne==='deniz'||sahne==='enso';
+  hale(()=>g.fillText(kron?fmt($('rM').value):'24:10',206,404));
+  g.font='13px system-ui,sans-serif';g.fillStyle=p.ink2;hale(()=>g.fillText(kron?'çalışıyor':'1. pomodoro',206,432));
+  g.restore()
+}
+const fmt=m=>{m=+m;return Math.floor(m/60)+':'+String(Math.floor(m%60)).padStart(2,'0')+':00'};
+function ciz(){
+  g.setTransform(2,0,0,2,0,0);kok();
+  const s=+$('rS').value;$('vS').textContent=s;
+  const m=+$('rM').value,n=+$('rN').value,pc=+$('rP').value,l=+$('rL').value;
+  $('vM').textContent=m;$('vN').textContent=n;$('vP').textContent=pc;$('vL').textContent=l;
+  if(sahne==='deniz')deniz(m,s);else if(sahne==='enso')enso(m,s,l);else if(sahne==='tutsu')tutsu(pc,l,s);else havuz(n,pc,l,s);
+  if(ui)arayuz()
+}
+const SB={enso:'sEnso',tutsu:'sTutsu',deniz:'sDeniz',havuz:'sHavuz'};
+Object.keys(SB).forEach(k=>$(SB[k]).onclick=()=>{sahne=k;Object.keys(SB).forEach(j=>$(SB[j]).className=j===k?'on':'');
+  const kr=k==='deniz'||k==='enso';$('kDeniz').style.display=kr?'':'none';$('kHavuz').style.display=kr?'none':'';ciz()});
+$('bT').onclick=()=>{koyu=!koyu;document.body.classList.toggle('k',koyu);$('bT').className=koyu?'on':'';ciz()};
+$('bU').onclick=()=>{ui=!ui;$('bU').className=ui?'on':'';ciz()};
+document.querySelectorAll('input').forEach(e=>e.oninput=ciz);
+ciz();
+</script></body></html>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- zh-Hant — kertik-android/dil/ sözlüğünden üretildi, elle düzenleme -->
+<resources>
+    <string name="bildirim_kanal">進行中的時段</string>
+    <string name="bildirim_kanal_aciklama">時段進行時顯示計時，不發出聲音。</string>
+    <string name="bildirim_devam">繼續</string>
+    <string name="bildirim_mola">休息</string>
+    <string name="bildirim_bitir">結束</string>
+    <string name="widget_baslat">開始</string>
+    <string name="widget_calisiyor">進行中</string>
+    <string name="widget_molada">休息中</string>
+    <string name="widget_duvar_aciklama">一目了然地查看最近30天的工作記錄。</string>
+    <string name="widget_kontrol_aciklama">無需開啟應用程式即可開始、暫停和結束時段。</string>
+    <string name="resmi_kaydet">保存圖片</string>
+    <string name="yedegi_kaydet">保存備份</string>
+    <string name="widget_bos">尚無記錄</string>
+    <string name="widget_pomodoro">番茄鐘</string>
+    <string name="widget_bugun">今天</string>
+    <string name="widget_gun_once">%1$d天前</string>
+    <string name="widget_bugun_dk">今天 · %1$d分鐘</string>
+    <string name="widget_mola_alt">休息中 · 深呼吸</string>
+    <string name="widget_basladin">%1$s 開始</string>
+    <string name="widget_centik">第%1$d道</string>
+    <string name="widget_ilerleme">%1$d / %2$d分鐘</string>
+    <string name="widget_duvar_baslik">牆</string>
+    <string name="widget_otuz_gun">30天</string>
+    <string name="widget_gunde_seans">%1$d天有記錄</string>
+    <string name="odak_modu_tetik">專注時段進行中</string>
+</resources>

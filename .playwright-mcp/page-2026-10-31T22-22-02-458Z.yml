@@ -1,0 +1,84 @@
+- generic [ref=f2e2]:
+  - heading "Kertik — simülatör" [level=1] [ref=f2e3]
+  - generic [ref=f2e4]: "İçerideki uygulama kopya değil, gerçeğin kendisi: derlenen dosyanın aynısı, sanal bir saatle çalışıyor. Hızlandır, bir seansı baştan sona izle, kayda bak, paletleri dene. Kayıtlar hafızada tutuluyor — sayfayı yenilediğinde hepsi baştan üretilir."
+  - generic [ref=f2e5]:
+    - iframe [ref=f2e7]:
+      - generic [ref=f4e2]:
+        - generic [ref=f4e3]:
+          - generic [ref=f4e5]:
+            - button "kronometre" [ref=f4e7] [cursor=pointer]
+            - button "pomodoro" [ref=f4e8] [cursor=pointer]
+          - generic [ref=f4e9]:
+            - generic [ref=f4e10]:
+              - generic [ref=f4e11]:
+                - generic [ref=f4e12]: hazır
+                - button "Masaüstü Odak Modu" [ref=f4e13] [cursor=pointer]
+              - generic [ref=f4e16]: 00:00
+            - generic [ref=f4e29]:
+              - button "bugünkü işler ›" [ref=f4e31] [cursor=pointer]:
+                - generic [ref=f4e32]: bugünkü işler
+                - generic [ref=f4e33]: ›
+              - generic: çalıştıkça bir şeyler oluyor
+              - button "başlat" [ref=f4e35] [cursor=pointer]
+        - navigation [ref=f4e36]:
+          - button "sayaç" [ref=f4e37] [cursor=pointer]
+          - button "görevler" [ref=f4e38] [cursor=pointer]
+          - button "kayıt" [ref=f4e39] [cursor=pointer]
+          - button "ayarlar" [ref=f4e40] [cursor=pointer]
+    - generic [ref=f2e8]:
+      - generic [ref=f2e9]:
+        - heading "hız" [level=3] [ref=f2e10]
+        - generic [ref=f2e11]:
+          - button "dur" [ref=f2e12] [cursor=pointer]
+          - button "1×" [ref=f2e13] [cursor=pointer]
+          - button "10×" [ref=f2e14] [cursor=pointer]
+          - button "60×" [ref=f2e15] [cursor=pointer]
+          - button "300×" [ref=f2e16] [cursor=pointer]
+          - button "1800×" [ref=f2e17] [cursor=pointer]
+        - generic [ref=f2e18]: "300× demek: gerçek 1 saniye = 5 dakika seans. Kadran ve akış alanı o hızda dolar; sayaç yine olay damgalarından hesaplanır, saymaz."
+      - generic [ref=f2e19]:
+        - heading "senaryo — gerçek düğmelere basar" [level=3] [ref=f2e20]
+        - generic [ref=f2e21]:
+          - button "25 dk kesintisiz" [ref=f2e22] [cursor=pointer]
+          - button "52 dk + 12 dk mola" [ref=f2e23] [cursor=pointer]
+          - button "3 saat, iki mola" [ref=f2e24] [cursor=pointer]
+          - button "pomodoro 50" [ref=f2e25] [cursor=pointer]
+          - button "5 saat — akış dolar" [ref=f2e26] [cursor=pointer]
+          - button "durdur" [ref=f2e27] [cursor=pointer]
+        - generic [ref=f2e28]: Seans kendiliğinden başlar, molaya girer, biter. Bitişte uygulamanın dürüstlük sorusu çıkarsa hız durur, cevabı sen verirsin.
+      - generic [ref=f2e29]:
+        - heading "zamanı ileri sar" [level=3] [ref=f2e30]
+        - generic [ref=f2e31]:
+          - button "+1 dk" [ref=f2e32] [cursor=pointer]
+          - button "+10 dk" [ref=f2e33] [cursor=pointer]
+          - button "+1 saat" [ref=f2e34] [cursor=pointer]
+          - button "+1 gün" [ref=f2e35] [cursor=pointer]
+      - generic [ref=f2e36]:
+        - heading "sekme" [level=3] [ref=f2e37]
+        - generic [ref=f2e38]:
+          - button "sayaç" [ref=f2e39] [cursor=pointer]
+          - button "görevler" [ref=f2e40] [cursor=pointer]
+          - button "kayıt" [ref=f2e41] [cursor=pointer]
+          - button "ayarlar" [ref=f2e42] [cursor=pointer]
+      - generic [ref=f2e43]:
+        - heading "akış yönü" [level=3] [ref=f2e44]
+        - generic [ref=f2e45]:
+          - button "sade" [ref=f2e46] [cursor=pointer]
+          - button "belirgin" [ref=f2e47] [cursor=pointer]
+          - button "ebru" [ref=f2e48] [cursor=pointer]
+        - generic [ref=f2e49]: "Üç yön de aynı şeritleri kullanıyor — geometri değişmiyor, yalnız nasıl çizildikleri. O yüzden anında geçiş yapabilirsin, alan baştan hesaplanmıyor. sade uygulamanın ilk hâli. belirgin aynı alfabe, daha görünür. ebru katmanlı: kalın damarlar, kılcal tüyler, altta geniş bir yıkama ve ton kayması. Yönü seans sürerken değiştir; en iyi 300× hızda 40. dakikadan sonra okunuyor."
+      - generic [ref=f2e50]:
+        - heading "palet" [level=3] [ref=f2e51]
+        - generic [ref=f2e52]:
+          - button "kâğıt" [ref=f2e53] [cursor=pointer]
+          - button "kor" [ref=f2e55] [cursor=pointer]
+          - button "deniz" [ref=f2e57] [cursor=pointer]
+          - button "bahar" [ref=f2e59] [cursor=pointer]
+          - button "mor" [ref=f2e61] [cursor=pointer]
+        - generic [ref=f2e63]:
+          - button "sistem" [ref=f2e64] [cursor=pointer]
+          - button "açık" [ref=f2e65] [cursor=pointer]
+          - button "karanlık" [ref=f2e66] [cursor=pointer]
+        - generic [ref=f2e67]: "Palet canlı uygulanıyor: kadran çentiği, akış alanı, çubuk — hepsi aynı iki renkten besleniyor (çalışma ve mola). Beğendiğini söyle, uygulamaya işleyeyim."
+      - heading "durum" [level=3] [ref=f2e69]
+      - button "baştan başlat (yeni kayıt geçmişi)" [ref=f2e73] [cursor=pointer]

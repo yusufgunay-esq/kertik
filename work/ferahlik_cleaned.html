@@ -1,0 +1,80 @@
+<title>Ferahlık — Palet ve Logo</title>
+<style>
+:root{--bg:#F5F1E6;--bg2:#EBE5D6;--ink:#1A1B1E;--muted:#6E6A61;--line:#DCD5C4;--card:#FBF8F0;--acc:#B4432B}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#131417;--bg2:#1B1D22;--ink:#EDE8DC;--muted:#8F8A7E;--line:#292B31;--card:#1B1D22;--acc:#D3785A}}
+:root[data-theme="dark"]{--bg:#131417;--bg2:#1B1D22;--ink:#EDE8DC;--muted:#8F8A7E;--line:#292B31;--card:#1B1D22;--acc:#D3785A}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;margin:0;padding:56px 24px 100px;line-height:1.62}
+.wrap{max-width:980px;margin:0 auto}
+h1{font-family:Georgia,serif;font-weight:400;font-size:34px;margin:0 0 8px}
+.sub{color:var(--acc);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:16px}
+.lede{color:var(--muted);margin:0 0 10px;max-width:66ch;font-size:16px}
+h2.sec{font-family:Georgia,serif;font-weight:400;font-size:25px;margin:54px 0 8px}
+.shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-top:20px}
+.shot{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}
+.shot img{width:100%;border-radius:11px;display:block}
+.shot b{display:block;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:9px}
+.wide{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:18px}
+.wide img{width:100%;border-radius:11px;display:block}
+.chg{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:0 14px 14px 0;padding:18px 20px;margin:22px 0}
+.chg h3{margin:0 0 8px;font-size:15px} .chg p{margin:0 0 8px;color:var(--muted);font-size:15px} .chg p:last-child{margin:0}
+code{font-size:12.5px;color:var(--muted);background:var(--bg2);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+section.v{border-top:1px solid var(--line);padding:30px 0}
+h2{font-size:19px;font-weight:600;margin:0 0 4px}
+.tag{display:inline-block;background:var(--acc);color:var(--card);border-radius:6px;padding:1px 9px;font-size:13px;margin-right:6px}
+header p{color:var(--muted);margin:0 0 20px;max-width:68ch;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+.th{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
+.thl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.sizes{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
+img{display:block;border-radius:14px;max-width:100%}
+.s5{width:150px;height:150px} .s96{width:96px;height:96px;border-radius:10px} .s48{width:48px;height:48px;border-radius:7px} .s24{width:24px;height:24px;border-radius:4px}
+.sm{text-align:center} .sm span{display:block;font-size:11px;color:var(--muted);margin-top:6px}
+.old{display:flex;gap:18px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:16px;flex-wrap:wrap}
+.note{border-left:3px solid var(--acc);padding:4px 0 4px 16px;color:var(--muted);margin:32px 0 0;font-size:15px;max-width:70ch}
+strong{color:var(--ink)}
+</style>
+<div class="wrap">
+<div class="sub">Kertik · v3.1</div>
+<h1>Ferahlık, sıcaklık, sadelik</h1>
+<p class="lede">Üç şey değişti: pomodoro incelendi, sıcak renkler kayda geri döndü, logo baştan — bu sefer <strong>ferah</strong> hedefiyle.</p>
+
+<h2 class="sec">Pomodoro modu</h2>
+<p class="lede">Baktım ve bir şey fark ettim: pomodoro kadranı <strong>zaten aradığın logo</strong>. 50 hedef dakika = 50 ince çentik, kocaman bir boşluğun etrafında. Kronometrenin kalın kadranından çok daha ferah, çok daha premium. Yeni logo turu bu ekrandan çıktı.</p>
+<div class="shots">
+<div class="shot"><img src="[BASE64_IMAGE]"><b>Önce</b></div>
+<div class="shot"><img src="[BASE64_IMAGE]"><b>Sonra</b></div>
+<div class="shot"><img src="[BASE64_IMAGE]"><b>Çalışırken · önce</b></div>
+<div class="shot"><img src="[BASE64_IMAGE]"><b>Çalışırken · sonra</b></div>
+</div>
+<p class="lede" style="margin-top:14px">Küçük bir kusur da yakaladım: 25/50/90 seçicisinde seçili çip <code>--accent</code> alıyor. Mühür rengi bir <em>ayar düğmesinde</em> harcanıyor — mühür seyrek olmalı. Orası <code>--ink</code> çerçeve olmalı; zincifre yalnız çalışan seansa kalsın.</p>
+
+<h2 class="sec">Sıcak renkler geri geldi — ama yerinde</h2>
+<div class="chg">
+<h3>v3.1: kayıt sıcak, canlı sanat serin</h3>
+<p>“Eski renkleri seviyordum” dedin ve haklısın — ama hepsini geri almak yerine <strong>rolüne göre</strong> aldım. Çubuk bir <em>ahşaba kazınmış çetele</em>; ahşap sıcaktır. Çentik rampası (<code>--is1/2/3</code>) ve köprü eski terracotta–ahşap ailesine döndü.</p>
+<p>Canlı akış (ebru, kum) çivit kaldı: o mürekkep, kalıcı bir kayıt değil — akıyor ve dinlendirici olması gerekiyor. Mola ise artık turkuaz değil <strong>solgun gri</strong>: kendi kuralın, “zıt renk yok”.</p>
+</div>
+<div class="wide"><img src="[BASE64_IMAGE]"><b style="display:block;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:10px">Üstte eski · altta v3.1 — çubuk sıcaklığını koruyor, mola sakinleşiyor</b></div>
+
+<h2 class="sec">Logo — ferahlık turu</h2>
+<div class="old"><div class="sm"><img src="[BASE64_IMAGE]" class="s96"><span>F1</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s96"><span>F3</span></div><span style="color:var(--muted);font-size:15px;max-width:40ch">Önceki tur (F1, F3) doğru dildeydi ama <strong>ağırdı</strong>. Kalın kamalar ferahlık değil, yoğunluk veriyor. Premium azlıktır — bu tur mürekkebi düşürdüm, boşluğu yükselttim.</span></div>
+<section class="v"><header><h2><span class="tag">G1</span> Ferah Kadran</h2><p>60 ince çentik, tek zincifre mühür. Pomodoro ekranının kadranı neyse o — uygulama zaten bu dili konuşuyor.</p></header>
+    <div class="grid">
+    <div class="th"><div class="thl">Gündüz</div><div class="sizes"><img src="[BASE64_IMAGE]" class="s5"><div class="sm"><img src="[BASE64_IMAGE]" class="s96"><span>96</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s48"><span>48</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s24"><span>24</span></div></div></div>
+    <div class="th"><div class="thl">Gece</div><div class="sizes"><img src="[BASE64_IMAGE]" class="s5"><div class="sm"><img src="[BASE64_IMAGE]" class="s96"><span>96</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s48"><span>48</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s24"><span>24</span></div></div></div>
+    </div></section><section class="v"><header><h2><span class="tag">G2</span> Sessiz</h2><p>12 çentik, hepsi bu. En az mürekkep. Cesur ama küçükte kırılgan.</p></header>
+    <div class="grid">
+    <div class="th"><div class="thl">Gündüz</div><div class="sizes"><img src="[BASE64_IMAGE]" class="s5"><div class="sm"><img src="[BASE64_IMAGE]" class="s96"><span>96</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s48"><span>48</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s24"><span>24</span></div></div></div>
+    <div class="th"><div class="thl">Gece</div><div class="sizes"><img src="[BASE64_IMAGE]" class="s5"><div class="sm"><img src="[BASE64_IMAGE]" class="s96"><span>96</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s48"><span>48</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s24"><span>24</span></div></div></div>
+    </div></section><section class="v"><header><h2><span class="tag">G3</span> Yūgen</h2><p>Çentikler mühürden uzaklaştıkça soluyor. Bütünü göstermiyor, sezdiriyor — <em>yūgen</em>. En ayırt edici olan.</p></header>
+    <div class="grid">
+    <div class="th"><div class="thl">Gündüz</div><div class="sizes"><img src="[BASE64_IMAGE]" class="s5"><div class="sm"><img src="[BASE64_IMAGE]" class="s96"><span>96</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s48"><span>48</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s24"><span>24</span></div></div></div>
+    <div class="th"><div class="thl">Gece</div><div class="sizes"><img src="[BASE64_IMAGE]" class="s5"><div class="sm"><img src="[BASE64_IMAGE]" class="s96"><span>96</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s48"><span>48</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s24"><span>24</span></div></div></div>
+    </div></section><section class="v"><header><h2><span class="tag">G4</span> Nefes</h2><p>Tek halka, tek mühür, bir çekirdek. Saatçi sadeliği. En ferahı ve küçükte en dayanıklısı.</p></header>
+    <div class="grid">
+    <div class="th"><div class="thl">Gündüz</div><div class="sizes"><img src="[BASE64_IMAGE]" class="s5"><div class="sm"><img src="[BASE64_IMAGE]" class="s96"><span>96</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s48"><span>48</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s24"><span>24</span></div></div></div>
+    <div class="th"><div class="thl">Gece</div><div class="sizes"><img src="[BASE64_IMAGE]" class="s5"><div class="sm"><img src="[BASE64_IMAGE]" class="s96"><span>96</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s48"><span>48</span></div><div class="sm"><img src="[BASE64_IMAGE]" class="s24"><span>24</span></div></div></div>
+    </div></section>
+
+<p class="note"><strong>Tavsiyem G4 · Nefes.</strong> Tek halka, tepede tek zincifre kertik, ortada bir çekirdek. Ferah, sakin, saatçi işi gibi; 24 px’te ayakta kalan tek varyant da bu. <strong>G3 · Yūgen</strong> en güzeli ve en ayırt edicisi — mağaza görseli, açılış ekranı ve tanıtımda onu kullan. Büyük boyda G3, ikonda G4: aynı fikrin iki nefesi.</p>
+</div>

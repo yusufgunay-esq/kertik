@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Karanlık modda açılışta beyaz parlama olmasın diye. -->
+    <style name="KertikTema" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/gece</item>
+        <item name="android:statusBarColor">@color/gece</item>
+        <item name="android:navigationBarColor">@color/gece</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+
+    <!-- Aynı stil adı, gece zemini + gece işareti. drawable/ic_splash da
+         gece kalifiyeli sürümüyle otomatik değişiyor. -->
+    <style name="Theme.Kertik.Baslangic" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/gece</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="postSplashScreenTheme">@style/KertikTema</item>
+    </style>
+</resources>

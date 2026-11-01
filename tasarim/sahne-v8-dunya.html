@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Kertik V8 — Tam Ekran Yaşayan Dünyalar (Journey Çöl Gezgini & Rime Okyanus Yelkenlisi)</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0e0d0c; color: #efe7da; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 18px; }
+  h1 { font-weight: 500; font-size: 15px; letter-spacing: 0.1em; margin: 0 0 14px; color: #e2c275; text-transform: uppercase; }
+  .grid { display: grid; grid-template-columns: repeat(3, 390px); gap: 20px; }
+  .card { position: relative; width: 390px; height: 844px; border-radius: 38px; overflow: hidden; box-shadow: 0 28px 70px rgba(0,0,0,0.75); border: 1px solid rgba(255,255,255,0.12); }
+  .card canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ui { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+  .eyebrow { position: absolute; top: 121px; width: 100%; text-align: center; font-size: 13px; letter-spacing: 0.15em; text-transform: lowercase; font-weight: 600; }
+  .dcenter { position: absolute; top: 285px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; }
+  .clock { font-family: Georgia, "Times New Roman", serif; font-size: 58px; font-weight: 400; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .capt { font-size: 13.5px; margin-top: 8px; opacity: 0.82; letter-spacing: 0.02em; }
+  .tside { position: absolute; top: 520px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; }
+  .gorev { font-size: 14.5px; font-weight: 500; margin-bottom: 6px; }
+  .subline { font-size: 13px; opacity: 0.75; margin-bottom: 24px; }
+  .btns { display: flex; gap: 18px; align-items: center; margin-bottom: 28px; }
+  .btn-main { padding: 12px 36px; border-radius: 99px; font-size: 15px; font-weight: 600; border: 1.5px solid; backdrop-filter: blur(6px); }
+  .btn-sec { font-size: 15px; opacity: 0.8; padding: 8px 12px; font-weight: 500; }
+  .note { font-size: 13px; opacity: 0.55; border-bottom: 1px dotted; padding-bottom: 5px; width: 210px; text-align: center; }
+  .nav { position: absolute; bottom: 0; left: 0; right: 0; height: 54px; display: flex; justify-content: space-around; align-items: center; font-size: 12.5px; padding: 0 24px; border-top: 1px solid rgba(128,128,128,0.12); }
+</style>
+</head>
+<body>
+<h1>KERTİK V8: 1) KRONOMETRE (SONSUZ ÇÖL GEZGİNİ & ANITLAR) · 2) POMODORO (OKYANUS YELKENLİSİ & FENER ADALARI) · 3) GECE SEFERİ & MOLA KAMPI</h1>
+<div class="grid" id="grid"></div>
+<script>
+const TAM = Math.PI * 2;
+const cl = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+const hs = (a, b, c) => { const x = Math.sin(a * 12.9898 + b * 78.233 + c * 37.719) * 43758.5453; return x - Math.floor(x); };
+function vn(x, y, s) {
+  const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy);
+  const a = hs(xi, yi, s), b = hs(xi + 1, yi, s), c = hs(xi, yi + 1, s), d = hs(xi + 1, yi + 1, s);
+  return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
+}
+const hexRgb = c => { const m = /^#([0-9a-f]{6})$/i.exec((c || "").trim()); return m ? [parseInt(m[1].slice(0, 2), 16), parseInt(m[1].slice(2, 4), 16), parseInt(m[1].slice(4, 6), 16)] : [128, 128, 128]; };
+const rgba = (c, a) => { const m = hexRgb(c); return "rgba(" + m[0] + "," + m[1] + "," + m[2] + "," + cl(a, 0, 1).toFixed(3) + ")"; };
+const mixHex = (c1, c2, t) => {
+  const a = hexRgb(c1), b = hexRgb(c2);
+  return "rgb(" + Math.round(lerp(a[0], b[0], t)) + "," + Math.round(lerp(a[1], b[1], t)) + "," + Math.round(lerp(a[2], b[2], t)) + ")";
+};
+
+// Tohumdan gelen atmosferik biyom paletleri (Journey, Alto, Sable, Rime tonları)
+function dunyaPalet(koyu, sd, mod) {
+  if (koyu) {
+    return {
+      koyu: true,
+      skyTop: "#0B0E17", skyMid: "#161B29", skyBot: "#2A2433",
+      sun: "#F5ECD7", sunHalo: "#D6B265",
+      dunes: ["#231F2D", "#1B1824", "#14121B", "#0E0D14", "#09080D"],
+      duneLit: ["#3D3449", "#312A3D", "#252030", "#1B1724", "#121018"],
+      seaTop: "#131C2B", seaBot: "#090D15", waveLit: "#6E85A1",
+      ink: "#F2ECE1", ink2: "#B8B2A6", acc: "#E5857B", gold: "#E2BE6F", cool: "#7FA0B8",
+      btnBg: "rgba(20,18,26,0.72)"
+    };
+  }
+  const B = [
+    // 0: Journey Altın Kehribar & Terracotta
+    {
+      skyTop: "#F4EFE6", skyMid: "#F2E2CC", skyBot: "#E8C39E",
+      sun: "#FFFDF7", sunHalo: "#E5A95C",
+      dunes: ["#DFB48C", "#CE966B", "#B87852", "#96583E", "#6E3B2B"],
+      duneLit: ["#EOCBA7", "#E0AC82", "#CC8E66", "#AB6C4F", "#824936"],
+      seaTop: "#C68666", seaBot: "#6E3A2C", waveLit: "#F5DBC0",
+      ink: "#261813", ink2: "#5E4034", acc: "#8C222C", gold: "#C88A32", cool: "#4F687A",
+      btnBg: "rgba(246,238,226,0.78)"
+    },
+    // 1: Rime & Wind Waker Fildişi, Adaçayı & Derin Çivit Okyanus
+    {
+      skyTop: "#F5F2EA", skyMid: "#E6E4DA", skyBot: "#CED6CE",
+      sun: "#FFFFFF", sunHalo: "#E6C885",
+      dunes: ["#B8C4BE", "#92A6A0", "#6D8782", "#4B6663", "#2F4544"],
+      duneLit: ["#CBD6D0", "#A8BMB6", "#839E99", "#5E7B77", "#3D5756"],
+      seaTop: "#527682", seaBot: "#1F3642", waveLit: "#E8EFEA",
+      ink: "#182429", ink2: "#44565C", acc: "#8E2B36", gold: "#B88E42", cool: "#4A6678",
+      btnBg: "rgba(244,242,235,0.80)"
+    }
+  ];
+  const sec = mod === "p" ? B[1] : B[0];
+  return Object.assign({ koyu: false }, sec);
+}
+
+// Gökyüzü, Güneş/Ay, Işık Huzmeleri (God Rays), Yıldızlar, Rüzgar Şeritleri ve Kuş Sürüleri
+function gokyuzuVeAtmosferCiz(g, W, H, p, sd, zaman, panX) {
+  // 1. Tam ekran gökyüzü gradyanı
+  const skyG = g.createLinearGradient(0, 0, 0, H * 0.62);
+  skyG.addColorStop(0, p.skyTop);
+  skyG.addColorStop(0.55, p.skyMid);
+  skyG.addColorStop(1, p.skyBot);
+  g.fillStyle = skyG;
+  g.fillRect(0, 0, W, H);
+
+  // 2. Gece modunda Samanyolu yıldızları (bağımsız parıldayan yıldızlar)
+  if (p.koyu) {
+    for (let i = 0; i < 90; i++) {
+      const sx = ((hs(i, 1, sd) * W * 2 - panX * 0.05) % W + W) % W;
+      const sy = hs(i, 2, sd) * H * 0.48;
+      const parlak = 0.25 + 0.65 * Math.abs(Math.sin(zaman * 0.001 + i * 1.7));
+      const r = 0.5 + hs(i, 3, sd) * 1.1;
+      g.fillStyle = rgba(p.sun, parlak * (1 - sy / (H * 0.52)));
+      g.beginPath(); g.arc(sx, sy, r, 0, TAM); g.fill();
+    }
+  }
+
+  // 3. Güneş / Dolunay ve Atmosferik Halesi (Sayacın sağ/sol üst omzunda veya tam arkasında yumuşak gök cismi)
+  const sunX = W * 0.74 - panX * 0.02;
+  const sunY = 175;
+  const sunR = 34;
+
+  // Dış atmosferik hale
+  const haloG = g.createRadialGradient(sunX, sunY, sunR * 0.5, sunX, sunY, sunR * 4.8);
+  haloG.addColorStop(0, rgba(p.sunHalo, p.koyu ? 0.28 : 0.38));
+  haloG.addColorStop(0.45, rgba(p.sunHalo, p.koyu ? 0.08 : 0.14));
+  haloG.addColorStop(1, rgba(p.sunHalo, 0));
+  g.fillStyle = haloG;
+  g.beginPath(); g.arc(sunX, sunY, sunR * 4.8, 0, TAM); g.fill();
+
+  // Eğik Işık Huzmeleri (Crepuscular God Rays)
+  g.save();
+  for (let r = 0; r < 5; r++) {
+    const a = 0.38 + r * 0.11 + Math.sin(zaman * 0.0004 + r) * 0.02;
+    const w = 18 + r * 9;
+    g.translate(sunX, sunY);
+    g.rotate(a);
+    const rayG = g.createLinearGradient(0, 0, 0, 420);
+    rayG.addColorStop(0, rgba(p.sun, p.koyu ? 0.045 : 0.12));
+    rayG.addColorStop(1, rgba(p.sun, 0));
+    g.fillStyle = rayG;
+    g.beginPath();
+    g.moveTo(-w * 0.3, 0); g.lineTo(w * 0.3, 0); g.lineTo(w * 1.8, 420); g.lineTo(-w * 1.8, 420);
+    g.closePath();
+    g.fill();
+    g.setTransform(2, 0, 0, 2, 0, 0); // dpr=2 reset
+  }
+  g.restore();
+
+  // Güneş / Ay diski
+  g.fillStyle = rgba(p.sun, p.koyu ? 0.92 : 0.88);
+  g.beginPath(); g.arc(sunX, sunY, sunR, 0, TAM); g.fill();
+
+  // 4. Gökyüzünde bağımsız akan ipeksi Rüzgar Şeritleri (Alto / Journey Wind Ribbons)
+  for (let w = 0; w < 3; w++) {
+    const wy = 105 + w * 115;
+    const wx0 = ((w * 170 + zaman * 0.03 - panX * 0.3) % (W + 260)) - 130;
+    g.strokeStyle = rgba(p.sun, p.koyu ? 0.14 : 0.35);
+    g.lineWidth = 1.2 - w * 0.2;
+    g.lineCap = "round";
+    g.beginPath();
+    for (let s = 0; s <= 40; s++) {
+      const u = s / 40;
+      const x = wx0 + u * 150;
+      const y = wy + Math.sin(u * TAM + w) * 8 + Math.cos(u * Math.PI) * 5;
+      s ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+  }
+
+  // 5. Uzakta süzülen bağımsız Kuş Sürüsü (V-formasyonu / serbest süzülüş)
+  const kusMerkezX = ((W * 0.24 + zaman * 0.018 - panX * 0.15) % (W + 120)) - 40;
+  const kusMerkezY = 198;
+  g.strokeStyle = rgba(p.ink, p.koyu ? 0.55 : 0.48);
+  g.lineWidth = 1.15;
+  for (let b = 0; b < 6; b++) {
+    const bx = kusMerkezX + b * 14 + (b % 2) * 5;
+    const by = kusMerkezY + Math.abs(b - 2) * 6 + Math.sin(zaman * 0.006 + b) * 2;
+    const kanat = Math.sin(zaman * 0.008 + b * 1.1) * 3.2;
+    const sz = 4.2 - b * 0.3;
+    g.beginPath();
+    g.moveTo(bx - sz, by + kanat);
+    g.quadraticCurveTo(bx - sz * 0.4, by - 2, bx, by);
+    g.quadraticCurveTo(bx + sz * 0.4, by - 2, bx + sz, by + kanat);
+    g.stroke();
+  }
+}
+
+/* ============================================================================
+   MOD 1: KRONOMETRE — SONSUZ ÇÖL & KUMUL GEZGİNİ (Journey / Alto / Sable)
+   - Sonsuza kadar uzanan 5 katmanlı Low-Poly / Keskin Sırtlı Kumullar
+     (güneş alan yamaç açık altın/terracotta, gölge yamaç derin bordo/kahve).
+   - Sırt üzerinde yürüyen Low-Poly Pelerinli Gezgin ve rüzgarda dalgalanan
+     uzun altın-kırmızı eşarbı (Journey Scarf)!
+   - Molada gezgin oturur ve önünde sıcak bir kamp ateşi / fener yanar!
+   - Her 15 dakikada kumullarda antik taş dikilitaşlar ve kemerler yükselir.
+   - İleri-geri kaydırınca tüm çöl yolculuğu ve mola kampları gezilir!
+   ============================================================================ */
+function colGezginiCiz(g, W, H, p, v, sd, panX, zaman, surukleniyor) {
+  gokyuzuVeAtmosferCiz(g, W, H, p, sd, zaman, panX);
+
+  const dk = v.bos ? 0 : v.dk;
+  const SP = 8; // dakika başına çöl ilerleyişi (piksel)
+  const gezginTopX = dk * SP;
+  const kamX = Math.max(0, gezginTopX - W * 0.52) + panX;
+
+  // Kumul yüksekliği fonksiyonu (keskin rüzgar sırtları + faceted low-poly kırımları)
+  const kumulY = (x, katman, off) => {
+    const u = (x + off) * (0.0032 + katman * 0.0011);
+    const s1 = Math.sin(u * TAM), c1 = Math.cos(u * 1.7 + katman);
+    // Keskin kumul sırtı (sharp dune crest)
+    const crest = 1 - Math.abs(Math.sin(u * Math.PI + 0.4 * c1));
+    const taban = [415, 452, 492, 545, 625][katman];
+    const genlik = [34, 42, 48, 38, 28][katman];
+    return taban - Math.pow(crest, 1.35) * genlik + s1 * 10;
+  };
+
+  // 5 Katmanlı Low-Poly / Faceted Kumullar
+  for (let k = 0; k < 5; k++) {
+    const spd = [0.2, 0.4, 0.7, 1.0, 1.35][k];
+    const off = kamX * spd + k * 230 + sd * 17;
+    const step = k === 3 ? 16 : 26; // Low-poly faset genişliği
+
+    // 1) Ana kumul gövdesi (Gölge yamaç rengi)
+    g.fillStyle = p.dunes[k];
+    g.beginPath();
+    g.moveTo(0, H);
+    for (let x = -step; x <= W + step; x += step) {
+      g.lineTo(x, kumulY(x, k, off));
+    }
+    g.lineTo(W + step, H);
+    g.closePath();
+    g.fill();
+
+    // 2) Low-Poly Güneş Alan Yamaç Fasetleri (Sunlit Facets)
+    for (let x = -step; x <= W; x += step) {
+      const y1 = kumulY(x, k, off);
+      const y2 = kumulY(x + step, k, off);
+      const yMid = Math.max(y1, y2) + 38 + k * 18;
+      const xRidge = x + step * 0.45;
+      // Sağ yamaç güneşe bakıyorsa aydınlık faset çiz
+      if (y2 > y1 - 4) {
+        g.fillStyle = p.duneLit[k];
+        g.beginPath();
+        g.moveTo(x, y1);
+        g.lineTo(x + step, y2);
+        g.lineTo(xRidge, yMid);
+        g.closePath();
+        g.fill();
+      }
+    }
+
+    // 3) Kumul sırtında rüzgarla uçuşan altın kum tülü (Sand-drift)
+    g.strokeStyle = rgba(p.sunHalo, p.koyu ? 0.25 : 0.45);
+    g.lineWidth = 1.0;
+    g.beginPath();
+    for (let x = 0; x <= W; x += step) {
+      const y = kumulY(x, k, off);
+      x ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+
+    // 4) k === 2 (Orta-Uzak Katman): Her 30 dakikada bir Antik Çöl Kemeri / Obelisk Anıtları!
+    if (k === 2) {
+      for (let m = 15; m <= Math.max(60, dk + 30); m += 20) {
+        const dunyaX = m * SP * 0.7;
+        const sx = W * 0.15 + dunyaX - kamX * 0.7;
+        if (sx < -40 || sx > W + 40) continue;
+        const sy = kumulY(sx, k, off);
+        const saatAniti = (m % 60 === 0);
+
+        g.save();
+        g.translate(sx, sy);
+        if (saatAniti) {
+          // Saat Başı: Antik İkiz Dikilitaş ve Parlayan Elmas Güneş Kapısı (Journey Shrine)
+          g.fillStyle = p.dunes[3];
+          g.beginPath();
+          g.moveTo(-12, 6); g.lineTo(-9, -36); g.lineTo(-4, -36); g.lineTo(-3, 6);
+          g.moveTo(3, 6); g.lineTo(4, -32); g.lineTo(9, -32); g.lineTo(12, 6);
+          g.fill();
+          // Ortasında havada asılı parlayan altın elmas mühür
+          if (m <= dk) {
+            g.fillStyle = p.gold;
+            g.beginPath();
+            g.moveTo(0, -34); g.lineTo(4.5, -26); g.lineTo(0, -18); g.lineTo(-4.5, -26);
+            g.closePath();
+            g.fill();
+          }
+        } else {
+          // 20 dk: Low-Poly Çöl Obeliski
+          g.fillStyle = p.dunes[3];
+          g.beginPath();
+          g.moveTo(-4, 5); g.lineTo(-2, -18); g.lineTo(0, -23); g.lineTo(3, -18); g.lineTo(5, 5);
+          g.closePath();
+          g.fill();
+          if (m <= dk) {
+            g.fillStyle = p.gold;
+            g.beginPath(); g.arc(0, -14, 1.8, 0, TAM); g.fill();
+          }
+        }
+        g.restore();
+      }
+    }
+
+    // 5) k === 3 (Ana Yürüyüş Sırtı): GEZGİNİN AYAK İZLERİ, MOLA KAMPLARI VE LOW-POLY GEZGİN!
+    if (k === 3) {
+      const baslangicEkranX = W * 0.14 - kamX;
+      const gezginEkranX = baslangicEkranX + gezginTopX;
+
+      // Gezginin arkasında bıraktığı iz ve mola kamp ateşleri
+      g.strokeStyle = rgba(p.gold, 0.55);
+      g.lineWidth = 1.6;
+      g.beginPath();
+      for (let wx = 0; wx <= gezginTopX; wx += 8) {
+        const ex = baslangicEkranX + wx;
+        if (ex < -10 || ex > W + 10) continue;
+        const ey = kumulY(ex, 3, off) + 1.5;
+        wx === 0 ? g.moveTo(ex, ey) : g.lineTo(ex, ey);
+      }
+      g.stroke();
+
+      // Geçmiş mola noktalarında sönmüş/tüten küçük kamp taşları
+      if (v.molas) {
+        v.molas.forEach(([mBas]) => {
+          const mx = baslangicEkranX + mBas * SP;
+          if (mx < -20 || mx > W + 20) return;
+          const my = kumulY(mx, 3, off);
+          g.fillStyle = p.gold;
+          g.beginPath(); g.arc(mx, my - 2, 3, 0, TAM); g.fill();
+          // İnce kamp dumanı
+          g.strokeStyle = rgba(p.sun, 0.35);
+          g.lineWidth = 1;
+          g.beginPath();
+          g.moveTo(mx, my - 4);
+          g.bezierCurveTo(mx - 6, my - 18, mx + 6, my - 32, mx - 2, my - 48);
+          g.stroke();
+        });
+      }
+
+      // LOW-POLY GEZGİN (Journey Traveler + Rüzgarda Dalgalanan Uzun Eşarp!)
+      if (gezginEkranX >= -30 && gezginEkranX <= W + 30) {
+        const gy = kumulY(gezginEkranX, 3, off);
+        const egim = Math.atan2(kumulY(gezginEkranX + 8, 3, off) - gy, 8);
+
+        g.save();
+        g.translate(gezginEkranX, gy);
+
+        // Rüzgarda dalgalanan uzun altın-kırmızı eşarp (Scarf) — çalışma süresi uzadıkça eşarp uzar!
+        const esarpBoy = Math.min(58, 18 + dk * 0.25);
+        g.strokeStyle = p.acc;
+        g.lineWidth = 2.8;
+        g.lineCap = "round";
+        g.beginPath();
+        g.moveTo(-2, -16);
+        for (let s = 1; s <= 12; s++) {
+          const u = s / 12;
+          const sx = -2 - u * esarpBoy;
+          const sy = -16 + Math.sin(u * 5 - zaman * 0.008) * (4.5 * u) - u * 4;
+          g.lineTo(sx, sy);
+        }
+        g.stroke();
+        // Eşarbın altın kenar şeridi
+        g.strokeStyle = p.gold;
+        g.lineWidth = 1.0;
+        g.stroke();
+
+        if (v.onBreak) {
+          // Molada: Gezgin bağdaş kurup oturur ve önünde sıcak kamp ateşi yanar!
+          g.fillStyle = p.ink;
+          g.beginPath();
+          g.moveTo(-6, 0); g.lineTo(-3, -13); g.lineTo(4, -13); g.lineTo(7, 0);
+          g.closePath();
+          g.fill();
+          // Başlık
+          g.beginPath();
+          g.moveTo(-3, -13); g.lineTo(1, -20); g.lineTo(5, -13);
+          g.closePath();
+          g.fill();
+          // Kamp ateşi
+          const atesG = g.createRadialGradient(14, -4, 1, 14, -4, 18);
+          atesG.addColorStop(0, "rgba(255,210,110,0.85)");
+          atesG.addColorStop(1, "rgba(255,120,60,0)");
+          g.fillStyle = atesG;
+          g.beginPath(); g.arc(14, -4, 18, 0, TAM); g.fill();
+          g.fillStyle = "#FFD166";
+          g.beginPath(); g.moveTo(11, 0); g.lineTo(14, -10); g.lineTo(17, 0); g.closePath(); g.fill();
+        } else {
+          // Çalışırken: Low-Poly Pelerinli Gezgin ileri doğru yürür
+          const adim = Math.sin(zaman * 0.007);
+          // Bacaklar
+          g.strokeStyle = p.ink;
+          g.lineWidth = 1.8;
+          g.beginPath();
+          g.moveTo(-1, -7); g.lineTo(-3 + adim * 3, 1);
+          g.moveTo(1, -7); g.lineTo(3 - adim * 3, 1);
+          g.stroke();
+
+          // Low-poly üçgen pelerin (Cloak)
+          g.fillStyle = p.acc;
+          g.beginPath();
+          g.moveTo(-7, -6);
+          g.lineTo(-1, -21);
+          g.lineTo(4, -20);
+          g.lineTo(6, -6);
+          g.lineTo(0, -4);
+          g.closePath();
+          g.fill();
+
+          // Pelerin üzerindeki altın etek nakışı
+          g.strokeStyle = p.gold;
+          g.lineWidth = 1.1;
+          g.beginPath();
+          g.moveTo(-6, -7); g.lineTo(0, -5); g.lineTo(5, -7);
+          g.stroke();
+
+          // Koni şapka / kukuleta ve parlayan yüz
+          g.fillStyle = p.ink;
+          g.beginPath();
+          g.moveTo(-3.5, -20); g.lineTo(1.5, -27); g.lineTo(5.5, -19.5);
+          g.closePath();
+          g.fill();
+        }
+        g.restore();
+      }
+    }
+  }
+
+  // Zaman Yolculuğu (Time Scrubbing) aktifse zarif Zaman Merceği kapsülü
+  if (surukleniyor || Math.abs(panX) > 10) {
+    const bakilanDk = cl((kamX + W * 0.38) / SP, 0, dk);
+    const sa = Math.floor(bakilanDk / 60), d = Math.floor(bakilanDk % 60);
+    const etiket = "◄  " + (sa > 0 ? sa + " sa " : "") + d + ". dk · çöl yolculuğu  ►";
+    g.save();
+    const pw = 186, ph = 26, px = W / 2 - pw / 2, py = 452;
+    g.fillStyle = p.btnBg;
+    g.strokeStyle = rgba(p.gold, 0.65);
+    g.lineWidth = 1;
+    g.beginPath(); g.roundRect(px, py, pw, ph, 13); g.fill(); g.stroke();
+    g.fillStyle = p.ink;
+    g.font = "600 11.5px -apple-system, sans-serif";
+    g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillText(etiket, W / 2, py + ph / 2);
+    g.restore();
+  }
+}
+
+/* ============================================================================
+   MOD 2: POMODORO — DURGUN OKYANUS, YELKENLİ VE DENİZ FENERİ TAKIMADASI (Rime)
+   - Pomodoro'nun sonu vardır (0 -> 1) ve bir günde birden fazla yapılabilir!
+   - Tam ekranda huzur veren okyanus, güneş/ay yakamoz yolu (water caustics),
+     uzakta tamamlanan her Pomodoro için ışığı yanan Deniz Feneri Adaları!
+   - Aktif Pomodoro: Zarif bir Low-Poly / Origami Yelkenli Tekne, önceki adadan
+     hedef Fener Adasına doğru dalgaları yararak süzülür. Süre bittiğinde
+     hedef adaya varır ve yeni Deniz Feneri gökyüzüne altın bir ışık huzmesi saçar!
+   - Molada rüzgar diner, yelken iner; uzun molada denizde sis ve yağmur halkaları!
+   ============================================================================ */
+function okyanusYelkenliCiz(g, W, H, p, v, sd, zaman) {
+  gokyuzuVeAtmosferCiz(g, W, H, p, sd, zaman, 0);
+
+  const f = v.bos ? 0 : cl(v.f, 0, 1);
+  const ero = v.ero || 0;
+  const tamamlananSayi = v.tamamlananPomolar || 3;
+  const ufukY = 442;
+
+  // 1. UZAK UFUKTAKİ TAKIMADALAR & DENİZ FENERLERİ (Tamamlanan her Pomodoro = Işığı Yanan Bir Fener Adası!)
+  const adaKonumlari = [
+    { x: 52, sc: 0.72 },
+    { x: 122, sc: 0.82 },
+    { x: 205, sc: 0.76 },
+    { x: 332, sc: 1.08 } // Sağdaki büyük ada = Mevcut Pomodoro'nun varış hedefi!
+  ];
+
+  adaKonumlari.forEach((ada, idx) => {
+    const hedefAdaMi = (idx === 3);
+    const tamamlandiMi = hedefAdaMi ? (f >= 1) : (idx < tamamlananSayi);
+    const ax = ada.x, ay = ufukY + 2, sc = ada.sc;
+
+    g.save();
+    g.translate(ax, ay);
+    g.scale(sc, sc);
+
+    // Low-poly ada kayalığı (iki fasetli: güneş alan yüz ve gölge yüz)
+    g.fillStyle = p.dunes[2];
+    g.beginPath();
+    g.moveTo(-36, 4); g.lineTo(-18, -18); g.lineTo(4, -26); g.lineTo(14, 4);
+    g.closePath();
+    g.fill();
+
+    g.fillStyle = p.duneLit[2];
+    g.beginPath();
+    g.moveTo(4, -26); g.lineTo(22, -14); g.lineTo(34, 4); g.lineTo(8, 4);
+    g.closePath();
+    g.fill();
+
+    // Ada üzerindeki Deniz Feneri Kulesi (Lighthouse)
+    g.fillStyle = p.koyu ? "#EAE2D3" : "#FBF8F1";
+    g.beginPath();
+    g.moveTo(-3.5, -22); g.lineTo(-2.2, -46); g.lineTo(2.2, -46); g.lineTo(3.5, -22);
+    g.closePath();
+    g.fill();
+    // Fenerin kırmızı/bordo kuşağı ve kubbesi
+    g.fillStyle = p.acc;
+    g.fillRect(-2.8, -36, 5.6, 5);
+    g.beginPath();
+    g.moveTo(-3.5, -46); g.lineTo(0, -52); g.lineTo(3.5, -46);
+    g.closePath();
+    g.fill();
+
+    // Eğer bu Pomodoro tamamlandıysa Fenerin Altın Işığı ve Gökyüzüne Çıkan Işık Huzmesi YANAR!
+    if (tamamlandiMi) {
+      // Gökyüzüne yükselen dikey/eğik altın fener huzmesi (Beacon of Completion)
+      const beamG = g.createLinearGradient(0, -48, 0, -210);
+      beamG.addColorStop(0, rgba(p.gold, 0.55));
+      beamG.addColorStop(1, rgba(p.gold, 0));
+      g.fillStyle = beamG;
+      g.beginPath();
+      g.moveTo(-2, -48); g.lineTo(2, -48); g.lineTo(24, -210); g.lineTo(-24, -210);
+      g.closePath();
+      g.fill();
+
+      // Fener lambası parıltısı
+      const fHalo = g.createRadialGradient(0, -47, 1, 0, -47, 14);
+      fHalo.addColorStop(0, "#FFFDF5");
+      fHalo.addColorStop(0.4, rgba(p.gold, 0.8));
+      fHalo.addColorStop(1, rgba(p.gold, 0));
+      g.fillStyle = fHalo;
+      g.beginPath(); g.arc(0, -47, 14, 0, TAM); g.fill();
+    }
+    g.restore();
+  });
+
+  // 2. OKYANUS YÜZEYİ VE KATMANLI DALGALAR (y: 442..844)
+  const seaG = g.createLinearGradient(0, ufukY, 0, H);
+  seaG.addColorStop(0, p.seaTop);
+  seaG.addColorStop(0.55, p.seaBot);
+  seaG.addColorStop(1, p.koyu ? "#05070B" : "#12222B");
+  g.fillStyle = seaG;
+  g.fillRect(0, ufukY, W, H - ufukY);
+
+  // Güneş/Ay Yakamoz Yolu (Su üzerindeki pırıltılı altın/fildişi ışık yansımaları)
+  const sunX = W * 0.74;
+  for (let i = 0; i < 42; i++) {
+    const u = i / 42;
+    const wy = ufukY + 4 + Math.pow(u, 1.45) * 320;
+    const spread = 12 + u * 85;
+    const wx = sunX + Math.sin(i * 2.3 + zaman * 0.003) * spread * 0.45;
+    const wLen = 6 + hs(i, 2, sd) * spread * 0.7;
+    g.strokeStyle = rgba(p.sunHalo, (1 - u * 0.75) * (p.koyu ? 0.45 : 0.55));
+    g.lineWidth = 1.0 + u * 1.4;
+    g.lineCap = "round";
+    g.beginPath();
+    g.moveTo(wx - wLen * 0.5, wy);
+    g.lineTo(wx + wLen * 0.5, wy);
+    g.stroke();
+  }
+
+  // Bağımsız süzülen 6 katmanlı ritmik okyanus dalga sırtları
+  for (let d = 0; d < 6; d++) {
+    const dy = ufukY + 18 + d * 48;
+    g.strokeStyle = rgba(p.waveLit, (0.32 - d * 0.04) * (p.koyu ? 0.5 : 0.65));
+    g.lineWidth = 1.0 + d * 0.2;
+    g.beginPath();
+    for (let x = 0; x <= W; x += 8) {
+      const y = dy + Math.sin(x * 0.025 + d * 1.4 + zaman * 0.002) * (2.5 + d * 0.8);
+      x ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+  }
+
+  // 3. LOW-POLY / ORİGAMİ YELKENLİ TEKNE (Süre ilerledikçe f: 0 -> 1 sol kıyıdan hedef Fener Adasına süzülür!)
+  const basX = 64, bitX = 292;
+  const tekneX = lerp(basX, bitX, f);
+  const tekneY = ufukY + 34 + Math.sin(zaman * 0.004) * 2.2;
+
+  // Teknenin arkasında bıraktığı köpüklü su izi (Wake)
+  if (f > 0.01) {
+    const izGrad = g.createLinearGradient(basX, tekneY, tekneX, tekneY);
+    izGrad.addColorStop(0, "rgba(255,255,255,0)");
+    izGrad.addColorStop(1, rgba(p.sun, 0.55));
+    g.strokeStyle = izGrad;
+    g.lineWidth = 1.8;
+    g.beginPath();
+    g.moveTo(basX, tekneY + 2);
+    g.quadraticCurveTo((basX + tekneX) / 2, tekneY + 8, tekneX - 10, tekneY + 2);
+    g.stroke();
+  }
+
+  // Teknenin sudaki yansıması
+  g.save();
+  g.translate(tekneX, tekneY);
+  for (let r = 1; r <= 5; r++) {
+    g.strokeStyle = rgba(p.sun, 0.28 - r * 0.04);
+    g.lineWidth = 1.1;
+    g.beginPath();
+    g.moveTo(-12 + r * 1.5, 4 + r * 3.2);
+    g.lineTo(12 - r * 1.5, 4 + r * 3.2);
+    g.stroke();
+  }
+
+  // Low-Poly Tekne Gövdesi (Hull)
+  g.fillStyle = p.koyu ? "#D6B060" : "#5E2129";
+  g.beginPath();
+  g.moveTo(-18, -1); g.lineTo(20, -1); g.lineTo(13, 5); g.lineTo(-13, 5);
+  g.closePath();
+  g.fill();
+
+  // Altın küpeşte çizgisi
+  g.strokeStyle = p.gold;
+  g.lineWidth = 1.1;
+  g.beginPath(); g.moveTo(-17, 0); g.lineTo(19, 0); g.stroke();
+
+  // Ana Yelken ve Ön Flok Yelkeni (Rüzgarla şişmiş zarif üçgen fasetler)
+  const sis = v.onBreak ? 0.3 : 1.0; // Molada yelken gevşer
+  // Ana yelken (Main sail)
+  g.fillStyle = p.koyu ? "#F5ECD7" : "#FBF9F2";
+  g.beginPath();
+  g.moveTo(-1, -3);
+  g.lineTo(-1, -44);
+  g.quadraticCurveTo(14 * sis, -22, 12 * sis, -3);
+  g.closePath();
+  g.fill();
+
+  // Ön yelken (Jib sail — Bordo/Altın aksanlı)
+  g.fillStyle = p.acc;
+  g.beginPath();
+  g.moveTo(-3, -4);
+  g.lineTo(-1, -38);
+  g.quadraticCurveTo(-14 * sis, -18, -14, -4);
+  g.closePath();
+  g.fill();
+
+  // Direk tepesinde rüzgarda dalgalanan altın flama
+  g.strokeStyle = p.gold;
+  g.lineWidth = 1.3;
+  g.beginPath();
+  g.moveTo(-1, -44);
+  g.quadraticCurveTo(-8, -46 + Math.sin(zaman * 0.01) * 2, -15, -43);
+  g.stroke();
+  g.restore();
+
+  // Molada uzama varsa (ero > 0) su yüzeyine düşen yağmur halkaları
+  if (ero > 0.05) {
+    for (let q = 0; q < 6; q++) {
+      const rx = 50 + hs(q, 1, sd) * (W - 100);
+      const ry = ufukY + 50 + hs(q, 2, sd) * 140;
+      g.strokeStyle = rgba(p.waveLit, 0.35 * ero);
+      g.lineWidth = 0.9;
+      g.beginPath(); g.ellipse(rx, ry, 16, 4.5, 0, 0, TAM); g.stroke();
+    }
+  }
+}
+
+const sahneler = [
+  {
+    mod: "k", koyu: false, sd: 12, pan: 0, surukleniyor: true,
+    durum: "çalışıyor · çöl yolculuğu", saat: "2:15:40", alt: "3. saat, 15. çentik",
+    gorev: "Borçlar Hukuku ›", bas: "13:00'te başladın · 2 anıt geçildi",
+    v: { bos: false, dk: 135, ero: 0.05, onBreak: false, molas: [[45, 55]] }
+  },
+  {
+    mod: "p", koyu: false, sd: 24, pan: 0, surukleniyor: false,
+    durum: "çalışıyor · 4. sefer", saat: "06:42", alt: "19 / 25 çentik · fener adasına",
+    gorev: "Medeni Usul ›", bas: "bugün 3 fener yakıldı (75dk)",
+    v: { bos: false, f: 0.74, ero: 0, onBreak: false, tamamlananPomolar: 3 }
+  },
+  {
+    mod: "k", koyu: true, sd: 88, pan: 0, surukleniyor: false,
+    durum: "molada · kamp ateşi", saat: "1:42:10", alt: "çalışma 102dk'da donduruldu",
+    gorev: "Roma Hukuku ›", bas: "gece yolculuğu · 6 dakikadır moladasın",
+    v: { bos: false, dk: 102, ero: 0.15, onBreak: true, molas: [[40, 48]] }
+  }
+];
+
+const grid = document.getElementById("grid");
+sahneler.forEach(s => {
+  const p = dunyaPalet(s.koyu, s.sd, s.mod);
+  const card = document.createElement("div");
+  card.className = "card";
+  card.style.color = p.ink;
+  const cv = document.createElement("canvas");
+  cv.width = 390 * 2; cv.height = 844 * 2;
+  const g = cv.getContext("2d");
+  g.scale(2, 2);
+
+  if (s.mod === "k") colGezginiCiz(g, 390, 844, p, s.v, s.sd, s.pan, 2400, s.surukleniyor);
+  else okyanusYelkenliCiz(g, 390, 844, p, s.v, s.sd, 2400);
+
+  // Alt kontrollerin okunurluğu için foreground üzerinde yumuşak derinlik
+  const botTextColor = (s.mod === "p" || s.koyu) ? "#F2ECE1" : "#FBF6EE";
+  const botSubColor = (s.mod === "p" || s.koyu) ? "rgba(242,236,225,0.75)" : "rgba(251,246,238,0.78)";
+
+  card.appendChild(cv);
+  const ui = document.createElement("div");
+  ui.className = "ui";
+  ui.innerHTML = `
+    <div class="eyebrow" style="color:${p.acc}">${s.durum}</div>
+    <div class="dcenter">
+      <div class="clock" style="color:${p.ink}">${s.saat}</div>
+      <div class="capt" style="color:${p.ink2}">${s.alt}</div>
+    </div>
+    <div class="tside">
+      <div class="gorev" style="color:${botTextColor}">${s.gorev}</div>
+      <div class="subline" style="color:${botSubColor}">${s.bas}</div>
+      <div class="btns">
+        <div class="btn-main" style="background:${p.btnBg};border-color:${p.gold};color:${p.ink}">${s.v.onBreak ? 'devam et' : 'mola'}</div>
+        <div class="btn-sec" style="color:${botTextColor}">bitir</div>
+      </div>
+      <div class="note" style="color:${botSubColor};border-color:${botSubColor}">aklına bir şey gelirse yaz…</div>
+    </div>
+    <div class="nav" style="color:${botSubColor}">
+      <b style="color:${botTextColor}">sayaç</b><span>işler</span><span>kayıt</span><span>ayarlar</span>
+    </div>
+  `;
+  card.appendChild(ui);
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>

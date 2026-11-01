@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ana ekran — tek nesne</title>
+<style>
+:root{
+  --bg:#F5F2EA; --bg2:#EFEBE1; --ink:#16181B; --muted:#726E65; --line:#DCD5C6;
+  --acc:#B05237; --cool:#3E7C77; --ekran:#F5F2EA; --ekranInk:#16181B;
+}
+html.gece{ --bg:#101114; --bg2:#191A1E; --ink:#EDE9E0; --muted:#948F84; --line:#2A2B30;
+  --acc:#D0785B; --cool:#79B3AE; --ekran:#16171A; --ekranInk:#EDE9E0 }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding:40px 30px 90px;transition:background .35s,color .35s}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-weight:300;font-size:38px;letter-spacing:-.6px;margin:0 0 8px}
+h2{font-weight:400;font-size:23px;margin:58px 0 4px}
+p{color:var(--muted);max-width:78ch;margin:8px 0}
+p.k{color:var(--ink)}
+b{font-weight:600;color:var(--ink)}
+code{font-size:.88em;background:var(--bg2);padding:1px 5px;border-radius:4px}
+.gecebtn{position:fixed;top:18px;right:20px;border:1px solid var(--line);background:var(--bg2);
+  color:var(--muted);border-radius:999px;padding:7px 16px;font:inherit;font-size:14px;cursor:pointer;z-index:9}
+.satir{display:flex;gap:20px;flex-wrap:wrap;margin-top:24px;align-items:flex-start}
+.tel{width:262px}
+.cam{width:262px;height:540px;border-radius:30px;overflow:hidden;background:var(--ekran);
+  border:1px solid var(--line);position:relative}
+.cam canvas{position:absolute;inset:0}
+.cam .ust{position:absolute;top:16px;left:0;right:0;text-align:center;font-size:9.5px;
+  letter-spacing:.19em;color:var(--acc)}
+.cam .sayi{position:absolute;left:0;right:0;top:228px;text-align:center;
+  font-weight:200;font-size:46px;letter-spacing:-.02em;color:var(--ekranInk)}
+.cam .alt2{position:absolute;left:0;right:0;top:284px;text-align:center;font-size:10.5px;
+  color:var(--muted)}
+.cam .bas{position:absolute;left:50%;top:236px;transform:translateX(-50%);
+  padding:12px 34px;border-radius:999px;background:var(--ekranInk);color:var(--ekran);
+  font-size:14px;font-weight:600}
+.cam .nav{position:absolute;bottom:0;left:0;right:0;height:44px;display:flex;
+  align-items:center;justify-content:space-around;font-size:9.5px;color:var(--muted);opacity:.22}
+.tel .ad{margin-top:12px;font-size:13px;font-weight:600}
+.tel .no{font-size:12.5px;color:var(--muted);line-height:1.45}
+ul{color:var(--muted);max-width:80ch;font-size:14.5px;padding-left:20px}
+li{margin:8px 0}
+li b{color:var(--ink)}
+.kolon{display:flex;gap:26px;flex-wrap:wrap;margin-top:20px}
+.kart{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+  width:340px}
+.kart h3{margin:0 0 6px;font-size:15px}
+.kart p{font-size:13.5px;margin:4px 0}
+.uyari{border-left:2px solid var(--acc);padding:2px 0 2px 16px;margin:22px 0;max-width:78ch}
+.uyari p{color:var(--ink)}
+</style></head><body>
+<button class="gecebtn" onclick="document.documentElement.classList.toggle('gece');ciz()">gece</button>
+<div class="wrap">
+
+<h1>Ana ekran sanatı</h1>
+<p class="k">Sorduğun üç yol: <b>akış</b> (bugün çalışan), <b>durgun mürekkep</b> (elendi),
+<b>kum bahçesi</b> (karar bekliyor). Hepsini okudum. Israrcıyım ama üçünden birinde değil —
+<b>arka planın kendisinde.</b></p>
+
+<h2>Önce teşhis: üç ayrı dil konuşuyoruz</h2>
+<p>Şu an tek bir seans ekranda <b>üç ayrı görsel dille</b> anlatılıyor:</p>
+<ul>
+  <li><b>Kadran</b> — ortada, çentikli, canlı.</li>
+  <li><b>Akış</b> — arkada, çizgisel alan, seansın kimliğinden türüyor.</li>
+  <li><b>Çubuk</b> — seans bitince beliren, bambaşka bir geometri.</li>
+</ul>
+<p>Üçü de aynı veriyi anlatıyor ve birbirinden habersiz. <code>25</code>'in akış için yazdığı
+beş maddelik teşhis aslında bunun sonucu: <i>"bakılacak bir yer yok"</i> (çünkü kompozisyon
+kadrana ait), <i>"hiçbir şey kaydetmiyor"</i> (çünkü kayıt çubuğa ait), <i>"süreyi anlatmıyor"</i>
+(çünkü süre sayıya ait). Akış geriye kalan tek işi yapıyor: <b>duvar kâğıdı olmak.</b></p>
+<p class="k">Bu yüzden dördüncü bir arka plan aramak sorunu çözmüyor. Kum bahçesi de,
+durgun mürekkep de aynı boşluğa dolduruluyor — o boşluk gerçekte bir <b>arka plan boşluğu değil,
+bir dil fazlalığı.</b></p>
+
+<h2>Önerim: arka plan yok. Kayıt ekranı kaplıyor.</h2>
+<p>Seans sürerken ekranda duran şey <b>halkanın kendisi</b> olsun. Aynı anda kadran (en yeni
+çentiğin açısı o anki dakika), aynı anda arka plan (ekranı o dolduruyor), aynı anda kayıt
+(seans bitince hiçbir şey değişmiyor — sadece büyümeyi bırakıyor).</p>
+<div class="satir" id="s_akis"></div>
+
+<h2>Bunun bedavaya çözdükleri</h2>
+<div class="kolon">
+  <div class="kart"><h3>"Küt diye belirme" bitiyor</h3>
+    <p>Ortaya çıkan bir görüntü yok, o yüzden açılacak bir maske de yok. Dakikada bir çentik
+    ekleniyor — <code>25</code>'in kalıcı kuralı: <i>ortaya çıkış yasak, birikme esas.</i>
+    Kural artık zorlanmıyor, formun kendisi öyle.</p></div>
+  <div class="kart"><h3>Seans sonu geçişi yok oluyor</h3>
+    <p>Bugün: akış 1,1 sn'de soluyor, sonra çubuk kazınıyor. İki geçiş, iki dil.
+    Önerilen: hiçbir şey olmuyor. Resim neyse o kalıyor. Seijaku'nun en saf hâli.</p></div>
+  <div class="kart"><h3>Süre dağılımı okunuyor</h3>
+    <p><code>20</code>'nin "en yüksek değerli maddesi": mola halkada bir <b>delik</b>.
+    24 dakikalık mola, dörtte birlik boş bir yay. Ölçmeden görülüyor.</p></div>
+  <div class="kart"><h3>Pil ve maliyet düşüyor</h3>
+    <p>Akışın 22.000 deneme + komşuluk taraması tamamen kalkıyor. Dakikalık iş: bir çentik.
+    Kum bahçesinin 330–510 ms'lik ızgara hesabı da yok.</p></div>
+</div>
+
+<h2>Boş ekran — akış burada yaşıyor</h2>
+<p>Akışı çöpe atmıyorum, <b>işini değiştiriyorum.</b> Seans sırasında rakip; seans yokken
+tam olarak istenen şey. <code>akis-renk.md</code>'de zaten önerilmişti:
+<b>son seansın alanı, donmuş, ~%12 opaklıkta.</b> Teaser değil, hafıza.
+Boş ekran boş kalmıyor, dünün izi duruyor; başlat'a basınca o solup yerini bugünün ilk
+çentiğine bırakıyor.</p>
+<div class="satir" id="s_bos"></div>
+
+<h2>Dürüst bedel: sürprizi kaybediyorsun</h2>
+<p class="k">Akışın en güçlü tarafı, bitince gerçekten ne çıkacağını bilmemen.
+Halkada bunu kaybediyorsun — halka her zaman halkadır.</p>
+<p>Ama şunu sormak lazım: <b>sürpriz nereden gelmeli?</b> Kum bahçesi için
+<i>"başlamadan ne göreceğimi aşağı yukarı biliyorum"</i> dedin ve haklıydın; oradaki
+öngörülebilirlik <b>algoritmanın</b> öngörülebilirliğiydi — taş sayısı ve tırmık aralığı
+sabit olduğu için her gün aynı resim çıkıyordu. Halkada öngörülebilir olan yalnız
+<b>aile</b>: halka, boşluk, ikiz. Resmin kendisi öngörülebilir değil, çünkü <b>günün nasıl
+geçeceğini bilmiyorsun.</b> Aşağıdaki üçü aynı algoritma, aynı tohum ailesi, aynı renk —
+farkı yaratan tek şey o gün ne olduğu.</p>
+<div class="satir" id="s_gun"></div>
+<p>Sürpriz algoritmadan hayatına taşınıyor. Bu, "dürüst kayıt" iddiasının tek tutarlı
+sonucu — ve bir odaklanma uygulamasının verebileceği en pahalı şey: <b>rastgele bir güzellik
+değil, senin günün.</b></p>
+
+<div class="uyari">
+<p><b>Bu bir kararı bozuyor, saklamıyorum:</b> <code>19-akis-ve-cubuk.md</code>
+<i>"Sayaç ekranındaki canlı kadran duruyor. Çubuk bir kayıt biçimi, sayaç değil;
+akan bir seansı okumak için kadran hâlâ daha iyi"</i> diyor. O cümle <b>çubuk</b> için doğruydu —
+dikey bir sütundan "şu an neredeyim" okunmuyor. Halka için doğru değil: en yeni çentiğin
+açısı saatin içindeki yerin, halka sayısı kaçıncı saatte olduğun. Yani halka çubuğun aksine
+<b>hem kayıt hem sayaç.</b> Kadranın ayrıca durmasına gerek kalmıyor.</p>
+</div>
+
+</div>
+<script>
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng32(a){a=a>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const turOf=(v,m)=>{for(const b of (v.molalar||[]))if(m>=b[0]&&m<b[1])return "mola";return "is"};
+
+function izYolu(g,x,y,ax,L,w0,w1,bend,segs){
+  segs=segs||8;
+  const dx=Math.cos(ax)*L, dy=Math.sin(ax)*L, px=-Math.sin(ax), py=Math.cos(ax);
+  const ust=[],alt=[];
+  for(let i=0;i<=segs;i++){
+    const t=i/segs, e=Math.pow(1-t,.85), w=(w1+(w0-w1)*e)/2;
+    const bow=Math.sin(t*Math.PI)*bend;
+    const cx=x+dx*t+px*bow, cy=y+dy*t+py*bow;
+    ust.push([cx+px*w,cy+py*w]); alt.push([cx-px*w,cy-py*w]);
+  }
+  g.beginPath();g.moveTo(ust[0][0],ust[0][1]);
+  for(let i=1;i<ust.length;i++)g.lineTo(ust[i][0],ust[i][1]);
+  for(let i=alt.length-1;i>=0;i--)g.lineTo(alt[i][0],alt[i][1]);
+  g.closePath();
+}
+const ucOrani=r=> r<.38 ? .86 : .52+r*.24;
+
+function centik(g,x,y,ax,boy,kal,P,R,alfa){
+  const a=ax+(R()-.5)*.105, L=boy*(.92+R()*.16);
+  const w0=kal*(.90+R()*.22), w1=w0*ucOrani(R()), bend=(R()-.5)*L*.055;
+  const A=alfa===undefined?1:alfa;
+  g.save();g.translate(kal*.42,kal*.60);
+  izYolu(g,x,y,a,L*.94,w0*.85,w1*.85,bend);
+  g.fillStyle=P.ink;g.globalAlpha=.17*A;g.fill();g.restore();
+  izYolu(g,x,y,a,L,w0,w1,bend);
+  g.fillStyle=P.acc;g.globalAlpha=(.80+R()*.20)*A;g.fill();
+  if(R()<.55){izYolu(g,x,y,a,L*.20,w0*1.34,w0*1.06,0,3);g.globalAlpha=.34*A;g.fill();}
+  g.globalAlpha=1;
+}
+
+function cizHalka(g,v,o){
+  const P={acc:o.acc||css("--acc"),cool:o.cool||css("--cool"),
+           ink:o.ink||css("--ekranInk"),line:css("--line")};
+  const R=rng32(hash32("h"+(v.id||"x")));
+  const dk=Math.max(1,Math.round(v.dk)), per=o.period||60;
+  const tur=Math.ceil(dk/per), adim=(o.rMax-o.r0)/Math.max(1,tur);
+  const boy=Math.min(o.boy||adim*.86, adim*.86);
+  const A=o.alfa===undefined?1:o.alfa;
+
+  for(const b of (v.molalar||[])){
+    let a=b[0];
+    while(a<Math.min(b[1],dk)){
+      const k=Math.floor(a/per), son=Math.min(b[1],dk,(k+1)*per), rk=o.r0+k*adim;
+      const a0=-Math.PI/2+(a%per)/per*Math.PI*2;
+      const a1=-Math.PI/2+(((son-1)%per)+1)/per*Math.PI*2;
+      g.strokeStyle=P.cool;g.lineWidth=Math.max(1.1,boy*.055);g.globalAlpha=.5*A;g.lineCap="butt";
+      g.beginPath();g.arc(o.cx,o.cy,rk-boy*.10,a0,a1);g.stroke();g.globalAlpha=1;
+      a=son;
+    }
+  }
+  for(let m=0;m<dk;m++){
+    if(turOf(v,m)!=="is")continue;
+    const k=Math.floor(m/per), pos=m%per;
+    const rk=o.r0+k*adim+(R()-.5)*.9;
+    const ax=-Math.PI/2+pos/per*Math.PI*2;
+    centik(g,o.cx+Math.cos(ax)*rk,o.cy+Math.sin(ax)*rk,ax,boy,(o.kal||1.5)*1.15,P,R,A);
+    if(pos===0&&m>0){
+      const a2=ax+.030;
+      centik(g,o.cx+Math.cos(a2)*rk,o.cy+Math.sin(a2)*rk,a2,boy*.92,(o.kal||1.5)*1.15,P,R,A);
+    }
+  }
+  if(v.sayilmayan>0){
+    const uz=Math.min(1,v.sayilmayan/60)*(o.rMax*.5);
+    g.strokeStyle=P.acc;g.globalAlpha=.38*A;g.lineWidth=1.6;g.setLineDash([3,4]);g.lineCap="butt";
+    g.beginPath();g.moveTo(o.cx,o.cy+o.rMax+10);g.lineTo(o.cx,o.cy+o.rMax+10+uz);g.stroke();
+    g.setLineDash([]);g.globalAlpha=1;
+  }
+}
+
+function hhmm(dk){const s=Math.floor(dk/60),d=dk%60;
+  return s?s+":"+String(d).padStart(2,"0"):"0:"+String(d).padStart(2,"0")}
+
+function telefon(hedef,v,o,ad,not,ust,alt2){
+  const t=document.createElement("div");t.className="tel";
+  const c=document.createElement("div");c.className="cam";
+  const cv=document.createElement("canvas");c.appendChild(cv);
+  if(ust){const e=document.createElement("div");e.className="ust";e.textContent=ust;c.appendChild(e)}
+  if(v&&!o.bos){const s=document.createElement("div");s.className="sayi";s.textContent=hhmm(v.dk);c.appendChild(s)}
+  if(!v||o&&o.bos){const s=document.createElement("div");s.className="bas";s.textContent="Başlat";c.appendChild(s)}
+  if(alt2){const e=document.createElement("div");e.className="alt2";e.textContent=alt2;c.appendChild(e)}
+  const n=document.createElement("div");n.className="nav";
+  n.innerHTML="<span>SAYAÇ</span><span>KAYIT</span><span>GÖREV</span><span>AYAR</span>";
+  c.appendChild(n);
+  t.appendChild(c);
+  const a=document.createElement("div");a.className="ad";a.textContent=ad;t.appendChild(a);
+  const p=document.createElement("div");p.className="no";p.textContent=not;t.appendChild(p);
+  hedef.appendChild(t);
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=262*dpr;cv.height=540*dpr;cv.style.width="262px";cv.style.height="540px";
+  const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);
+  if(v)cizHalka(g,v,o);
+}
+
+const D3  ={id:"g-3",  dk:3,  molalar:[],sayilmayan:0};
+const D27 ={id:"g-27", dk:27, molalar:[[19,24]],sayilmayan:0};
+const D107={id:"g-107",dk:107,molalar:[[41,49],[78,84]],sayilmayan:0};
+const D362={id:"g-362",dk:362,molalar:[[55,68],[121,133],[190,205],[248,259],[310,322]],sayilmayan:26};
+
+const OY={cx:131,cy:262,r0:70,rMax:124,kal:1.35};
+
+function ciz(){
+  const S=document.getElementById("s_akis");S.innerHTML="";
+  telefon(S,D3,OY,"3. dakika",
+    "Üç çentik. Boş değil, sessiz. Yarım bir resim değil — henüz başlamış bir kayıt.",
+    "ÇALIŞIYOR","1. saat, 3. çentik");
+  telefon(S,D27,OY,"27. dakika · 5 dakikalık mola bitmiş",
+    "Molanın yeri şimdiden görünüyor: kesilmemiş bir yay. Kimse 'mola' yazmıyor.",
+    "ÇALIŞIYOR","1. saat, 27. çentik");
+  telefon(S,D107,OY,"1 saat 47 dakika",
+    "İkinci halka açılmış. Sayı hâlâ okunuyor — halkanın içi ma, doldurulmuyor.",
+    "ÇALIŞIYOR","2. saat, 47. çentik");
+  telefon(S,D362,OY,"6 saat 02 dakika · 26 dk sayılmayan",
+    "Yedi halka, beş delik, altta kesikli ray. Ekran dolu ama gürültülü değil — hepsi bilgi.",
+    "ÇALIŞIYOR","7. saat, 2. çentik");
+
+  const B=document.getElementById("s_bos");B.innerHTML="";
+  telefon(B,D107,Object.assign({},OY,{alfa:.12,bos:true}),"Boş ekran — dünün izi",
+    "Aynı çizim, %12 opaklıkta, donmuş. Bir kez 1,5 saniyede çiziliyor ve duruyor. Döngü yok.",
+    "","dün 1s 47 dk");
+  telefon(B,null,null,"İlk açılış — hiç kayıt yok",
+    "Hafıza yoksa gösterilecek hafıza da yok. Boş ekran gerçekten boş; uydurma bir tohum deseni koymuyoruz.",
+    "","");
+
+  const G=document.getElementById("s_gun");G.innerHTML="";
+  [[{id:"a",dk:118,molalar:[[52,64]],sayilmayan:0},"Dağılmadan iki saat",
+    "Tek mola, temiz iki halka."],
+   [{id:"b",dk:118,molalar:[[14,19],[31,44],[57,62],[70,88],[96,101]],sayilmayan:0},"Aynı 118 dakika, dağınık gün",
+    "Aynı süre, bambaşka resim. Beş delik. Bunu algoritma değil, o gün belirledi."],
+   [{id:"c",dk:118,molalar:[[25,30],[55,60],[85,90]],sayilmayan:0},"Aynı 118 dakika, pomodoro ritmi",
+    "Düzenli aralıklarla üç delik — ritmin kendisi görünür oluyor."]]
+  .forEach(([v,ad,not])=>telefon(G,v,OY,ad,not,"ÇALIŞIYOR",""));
+}
+ciz();
+</script></body></html>

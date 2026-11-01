@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kertik · Kadran</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:#1c1c1e;color:#a9a6a0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:15px;line-height:1.5;
+  display:flex;flex-direction:column;align-items:center;
+  padding:24px 18px 40px;gap:18px;-webkit-font-smoothing:antialiased;
+}
+.head{text-align:center;max-width:620px}
+.head h1{margin:0 0 6px;font-size:17px;font-weight:500;color:#f0ece5}
+.head p{margin:0;font-size:13.5px;color:#8a8781;line-height:1.6}
+.picker{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;max-width:720px}
+.picker .lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#6d6a65}
+.picker button{
+  font:inherit;font-size:13.5px;cursor:pointer;background:#2a2a2d;
+  border:1px solid #37373b;color:#b6b2ab;padding:7px 14px;border-radius:999px;transition:.18s
+}
+.picker button:hover{border-color:#4d4d52;color:#e6e2db}
+.picker button.on{background:#f0ece5;border-color:#f0ece5;color:#1c1c1e;font-weight:500}
+.phone{
+  width:390px;height:844px;flex-shrink:0;border-radius:46px;padding:10px;background:#2c2c2f;
+  box-shadow:0 40px 90px -30px #000, 0 0 0 1px #3b3b3f inset
+}
+.screen{width:100%;height:100%;border-radius:37px;overflow:hidden;position:relative}
+@media (max-width:460px){.phone{transform:scale(.86);transform-origin:top center;margin-bottom:-118px}}
+
+/* ---------------- uygulama ---------------- */
+.app{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  background:var(--bg);color:var(--ink);font-size:16px;line-height:1.45;
+  transition:background .6s cubic-bezier(.4,0,.2,1),color .6s
+}
+.app{
+  --bg:#F5F2EA; --ink:#16181B; --ink2:#3E4148; --muted:#726E65; --faint:#9C978C;
+  --line:#DCD5C6; --track:#DCD6C7; --accent:#B05237; --cool:#3E7C77;
+  --warn:#8B6828; --ok:#4E7855; --fill:#16181B; --onFill:#F5F2EA;
+}
+.app[data-mode="dark"]{
+  --bg:#16171A; --ink:#EDE9E0; --ink2:#BCB7AC; --muted:#948F84; --faint:#6A665E;
+  --line:#2C2D31; --track:#33343A; --accent:#D0785B; --cool:#79B3AE;
+  --warn:#C39A55; --ok:#7FA886; --fill:#EDE9E0; --onFill:#16171A;
+}
+.app[data-state="break"]{--accent:var(--cool)}
+.app *{box-sizing:border-box}
+.app button{font-family:inherit;cursor:pointer}
+
+.statusbar{
+  height:46px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:0 26px;font-size:13.5px;font-weight:600;opacity:.85
+}
+.statusbar .sig{display:flex;gap:4px;align-items:center}
+.statusbar .sig i{display:block;width:3.5px;border-radius:1px;background:currentColor}
+
+/* mod anahtarı */
+.modes{display:flex;justify-content:center;padding:2px 0 0}
+.modes .seg{
+  display:flex;background:var(--track);border-radius:999px;padding:3px;gap:2px;position:relative
+}
+.modes button{
+  border:0;background:none;color:var(--muted);font-size:13.5px;font-weight:500;
+  padding:8px 20px;border-radius:999px;transition:color .3s;position:relative;z-index:2
+}
+.modes button.on{color:var(--onFill)}
+.modes .knob{
+  position:absolute;top:3px;bottom:3px;border-radius:999px;background:var(--fill);
+  transition:left .42s cubic-bezier(.4,0,.2,1),width .42s cubic-bezier(.4,0,.2,1);z-index:1
+}
+
+.timer{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:0 26px
+}
+.eyebrow{
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+  font-weight:500;margin-bottom:20px;transition:color .6s;height:16px
+}
+.eyebrow.live{color:var(--accent)}
+
+.dialwrap{position:relative;width:310px;height:310px;display:grid;place-items:center}
+.dialwrap svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.dialwrap .center{
+  position:absolute;z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px
+}
+.dialwrap .clock{
+  font-size:44px;font-weight:250;letter-spacing:-.035em;
+  font-variant-numeric:tabular-nums;line-height:1;color:var(--ink);transition:color .6s
+}
+.dialwrap .clock.long{font-size:35px}
+.dialwrap .capt{font-size:12px;letter-spacing:.05em;color:var(--muted);height:16px}
+.head-dot{animation:pulse 3.4s ease-in-out infinite;transform-origin:center}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+.context{margin-top:16px;font-size:15px;color:var(--ink2);min-height:22px}
+.subline{margin-top:8px;font-size:13.5px;color:var(--muted);min-height:20px}
+.subline b{color:var(--ink2);font-weight:500}
+
+.presence{
+  margin-top:16px;display:none;align-items:center;gap:9px;background:none;
+  border:1px solid var(--warn);color:var(--warn);padding:10px 20px;border-radius:999px;
+  font-size:14px;font-weight:500
+}
+.presence.on{display:inline-flex}
+.presence i{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2.4s infinite}
+
+.controls{display:flex;gap:11px;margin-top:28px;justify-content:center;align-items:center;flex-wrap:wrap}
+.btn{
+  border:1px solid var(--line);background:transparent;color:var(--ink2);
+  padding:14px 26px;border-radius:999px;font-size:16px;font-weight:450;
+  transition:transform .16s cubic-bezier(.3,1.4,.5,1),background .3s,color .3s,border-color .3s
+}
+.btn:active{transform:scale(.96)}
+.btn.primary{background:var(--fill);border-color:transparent;color:var(--onFill);font-weight:550;padding:16px 40px}
+.btn.big{font-size:18px;padding:19px 54px}
+.btn.ghost{border-color:transparent;color:var(--muted);padding:14px 16px}
+.btn.mini{padding:9px 16px;font-size:13.5px;border-radius:999px}
+
+.durs{display:flex;gap:8px;margin-top:18px;justify-content:center}
+.durs button{
+  border:1px solid var(--line);background:none;color:var(--muted);
+  border-radius:999px;padding:8px 16px;font-size:13.5px;transition:.25s
+}
+.durs button.on{border-color:var(--accent);color:var(--accent)}
+
+/* seans kartı */
+.cardview{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 30px}
+.scard{
+  width:100%;border:1px solid var(--line);border-radius:22px;padding:26px 24px 22px;
+  display:flex;flex-direction:column;align-items:center;gap:2px
+}
+.scard .mini{width:200px;height:200px;position:relative}
+.scard .mini svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.scard .big{font-size:32px;font-weight:250;letter-spacing:-.03em;margin-top:14px}
+.scard .who{font-size:14.5px;color:var(--ink2)}
+.scard .when{font-size:12.5px;color:var(--muted);margin-top:2px}
+.brk{width:100%;margin-top:20px;border-top:1px solid var(--line)}
+.brk div{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.brk div span:first-child{color:var(--muted)}
+.brk div span:last-child{font-variant-numeric:tabular-nums}
+.brk div.un span:last-child{color:var(--warn)}
+
+.nav{flex-shrink:0;border-top:1px solid var(--line);display:flex}
+.nav button{
+  flex:1;background:none;border:0;color:var(--muted);padding:15px 4px 17px;
+  font-size:12.5px;transition:color .3s
+}
+.nav button.on{color:var(--ink)}
+.note{max-width:600px;text-align:center;font-size:13.5px;line-height:1.7;color:#8f8c86}
+.note b{color:#ddd8d0;font-weight:500}
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>Kertik · Kadran</h1>
+  <p>Kronometrede dolacak bir hedef yok, o yüzden halka yerine <b style="color:#ddd8d0">kertik</b> var:
+     her dakika bir çentik atılıyor, her saat yeni bir halka açılıyor. Mola çentik bırakmıyor, boşluk bırakıyor.
+     Aşağıdan hızı yükselt ve izle.</p>
+</div>
+
+<div class="picker" id="ctl">
+  <span class="lbl">Hız</span>
+  <button data-sp="1">1x</button>
+  <button data-sp="60" class="on">60x</button>
+  <button data-sp="300">300x</button>
+  <span class="lbl" style="margin-left:12px">Işık</span>
+  <button data-mode="light" class="on">Açık</button>
+  <button data-mode="dark">Koyu</button>
+  <span class="lbl" style="margin-left:12px">Ekran</span>
+  <button data-view="timer" class="on">Sayaç</button>
+  <button data-view="card">Seans kartı</button>
+  <span class="lbl" style="margin-left:12px">Test</span>
+  <button data-act="skip">teyidi kaçır</button>
+</div>
+
+<div class="phone"><div class="screen">
+  <div class="app" id="app" data-mode="light" data-state="idle">
+    <div class="statusbar">
+      <span>21:48</span>
+      <span class="sig">
+        <i style="height:6px"></i><i style="height:9px"></i><i style="height:12px"></i><i style="height:14px;opacity:.35"></i>
+        <span style="margin-left:8px;font-size:12px">78%</span>
+      </span>
+    </div>
+
+    <div class="modes" id="modes">
+      <div class="seg">
+        <div class="knob" id="knob"></div>
+        <button data-m="stopwatch" class="on">Kronometre</button>
+        <button data-m="pomodoro">Pomodoro</button>
+      </div>
+    </div>
+
+    <div class="timer" id="timerView">
+      <div class="eyebrow" id="eyebrow">hazır</div>
+      <div class="dialwrap">
+        <svg id="dial" viewBox="0 0 310 310"></svg>
+        <div class="center">
+          <div class="clock" id="clock">00<span style="opacity:.3">:</span>00</div>
+          <div class="capt" id="capt"></div>
+        </div>
+      </div>
+      <div class="context" id="context">Matematik · limit</div>
+      <div class="subline" id="subline">bugün 2s 10dk · 3 seans</div>
+      <button class="presence" id="presence"><i></i> buradayım</button>
+      <div class="durs" id="durs" style="display:none">
+        <button data-d="25">25dk</button>
+        <button data-d="50" class="on">50dk</button>
+        <button data-d="90">90dk</button>
+      </div>
+      <div class="controls" id="controls"></div>
+    </div>
+
+    <div class="cardview" id="cardView" style="display:none">
+      <div class="scard">
+        <div class="mini"><svg id="cardDial" viewBox="0 0 310 310"></svg></div>
+        <div class="big" id="cardBig">1s 38dk</div>
+        <div class="who">Matematik · limit</div>
+        <div class="when" id="cardWhen">bugün · 20:04 – 22:11</div>
+        <div class="brk" id="cardBrk"></div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="on">Sayaç</button><button>Görevler</button><button>Kayıt</button><button>Ayarlar</button>
+    </div>
+  </div>
+</div></div>
+
+<div class="note" id="note"></div>
+
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const app=$('app'), dial=$('dial'), clock=$('clock'), capt=$('capt'),
+      eyebrow=$('eyebrow'), subline=$('subline'), controls=$('controls'),
+      presence=$('presence'), durs=$('durs'), note=$('note');
+
+const NS='http://www.w3.org/2000/svg';
+const CX=155, CY=155;
+
+/* ---------------- durum ---------------- */
+let mode='stopwatch';            // stopwatch | pomodoro
+let phase='idle';                // idle | run | break | done
+let speed=60;                    // simülasyon hızı
+let t=0;                         // geçen toplam süre (dakika, ondalıklı)
+let target=50;                   // pomodoro hedefi
+let segs=[];                     // {type:'work'|'break'|'unconf', from, to}
+let lastPing=0, pinging=false;
+
+function seg(){ return segs[segs.length-1]; }
+function open(type){ segs.push({type, from:t, to:t}); }
+
+/* ---------------- kadran çizimi ---------------- */
+function arcPath(cx,cy,r,a0,a1){
+  const p=(a)=>[cx+r*Math.cos(a*Math.PI/180), cy+r*Math.sin(a*Math.PI/180)];
+  const [x0,y0]=p(a0), [x1,y1]=p(a1);
+  const large=Math.abs(a1-a0)>180?1:0;
+  return `M ${x0.toFixed(2)} ${y0.toFixed(2)} A ${r} ${r} 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
+}
+function mk(tag,attrs){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); return e; }
+
+/* verilen dakikanın tipi */
+function kindAt(m){
+  for(const s of segs) if(m>=s.from && m<s.to) return s.type;
+  return 'work';
+}
+
+const R0=114, GAP=16, RMAX=140;
+
+function drawStopwatch(svg, T, opts){
+  opts=opts||{};
+  svg.innerHTML='';
+  const laps=Math.max(1, Math.ceil(T/60));
+  const rOuter=R0+(laps-1)*GAP;
+  const s=Math.min(1, RMAX/rOuter);
+  const g=mk('g',{transform:`translate(${CX} ${CY}) scale(${s}) translate(${-CX} ${-CY})`});
+  svg.appendChild(g);
+
+  const cs=getComputedStyle(app);
+  const cAcc=cs.getPropertyValue('--accent').trim();
+  const cTrk=cs.getPropertyValue('--track').trim();
+  const cWarn=cs.getPropertyValue('--warn').trim();
+  const cCool=cs.getPropertyValue('--cool').trim();
+
+  /* her tur için soluk kılavuz yay */
+  for(let k=0;k<laps;k++){
+    const r=R0+k*GAP;
+    const from=k*60, to=Math.min(T,(k+1)*60);
+    if(to<=from) continue;
+    const a0=(from-k*60)*6-90, a1=(to-k*60)*6-90;
+    g.appendChild(mk('path',{d:arcPath(CX,CY,r,a0,Math.max(a1,a0+.01)),
+      fill:'none',stroke:cTrk,'stroke-width':1.2,'stroke-linecap':'round'}));
+  }
+
+  /* çentikler: dakikada bir */
+  const full=Math.floor(T);
+  for(let m=0;m<full;m++){
+    const k=Math.floor(m/60), mm=m%60;
+    const r=R0+k*GAP;
+    const kind=kindAt(m+.5);
+    if(kind==='break') continue;                    /* mola çentik bırakmaz */
+    let h=6.5, w=1.8, col=cAcc, op=1;
+    if(mm%15===0) h=12; else if(mm%5===0) h=9;
+    if(mm===0) h=14;
+    if(kind==='unconf'){ col=cWarn; op=.42; }
+    const a=(mm*6-90)*Math.PI/180;
+    const x0=CX+(r-h/2)*Math.cos(a), y0=CY+(r-h/2)*Math.sin(a);
+    const x1=CX+(r+h/2)*Math.cos(a), y1=CY+(r+h/2)*Math.sin(a);
+    g.appendChild(mk('line',{x1:x0.toFixed(2),y1:y0.toFixed(2),x2:x1.toFixed(2),y2:y1.toFixed(2),
+      stroke:col,'stroke-width':w,'stroke-linecap':'round',opacity:op}));
+  }
+
+  /* mola yayları: biraz daha kalın ve soğuk */
+  for(const sg of segs){
+    if(sg.type!=='break') continue;
+    let a=sg.from, b=Math.min(sg.to,T);
+    while(a<b){
+      const k=Math.floor(a/60);
+      const end=Math.min(b,(k+1)*60);
+      const r=R0+k*GAP;
+      const a0=(a-k*60)*6-90, a1=(end-k*60)*6-90;
+      if(a1>a0+.05) g.appendChild(mk('path',{d:arcPath(CX,CY,r,a0,a1),
+        fill:'none',stroke:cCool,'stroke-width':2.6,'stroke-linecap':'round',opacity:.5}));
+      a=end;
+    }
+  }
+
+  /* baş noktası */
+  if(T>0 && !opts.static){
+    const k=Math.floor(T/60), mm=T%60, r=R0+k*GAP;
+    const a=(mm*6-90)*Math.PI/180;
+    const dot=mk('circle',{cx:(CX+r*Math.cos(a)).toFixed(2),cy:(CY+r*Math.sin(a)).toFixed(2),
+      r:3.4,fill:phase==='break'?cCool:cAcc});
+    dot.setAttribute('class','head-dot');
+    g.appendChild(dot);
+  }
+}
+
+function drawPomodoro(svg, left, tot){
+  svg.innerHTML='';
+  const cs=getComputedStyle(app);
+  const cAcc=cs.getPropertyValue('--accent').trim();
+  const cTrk=cs.getPropertyValue('--track').trim();
+  const cWarn=cs.getPropertyValue('--warn').trim();
+  const r=118, n=tot;
+  const done=Math.min(n, Math.floor(tot-left));
+  const g=mk('g',{});
+  svg.appendChild(g);
+  g.appendChild(mk('circle',{cx:CX,cy:CY,r:r,fill:'none',stroke:cTrk,'stroke-width':1.2}));
+  for(let i=0;i<n;i++){
+    const ang=(i*(360/n)-90)*Math.PI/180;
+    const carved=i<done;
+    const kind=kindAt(i+.5);
+    let h=(i%5===0)?11:7, col=carved?cAcc:cTrk, w=carved?1.9:1.4, op=1;
+    if(carved && kind==='unconf'){ col=cWarn; op=.42; }
+    if(carved && kind==='break'){ col=cs.getPropertyValue('--cool').trim(); op=.5; }
+    const x0=CX+(r-h/2)*Math.cos(ang), y0=CY+(r-h/2)*Math.sin(ang);
+    const x1=CX+(r+h/2)*Math.cos(ang), y1=CY+(r+h/2)*Math.sin(ang);
+    g.appendChild(mk('line',{x1:x0.toFixed(2),y1:y0.toFixed(2),x2:x1.toFixed(2),y2:y1.toFixed(2),
+      stroke:col,'stroke-width':w,'stroke-linecap':'round',opacity:op}));
+  }
+  if(left>0 && left<tot){
+    const ang=((tot-left)*(360/n)-90)*Math.PI/180;
+    const dot=mk('circle',{cx:(CX+r*Math.cos(ang)).toFixed(2),cy:(CY+r*Math.sin(ang)).toFixed(2),
+      r:3.4,fill:cAcc});
+    dot.setAttribute('class','head-dot');
+    g.appendChild(dot);
+  }
+}
+
+/* ---------------- metin ---------------- */
+function fmt(mins){
+  const total=Math.floor(mins*60);
+  const h=Math.floor(total/3600), m=Math.floor(total%3600/60), s=total%60;
+  const sep='<span style="opacity:.3">:</span>';
+  const p=n=>String(n).padStart(2,'0');
+  return h>0 ? h+sep+p(m)+sep+p(s) : p(m)+sep+p(s);
+}
+function human(mins){
+  const t=Math.round(mins), h=Math.floor(t/60), m=t%60;
+  if(h&&m) return h+'s '+m+'dk'; if(h) return h+' saat'; return m+'dk';
+}
+function totals(){
+  let work=0,brk=0,un=0;
+  for(const s of segs){
+    const d=Math.min(s.to,t)-s.from; if(d<=0) continue;
+    if(s.type==='break') brk+=d; else if(s.type==='unconf') un+=d; else work+=d;
+  }
+  return {work,brk,un};
+}
+
+/* ---------------- görünüm ---------------- */
+function render(){
+  app.dataset.state = phase==='break' ? 'break' : 'idle';
+  const T=totals();
+
+  if(mode==='stopwatch'){
+    durs.style.display='none';
+    drawStopwatch(dial,t);
+    setClock(phase==='break' ? (t-seg().from) : t);
+    capt.textContent = t>0
+      ? (phase==='break' ? 'çalışma ' + human(T.work) + '\'da donduruldu'
+                         : Math.floor(t/60)+'. saat, '+Math.floor(t%60)+'. çentik')
+      : '';
+    if(phase==='idle'){ eyebrow.textContent='hazır'; eyebrow.className='eyebrow'; }
+    else if(phase==='break'){ eyebrow.textContent='mola'; eyebrow.className='eyebrow live'; }
+    else { eyebrow.textContent='çalışıyor'; eyebrow.className='eyebrow live'; }
+    subline.innerHTML = phase==='idle'
+      ? 'bugün <b>2s 10dk</b> · 3 seans'
+      : 'çalışma <b>'+human(T.work)+'</b> · mola '+human(T.brk);
+  } else {
+    durs.style.display = phase==='idle' ? 'flex' : 'none';
+    const left=Math.max(0,target-t);
+    drawPomodoro(dial,left,target);
+    setClock(left);
+    capt.textContent = phase==='idle' ? target+' dakika' : (target-Math.floor(left))+' / '+target+' çentik';
+    if(phase==='done'){ eyebrow.textContent='tamamlandı'; eyebrow.className='eyebrow live'; }
+    else if(phase==='idle'){ eyebrow.textContent='hazır'; eyebrow.className='eyebrow'; }
+    else if(phase==='break'){ eyebrow.textContent='mola'; eyebrow.className='eyebrow live'; }
+    else { eyebrow.textContent='çalışıyor'; eyebrow.className='eyebrow live'; }
+    subline.innerHTML = phase==='done'
+      ? '<b>'+target+'dk</b> doldu, çentikler tamam'
+      : (phase==='idle' ? 'bugün <b>2s 10dk</b> · 3 seans'
+        : 'kalan <b>'+human(left)+'</b>'+(T.un>0?' · onaylanmamış '+human(T.un):''));
+  }
+
+  presence.className = pinging ? 'presence on' : 'presence';
+
+  /* butonlar yalnız durum değişince yeniden yazılır, her karede değil */
+  const key=mode+'/'+phase;
+  if(controls.dataset.key!==key){
+    let html='';
+    if(phase==='idle') html='<button class="btn primary big" data-a="start">Başlat</button>';
+    else if(phase==='run') html='<button class="btn primary" data-a="break">Mola</button><button class="btn ghost" data-a="end">Bitir</button>';
+    else if(phase==='break') html='<button class="btn primary" data-a="resume">Devam et</button><button class="btn ghost" data-a="end">Bitir</button>';
+    else html='<button class="btn primary" data-a="reset">Yeni seans</button>';
+    controls.innerHTML=html;
+    controls.dataset.key=key;
+  }
+}
+function setClock(mins){
+  clock.innerHTML=fmt(mins);
+  clock.className = mins>=60 ? 'clock long' : 'clock';
+}
+
+/* ---------------- döngü ---------------- */
+let last=performance.now();
+function tick(now){
+  const dt=(now-last)/1000; last=now;
+  if(phase==='run'||phase==='break'){
+    t += dt*speed/60;
+    seg().to=t;
+    if(mode==='stopwatch'){
+      if(phase==='run' && !pinging && t-lastPing>=20){ pinging=true; lastPing=t; }
+    }
+    if(mode==='pomodoro' && t>=target){ t=target; phase='done'; seg().to=t; pinging=false; }
+    render();
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+/* ---------------- etkileşim ---------------- */
+controls.addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  const a=b.dataset.a;
+  if(a==='start'){ t=0; segs=[]; open('work'); phase='run'; lastPing=0; pinging=false; }
+  else if(a==='break'){ seg().to=t; open('break'); phase='break'; pinging=false; }
+  else if(a==='resume'){ seg().to=t; open('work'); phase='run'; lastPing=t; }
+  else if(a==='end'){ seg().to=t; phase='idle'; pinging=false; buildCard(); }
+  else if(a==='reset'){ t=0; segs=[]; phase='idle'; pinging=false; }
+  render();
+});
+presence.addEventListener('click', ()=>{
+  if(seg() && seg().type==='unconf'){ seg().to=t; open('work'); }
+  pinging=false; lastPing=t; render();
+});
+
+$('modes').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  mode=b.dataset.m;
+  [...b.parentElement.querySelectorAll('button')].forEach(x=>x.classList.toggle('on',x===b));
+  moveKnob(); t=0; segs=[]; phase='idle'; pinging=false; render(); setNote();
+});
+function moveKnob(){
+  const on=document.querySelector('#modes button.on'), k=$('knob');
+  k.style.left=(on.offsetLeft)+'px'; k.style.width=on.offsetWidth+'px';
+}
+durs.addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  target=+b.dataset.d;
+  [...durs.querySelectorAll('button')].forEach(x=>x.classList.toggle('on',x===b));
+  render();
+});
+$('ctl').addEventListener('click', e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  const g=sel=>[...b.parentElement.querySelectorAll(sel)].forEach(x=>x.classList.remove('on'));
+  if(b.dataset.sp){ speed=+b.dataset.sp; g('[data-sp]'); b.classList.add('on'); }
+  if(b.dataset.mode){ app.dataset.mode=b.dataset.mode; g('[data-mode]'); b.classList.add('on'); render(); }
+  if(b.dataset.act==='skip'){
+    if(phase==='run'){ seg().to=t; open('unconf'); pinging=true; render(); }
+    return;
+  }
+  if(b.dataset.view){
+    g('[data-view]'); b.classList.add('on');
+    const card=b.dataset.view==='card';
+    $('cardView').style.display=card?'flex':'none';
+    $('timerView').style.display=card?'none':'flex';
+    $('modes').style.visibility=card?'hidden':'visible';
+    if(card) buildCard(true);
+  }
+});
+
+/* ---------------- seans kartı ---------------- */
+function buildCard(demo){
+  if(demo && segs.length===0){
+    /* örnek seans: 52 çalışma, 41 mola, 24 çalışma, 22 onaylanmamış, 7 mola, 16 çalışma */
+    segs=[]; let c=0;
+    const add=(ty,d)=>{ segs.push({type:ty,from:c,to:c+d}); c+=d; };
+    add('work',52); add('break',41); add('work',24); add('unconf',22); add('break',7); add('work',16);
+    t=c;
+  }
+  const T=totals();
+  drawStopwatch($('cardDial'), t, {static:true});
+  $('cardBig').textContent=human(T.work);
+  $('cardBrk').innerHTML=
+    '<div><span>brüt süre</span><span>'+human(t)+'</span></div>'+
+    '<div><span>mola</span><span>'+human(T.brk)+'</span></div>'+
+    (T.un>0?'<div class="un"><span>onaylanmamış</span><span>'+human(T.un)+'</span></div>':'')+
+    '<div><span>çalışma olarak yazılan</span><span>'+human(T.work)+'</span></div>';
+}
+
+function setNote(){
+  note.innerHTML = mode==='stopwatch'
+    ? '<b>Kronometre.</b> Hedef yok, o yüzden dolacak bir şey de yok. Dakikada bir çentik atılıyor, altmış çentikte tur kapanıyor ve bir dıştaki halka açılıyor; kadran büyüdükçe kendini küçültüp ekrana sığıyor. Beşinci ve on beşinci çentikler daha uzun, yani cetvel gibi okunuyor. Molada çentik atılmıyor, yalnız soğuk bir yay kalıyor, yani molanın uzunluğu şeklin içinde görünüyor. Teyit gelmediğinde çentikler içi boş ve toprak sarısı çiziliyor.'
+    : '<b>Pomodoro.</b> Burada hedef var, o yüzden sayılabilir: hedef kaç dakikaysa kadranda o kadar çentik var ve teker teker kazınıyor. Aynı alfabe, farklı cümle. Dolan kalın halka yerine bu, çünkü kaç dakika kaldığını yaydan tahmin etmiyorsun, çentikleri sayabiliyorsun.';
+}
+
+moveKnob(); render(); setNote();
+window.addEventListener('resize', moveKnob);
+</script>
+</body>
+</html>

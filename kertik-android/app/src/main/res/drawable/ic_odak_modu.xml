@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Odak modu ikonu: bildirim ikonunun işareti, sistemin Modlar ekranında küçük
+     boyutta okunsun diye tam opak ve kalın çizgili. Tek renk; sistem boyar. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="#FFFFFFFF">
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2"
+        android:pathData="M 12,4.2 A 7.8,7.8 0 1,1 11.99,4.2 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M 10.9,1.6 L 13.1,1.6 L 12.6,7.6 L 11.4,7.6 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M 12,12 m -1.9,0 a 1.9,1.9 0 1,0 3.8,0 a 1.9,1.9 0 1,0 -3.8,0" />
+</vector>

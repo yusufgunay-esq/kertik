@@ -1,0 +1,6 @@
+<en-US>
+Performance improvements and bug fixes.
+</en-US>
+<tr-TR>
+Performance improvements and bug fixes.
+</tr-TR>

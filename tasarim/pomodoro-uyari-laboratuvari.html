@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Kertik — Pomodoro Bitiş Uyarısı & Akustik Laboratuvarı</title>
+<style>
+:root {
+  --bg: #0c0d0e;
+  --card-bg: rgba(25, 27, 30, 0.7);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --ink: #f0f2f5;
+  --ink-dim: #8e95a0;
+  --accent: #d4a373;
+  --accent-glow: rgba(212, 163, 115, 0.25);
+  --accent-bright: #faedcd;
+  --green: #81c784;
+  --font-mono: "SF Mono", "Fira Code", monospace;
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  background-image: 
+    radial-gradient(circle at 50% 10%, rgba(212, 163, 115, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(129, 199, 132, 0.04) 0%, transparent 50%);
+  -webkit-font-smoothing: antialiased;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 2rem;
+  max-width: 600px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(212, 163, 115, 0.12);
+  border: 1px solid rgba(212, 163, 115, 0.25);
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  margin-bottom: 0.75rem;
+}
+
+h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+p.subtitle {
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.container {
+  width: 100%;
+  max-width: 780px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-title .icon {
+  font-size: 1.2rem;
+}
+
+/* Sound Player Items */
+.sound-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sound-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.sound-item:hover, .sound-item.active {
+  background: rgba(212, 163, 115, 0.1);
+  border-color: rgba(212, 163, 115, 0.3);
+  transform: translateY(-1px);
+}
+
+.sound-info h4 {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.sound-info p {
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+}
+
+.play-btn {
+  background: var(--accent);
+  color: #0c0d0e;
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: transform 0.15s, background 0.2s;
+  flex-shrink: 0;
+}
+
+.play-btn:hover {
+  transform: scale(1.08);
+  background: var(--accent-bright);
+}
+
+.play-btn:active {
+  transform: scale(0.95);
+}
+
+/* Live Simulator */
+.timer-display-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  padding: 2rem 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.status-chip {
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  background: rgba(212, 163, 115, 0.1);
+}
+
+.timer-clock {
+  font-family: var(--font-mono);
+  font-size: 3.2rem;
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+  transition: color 0.3s;
+}
+
+.timer-clock.overtime {
+  color: #e5989b;
+  text-shadow: 0 0 20px rgba(229, 152, 155, 0.4);
+}
+
+.timer-sub {
+  font-size: 0.85rem;
+  color: var(--ink-dim);
+}
+
+/* Switch & Controls */
+.switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.switch-label h4 {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.switch-label p {
+  font-size: 0.75rem;
+  color: var(--ink-dim);
+}
+
+.toggle-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  width: 48px;
+  height: 26px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.toggle-btn.on {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.toggle-thumb {
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.toggle-btn.on .toggle-thumb {
+  transform: translateX(22px);
+}
+
+.btn-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.btn {
+  flex: 1;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: #0c0d0e;
+}
+
+.btn.primary:hover {
+  background: var(--accent-bright);
+}
+
+.btn.secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Akustik ve Davranış Laboratuvarı</div>
+  <h1>Pomodoro Bitiş Uyarısı & Fazladan Süre</h1>
+  <p class="subtitle">Pomodoro hedef süresi bittiğinde çalan kayıpsız Web Audio Zen seslerini dinleyin ve sürenin durma/artı sayma davranışını simüle edin.</p>
+</header>
+
+<div class="container">
+
+  <!-- SOUND SYNTHESIS PANEL -->
+  <div class="card">
+    <div class="card-title">
+      <span class="icon">🔔</span>
+      <span>44.1 kHz Kayıpsız Akustik Sentezleyiciler</span>
+    </div>
+
+    <div class="sound-list">
+      
+      <div class="sound-item active" onclick="secVeCal('zen')">
+        <div class="sound-info">
+          <h4>1. Tibet Kâsesi / Zen Çanı (Önerilen)</h4>
+          <p>432 Hz · Çok katmanlı harmonik rezonans & 3.5s sıcak sönümlenme</p>
+        </div>
+        <button class="play-btn" title="Çal">▶</button>
+      </div>
+
+      <div class="sound-item" onclick="secVeCal('tapinak')">
+        <div class="sound-info">
+          <h4>2. Tapınak Gongu (Mabet Çanı)</h4>
+          <p>528 Hz · Net, aydınlık ve kristal berraklığında derin titreşim</p>
+        </div>
+        <button class="play-btn" title="Çal">▶</button>
+      </div>
+
+      <div class="sound-item" onclick="secVeCal('rin')">
+        <div class="sound-info">
+          <h4>3. Japon Rin Çanı (Minimalist)</h4>
+          <p>640 Hz · Yüksek tonlu, saf ve zarif kısa tını</p>
+        </div>
+        <button class="play-btn" title="Çal">▶</button>
+      </div>
+
+    </div>
+
+    <div style="font-size: 0.8rem; color: var(--ink-dim); line-height: 1.4; background: rgba(0,0,0,0.25); padding: 0.8rem; border-radius: 10px;">
+      💡 <strong>Not:</strong> Bu sesler harici hiçbir ses dosyası (.mp3 / .wav) yüklemeden, tarayıcının kendi <em>Web Audio API</em> motoruyla saf matematiksel dalgalardan anında üretilir. Sıfır gecikme ve sıfır dosya boyutu sağlar.
+    </div>
+  </div>
+
+  <!-- LIVE SIMULATOR PANEL -->
+  <div class="card">
+    <div class="card-title">
+      <span class="icon">⏱️</span>
+      <span>Canlı Pomodoro & Bitiş Simülatörü</span>
+    </div>
+
+    <div class="timer-display-box">
+      <div class="status-chip" id="simStatus">Hazır</div>
+      <div class="timer-clock" id="simClock">00:05</div>
+      <div class="timer-sub" id="simSub">Test için 5 saniyelik hızlı seans</div>
+    </div>
+
+    <div class="switch-row">
+      <div class="switch-label">
+        <h4>Pomodoro Dolunca Artı Say (+00:01)</h4>
+        <p>Akışı bölmeden fazladan çalışma süresini kaydeder</p>
+      </div>
+      <div class="toggle-btn on" id="toggleOvertime" onclick="toggleOvertime()">
+        <div class="toggle-thumb"></div>
+      </div>
+    </div>
+
+    <div class="switch-row">
+      <div class="switch-label">
+        <h4>Haptik Titreşim Desteği</h4>
+        <p>Cihaz destekliyorsa titreşim deseni verir</p>
+      </div>
+      <div class="toggle-btn on" id="toggleHaptic" onclick="toggleHaptic()">
+        <div class="toggle-thumb"></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn primary" id="btnTestStart" onclick="startFastTest()">
+        <span>⚡ 5sn Hızlı Testi Başlat</span>
+      </button>
+      <button class="btn secondary" id="btnTestReset" onclick="resetTest()">
+        <span>Sıfırla</span>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ------------------------------------------------------------
+   44.1 kHz WEB AUDIO SYNTHESIS ENGINE (Kayıpsız Akustik)
+   ------------------------------------------------------------ */
+let audioCtx = null;
+function getAudioContext() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
+  if (audioCtx.state === "suspended") audioCtx.resume();
+  return audioCtx;
+}
+
+let seciliSes = "zen";
+
+function secVeCal(tur) {
+  seciliSes = tur;
+  document.querySelectorAll(".sound-item").forEach((el, idx) => {
+    el.classList.toggle("active", (tur === "zen" && idx === 0) || (tur === "tapinak" && idx === 1) || (tur === "rin" && idx === 2));
+  });
+  calSes(tur);
+}
+
+/* 1. Tibet Kâsesi / Zen Çanı (432 Hz + Harmonik Rezonans) */
+function sesCalZenCani() {
+  try {
+    const ctx = getAudioContext();
+    const sr = ctx.sampleRate || 44100;
+    const dur = 3.6;
+    const numSamples = Math.floor(sr * dur);
+    const buffer = ctx.createBuffer(1, numSamples, sr);
+    const data = buffer.getChannelData(0);
+
+    const f0 = 432.0;
+    const partials = [
+      { ratio: 1.000, decay: 3.4, gain: 0.65, detune: 0.0 },
+      { ratio: 2.756, decay: 2.8, gain: 0.35, detune: 1.2 },
+      { ratio: 5.404, decay: 1.9, gain: 0.20, detune: -0.8 },
+      { ratio: 8.932, decay: 1.2, gain: 0.10, detune: 2.1 }
+    ];
+
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sr;
+      let sample = 0;
+      const mallet = Math.exp(-t * 220) * Math.sin(2 * Math.PI * 180 * t) * 0.18;
+      for (const p of partials) {
+        const freq = (f0 * p.ratio) + p.detune;
+        const shimmer = 1 + 0.15 * Math.sin(2 * Math.PI * 2.2 * t);
+        const env = Math.exp(-t / p.decay);
+        sample += Math.sin(2 * Math.PI * freq * t) * env * p.gain * shimmer;
+      }
+      data[i] = Math.tanh((mallet + sample) * 0.7);
+    }
+
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(ctx.destination);
+    src.start();
+  } catch (e) { console.error(e); }
+}
+
+/* 2. Tapınak Gongu / Mabet Çanı (528 Hz) */
+function sesCalTapinakGongu() {
+  try {
+    const ctx = getAudioContext();
+    const sr = ctx.sampleRate || 44100;
+    const dur = 3.2;
+    const numSamples = Math.floor(sr * dur);
+    const buffer = ctx.createBuffer(1, numSamples, sr);
+    const data = buffer.getChannelData(0);
+
+    const f0 = 528.0;
+    const partials = [
+      { ratio: 1.0, decay: 3.0, gain: 0.60 },
+      { ratio: 2.0, decay: 2.2, gain: 0.28 },
+      { ratio: 3.01, decay: 1.5, gain: 0.18 },
+      { ratio: 4.18, decay: 0.9, gain: 0.12 }
+    ];
+
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sr;
+      let sample = 0;
+      const strike = Math.exp(-t * 300) * (Math.random() * 2 - 1) * 0.15;
+      for (const p of partials) {
+        const env = Math.exp(-t / p.decay);
+        sample += Math.sin(2 * Math.PI * (f0 * p.ratio) * t) * env * p.gain;
+      }
+      data[i] = Math.tanh((strike + sample) * 0.75);
+    }
+
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(ctx.destination);
+    src.start();
+  } catch (e) { console.error(e); }
+}
+
+/* 3. Japon Rin Çanı (640 Hz) */
+function sesCalRinCani() {
+  try {
+    const ctx = getAudioContext();
+    const sr = ctx.sampleRate || 44100;
+    const dur = 2.4;
+    const numSamples = Math.floor(sr * dur);
+    const buffer = ctx.createBuffer(1, numSamples, sr);
+    const data = buffer.getChannelData(0);
+
+    const f0 = 640.0;
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sr;
+      const env1 = Math.exp(-t / 2.2);
+      const env2 = Math.exp(-t / 1.1);
+      const s1 = Math.sin(2 * Math.PI * f0 * t) * env1 * 0.7;
+      const s2 = Math.sin(2 * Math.PI * (f0 * 2.76) * t) * env2 * 0.3;
+      data[i] = Math.tanh((s1 + s2) * 0.8);
+    }
+
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(ctx.destination);
+    src.start();
+  } catch (e) { console.error(e); }
+}
+
+function calSes(tur) {
+  if (tur === "zen") sesCalZenCani();
+  else if (tur === "tapinak") sesCalTapinakGongu();
+  else if (tur === "rin") sesCalRinCani();
+}
+
+/* ------------------------------------------------------------
+   HAPTİK TİTREŞİM
+   ------------------------------------------------------------ */
+let haptikAcik = true;
+function toggleHaptic() {
+  haptikAcik = !haptikAcik;
+  document.getElementById("toggleHaptic").classList.toggle("on", haptikAcik);
+}
+
+function buzz(pattern) {
+  if (!haptikAcik) return;
+  try {
+    if (navigator.vibrate) navigator.vibrate(pattern);
+  } catch (e) {}
+}
+
+/* ------------------------------------------------------------
+   SİMÜLATÖR MOTORU
+   ------------------------------------------------------------ */
+let overtimeAcik = true;
+function toggleOvertime() {
+  overtimeAcik = !overtimeAcik;
+  document.getElementById("toggleOvertime").classList.toggle("on", overtimeAcik);
+}
+
+let testTimer = null;
+let testDuration = 5;
+let testElapsed = 0;
+let testRunning = false;
+let testCompleted = false;
+
+function pad(n) { return n < 10 ? "0" + n : String(n); }
+function formatTime(s) {
+  const m = Math.floor(Math.abs(s) / 60);
+  const sec = Math.abs(s) % 60;
+  return (s < 0 ? "+" : "") + pad(m) + ":" + pad(sec);
+}
+
+function startFastTest() {
+  resetTest();
+  testRunning = true;
+  testElapsed = 0;
+  testCompleted = false;
+  document.getElementById("simStatus").textContent = "Çalışıyor (Odak)";
+  document.getElementById("simSub").textContent = "Pomodoro geri sayımı devam ediyor...";
+  document.getElementById("btnTestStart").disabled = true;
+
+  testTimer = setInterval(() => {
+    testElapsed++;
+    const left = testDuration - testElapsed;
+
+    const clockEl = document.getElementById("simClock");
+
+    if (left > 0) {
+      clockEl.textContent = formatTime(left);
+      clockEl.classList.remove("overtime");
+    } else if (left === 0) {
+      clockEl.textContent = "00:00";
+      clockEl.classList.remove("overtime");
+      if (!testCompleted) {
+        testCompleted = true;
+        document.getElementById("simStatus").textContent = "Hedef Doldu! 🔔";
+        document.getElementById("simSub").textContent = overtimeAcik 
+          ? "Akış korunuyor: Fazladan süre sayılıyor (+)" 
+          : "Pomodoro tamamlandı, sayaç durduruldu.";
+
+        calSes(seciliSes);
+        buzz([80, 100, 80, 100, 120]);
+
+        if (!overtimeAcik) {
+          clearInterval(testTimer);
+          testRunning = false;
+          document.getElementById("btnTestStart").disabled = false;
+          return;
+        }
+      }
+    } else {
+      clockEl.textContent = "+" + pad(Math.floor(-left / 60)) + ":" + pad(-left % 60);
+      clockEl.classList.add("overtime");
+      document.getElementById("simSub").textContent = `Fazladan ${-left} saniye odaklanıldı`;
+    }
+  }, 1000);
+}
+
+function resetTest() {
+  if (testTimer) clearInterval(testTimer);
+  testRunning = false;
+  testElapsed = 0;
+  testCompleted = false;
+  document.getElementById("simStatus").textContent = "Hazır";
+  document.getElementById("simClock").textContent = "00:05";
+  document.getElementById("simClock").classList.remove("overtime");
+  document.getElementById("simSub").textContent = "Test için 5 saniyelik hızlı seans";
+  document.getElementById("btnTestStart").disabled = false;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+- generic [active] [ref=f24e1]:
+  - generic [ref=f24e2]:
+    - generic [ref=f24e3]:
+      - generic [ref=f24e26]:
+        - button "kronometre" [ref=f24e28] [cursor=pointer]
+        - button "pomodoro" [ref=f24e29] [cursor=pointer]
+      - generic [ref=f24e5]:
+        - generic [ref=f24e6]:
+          - generic [ref=f24e7]:
+            - generic [ref=f24e8]: hazır
+            - button "Masaüstü Odak Modu" [ref=f24e9] [cursor=pointer]
+          - generic [ref=f24e12]: 00:00
+        - generic [ref=f24e13]:
+          - generic [ref=f24e30]: bugün 2s 23dk · 2 seans
+          - generic: çalıştıkça bir şeyler oluyor
+          - button "başlat" [ref=f24e31] [cursor=pointer]
+    - navigation [ref=f24e32]:
+      - button "sayaç" [ref=f24e33] [cursor=pointer]
+      - button "görevler" [ref=f24e34] [cursor=pointer]
+      - button "kayıt" [ref=f24e35] [cursor=pointer]
+      - button "ayarlar" [ref=f24e36] [cursor=pointer]
+  - generic [ref=f24e38]:
+    - heading "1s 57dk çalışma yazıyorum" [level=3] [ref=f24e39]
+    - paragraph [ref=f24e40]: molaya basmayı unuttuğun bir bölüm oldu mu?
+    - button "hayır, hepsi çalışmaydı" [ref=f24e41] [cursor=pointer]
+    - button "evet, yaklaşık 15 dakika" [ref=f24e42] [cursor=pointer]
+    - button "evet, yaklaşık 30 dakika" [ref=f24e43] [cursor=pointer]
+    - button "evet, yaklaşık 1 saat" [ref=f24e44] [cursor=pointer]
+    - button "başka bir süre" [ref=f24e45] [cursor=pointer]

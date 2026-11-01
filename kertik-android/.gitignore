@@ -1,0 +1,23 @@
+*.iml
+.gradle/
+/local.properties
+/.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Sırlar asla depoya girmez
+gizli.properties
+imza.properties
+*.p12
+*.jks
+*.keystore
+*.b64
+
+# test bağımlılıkları
+node_modules/
+package.json
+package-lock.json

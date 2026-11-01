@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="tr" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kertik — Taş Halleri ve Kintsugi Karşılaştırması</title>
+<style>
+  :root {
+    --bg: #F5F2EA;
+    --paper: #EFECE3;
+    --ink: #1C1B18;
+    --line: #DDD8CB;
+    --muted: #8A8578;
+    --accent: #9E3A26;
+    --altin: #C9963C;
+    --altin-p: #F2D79A;
+    --sand-ridge: #E3DEC3;
+    --tas: #1C1B18;
+    --tas-golge: #1C1B18;
+    --tas-golge-o: 0.18;
+    --tas-isik: #F5F2EA;
+    --tas-isik-o: 0.34;
+    --tas-parca-o: 0.84;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  }
+  html.dark {
+    --bg: #141311;
+    --paper: #1C1B18;
+    --ink: #EDE8DD;
+    --line: #2C2A24;
+    --muted: #8A8578;
+    --accent: #E05338;
+    --altin: #D8A84E;
+    --altin-p: #F5E3B8;
+    --sand-ridge: #26241E;
+    --tas: #E4DFD3;
+    --tas-golge: #000000;
+    --tas-golge-o: 0.45;
+    --tas-isik: #FFFFFF;
+    --tas-isik-o: 0.18;
+    --tas-parca-o: 0.88;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    padding: 2.5rem 1.5rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: background .25s ease, color .25s ease;
+  }
+  .container {
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .75rem;
+  }
+  .eyebrow {
+    font-size: 0.82rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  h1 {
+    font-size: 1.85rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+  }
+  .desc {
+    color: var(--muted);
+    font-size: 0.95rem;
+    max-width: 600px;
+    line-height: 1.5;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    align-self: center;
+  }
+  .toolbar button {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 0.45rem 1rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all .15s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .toolbar button:hover {
+    background: var(--line);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+  }
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+  }
+  .card-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    background: var(--line);
+    color: var(--muted);
+  }
+  .card-badge.gold {
+    background: rgba(201, 150, 60, 0.18);
+    color: var(--altin);
+  }
+  .card-badge.dust {
+    background: rgba(138, 133, 120, 0.18);
+    color: var(--muted);
+  }
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-align: center;
+  }
+  .card-desc {
+    font-size: 0.84rem;
+    color: var(--muted);
+    line-height: 1.45;
+    text-align: center;
+    min-height: 3.8em;
+  }
+  .preview-box {
+    width: 180px;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    border-radius: 14px;
+    border: 1px dashed var(--line);
+    position: relative;
+    overflow: hidden;
+  }
+  svg.stone-svg {
+    width: 130px;
+    height: 130px;
+    overflow: visible;
+  }
+  canvas.stone-canvas {
+    width: 180px;
+    height: 180px;
+  }
+  .mode-switch {
+    display: flex;
+    gap: 0.35rem;
+    background: var(--bg);
+    padding: 3px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+  }
+  .mode-switch button {
+    border: none;
+    background: none;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .mode-switch button.active {
+    background: var(--paper);
+    color: var(--ink);
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="eyebrow">Kertik · Malzeme ve Kader Karşılaştırması</div>
+    <h1>Taşın 4 Hâli ve Kintsugi</h1>
+    <p class="desc">
+      İnsan iradesiyle vazgeçilen seans (taze kırık), zamana terk edilen seans (tozlu / kumlu kırık) ve dönüşle onarılan seans (kintsugi).
+    </p>
+    
+    <div class="toolbar">
+      <div class="mode-switch">
+        <button id="btnViewSvg" class="active" onclick="setViewMode('svg')">Kayıt Duvarı (SVG)</button>
+        <button id="btnViewCanvas" onclick="setViewMode('canvas')">Canlı Bahçe (Canvas)</button>
+      </div>
+      <button onclick="toggleTheme()">🌓 Açık / Koyu</button>
+      <button onclick="randomizeSeed()">🎲 Tohum Değiştir (<span id="seedLabel">42</span>)</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- 1. SAĞLAM TAŞ -->
+    <div class="card">
+      <span class="card-badge">Tam Odak</span>
+      <div class="preview-box" id="box1"></div>
+      <div class="card-title">1. Sağlam Taş</div>
+      <div class="card-desc">
+        Hedef süre boyunca kesintisiz çalışıldı. Taş pürüzsüz oturur, ışık ve gölgesi tamdır.
+      </div>
+    </div>
+
+    <!-- 2. ERKEN BIRAKMA -->
+    <div class="card">
+      <span class="card-badge">Bizzat Vazgeçme</span>
+      <div class="preview-box" id="box2"></div>
+      <div class="card-title">2. Erken Bırakma</div>
+      <div class="card-desc">
+        Süre dolmadan çıkıldı. Taş keskin bir hatla ikiye ayrıldı. Taze kırık berraktır, tozu yoktur.
+      </div>
+    </div>
+
+    <!-- 3. UZUN MOLA TERK -->
+    <div class="card">
+      <span class="card-badge dust">Zaman & Rüzgâr</span>
+      <div class="preview-box" id="box3"></div>
+      <div class="card-title">3. Tozlanmış / Kumlu Taş</div>
+      <div class="card-desc">
+        30+ dk molada terk edildi. Rüzgâr kum savurdu; fay hattında kum pusu ve taş sırtında kum zerrecikleri birikti.
+      </div>
+    </div>
+
+    <!-- 4. KINTSUGI ONARIMI -->
+    <div class="card">
+      <span class="card-badge gold">Dönüş Bedeli</span>
+      <div class="preview-box" id="box4"></div>
+      <div class="card-title">4. Kintsugi Onarımı</div>
+      <div class="card-desc">
+        Günün sonraki seansı tam bitirildi. Tozlu çatlağın içine saf altın vernik döküldü; yara yüceltildi.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentSeed = 42;
+let viewMode = 'svg';
+
+function css(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function mk(tag, attrs) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+
+function hash32(t) {
+  let h = 2166136261;
+  for (let i = 0; i < t.length; i++) {
+    h ^= t.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+function rng32(a) {
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function vnoise(x, y, s) {
+  const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
+  const h = (i, j) => {
+    let n = (xi + i) * 374761393 + (yi + j) * 668265263 + (s || 0) * 1013904223;
+    n = (n ^ (n >> 13)) * 1274126177;
+    return ((n ^ (n >> 16)) & 0x7fffffff) / 0x7fffffff;
+  };
+  const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+  return h(0,0)*(1-u)*(1-v) + h(1,0)*u*(1-v) + h(0,1)*(1-u)*v + h(1,1)*u*v;
+}
+
+function fbm(x, y, s) {
+  return vnoise(x, y, s) * .6 + vnoise(x * 2.1, y * 2.1, s + 7) * .27 + vnoise(x * 4.3, y * 4.3, s + 13) * .13;
+}
+
+/* SVG Rendering from Kertik Core */
+function tasSvg(g, cx, tabanY, r, seed, isBottom, isKirik, isAltin, isTozlu) {
+  const R = rng32(seed);
+  const rot = (R() - .5) * .35;
+  const el = .76 + R() * .20;
+  const seedT = seed;
+  const N = 12;
+  const cy = tabanY - r;
+  const nokta = i => {
+    const a = rot + i / N * Math.PI * 2;
+    const rad = r * (.90 + fbm(Math.cos(a) * 1.8, Math.sin(a) * 1.8, seedT % 89) * .22);
+    return [cx + Math.cos(a) * rad, cy + Math.sin(a) * rad * el];
+  };
+  const yol = (dx, dy, sx, sy) => {
+    let d = "";
+    for (let i = 0; i <= N; i++) {
+      const [x, y] = nokta(i);
+      const px = cx + (x - cx) * (sx || 1) + dx;
+      const py = cy + (y - cy) * (sy || 1) + dy;
+      d += (i ? "L" : "M") + px.toFixed(2) + "," + py.toFixed(2) + " ";
+    }
+    return d + "Z";
+  };
+  const tasRengi = css("--tas") || css("--ink");
+  const golgeRengi = css("--tas-golge") || css("--ink");
+  const golgeOp = parseFloat(css("--tas-golge-o")) || .18;
+  const isikRengi = css("--tas-isik") || css("--bg");
+  const isikOp = parseFloat(css("--tas-isik-o")) || .34;
+  const parcaOp = parseFloat(css("--tas-parca-o")) || .84;
+
+  /* 1. Zemin gölgesi */
+  g.appendChild(mk("path", {
+    d: yol(r * .08, r * .78, 1.15, .28),
+    fill: golgeRengi, opacity: golgeOp
+  }));
+
+  if (!isKirik) {
+    /* 2. Taş gövdesi */
+    g.appendChild(mk("path", { d: yol(0, 0, 1, 1), fill: tasRengi, opacity: .94 }));
+    /* 3. Işık parıltısı */
+    g.appendChild(mk("ellipse", {
+      cx: (cx - r * .24).toFixed(2), cy: (cy - r * .22).toFixed(2),
+      rx: (r * .36).toFixed(2), ry: (r * .18).toFixed(2),
+      fill: isikRengi, opacity: isikOp, transform: `rotate(-15 ${cx.toFixed(2)} ${cy.toFixed(2)})`
+    }));
+    return;
+  }
+
+  /* ---------- KIRIK ---------- */
+  const a = Math.floor(R() * N) % N;
+  const b = (a + 5 + Math.floor(R() * 3)) % N;
+  const PA = nokta(a), PB = nokta(b);
+  const vx = PB[0] - PA[0], vy = PB[1] - PA[1];
+  const L = Math.hypot(vx, vy) || 1;
+  const nx = -vy / L, ny = vx / L;
+
+  const K = 5, fay = [PA];
+  for (let i = 1; i < K; i++) {
+    const t = i / K, s = Math.sin(t * Math.PI);
+    const j = (R() - .5) * r * .38 * s;
+    fay.push([PA[0] + vx * t + nx * j, PA[1] + vy * t + ny * j]);
+  }
+  fay.push(PB);
+  const kirikD = fay.map((p, i) => (i ? "L" : "M") + p[0].toFixed(2) + "," + p[1].toFixed(2)).join(" ");
+
+  const arc = (from, to) => { const o = []; let i = from; for (;;) { o.push(nokta(i)); if (i === to) break; i = (i + 1) % N; } return o; };
+  const ic = fay.slice(1, -1);
+  const parca1 = arc(a, b).concat(ic.slice().reverse());
+  const parca2 = arc(b, a).concat(ic);
+  const kapali = pts => pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(2) + "," + p[1].toFixed(2)).join(" ") + " Z";
+  const alan = pts => { let s = 0; for (let i = 0; i < pts.length; i++) { const q = pts[(i + 1) % pts.length]; s += pts[i][0] * q[1] - q[0] * pts[i][1]; } return Math.abs(s) / 2; };
+  const kucukIlk = alan(parca1) < alan(parca2);
+  const buyuk = kucukIlk ? parca2 : parca1;
+  const kucuk = kucukIlk ? parca1 : parca2;
+
+  const mrk = pts => { let x = 0, y = 0; pts.forEach(p => { x += p[0]; y += p[1]; }); return [x / pts.length, y / pts.length]; };
+  const mk2 = mrk(kucuk);
+  let ox = mk2[0] - cx, oy = mk2[1] - cy;
+  const on = Math.hypot(ox, oy) || 1; ox /= on; oy /= on;
+  const ayrik = isAltin ? r * .03 : r * .15;
+  const aci = (isAltin ? .9 : 3.6) * (R() < .5 ? -1 : 1);
+  const my = (fay[0][1] + fay[K][1]) / 2, mx = (fay[0][0] + fay[K][0]) / 2;
+
+  g.appendChild(mk("path", { d: kapali(buyuk), fill: tasRengi, opacity: .94 }));
+  g.appendChild(mk("path", {
+    d: kirikD, fill: "none", stroke: tasRengi,
+    "stroke-width": Math.max(.6, r * .06).toFixed(2),
+    "stroke-linecap": "round", "stroke-linejoin": "round", opacity: 1
+  }));
+
+  const gk = mk("g", {
+    transform: `translate(${(ox * ayrik).toFixed(2)},${(oy * ayrik).toFixed(2)}) rotate(${aci.toFixed(2)} ${mx.toFixed(2)} ${my.toFixed(2)})`
+  });
+  gk.appendChild(mk("path", { d: kapali(kucuk), fill: tasRengi, opacity: parcaOp }));
+  g.appendChild(gk);
+
+  /* 2d. Terk edilmiş / rüzgar aşınması (tozlu yüzey ve mikro kum zerrecikleri) */
+  if (isTozlu) {
+    const tozRengi = css("--line") || css("--sand-ridge") || tasRengi;
+    g.appendChild(mk("path", {
+      d: kirikD, fill: "none", stroke: tozRengi,
+      "stroke-width": Math.max(1.2, r * .18).toFixed(2),
+      "stroke-linecap": "round", "stroke-linejoin": "round", opacity: .28
+    }));
+    const Rtoz = rng32(((seedT | 0) + 7733) >>> 0);
+    const tozSayisi = Math.min(18, Math.max(6, Math.floor(r * .8)));
+    for (let i = 0; i < tozSayisi; i++) {
+      const fi = Math.floor(Rtoz() * (K - 1));
+      const p1 = fay[fi], p2 = fay[fi + 1] || fay[K];
+      const sub = Rtoz();
+      const px = p1[0] + (p2[0] - p1[0]) * sub + (Rtoz() - .5) * r * .35;
+      const py = p1[1] + (p2[1] - p1[1]) * sub + (Rtoz() - .5) * r * .28;
+      const rad = (.4 + Rtoz() * .55).toFixed(2);
+      g.appendChild(mk("circle", {
+        cx: px.toFixed(2), cy: py.toFixed(2), r: rad,
+        fill: tozRengi, opacity: (.35 + Rtoz() * .40).toFixed(2)
+      }));
+    }
+  }
+
+  if (!isAltin) return;
+
+  /* 3. KINTSUGI */
+  const altin = css("--altin") || css("--warn");
+  const altinP = css("--altin-p") || css("--altin") || css("--warn");
+  const iceri = (p, q, k) => [p[0] + (q[0] - p[0]) * k, p[1] + (q[1] - p[1]) * k];
+  const aFay = fay.slice();
+  aFay[0] = iceri(fay[0], fay[1], .16);
+  aFay[K] = iceri(fay[K], fay[K - 1], .16);
+  const fayD = aFay.map((p, i) => (i ? "L" : "M") + p[0].toFixed(2) + "," + p[1].toFixed(2)).join(" ");
+  g.appendChild(mk("path", {
+    d: fayD, fill: "none", stroke: altin,
+    "stroke-width": Math.max(1.2, r * .30).toFixed(2),
+    "stroke-linecap": "round", "stroke-linejoin": "round", opacity: .20
+  }));
+  g.appendChild(mk("path", {
+    d: fayD, fill: "none", stroke: altin,
+    "stroke-width": Math.max(.9, r * .105).toFixed(2),
+    "stroke-linecap": "round", "stroke-linejoin": "round", opacity: .95
+  }));
+  if (r > 16) g.appendChild(mk("path", {
+    d: fayD, fill: "none", stroke: altinP,
+    "stroke-width": Math.max(.5, r * .05).toFixed(2),
+    "stroke-linecap": "round", "stroke-linejoin": "round", opacity: .75
+  }));
+}
+
+/* Canvas Rendering from Kertik Core */
+function renderCanvasStone(canvas, t) {
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  
+  ctx.save();
+  ctx.translate(w/2, h/2);
+  ctx.scale(1, t.e || 0.85);
+
+  const N = 26, P = [];
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * Math.PI * 2;
+    const rr = t.r * (.85 + fbm(Math.cos(a) * 2.1 + 3, Math.sin(a) * 2.1 + 7, t.tohum) * .33);
+    P.push([Math.cos(a) * rr, Math.sin(a) * rr]);
+  }
+
+  if (!t.kirik) {
+    ctx.beginPath();
+    P.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fillStyle = css("--ink");
+    ctx.globalAlpha = 0.85;
+    ctx.fill();
+    ctx.restore();
+    return;
+  }
+
+  const R = rng32(((t.tohum | 0) + 991) >>> 0);
+  const a0 = Math.floor(R() * N) % N;
+  const b0 = (a0 + Math.round(N * .40) + Math.floor(R() * (N * .18))) % N;
+  const PA = P[a0], PB = P[b0];
+  const vx = PB[0] - PA[0], vy = PB[1] - PA[1];
+  const L = Math.hypot(vx, vy) || 1, nx = -vy / L, ny = vx / L;
+  const K = 5, fay = [PA];
+  for (let i = 1; i < K; i++) {
+    const u = i / K, zarf = Math.sin(u * Math.PI);
+    const j = (R() - .5) * t.r * .38 * zarf;
+    fay.push([PA[0] + vx * u + nx * j, PA[1] + vy * u + ny * j]);
+  }
+  fay.push(PB);
+  const arc = (from, to) => { const o = []; let i = from; for (;;) { o.push(P[i]); if (i === to) break; i = (i + 1) % N; } return o; };
+  const ic = fay.slice(1, -1);
+  const p1 = arc(a0, b0).concat(ic.slice().reverse());
+  const p2 = arc(b0, a0).concat(ic);
+  const alan = pts => { let a = 0; for (let i = 0; i < pts.length; i++) { const q = pts[(i + 1) % pts.length]; a += pts[i][0] * q[1] - q[0] * pts[i][1]; } return Math.abs(a) / 2; };
+  const kucukIlk = alan(p1) < alan(p2);
+  const buyuk = kucukIlk ? p2 : p1, kucuk = kucukIlk ? p1 : p2;
+  const yol = pts => { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.closePath(); };
+  const mrk = pts => { let x = 0, y = 0; pts.forEach(p => { x += p[0]; y += p[1]; }); return [x / pts.length, y / pts.length]; };
+
+  const mk2 = mrk(kucuk);
+  let ox = mk2[0], oy = mk2[1];
+  const on = Math.hypot(ox, oy) || 1; ox /= on; oy /= on;
+  const ayrik = t.altin ? t.r * .03 : t.r * .15;
+  const aci = (t.altin ? .9 : 3.6) * Math.PI / 180 * (R() < .5 ? -1 : 1);
+  const mx = (fay[0][0] + fay[K][0]) / 2, my = (fay[0][1] + fay[K][1]) / 2;
+
+  ctx.fillStyle = css("--ink");
+  ctx.globalAlpha = 0.85;
+  yol(buyuk); ctx.fill();
+
+  ctx.save();
+  ctx.translate(ox * ayrik, oy * ayrik);
+  ctx.translate(mx, my); ctx.rotate(aci); ctx.translate(-mx, -my);
+  ctx.globalAlpha = 0.78;
+  yol(kucuk); ctx.fill();
+  ctx.restore();
+
+  /* Tozlanma / Kum Aşınması */
+  if (t.tozlu) {
+    const tozRengi = css("--line") || "rgba(190,175,150,0.6)";
+    ctx.beginPath();
+    fay.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    ctx.lineWidth = Math.max(1.2, t.r * .18);
+    ctx.strokeStyle = tozRengi;
+    ctx.globalAlpha = 0.26;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.stroke();
+
+    const Rtoz = rng32(((t.tohum | 0) + 7733) >>> 0);
+    const tozSayisi = Math.min(22, Math.max(8, Math.floor(t.r * .9)));
+    ctx.fillStyle = tozRengi;
+    for (let i = 0; i < tozSayisi; i++) {
+      const fi = Math.floor(Rtoz() * (K - 1));
+      const p1 = fay[fi], p2 = fay[fi + 1] || fay[K];
+      const sub = Rtoz();
+      const px = p1[0] + (p2[0] - p1[0]) * sub + (Rtoz() - .5) * t.r * .38;
+      const py = p1[1] + (p2[1] - p1[1]) * sub + (Rtoz() - .5) * t.r * .30;
+      const rad = Math.max(.4, .35 + Rtoz() * .55);
+      ctx.beginPath();
+      ctx.arc(px, py, rad, 0, Math.PI * 2);
+      ctx.globalAlpha = 0.35 + Rtoz() * .40;
+      ctx.fill();
+    }
+  }
+
+  /* KINTSUGI */
+  if (t.altin) {
+    const iceri = (p, q, k) => [p[0] + (q[0] - p[0]) * k, p[1] + (q[1] - p[1]) * k];
+    const af = fay.slice();
+    af[0] = iceri(fay[0], fay[1], .16);
+    af[K] = iceri(fay[K], fay[K - 1], .16);
+    const ciz = (w, renk, op) => {
+      ctx.beginPath();
+      af.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+      ctx.lineWidth = w; ctx.strokeStyle = renk; ctx.globalAlpha = op;
+      ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.stroke();
+    };
+    const altin = css("--altin") || "#C9963C";
+    const altinP = css("--altin-p") || "#F2D79A";
+    ciz(Math.max(1.2, t.r * .30), altin, .22);
+    ciz(Math.max(.9, t.r * .105), altin, .98);
+    if (t.r > 16) ciz(Math.max(.5, t.r * .05), altinP, .78);
+  }
+
+  ctx.restore();
+}
+
+function renderAll() {
+  const configs = [
+    { id: "box1", isKirik: false, isAltin: false, isTozlu: false },
+    { id: "box2", isKirik: true,  isAltin: false, isTozlu: false },
+    { id: "box3", isKirik: true,  isAltin: false, isTozlu: true  },
+    { id: "box4", isKirik: true,  isAltin: true,  isTozlu: true  }
+  ];
+
+  configs.forEach(cfg => {
+    const container = document.getElementById(cfg.id);
+    container.innerHTML = "";
+    
+    if (viewMode === "svg") {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("class", "stone-svg");
+      svg.setAttribute("viewBox", "0 0 100 100");
+      const g = mk("g", {});
+      svg.appendChild(g);
+      tasSvg(g, 50, 65, 34, currentSeed, true, cfg.isKirik, cfg.isAltin, cfg.isTozlu);
+      container.appendChild(svg);
+    } else {
+      const canvas = document.createElement("canvas");
+      canvas.className = "stone-canvas";
+      canvas.width = 360;
+      canvas.height = 360;
+      renderCanvasStone(canvas, {
+        r: 68,
+        tohum: currentSeed,
+        e: 0.82,
+        kirik: cfg.isKirik,
+        altin: cfg.isAltin,
+        tozlu: cfg.isTozlu
+      });
+      container.appendChild(canvas);
+    }
+  });
+}
+
+function setViewMode(mode) {
+  viewMode = mode;
+  document.getElementById("btnViewSvg").classList.toggle("active", mode === "svg");
+  document.getElementById("btnViewCanvas").classList.toggle("active", mode === "canvas");
+  renderAll();
+}
+
+function toggleTheme() {
+  document.documentElement.classList.toggle("dark");
+  setTimeout(renderAll, 50);
+}
+
+function randomizeSeed() {
+  currentSeed = Math.floor(Math.random() * 10000);
+  document.getElementById("seedLabel").textContent = currentSeed;
+  renderAll();
+}
+
+window.addEventListener("load", renderAll);
+</script>
+
+</body>
+</html>

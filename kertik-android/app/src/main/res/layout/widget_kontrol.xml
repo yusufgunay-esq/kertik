@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/wKok"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_arka">
+
+    <!-- Canlı Sanat Tuvali (Tüm widget yüzeyine tam oturan arka plan) -->
+    <ImageView
+        android:id="@+id/wTuval"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY" />
+
+    <!-- Vitrin (Tuval çizilemediğinde fallback olarak kullanılır) -->
+    <ImageView
+        android:id="@+id/wVitrin"
+        android:layout_width="74dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="12dp"
+        android:scaleType="fitCenter"
+        android:visibility="gone" />
+
+    <!-- İçerik Alanı (İç boşluklarla ferah düzen — sanat, metnin durduğu tarafta
+         kendi kendine söner; ayrı bir vitrin/kart bölmesi yok, bkz. WidgetSanat.kt) -->
+    <LinearLayout
+        android:id="@+id/wIcerik"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingStart="16dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
+        android:paddingEnd="6dp"
+        android:orientation="vertical">
+
+        <!-- Durum Başlığı -->
+        <TextView
+            android:id="@+id/wDurum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="KERTİK"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.14" />
+
+        <!-- Sayaç veya Bugün Net Süre -->
+        <Chronometer
+            android:id="@+id/wSayac"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="34sp"
+            android:fontFamily="sans-serif-light"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/wDurgun"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0s 00"
+            android:textSize="34sp"
+            android:fontFamily="sans-serif-light" />
+
+        <!-- Alt Bilgi Satırı -->
+        <TextView
+            android:id="@+id/wAlt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="bugün · çentik yok"
+            android:textSize="12sp"
+            android:singleLine="true"
+            android:ellipsize="end" />
+
+        <!-- Eylem Düğmeleri -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- Düz metin düğmeler — kart/hap arka planı yok (datsuzoku: kalıp yok). -->
+            <Button
+                android:id="@+id/wBir"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:background="@android:color/transparent"
+                android:paddingStart="0dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:paddingEnd="18dp"
+                android:text="Başlat"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.02" />
+
+            <Button
+                android:id="@+id/wIki"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:background="@android:color/transparent"
+                android:paddingStart="0dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:paddingEnd="12dp"
+                android:text="Bitir"
+                android:textSize="13sp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

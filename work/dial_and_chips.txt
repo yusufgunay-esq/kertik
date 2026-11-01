@@ -1,0 +1,90 @@
+=== drawPomodoroDial ===
+function drawPomodoroDial(gLayer, target, doneMin) {
+  gLayer.innerHTML = "";
+  const g = mk("g", {});
+  gLayer.appendChild(g);
+  const cAcc = css("--accent"), cTrk = css("--track");
+  const r = 118, n = Math.max(1, target);
+  g.appendChild(mk("circle", { cx: CX, cy: CY, r: r, fill: "none", stroke: cTrk, "stroke-width": 1.2 }));
+  const done = Math.max(0, Math.min(n, Math.floor(doneMin)));
+  for (let i = 0; i < n; i++) {
+    const carved = i < done;
+    notch(g, r, i * (360 / n) - 90, (i % 5 === 0) ? 11 : 7, carved ? cAcc : cTrk, carved ? 1.9 : 1.4, 1);
+  }
+  if (done > 0 && done < n) {
+    const a = (done * (360 / n) - 90) * Math.PI / 180;
+    const d = mk("circle", { cx: (CX + r * Math.cos(a)).toFixed(2), cy: (CY + r * Math.sin(a)).toFixed(2), r: 3.4, fill: cAcc });
+    d.setAttribute("class", "head-dot");
+    g.appendChild(d);
+  }
+}
+=== drawStopwatchDial ===
+function drawStopwatchDial(gLayer, se, isStatic) {
+  gLayer.innerHTML = "";
+  const segs = segments(se);
+  const start = se.startedAt;
+  const T = ((se.endedAt || now()) - start) / 60000;
+  const laps = Math.max(1, Math.ceil(T / 60));
+  const s = Math.min(1, RMAX / (R0 + (laps - 1) * GAP));
+  const g = mk("g", { transform: `translate(${CX} ${CY}) scale(${s.toFixed(4)}) translate(${-CX} ${-CY})` });
+  gLayer.appendChild(g);
+
+  const cAcc = css("--accent"), cTrk = css("--track"), cCool = css("--cool");
+
+  for (let k = 0; k < laps; k++) {
+    const from = k * 60, to = Math.min(T, (k + 1) * 60);
+    if (to <= from) continue;
+    const a0 = (from - k * 60) * 6 - 90, a1 = (to - k * 60) * 6 - 90;
+    g.appendChild(mk("path", { d: arcPath(R0 + k * GAP, a0, Math.max(a1, a0 + .01)),
+      fill: "none", stroke: cTrk, "stroke-width": 1.2, "stroke-linecap": "round" }));
+  }
+
+  const kindAt = m => {
+    const ts = start + m * 60000;
+    for (const sg of segs) if (ts >= sg.from && ts < sg.to) return sg.type;
+    return "work";
+  };
+  const full = Math.floor(T);
+  for (let m = 0; m < full; m++) {
+    if (kindAt(m + .5) === "break") continue;
+    const k = Math.floor(m / 60), mm = m % 60;
+    let h = 6.5;
+    if (mm === 0) h = 14; else if (mm % 15 === 0) h = 12; else if (mm % 5 === 0) h = 9;
+    notch(g, R0 + k * GAP, mm * 6 - 90, h, cAcc, 1.8, 1);
+  }
+
+  for (const sg of segs) {
+    if (sg.type !== "break") continue;
+    let a = (sg.from - start) / 60000, b = Math.min((sg.to - start) / 60000, T);
+    while (a < b) {
+      const k = Math.floor(a / 60), end = Math.min(b, (k + 1) * 60);
+      const a0 = (a - k * 60) * 6 - 90, a1 = (end - k * 60) * 6 - 90;
+      if (a1 > a0 + .05) g.appendChild(mk("path", { d: arcPath(R0 + k * GAP, a0, a1),
+        fill: "none", stroke: cCool, "stroke-width": 2.6, "stroke-linecap": "round", opacity: .5 }));
+      a = end;
+    }
+  }
+
+  if (T > 0 && !isStatic) {
+    const k = Math.floor(T / 60), r = R0 + k * GAP, a = ((T % 60) * 6 - 90) * Math.PI / 180;
+    const d = mk("circle", { cx: (CX + r * Math.cos(a)).toFixed(2), cy: (CY + r * Math.sin(a)).toFixed(2), r: 3.4, fill: cAcc });
+    d.setAttribute("class", "head-dot");
+    g.appendChild(d);
+  }
+}
+=== Pomo CSS classes ===
+.pomoTarget : 0,
+    events: [{ type: "start", at: t }
+.pomoTarget === d ? "on" : ""}">${soz("dk_kisa", { n: d }
+.pomoTarget = Number(b.dataset.d); save(); render();
+    });
+    dw.classList.remove("closed"); dw.classList.add("open");
+  } else {
+    dw.classList.remove("open"); dw.classList.add("closed");
+  }
+.pomoTarget }) : "");
+    if (mode === "pomodoro") drawPomodoroDial(lPomo, S.settings.pomoTarget, 0);
+    else drawEmptyRing();
+    const t = todayTotals();
+    const sTxt = t.net > 0 ? soz("alt_bugun", { s: human(t.net), n: t.n }
+=== SVG Logo ===

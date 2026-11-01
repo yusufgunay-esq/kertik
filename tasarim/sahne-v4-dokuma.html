@@ -1,0 +1,75 @@
+<!doctype html>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kertik dokuma laboratuvarı</title>
+<style>
+body{margin:0;background:#EFEDE6;font:13px system-ui;color:#3D434B;padding:16px}
+.sira{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+figure{margin:0}figcaption{margin-top:6px}
+canvas{background:#E5E2D8;border-radius:4px;box-shadow:0 1px 0 #D6D3C8}
+</style>
+<div class="sira" id="k"></div><div class="sira" id="p"></div>
+<script>
+const N = 19, hs = (a, b, c) => { const h = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453; return h - Math.floor(h); };
+const HAM = ["#2E3F5C", "#8E2F3F", "#7C8A6E", "#2A2D31", "#C98F96", "#3E6B6E", "#B7AE96", "#5B6F7E"];
+const ZEMIN = ["#D9D2C0", "#2A2D31", "#2E3F5C", "#CFC7B2"];
+function model(sd) {
+  const z = ZEMIN[Math.floor(hs(1, 2, sd) * 4)], ac = [];
+  for (let i = 0; ac.length < 3 && i < 30; i++) { const c = HAM[Math.floor(hs(i, 3, sd) * HAM.length)]; if (c !== z && !ac.includes(c)) ac.push(c); }
+  return { sd, z, ac, bands: [], ruz: .85 + hs(4, 4, sd) * .3 };
+}
+function band(M, i) {
+  if (!M.bands[i]) { const s = M.sd * 7 + i * 13; M.bands[i] = { t: Math.floor(hs(i, 5, M.sd) * 4), P: 9 + 2 * Math.floor(hs(i, 6, M.sd) * 4), j: hs(i, 7, M.sd) * .7, s,
+    c: [0, 1, 2].map(k => M.ac[Math.floor(hs(i, 8 + k, M.sd) * M.ac.length)]) }; }
+  return M.bands[i];
+}
+function renk(M, x, y) {
+  const c = (N - 1) / 2, dx = Math.abs(x - c); let acc = 0, bi = 0, B;
+  for (;;) { B = band(M, bi); if (y < acc + B.P) break; acc += B.P; bi++; }
+  const ly = y - acc, P = B.P, mid = (P - 1) / 2, dy = Math.abs(ly - mid);
+  if (ly === 0 || ly === P - 1) return B.c[1];
+  if (ly === 1 || ly === P - 2) return M.z;
+  let k = -1;
+  if (B.t === 0) { const v = dx + dy * 1.7; if (v <= mid * 1.7 + .5) k = Math.floor(v / (1.3 + B.j)) % 3; }
+  else if (B.t === 1) { const s = (dx + ly) % 6; if (s < 2) k = 0; else if ((dx + ly + 3) % 6 < 1) k = 1; }
+  else if (B.t === 2) { if (hs(dx, ly, B.s) > .5) k = 0; else if (hs(dx, ly, B.s + 9) > .82) k = 1; }
+  else { if (dx <= dy * 1.6) { k = 0; if (dx === Math.floor(dy * 1.6) - 1 && dy > 1) k = 1; } }
+  return k < 0 ? M.z : B.c[k];
+}
+function ciz(cv, M, ur) {
+  const W = cv.width, H = cv.height, g = cv.getContext("2d"), cw = W / (N + 2), ch = cw * .62, x0 = cw;
+  g.fillStyle = "#E5E2D8"; g.fillRect(0, 0, W, H);
+  const maxR = Math.floor((H - 26) / ch);
+  const dik = Math.max(0, ur.satirlar.length - maxR), gorun = ur.satirlar.slice(dik);
+  /* çözgü ipleri */
+  for (let x = 0; x < N; x++) { g.fillStyle = "rgba(60,50,40,.22)"; g.fillRect(x0 + x * cw + cw / 2 - .5, 0, 1, H); }
+  /* saçak */
+  for (let x = 0; x < N; x++) for (let j = 0; j < 2; j++) { g.strokeStyle = "rgba(140,128,104,.7)"; g.lineWidth = .8; g.beginPath(); const bx = x0 + x * cw + cw * (.3 + j * .4), by = H - 14; g.moveTo(bx, by); g.lineTo(bx + (hs(x, j, M.sd) - .5) * 4, by + 6 + hs(x, j, 3) * 7); g.stroke(); }
+  g.strokeStyle = "rgba(60,50,40,.35)"; g.lineWidth = 1.2; g.beginPath(); g.moveTo(x0, H - 14); g.lineTo(x0 + N * cw, H - 14); g.stroke();
+  gorun.forEach((s, ri) => {
+    const y = H - 14 - (ri + 1) * ch;
+    if (s.mola) { /* çıplak çözgü, birkaç gevşek atkı ucu */
+      for (let j = 0; j < 3; j++) { const a = Math.floor(hs(ri + dik, j, M.sd) * N); g.strokeStyle = "rgba(70,90,110,.55)"; g.lineWidth = .8; g.beginPath(); g.moveTo(x0 + a * cw, y + ch / 2); g.lineTo(x0 + (a + 1 + Math.floor(hs(j, ri, 4) * 3)) * cw, y + ch / 2 + (hs(j, 8, ri) - .5) * 3); g.stroke(); }
+      return; }
+    for (let x = 0; x < N; x++) {
+      if (hs(x, ri + dik, 77) < s.ero) continue;
+      const c = renk(M, x, s.y), cx = x0 + x * cw, e = (hs(x, s.y, M.sd) - .5) * .18;
+      g.fillStyle = c; g.fillRect(cx + .4, y, cw - .8, ch - .5);
+      g.fillStyle = "rgba(255,255,255," + (.1 + e) + ")"; g.fillRect(cx + .4, y, cw - .8, 1);
+      g.fillStyle = "rgba(0,0,0," + (.16 - e * .5) + ")"; g.fillRect(cx + .4, y + ch - 1.2, cw - .8, .8);
+      for (let q = 0; q < 2; q++) { g.fillStyle = hs(x, s.y * 3 + q, 9) > .5 ? "rgba(255,255,255,.12)" : "rgba(0,0,0,.1)"; g.fillRect(cx + hs(x, q, s.y) * (cw - 2), y + hs(q, x, s.y) * (ch - 1), 1.2, .8); }
+    }
+  });
+}
+function uret(M, dk, molas, ero) {
+  const satirlar = []; let y = 0;
+  for (let m = 0; m < dk; m++) { const mo = molas.some(([a, b]) => m >= a && m < b); satirlar.push({ mola: mo, y: mo ? -1 : y, ero: 0 }); if (!mo) y++; }
+  /* uzun mola: son örülen satırlar sökülür */
+  satirlar.forEach((s, i) => { if (!s.mola) { const kalan = satirlar.length - i; s.ero = kalan < 14 ? ero * (1 - kalan / 14) : 0; } });
+  return { satirlar };
+}
+const K = document.getElementById("k"), Pn = document.getElementById("p");
+function ekle(kap, baslik, cvw, cvh, M, ur) { const f = document.createElement("figure"), cv = document.createElement("canvas"); cv.width = cvw * 2; cv.height = cvh * 2; cv.style.width = cvw + "px"; cv.style.height = cvh + "px"; f.append(cv); const c = document.createElement("figcaption"); c.textContent = baslik; f.append(c); kap.append(f); ciz(cv, M, ur); }
+[3, 17, 41, 88, 205].forEach(sd => { const M = model(sd); ekle(K, "kronometre 1s58, tohum " + sd, 170, 430, M, uret(M, 118, [[44, 52], [80, 84]], 0)); });
+[11, 52, 93].forEach(sd => { const M = model(sd); ekle(K, "uzun molada sökülme, tohum " + sd, 170, 430, M, uret(M, 100, [[40, 100]], .0)); });
+[7, 29, 64, 120].forEach(sd => { const M = model(sd); ekle(Pn, "pomodoro 25 dk, tohum " + sd, 170, 200, M, uret(M, 25, [], 0)); });
+</script>

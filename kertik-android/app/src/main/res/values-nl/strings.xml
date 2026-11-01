@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- nl — kertik-android/dil/ sözlüğünden üretildi, elle düzenleme -->
+<resources>
+    <string name="bildirim_kanal">lopende sessie</string>
+    <string name="bildirim_kanal_aciklama">toont de timer tijdens een sessie. zonder geluid.</string>
+    <string name="bildirim_devam">hervatten</string>
+    <string name="bildirim_mola">pauze</string>
+    <string name="bildirim_bitir">beëindigen</string>
+    <string name="widget_baslat">starten</string>
+    <string name="widget_calisiyor">bezig</string>
+    <string name="widget_molada">in pauze</string>
+    <string name="widget_duvar_aciklama">je laatste 30 werkdagen in één oogopslag.</string>
+    <string name="widget_kontrol_aciklama">start, pauzeer en beëindig sessies zonder de app te openen.</string>
+    <string name="resmi_kaydet">afbeelding opslaan</string>
+    <string name="yedegi_kaydet">back-up opslaan</string>
+    <string name="widget_bos">nog geen gegevens</string>
+    <string name="widget_pomodoro">pomodoro</string>
+    <string name="widget_bugun">vandaag</string>
+    <string name="widget_gun_once">%1$d dagen geleden</string>
+    <string name="widget_bugun_dk">vandaag · %1$d min</string>
+    <string name="widget_mola_alt">in pauze · haal adem</string>
+    <string name="widget_basladin">gestart om %1$s</string>
+    <string name="widget_centik">kerf %1$d</string>
+    <string name="widget_ilerleme">%1$d / %2$d min</string>
+    <string name="widget_duvar_baslik">muur</string>
+    <string name="widget_otuz_gun">30 dagen</string>
+    <string name="widget_gunde_seans">%1$d actieve dagen</string>
+    <string name="odak_modu_tetik">tijdens een sessie</string>
+</resources>

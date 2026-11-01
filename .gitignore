@@ -1,0 +1,40 @@
+# Kertik: depo dışı tutulanlar
+
+# Sırlar. Bunlar asla depoya girmez.
+gizli.properties
+imza.properties
+local.properties
+*.p12
+*.jks
+*.keystore
+*.b64
+
+# Android ve Gradle üretim çıktıları
+kertik-android/build/
+kertik-android/app/build/
+kertik-android/.gradle/
+kertik-android/.kotlin/
+kertik-android/.idea/
+*.iml
+.cxx/
+.externalNativeBuild/
+
+# Ajan ve araç geçici çıktıları
+.artifacts/
+kertik-android/.artifacts/
+scratch/
+_to_delete/
+
+# Güvenilir ayna olmayan Kotlin kopyaları
+kt/
+
+# Bağımlılıklar
+node_modules/
+package-lock.json
+
+# İşletim sistemi
+.DS_Store
+Thumbs.db
+
+uygulama/imza/parola.txt
+*.properties.ornek

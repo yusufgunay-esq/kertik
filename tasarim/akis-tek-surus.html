@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tek Sürüş — akış için öneri</title>
+<style>
+:root{
+  --bg:#F5F2EA; --bg2:#EFEBE1; --ink:#16181B; --ink2:#3E4148;
+  --muted:#726E65; --faint:#9C978C; --line:#DCD5C6;
+  --is1:#8E3F2B; --is2:#B05237; --is3:#C77A54;
+  --kopru:#8A6A4F; --mola1:#2F6B67; --mola2:#5E9B96;
+  --accent:#B05237; --cool:#3E7C77; --pad:24px;
+}
+:root.dark{
+  --bg:#16171A; --bg2:#212227; --ink:#EDE9E0; --ink2:#BCB7AC;
+  --muted:#948F84; --faint:#6A665E; --line:#2E2F34;
+  --is1:#B45C40; --is2:#D0785B; --is3:#E09C7C;
+  --kopru:#A98A6C; --mola1:#5C9B96; --mola2:#8FC4BF;
+  --accent:#D0785B; --cool:#79B3AE;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  transition:background .55s cubic-bezier(.4,0,.2,1),color .55s cubic-bezier(.4,0,.2,1)}
+.wrap{max-width:1120px;margin:0 auto;padding:0 var(--pad) 120px}
+header{padding:54px 0 8px}
+h1{font-size:34px;font-weight:400;letter-spacing:-.032em;margin:0}
+.sub{color:var(--muted);font-size:15px;margin-top:6px;max-width:64ch}
+h2{font-size:23px;font-weight:400;letter-spacing:-.02em;margin:58px 0 4px}
+.note{color:var(--muted);font-size:15px;margin:0 0 24px;max-width:62ch}
+.note b{color:var(--ink2);font-weight:500}
+.themebtn{position:fixed;top:16px;right:16px;z-index:5;border:1px solid var(--line);background:var(--bg);
+  color:var(--muted);border-radius:999px;padding:9px 16px;font-size:14px;font-family:inherit;cursor:pointer}
+
+.phone{width:100%;max-width:330px;border-radius:30px;border:1px solid var(--line);
+  background:var(--bg2);overflow:hidden;position:relative;transition:background .55s,border-color .55s}
+.phone svg{display:block;width:100%;height:auto}
+.hud{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;pointer-events:none}
+.hud .t{font-size:52px;font-weight:300;letter-spacing:-.04em;font-variant-numeric:tabular-nums;
+  color:var(--ink);opacity:.92}
+.hud .n{font-size:14px;color:var(--muted);margin-top:4px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:26px;align-items:start}
+.item{display:flex;flex-direction:column;align-items:center;gap:12px}
+.cap{font-size:13px;color:var(--muted);text-align:center;max-width:30ch}
+.cap b{color:var(--ink2);font-weight:500;display:block;margin-bottom:2px;font-size:14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px}
+.chips button{border:1px solid var(--line);background:none;color:var(--muted);
+  border-radius:999px;padding:9px 17px;font-size:14.5px;font-family:inherit;cursor:pointer;transition:.22s}
+.chips button.on{border-color:var(--accent);color:var(--accent)}
+.box{border:1px solid var(--line);border-radius:20px;background:var(--bg2);padding:28px 22px;
+  transition:background .55s}
+ul.tight{margin:12px 0 0;padding-left:20px;color:var(--muted);font-size:14.5px}
+ul.tight li{margin:7px 0}
+ul.tight b{color:var(--ink2);font-weight:500}
+.legend{display:flex;gap:24px;flex-wrap:wrap;margin-top:22px;font-size:14.5px;color:var(--muted)}
+.legend i{display:inline-block;width:26px;height:0;border-top:3px solid var(--is2);
+  vertical-align:middle;margin-right:8px;border-radius:2px}
+.legend i.b{border-top:2px dotted var(--mola2)}
+.legend i.k{border-top:2px dashed var(--kopru)}
+@media (max-width:520px){ :root{--pad:16px} h1{font-size:29px} }
+</style>
+</head>
+<body>
+<button class="themebtn" id="th">gece</button>
+<div class="wrap">
+
+<header>
+  <h1>Tek Sürüş</h1>
+  <div class="sub">Arka plan sanatı için öneri. Mevcut <b>akış</b> bir doku — her yeri her yerine
+  benziyor, bakılacak bir yer yok. Bu ise <b>tek bir fırça darbesi:</b> seans boyunca uzayan
+  bir mürekkep çizgisi. Çalışırken fırça yüklü, molada fırça kalkıyor —
+  <b>boşluk molanın kendisi.</b></div>
+</header>
+
+<div class="chips" id="secim"></div>
+
+<h2>Seans sonunda ekranda kalan</h2>
+<p class="note">Aynı sürede iki farklı gün <b>aynı görünmüyor</b> — çünkü çizgi süreyi değil,
+o seansın ritmini çiziyor. Molaların yeri ve uzunluğu doğrudan okunuyor.
+<code>20-sanat-geri-bildirim.md</code>'nin 4. maddesi: <i>"süre dağılımı desenden okunabilmeli."</i></p>
+
+<div class="row" id="galeri"></div>
+
+<div class="legend">
+  <span><i></i>çalışma — fırça yüklü, basınç var</span>
+  <span><i class="b"></i>mola — fırça kalktı, kâğıt boş</span>
+  <span><i class="k"></i>sayılmayan — kuru fırça, çizgi ikiye ayrılıyor</span>
+</div>
+
+<h2>Neden bu, doku değil</h2>
+<div class="box">
+  <ul class="tight">
+    <li><b>Kompozisyon var.</b> Akış alanı duvar kâğıdıdır — bakılacak bir yer yoktur.
+      Tek sürüş bir jesttir; başı, gövdesi, sonu vardır. Sumi-e boş kâğıda <b>tek hareket</b>
+      koyar, kâğıdı doldurmaz.</li>
+    <li><b>Süre okunuyor.</b> Çizginin uzunluğu = seansın uzunluğu. 25 dakika ile 3 saat
+      artık aynı dokunun iki yoğunluğu değil, <b>iki farklı uzunlukta çizgi.</b></li>
+    <li><b>Dağılım okunuyor.</b> Mola bir boşluk. Uzun mola uzun boşluk. Ölçmeden görülüyor.</li>
+    <li><b>Dürüst.</b> Sayılmayan süre çizgiyi kurutuyor — yalan söylemiyor, kendini
+      göstermekten de kaçınmıyor.</li>
+    <li><b>Aynı dil.</b> Çubukla aynı alfabe: mürekkep, basınç, dürüst boşluk.
+      Uygulamada <b>iki değil tek</b> sanat dili kalıyor.</li>
+    <li><b>Ucuz.</b> Tek yol, artımlı çiziliyor. Dakikada birkaç nokta ekleniyor.
+      Akış alanının 22.000 deneme + komşuluk taraması maliyeti tamamen düşüyor.</li>
+    <li><b>Klişe değil.</b> Akış alanı (flow field) üretken sanatın en çok yapılan
+      ilk projesidir; gören herkes tanır. Datsuzoku'nun tersi.</li>
+  </ul>
+</div>
+
+<h2>Pomodoro / kronometre ayrımı</h2>
+<p class="note"><code>20</code>'nin 5. maddesi: iki mod aynı çizmemeli, ama "yarım kalmış resim" de olmamalı.
+Tek sürüş bunu doğal çözüyor:</p>
+<div class="row" id="mod"></div>
+
+</div>
+
+<script>
+function hash32(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0 }
+function rng32(seed){ let a=seed>>>0; return ()=>{ a=a+0x6D2B79F5|0;
+  let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296 } }
+const NS="http://www.w3.org/2000/svg";
+const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e};
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* değer gürültüsü — yolun kıvrımı için */
+function h2i(i,j,s){ let n=Math.imul(i|0,374761393)^Math.imul(j|0,668265263)^Math.imul(s|0,362437);
+  n=Math.imul(n^(n>>>13),1274126177); return ((n^(n>>>16))>>>0)/4294967296 }
+function vn(x,y,s){ const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j;
+  const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);
+  const a=h2i(i,j,s),b=h2i(i+1,j,s),c=h2i(i,j+1,s),d=h2i(i+1,j+1,s);
+  return (a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v }
+function fbm(x,y,s){ return vn(x,y,s)*.6+vn(x*2.1,y*2.1,s+7)*.27+vn(x*4.3,y*4.3,s+19)*.13 }
+
+/* ============================================================
+   YOL — seansın kimliğinden türeyen tek bir gezinti.
+   Serpantin taban (kâğıdı hakkaniyetle dolaşsın) + gürültü sapması
+   (grid gibi görünmesin). Aynı seans hep aynı yol.
+   ============================================================ */
+/* Serpantin DEĞİL — gezinen bir çizgi.
+   Zikzak taban (ileri-geri kulaçlar) şimşek gibi okunuyordu: fazla düzenli,
+   köşeleri mekanik. Bunun yerine bir yürüyüşçü: yönü gürültüyle savruluyor,
+   kenarlardan yumuşakça itiliyor, ve zamanla aşağı iniyor. Kâğıdı dolduruyor
+   ama hiçbir yerde tekrar etmiyor. */
+function yol(seed,W,H,dk){
+  const R=rng32(seed);
+  const sol=W*.13, sag=W*.87, ust=H*.09, altS=H*.91;
+  const n=Math.max(70,Math.min(560,dk*4));
+  /* toplam yol boyu: uzun seans daha çok gezinir */
+  const boy=(altS-ust)*(1.5+Math.min(1.5,dk/150));
+  const adim=boy/n;
+  let x=sol+(sag-sol)*(.18+R()*.64), y=ust;
+  let a=Math.PI*.5+(R()-.5)*1.9;
+  const P=[];
+  for(let i=0;i<=n;i++){
+    P.push([x,y]);
+    const t=i/n;
+    /* yön: iki oktavlı gürültüyle savrulma */
+    a+=((fbm(x/(W*.34),y/(W*.34),seed)-.5)*2.5
+       +(fbm(x/(W*.12),y/(W*.12),seed+9)-.5)*1.15)*.42;
+    let vx=Math.cos(a), vy=Math.sin(a);
+    /* kenar itmesi — duvara çarpmadan önce yumuşakça döner */
+    const it=1.9;
+    if(x<sol) vx+=(sol-x)/W*it*7; else if(x>sag) vx+=(sag-x)/W*it*7;
+    if(y<ust) vy+=(ust-y)/H*it*7; else if(y>altS) vy+=(altS-y)/H*it*7;
+    /* iniş — seans ilerledikçe hedef yükseklik aşağı kayar */
+    const hedef=ust+(altS-ust)*t;
+    vy+=(hedef-y)/H*2.3;
+    const L=Math.hypot(vx,vy)||1;
+    a=Math.atan2(vy/L,vx/L);
+    x+=Math.cos(a)*adim; y+=Math.sin(a)*adim;
+  }
+  /* yumuşat */
+  for(let p=0;p<3;p++)
+    for(let i=1;i<P.length-1;i++){
+      P[i][0]=(P[i-1][0]+P[i][0]*2+P[i+1][0])/4;
+      P[i][1]=(P[i-1][1]+P[i][1]*2+P[i+1][1])/4;
+    }
+  return P;
+}
+
+/* değişken kalınlıklı şerit — noktalar [x,y,w] */
+function serit(P){
+  if(P.length<2) return "";
+  const ust=[],alt=[];
+  for(let i=0;i<P.length;i++){
+    const a=P[Math.max(0,i-1)], b=P[Math.min(P.length-1,i+1)];
+    let dx=b[0]-a[0], dy=b[1]-a[1]; const L=Math.hypot(dx,dy)||1;
+    const px=-dy/L, py=dx/L, w=P[i][2]/2;
+    ust.push([P[i][0]+px*w,P[i][1]+py*w]);
+    alt.push([P[i][0]-px*w,P[i][1]-py*w]);
+  }
+  let d="M"+ust[0][0].toFixed(2)+","+ust[0][1].toFixed(2);
+  for(let i=1;i<ust.length;i++) d+="L"+ust[i][0].toFixed(2)+","+ust[i][1].toFixed(2);
+  for(let i=alt.length-1;i>=0;i--) d+="L"+alt[i][0].toFixed(2)+","+alt[i][1].toFixed(2);
+  return d+"Z";
+}
+
+/* ============================================================
+   ÇİZ — v = {id, dk, molalar:[[a,b]], sayilmayan}
+   ============================================================ */
+function cizSurus(svg,v,o){
+  o=o||{}; const W=o.W||330, H=o.H||620;
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  svg.setAttribute("width",W); svg.setAttribute("height",H);
+  svg.innerHTML="";
+  const g=mk("g",{}); svg.appendChild(g);
+
+  const dk=Math.max(1,Math.round(v.dk));
+  const seed=hash32(v.id);
+  const P=yol(seed,W,H,dk);
+  const R=rng32(seed+7);
+  const bas=[]; for(let i=0;i<P.length+8;i++) bas.push(R());
+
+  const is1=css("--is1"), is2=css("--is2"), is3=css("--is3");
+  const m2=css("--mola2"), kop=css("--kopru"), ink=css("--ink");
+
+  const molaMi=m=>{ for(const b of (v.molalar||[])) if(m>=b[0]&&m<b[1]) return true; return false };
+  /* sayılmayan süre: konumu bilinmiyor — sonda, kuru fırça olarak */
+  const kuruBas=dk-(v.sayilmayan||0);
+
+  const TABAN=o.kal||Math.max(2.6,W*.021);
+  /* koşular: mola çizgiyi kesiyor, ayrı parçalar oluşuyor */
+  let kosu=[], parcalar=[];
+  for(let i=0;i<P.length;i++){
+    const t=i/(P.length-1), m=t*dk;
+    if(molaMi(m)){ if(kosu.length>2) parcalar.push(kosu); kosu=[]; continue }
+    /* Basınç: gürültü ham hâlde ortalamaya yığılıyor ve çizgi tekdüze
+       kalınlıkta çıkıyordu. Eğriden geçirip uçları açıyoruz — gerçek
+       fırçada ince ve kalın arası fark çarpıcıdır. */
+    const uc=Math.min(1,Math.min(t,1-t)*9);
+    let q=fbm(P[i][0]/(W*.19),P[i][1]/(W*.19),seed+31);
+    q=Math.min(1,Math.max(0,(q-.5)*2.35+.5));       /* kontrastı aç */
+    q=q*q*(3-2*q);                                   /* uçlara doğru yığ */
+    const bs=.22+q*1.55;
+    const w=TABAN*bs*(.28+uc*.72);
+    kosu.push([P[i][0],P[i][1],Math.max(.35,w),m]);
+  }
+  if(kosu.length>2) parcalar.push(kosu);
+
+  /* gölge — kâğıda emen mürekkebin altı */
+  for(const p of parcalar){
+    const s=p.map(q=>[q[0]+TABAN*.28,q[1]+TABAN*.38,q[2]*.94]);
+    g.appendChild(mk("path",{d:serit(s),fill:ink,opacity:.07}));
+  }
+
+  /* gövde — parça parça, ton çizginin ağırlığından geliyor */
+  for(const p of parcalar){
+    /* koşuyu 3 tona böl: en kalın yerler koyu, en ince yerler açık */
+    let bl=[], onceki=null;
+    const tonOf=w=> w>TABAN*.92 ? is1 : w>TABAN*.62 ? is2 : is3;
+    for(let i=0;i<p.length;i++){
+      const t=tonOf(p[i][2]);
+      if(t!==onceki && bl.length>1){
+        g.appendChild(mk("path",{d:serit(bl),fill:onceki,opacity:.90}));
+        bl=[bl[bl.length-1]];
+      }
+      if(t!==onceki) onceki=t;
+      bl.push(p[i]);
+    }
+    if(bl.length>1) g.appendChild(mk("path",{d:serit(bl),fill:onceki,opacity:.90}));
+
+    /* kuru fırça — sayılmayan sürede çizgi ikiye ayrılıyor */
+    const kuru=p.filter(q=>q[3]>=kuruBas);
+    if(kuru.length>2){
+      g.appendChild(mk("path",{d:serit(kuru.map(q=>[q[0],q[1]-q[2]*.30,q[2]*.26])),
+        fill:kop,opacity:.62}));
+      g.appendChild(mk("path",{d:serit(kuru.map(q=>[q[0],q[1]+q[2]*.34,q[2]*.18])),
+        fill:kop,opacity:.44}));
+    }
+  }
+
+  /* mola izi — MA. Boşluk zaten mola; iki uçta çok soluk bir nefes noktası. */
+  for(const b of (v.molalar||[])){
+    for(const m of [b[0],Math.min(b[1],dk)]){
+      const i=Math.round(m/dk*(P.length-1));
+      if(i<0||i>=P.length) continue;
+      g.appendChild(mk("circle",{cx:P[i][0].toFixed(2),cy:P[i][1].toFixed(2),
+        r:(TABAN*.42).toFixed(2),fill:m2,opacity:.34}));
+    }
+  }
+  return svg;
+}
+
+/* ============================================================
+   Örnekler
+   ============================================================ */
+const SETLER={
+  "aynı süre, farklı gün":[
+    {ad:"90 dk · kesintisiz",     v:{id:"ts-a",dk:90,molalar:[],sayilmayan:0}},
+    {ad:"90 dk · üç kısa mola",   v:{id:"ts-b",dk:90,molalar:[[22,27],[48,54],[71,76]],sayilmayan:0}},
+    {ad:"90 dk · bir uzun mola",  v:{id:"ts-c",dk:90,molalar:[[34,58]],sayilmayan:0}},
+    {ad:"90 dk · 20 sayılmayan",  v:{id:"ts-d",dk:90,molalar:[[40,48]],sayilmayan:20}}
+  ],
+  "farklı süreler":[
+    {ad:"25 dakika",  v:{id:"ts-25",dk:25,molalar:[],sayilmayan:0}},
+    {ad:"52 dakika",  v:{id:"ts-52",dk:52,molalar:[[30,35]],sayilmayan:0}},
+    {ad:"1 saat 47",  v:{id:"ts-107",dk:107,molalar:[[41,49],[78,84]],sayilmayan:0}},
+    {ad:"3 saat 05",  v:{id:"ts-185",dk:185,molalar:[[58,71],[126,138]],sayilmayan:24}}
+  ]
+};
+let SET="aynı süre, farklı gün";
+
+const secim=document.getElementById("secim");
+Object.keys(SETLER).forEach(k=>{
+  const b=document.createElement("button"); b.textContent=k; b.dataset.k=k;
+  b.onclick=()=>{SET=k;ciz()}; secim.appendChild(b);
+});
+
+function telefon(o,hud){
+  const d=document.createElement("div"); d.className="phone";
+  const s=document.createElementNS(NS,"svg"); d.appendChild(s);
+  cizSurus(s,o.v,{W:330,H:620});
+  if(hud!==false){
+    const h=document.createElement("div"); h.className="hud";
+    const t=document.createElement("div"); t.className="t";
+    const st=Math.round(o.v.dk-(o.v.molalar||[]).reduce((a,b)=>a+b[1]-b[0],0));
+    t.textContent=Math.floor(st/60)+":"+String(st%60).padStart(2,"0");
+    const n=document.createElement("div"); n.className="n"; n.textContent=o.ad;
+    h.appendChild(t); h.appendChild(n); d.appendChild(h);
+  }
+  return d;
+}
+
+function ciz(){
+  [...secim.children].forEach(b=>b.classList.toggle("on",b.dataset.k===SET));
+  const gal=document.getElementById("galeri"); gal.innerHTML="";
+  SETLER[SET].forEach(o=>{
+    const it=document.createElement("div"); it.className="item";
+    it.appendChild(telefon(o));
+    const c=document.createElement("div"); c.className="cap";
+    const b=document.createElement("b"); b.textContent=o.ad; c.appendChild(b);
+    it.appendChild(c); gal.appendChild(it);
+  });
+
+  /* pomodoro / kronometre */
+  const mod=document.getElementById("mod"); mod.innerHTML="";
+  [
+    {ad:"Pomodoro · 25 dk",
+     not:"Kompozisyon 25 dakikaya göre kuruluyor: çizgi kâğıdı iki kulaçta dolaşıp kendi başına tamamlanıyor. 12. dakikada durdurulsa da eksik görünmez — sadece daha kısa bir jest olur.",
+     v:{id:"md-p",dk:25,molalar:[],sayilmayan:0}},
+    {ad:"Kronometre · açık uç",
+     not:"Sınır yok: her kulaç bir öncekinin üstüne biniyor, çizgi uzadıkça kâğıt kalabalıklaşıyor. Hedef yok, dolayısıyla ulaşılamayan hedef de yok.",
+     v:{id:"md-k",dk:168,molalar:[[52,60],[110,122]],sayilmayan:0}}
+  ].forEach(o=>{
+    const it=document.createElement("div"); it.className="item";
+    it.appendChild(telefon(o,false));
+    const c=document.createElement("div"); c.className="cap";
+    const b=document.createElement("b"); b.textContent=o.ad; c.appendChild(b);
+    c.appendChild(document.createTextNode(o.not));
+    it.appendChild(c); mod.appendChild(it);
+  });
+}
+
+document.getElementById("th").onclick=()=>{
+  const d=document.documentElement.classList.toggle("dark");
+  document.getElementById("th").textContent=d?"gündüz":"gece";
+  setTimeout(ciz,10);
+};
+ciz();
+</script>
+</body>
+</html>

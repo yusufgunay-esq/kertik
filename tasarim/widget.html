@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Widget — Kertik</title>
+<style>
+:root{
+  --bg:#F5F2EA; --bg2:#EFEBE1; --ink:#16181B; --ink2:#3E4148;
+  --muted:#726E65; --faint:#9C978C; --line:#DCD5C6; --track:#DCD6C7;
+  --accent:#B05237; --cool:#3E7C77;
+  --wbg:rgba(245,242,234,.92); --wline:rgba(220,213,198,.9);
+  --pad:24px;
+}
+:root.dark{
+  --bg:#16171A; --bg2:#212227; --ink:#EDE9E0; --ink2:#BCB7AC;
+  --muted:#948F84; --faint:#6A665E; --line:#2E2F34; --track:#33343A;
+  --accent:#D0785B; --cool:#79B3AE;
+  --wbg:rgba(28,29,33,.90); --wline:rgba(60,62,68,.9);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:17px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  transition:background .55s cubic-bezier(.4,0,.2,1), color .55s cubic-bezier(.4,0,.2,1);
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 var(--pad) 110px}
+header{padding:54px 0 8px}
+h1{font-size:34px;font-weight:400;letter-spacing:-.032em;margin:0}
+.sub{color:var(--muted);font-size:15px;margin-top:6px;max-width:60ch}
+h2{font-size:23px;font-weight:400;letter-spacing:-.02em;margin:58px 0 4px}
+h3{font-size:16px;font-weight:500;letter-spacing:.01em;margin:30px 0 4px;color:var(--ink2)}
+.note{color:var(--muted);font-size:15px;margin:0 0 22px;max-width:56ch}
+.note b{color:var(--ink2);font-weight:500}
+
+/* ---- ekran (ana ekran taklidi) ---- */
+.phone{
+  width:100%;max-width:390px;margin:0 auto;border-radius:34px;padding:26px 16px 22px;
+  border:1px solid var(--line);position:relative;overflow:hidden;
+  background:
+    radial-gradient(120% 80% at 20% 0%, rgba(176,82,55,.07), transparent 60%),
+    radial-gradient(100% 70% at 90% 100%, rgba(62,124,119,.07), transparent 60%),
+    var(--bg2);
+  transition:background .55s,border-color .55s;
+}
+:root.dark .phone{
+  background:
+    radial-gradient(120% 80% at 20% 0%, rgba(208,120,91,.10), transparent 60%),
+    radial-gradient(100% 70% at 90% 100%, rgba(121,179,174,.10), transparent 60%),
+    var(--bg2);
+}
+.statusbar{display:flex;justify-content:space-between;font-size:12px;color:var(--faint);
+  padding:0 8px 16px;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+
+/* ---- widget gövdesi ---- */
+.w{
+  background:var(--wbg); border:1px solid var(--wline); border-radius:22px;
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  padding:15px 17px; margin:0 0 14px; position:relative; overflow:hidden;
+  transition:background .55s,border-color .55s;
+}
+.w.s4x1{min-height:76px}
+.w.s4x2{min-height:150px}
+.w.s4x4{min-height:290px}
+.w.s2x2{min-height:150px;max-width:172px}
+
+.wtop{display:flex;align-items:baseline;gap:9px;margin-bottom:2px}
+.wname{font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--faint)}
+.wname.live{color:var(--accent)}
+.wname.brk{color:var(--cool)}
+.wsub{font-size:12.5px;color:var(--faint);margin-left:auto;font-variant-numeric:tabular-nums}
+
+.wclock{
+  font-size:40px;font-weight:300;letter-spacing:-.035em;line-height:1.02;
+  font-variant-numeric:tabular-nums;color:var(--ink);
+}
+.wclock.sm{font-size:29px}
+.wclock.brk{color:var(--cool)}
+.wnote{font-size:13.5px;color:var(--muted);margin-top:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.wbtns{display:flex;gap:9px;margin-top:auto;padding-top:13px}
+.wb{
+  flex:1;border:1px solid var(--line);background:transparent;color:var(--ink2);
+  border-radius:13px;padding:10px 6px;font-size:14.5px;font-family:inherit;cursor:pointer;
+  letter-spacing:.01em;transition:.22s;
+}
+.wb:hover{border-color:var(--ink2);color:var(--ink)}
+.wb.acc{border-color:var(--accent);color:var(--accent)}
+.wb.acc:hover{background:rgba(176,82,55,.08)}
+:root.dark .wb.acc:hover{background:rgba(208,120,91,.12)}
+.wb.cool{border-color:var(--cool);color:var(--cool)}
+.wb.big{padding:13px 6px;font-size:16px}
+
+/* --- kontrol widget'ı: ana ekranın küçültülmüş hâli --- */
+.w.ekran{position:relative;padding:16px 16px 15px;overflow:hidden}
+.ekran .zemin{position:absolute;inset:0;pointer-events:none}
+.ekIc{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center}
+.ekEy{font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:var(--faint)}
+.ekEy.live{color:var(--accent)}
+.ekEy.brk{color:var(--cool)}
+.ekGl{margin:9px 0 7px;line-height:0;opacity:.92}
+.ekT{font-size:34px;font-weight:200;letter-spacing:-.045em;line-height:1.05;
+  font-variant-numeric:tabular-nums;color:var(--ink)}
+.ekT.brk{color:var(--cool)}
+.ekN{font-size:11.5px;color:var(--muted);margin-top:2px}
+.ekB{display:flex;align-items:center;gap:10px;margin-top:12px}
+.ekP{border:none;background:var(--ink);color:var(--bg);border-radius:999px;
+  padding:8px 22px;font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:.2s}
+.ekP:hover{opacity:.86}
+.ekS{border:none;background:none;color:var(--muted);font-size:13.5px;
+  font-family:inherit;cursor:pointer;padding:8px 4px}
+.ekS:hover{color:var(--ink2)}
+.ekSp{position:absolute;top:15px;right:13px;opacity:.85}
+
+.wflex{display:flex;gap:14px;align-items:stretch;height:100%}
+.wspine{flex:0 0 auto;display:flex;align-items:flex-start;padding-top:2px}
+.wbody{flex:1;min-width:0;display:flex;flex-direction:column}
+
+.wwall{display:flex;align-items:flex-end;gap:0;margin-top:9px}
+.wfoot{display:flex;justify-content:space-between;font-size:11.5px;color:var(--faint);
+  margin-top:9px;font-variant-numeric:tabular-nums}
+
+svg{overflow:visible;display:block}
+
+/* ---- kontroller ---- */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 20px}
+.chips button{
+  border:1px solid var(--line);background:none;color:var(--muted);
+  border-radius:999px;padding:9px 17px;font-size:14.5px;font-family:inherit;cursor:pointer;transition:.22s
+}
+.chips button.on{border-color:var(--accent);color:var(--accent)}
+.themebtn{
+  position:fixed;top:16px;right:16px;z-index:5;border:1px solid var(--line);background:var(--bg);
+  color:var(--muted);border-radius:999px;padding:9px 16px;font-size:14px;font-family:inherit;cursor:pointer
+}
+.cap{margin-top:12px;font-size:13px;color:var(--muted);text-align:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:26px;align-items:start}
+
+.box{border:1px solid var(--line);border-radius:20px;background:var(--bg2);padding:26px 20px;
+  transition:background .55s,border-color .55s}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 16px;font-size:14.5px;margin-top:14px}
+.kv dt{color:var(--faint)}
+.kv dd{margin:0;color:var(--ink2)}
+ul.tight{margin:10px 0 0;padding-left:20px;color:var(--muted);font-size:14.5px}
+ul.tight li{margin:5px 0}
+ul.tight b{color:var(--ink2);font-weight:500}
+@media (max-width:520px){ :root{--pad:16px} h1{font-size:29px} }
+</style>
+</head>
+<body>
+<button class="themebtn" id="th">gece</button>
+
+<div class="wrap">
+
+<header>
+  <h1>Widget</h1>
+  <div class="sub">Uygulamanın kendi dışındaki yüzü. Açmadan görülür, açmadan kullanılır.
+  Çizim <b>gerçek kodla</b> üretiliyor — fırça basıncı, kazıma derinliği ve patina
+  <code>24-sanat-dili.md</code>'deki malzeme sözlüğünden.</div>
+</header>
+
+<h2>1 · Kertik — kontrol</h2>
+<p class="note">Uygulamanın ilk ana ekranı. Başlat, mola, devam, bitir — hiçbiri uygulamayı açmıyor.
+Solda dikey duran çubuk seansın kendisi: dakika geçtikçe aşağı doğru bir çentik daha iniyor.
+<b>Sayaç bir sayı değil, büyüyen bir kayıt.</b></p>
+
+<div class="chips" id="durumlar"></div>
+
+<div class="grid2">
+  <div>
+    <div class="phone">
+      <div class="statusbar"><span>9:41</span><span>Kertik</span></div>
+      <div id="sahne"></div>
+    </div>
+    <div class="cap">4×2 — ana boy. Yukarıdaki durumlara tıkla.</div>
+  </div>
+
+  <div>
+    <h3>4×1 — satır</h3>
+    <div class="phone" style="max-width:390px">
+      <div id="sahneInce"></div>
+    </div>
+    <div class="cap">Tek satır. Süre + tek eylem. Ana ekranda yer kaplamayan hâli.</div>
+
+    <h3>2×2 — kare</h3>
+    <div class="phone" style="max-width:230px">
+      <div id="sahneKare"></div>
+    </div>
+    <div class="cap">Çubuk ana öğe, süre altında. En sessiz hâl.</div>
+  </div>
+</div>
+
+<h2>2 · Duvar — çalışma geçmişi</h2>
+<p class="note">Son 30 gün. Her gün bir çubuk; kısa gün küçük ama eksik değil, çalışılmayan gün boş bir çizgi.
+Yeni günler koyu, eski günler solmuş — <b>patina.</b> Bu bir ödül ya da ceza değil,
+kâğıdın davranışı: eski defter sayfası soluktur.</p>
+
+<div class="grid2">
+  <div>
+    <div class="phone">
+      <div class="statusbar"><span>9:41</span><span>Kertik · Duvar</span></div>
+      <div id="sahneDuvar"></div>
+    </div>
+    <div class="cap">4×2 — 30 gün.</div>
+  </div>
+  <div>
+    <div class="phone">
+      <div id="sahneDuvarBuyuk"></div>
+    </div>
+    <div class="cap">4×4 — 30 gün + saat başı yoğunluğu. Sayı yok, oran var.</div>
+  </div>
+</div>
+
+<h2>3 · Malzeme — eski çizgi / yeni çizgi</h2>
+<p class="note">Aynı seans, aynı veri, aynı renk. Fark yalnızca çizginin neyden yapıldığı.
+Soldaki <b>vektör</b>, sağdaki <b>kazıma</b>.</p>
+<div class="box">
+  <div style="display:flex;gap:50px;justify-content:center;align-items:flex-start;flex-wrap:wrap">
+    <div style="text-align:center"><svg id="kEski"></svg><div class="cap">şu anki — düz vektör</div></div>
+    <div style="text-align:center"><svg id="kYeni"></svg><div class="cap">önerilen — fırça + kazıma</div></div>
+  </div>
+</div>
+
+<h2>Teknik gerçek</h2>
+<div class="box">
+  <p class="note" style="margin-bottom:0">Ana ekran widget'ı <b>WebView değildir.</b> Android widget'ları
+  <code>RemoteViews</code> ile çizilir; JavaScript, SVG ve CSS yoktur. Bu prototipteki her şey
+  yapılabilir, ama iki yoldan biriyle:</p>
+  <dl class="kv">
+    <dt>Metin, düğme, düzen</dt><dd>Doğrudan RemoteViews — <code>TextView</code>, <code>ImageButton</code>, <code>LinearLayout</code>. Sorunsuz.</dd>
+    <dt>Çubuk çizimi</dt><dd>Kotlin <code>Canvas</code> ile <code>Bitmap</code>'e çizilip <code>ImageView</code>'a basılır. Buradaki <code>firca()</code> fonksiyonunun birebir <code>Path</code> karşılığı var.</dd>
+    <dt>Düğmeler</dt><dd><code>PendingIntent</code> → arka plandaki servis. Uygulama <b>hiç açılmaz.</b></dd>
+    <dt>Güncelleme</dt><dd>Saniyelik sayaç widget'ta <b>yapılamaz</b> (en sık 30 dk). Çözüm: <code>TextClock</code> ile <code>chronometer</code> modu — sistem kendi sayar, pil yemez.</dd>
+    <dt>Boyut</dt><dd>Android 12+ <code>targetCellWidth/Height</code>; altı için <code>minWidth/minHeight</code> dp.</dd>
+  </dl>
+  <ul class="tight">
+    <li><b>Dakikada bir çentik</b> widget için ideal — zaten dakikada bir güncelleniyor, saniye gerekmiyor.</li>
+    <li>Çubuk bitmap'i seans boyunca <b>artımlı</b> çizilir; her dakika baştan çizilmez.</li>
+    <li>Duvar widget'ı günde bir kez güncellenir. En ucuz widget.</li>
+  </ul>
+</div>
+
+</div>
+
+<script>
+/* ============================================================
+   Tohumlu rastgelelik — aynı seans hep aynı çubuk
+   ============================================================ */
+function hash32(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0 }
+function rng32(seed){ let a=seed>>>0; return ()=>{ a=a+0x6D2B79F5|0;
+  let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296 } }
+
+const NS="http://www.w3.org/2000/svg";
+const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e};
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* ============================================================
+   FIRÇA — bir çentiğin gövdesi.
+   Tek `line` değil, dolgulu bir şerit: başta kalın, uçta incelen,
+   ortada hafif kavisli. "Malzeme testi"nin cevabı bu fonksiyon.
+   w0 girişte kalınlık (bıçağın girdiği yer), w1 uçta (mürekkebin bittiği yer).
+   ============================================================ */
+function firca(x0,y0,x1,y1,w0,w1,bend,segs){
+  segs=segs||9;
+  const dx=x1-x0, dy=y1-y0, L=Math.hypot(dx,dy)||1;
+  const px=-dy/L, py=dx/L;                       /* dik yön */
+  const ust=[], alt=[];
+  for(let i=0;i<=segs;i++){
+    const t=i/segs;
+    /* kalınlık profili: girişte dolgun, sonra ease-out ile incelir */
+    const e=1-Math.pow(t,1.45);
+    const w=(w1+(w0-w1)*e)/2;
+    const bow=Math.sin(t*Math.PI)*bend;          /* hafif kavis — el titremesi */
+    const cx=x0+dx*t+px*bow, cy=y0+dy*t+py*bow;
+    ust.push([cx+px*w,cy+py*w]);
+    alt.push([cx-px*w,cy-py*w]);
+  }
+  let d="M"+ust[0][0].toFixed(2)+","+ust[0][1].toFixed(2);
+  for(let i=1;i<ust.length;i++) d+="L"+ust[i][0].toFixed(2)+","+ust[i][1].toFixed(2);
+  for(let i=alt.length-1;i>=0;i--) d+="L"+alt[i][0].toFixed(2)+","+alt[i][1].toFixed(2);
+  return d+"Z";
+}
+
+/* ============================================================
+   ÇUBUK — kazıma sürümü
+   v = { id, dk, molalar:[[a,b]], sayilmayan }
+   o.solma: 0..1  patina (0 taze, 1 en soluk)
+   ============================================================ */
+function cizCubuk(svg,v,o){
+  o=o||{};
+  const RP=o.rp||5.4, SW=o.sw||30, GAP=o.gap||13, TOP=o.top||5;
+  const solma=o.solma||0, duz=!!o.duz;           /* duz = eski vektör hâli */
+  svg.innerHTML="";
+  const dk=Math.max(1,Math.round(v.dk));
+  const kolon=Math.max(1,Math.ceil(dk/60));
+  const satir=kolon>1?60:dk;
+  const W=kolon*(SW+GAP)-GAP, H=TOP*2+Math.max(1,satir-1)*RP;
+  const SAG=(v.sayilmayan>0?9:2);
+  svg.setAttribute("viewBox",`-7 0 ${(W+7+SAG).toFixed(1)} ${H.toFixed(1)}`);
+  svg.setAttribute("width",(W+7+SAG).toFixed(1));
+  svg.setAttribute("height",H.toFixed(1));
+
+  const acc=css("--accent"), cool=css("--cool"), ink=css("--ink"), line=css("--line");
+  const R=rng32(hash32(v.id||"x"));
+  const j=[]; for(let i=0;i<dk*4+60;i++) j.push(R());
+  const tur=m=>{
+    for(const b of (v.bos||[])) if(m>=b[0]&&m<b[1]) return "bos";
+    for(const b of (v.molalar||[])) if(m>=b[0]&&m<b[1]) return "mola";
+    return "is";
+  };
+  /* patina: yaşlandıkça hem soluk hem biraz daha ince */
+  const P=1-solma*.72;
+
+  const g=mk("g",{}); svg.appendChild(g);
+  const colX=k=>k*(SW+GAP);
+  const yOf=m=>TOP+(m%60)*RP;
+
+  /* sırt */
+  for(let k=0;k<kolon;k++){
+    const son=Math.min(60,dk-k*60);
+    g.appendChild(mk("line",{x1:colX(k),y1:TOP-2.5,x2:colX(k),y2:yOf(son-1)+2.5,
+      stroke:line,"stroke-width":1.1,"stroke-linecap":"round",opacity:(.9*P).toFixed(3)}));
+  }
+
+  /* mola — ma. Çentik yok; kenarda serin, sessiz bir iz. */
+  for(const b of (v.molalar||[])){
+    let a=b[0];
+    while(a<Math.min(b[1],dk)){
+      const k=Math.floor(a/60), son=Math.min(b[1],dk,(k+1)*60);
+      if(son>a) g.appendChild(mk("line",{x1:colX(k)-4,y1:yOf(a)-RP*.4,x2:colX(k)-4,y2:yOf(son-1)+RP*.4,
+        stroke:cool,"stroke-width":Math.max(1.5,SW*.075),"stroke-linecap":"round",
+        opacity:(.45*P).toFixed(3)}));
+      a=son;
+    }
+  }
+
+  /* kesikler */
+  for(let m=0;m<dk;m++){
+    if(tur(m)!=="is") continue;
+    const k=Math.floor(m/60), mm=m%60;
+    let boy=.54;
+    if(mm===0) boy=1.02; else if(mm%15===0) boy=.86; else if(mm%5===0) boy=.72;
+    const r1=j[m*4], r2=j[m*4+1], r3=j[m*4+2], r4=j[m*4+3];
+
+    /* --- FUKINSEI: sapma genlikleri ölçülebilir değil, GÖRÜLEBİLİR --- */
+    const L   = SW*boy*(1+(r1-.5)*(duz?.09:.26));          /* boy  ±%13 */
+    const x0  = colX(k)+(duz?0:(r4-.5)*1.3);               /* giriş kayması */
+    const y0  = yOf(m)+(r2-.5)*(duz?.7:RP*.30);            /* satır kayması */
+    const y1  = y0+(r3-.5)*(duz?1.5:RP*.62);               /* uç eğimi */
+    const bend= duz?0:(r4-.5)*Math.max(.5,SW*.035);        /* kavis */
+
+    const anaKal = mm===0?2.0:(mm%5===0?1.7:1.35+(r1-.5)*.35);
+    const op=(mm===0?1:.74+r3*.22)*P;
+
+    if(duz){
+      /* eski hâl — karşılaştırma için */
+      g.appendChild(mk("line",{x1:x0+.6,y1:y0+1.1,x2:x0+L*.92,y2:y1+1.1,
+        stroke:ink,"stroke-width":.8,"stroke-linecap":"round",opacity:.10}));
+      g.appendChild(mk("line",{x1:x0,y1:y0,x2:x0+L,y2:y1,stroke:acc,
+        "stroke-width":anaKal,"stroke-linecap":"round",opacity:op}));
+      continue;
+    }
+
+    /* --- KOKO: kazıma derinliği. Tek yönlü, ofsetli, çentikten geniş. --- */
+    const dOf=Math.max(.7,SW*.045);
+    g.appendChild(mk("path",{
+      d:firca(x0+dOf*.55,y0+dOf,x0+L*.90+dOf*.55,y1+dOf, anaKal*1.30, anaKal*.34, bend),
+      fill:ink,opacity:(.13*P).toFixed(3)}));
+
+    /* --- FIRÇA: gövde. Girişte dolgun, uçta mürekkep biter. --- */
+    g.appendChild(mk("path",{
+      d:firca(x0,y0,x0+L,y1, anaKal*1.34, anaKal*.26, bend),
+      fill:acc,opacity:op.toFixed(3)}));
+
+    /* --- EMİŞ: girişte biriken mürekkep. Sadece uzun çentiklerde. --- */
+    if(mm%5===0){
+      g.appendChild(mk("path",{
+        d:firca(x0-.3,y0,x0+L*.20,y0+(y1-y0)*.20, anaKal*1.62, anaKal*.85, 0, 4),
+        fill:acc,opacity:(op*.42).toFixed(3)}));
+    }
+  }
+
+  /* sayılmayan süre — miktar, konum değil */
+  if(v.sayilmayan>0){
+    const k=kolon-1, boyu=Math.min(v.sayilmayan,satir), x=colX(k)+SW+5;
+    g.appendChild(mk("line",{x1:x,y1:TOP,x2:x,y2:TOP+Math.max(1,boyu-1)*RP,
+      stroke:acc,"stroke-width":1.6,"stroke-linecap":"round",
+      "stroke-dasharray":(RP*.55).toFixed(2)+" "+(RP*.45).toFixed(2),opacity:(.42*P).toFixed(3)}));
+  }
+  return svg;
+}
+
+/* ============================================================
+   Örnek veri
+   ============================================================ */
+const SEANS={
+  calisiyor:{ id:"w-live", dk:107, molalar:[[41,49],[78,84]], sayilmayan:0 },
+  molada:   { id:"w-brk",  dk:64,  molalar:[[52,64]],         sayilmayan:0 },
+  bugun:    { id:"w-day",  dk:134, molalar:[[38,47],[95,106]],sayilmayan:22 }
+};
+
+/* ---- widget kurucuları ---- */
+function elm(t,c,x){ const e=document.createElement(t); if(c)e.className=c; if(x!=null)e.textContent=x; return e }
+
+/* ============================================================
+   KONTROL WIDGET'I — ana ekranın küçültülmüş hâli.
+   Ayrı bir arayüz icat etmiyoruz: aynı göz hizası, aynı sıra
+   (durum → çentik imi → süre → çentik sayısı → düğmeler),
+   aynı zemin. Widget uygulamanın tanıtımı değil, kendisi.
+   ============================================================ */
+function imGlyph(renk){
+  const s=document.createElementNS(NS,"svg");
+  s.setAttribute("viewBox","0 0 58 14"); s.setAttribute("width","52"); s.setAttribute("height","13");
+  s.appendChild(mk("line",{x1:2,y1:2,x2:2,y2:12,stroke:renk,"stroke-width":1.8,"stroke-linecap":"round"}));
+  s.appendChild(mk("line",{x1:12,y1:7,x2:40,y2:8.4,stroke:renk,"stroke-width":1.3,
+    "stroke-linecap":"round",opacity:.8}));
+  s.appendChild(mk("circle",{cx:48,cy:8.4,r:3.1,fill:renk}));
+  return s;
+}
+
+function wKontrol(durum,boy){
+  const w=elm("div","w ekran "+(boy||"s4x2"));
+  const D={
+    bos:      {ey:"HAZIR",     t:"2s 14",  n:"bugün · 14 çentik", a:"Başlat", a2:null,     git:"calisiyor"},
+    calisiyor:{ey:"ÇALIŞIYOR", t:"01:47",  n:"2. saat, 47. çentik",a:"Mola",  a2:"Bitir",  git:"molada"},
+    molada:   {ey:"MOLADA",    t:"04:12",  n:"mola sürüyor",       a:"Devam", a2:"Bitir",  git:"calisiyor"}
+  }[durum];
+
+  /* zemin — seans sürerken mürekkep alanı, boşken sakin */
+  const zem=elm("div","zemin");
+  zem.style.background = durum==="bos" ? "none"
+    : durum==="molada" ? "radial-gradient(120% 90% at 76% 18%, rgba(62,124,119,.22), transparent 62%),"+
+                         "radial-gradient(100% 80% at 12% 96%, rgba(62,124,119,.14), transparent 58%)"
+    : "radial-gradient(120% 90% at 78% 14%, rgba(176,82,55,.20), transparent 60%),"+
+      "radial-gradient(110% 80% at 8% 98%, rgba(138,106,79,.16), transparent 60%)";
+  w.appendChild(zem);
+
+  const ic=elm("div","ekIc");
+  const ey=elm("div","ekEy",D.ey);
+  if(durum==="calisiyor") ey.classList.add("live");
+  if(durum==="molada")    ey.classList.add("brk");
+  ic.appendChild(ey);
+
+  const gl=elm("div","ekGl");
+  gl.appendChild(imGlyph(durum==="molada"?css("--cool"):css("--accent")));
+  ic.appendChild(gl);
+
+  const t=elm("div","ekT",D.t);
+  if(durum==="molada") t.classList.add("brk");
+  ic.appendChild(t);
+  ic.appendChild(elm("div","ekN",D.n));
+
+  const btns=elm("div","ekB");
+  const b1=elm("button","ekP",D.a); b1.onclick=()=>ciz(D.git); btns.appendChild(b1);
+  if(D.a2){ const b2=elm("button","ekS",D.a2); b2.onclick=()=>ciz("bos"); btns.appendChild(b2) }
+  ic.appendChild(btns);
+  w.appendChild(ic);
+
+  /* sağ kenarda seansın çubuğu — ana ekranda olmayan tek ek.
+     Widget'ın tek işi "aç" demek değil, bir şey de göstermek. */
+  if(durum!=="bos"){
+    const sp=elm("div","ekSp");
+    const s=document.createElementNS(NS,"svg"); sp.appendChild(s);
+    cizCubuk(s, durum==="molada"?SEANS.molada:SEANS.calisiyor,{rp:1.5,sw:13,gap:6,top:3});
+    w.appendChild(sp);
+  }else{
+    const sp=elm("div","ekSp");
+    const s=document.createElementNS(NS,"svg"); sp.appendChild(s);
+    cizCubuk(s,SEANS.bugun,{rp:1.35,sw:12,gap:6,top:3,solma:.55});
+    w.appendChild(sp);
+  }
+  return w;
+}
+
+function wInce(durum){
+  const w=elm("div","w s4x1");
+  const flex=elm("div","wflex"); flex.style.alignItems="center";
+  const spine=elm("div","wspine"); spine.style.paddingTop="0";
+  const s=document.createElementNS(NS,"svg"); spine.appendChild(s);
+  cizCubuk(s, durum==="bos"?SEANS.bugun:SEANS.calisiyor,
+    {rp:.72,sw:13,gap:5,top:2,solma:durum==="bos"?.55:0});
+  const body=elm("div","wbody"); body.style.justifyContent="center";
+  const r=elm("div"); r.style.display="flex"; r.style.alignItems="baseline"; r.style.gap="10px";
+  const c=elm("div","wclock sm", durum==="bos"?"2s 14":durum==="molada"?"4:12":"1:47");
+  if(durum==="molada") c.classList.add("brk");
+  r.appendChild(c);
+  r.appendChild(elm("div","wnote", durum==="bos"?"bugün":durum==="molada"?"molada":"tez"));
+  body.appendChild(r);
+  const btns=elm("div","wbtns"); btns.style.paddingTop="0"; btns.style.marginLeft="auto";
+  btns.style.flex="0 0 auto";
+  const b=elm("button","wb "+(durum==="molada"?"acc":durum==="bos"?"acc":"cool"),
+    durum==="bos"?"başlat":durum==="molada"?"devam":"mola");
+  b.style.minWidth="86px";
+  b.onclick=()=>ciz(durum==="bos"?"calisiyor":durum==="molada"?"calisiyor":"molada");
+  btns.appendChild(b);
+  flex.appendChild(spine); flex.appendChild(body); flex.appendChild(btns);
+  w.appendChild(flex); return w;
+}
+
+function wKare(durum){
+  const w=elm("div","w s2x2");
+  w.style.display="flex"; w.style.flexDirection="column";
+  const top=elm("div","wtop");
+  const isim=elm("div","wname", durum==="molada"?"mola":durum==="calisiyor"?"sürüyor":"kertik");
+  if(durum==="calisiyor") isim.classList.add("live");
+  if(durum==="molada") isim.classList.add("brk");
+  top.appendChild(isim); w.appendChild(top);
+  const mid=elm("div"); mid.style.display="flex"; mid.style.justifyContent="center";
+  mid.style.flex="1"; mid.style.alignItems="center"; mid.style.padding="4px 0";
+  const s=document.createElementNS(NS,"svg"); mid.appendChild(s);
+  cizCubuk(s, durum==="bos"?SEANS.bugun:durum==="molada"?SEANS.molada:SEANS.calisiyor,
+    {rp:1.05,sw:22,gap:9,top:3,solma:durum==="bos"?.5:0});
+  w.appendChild(mid);
+  const c=elm("div","wclock sm", durum==="bos"?"2s 14":durum==="molada"?"4:12":"1:47");
+  if(durum==="molada") c.classList.add("brk");
+  c.style.textAlign="center"; c.style.fontSize="23px"; w.appendChild(c);
+  return w;
+}
+
+/* ---- duvar widget'ı ---- */
+function duvarVeri(){
+  const R=rng32(20260816), g=[];
+  for(let i=29;i>=0;i--){
+    if(R()<.17){ g.push(null); continue }
+    const dk=Math.round(24+R()*R()*250);
+    const mol=[]; let m=Math.round(28+R()*40);
+    while(m<dk-8){ const u=Math.round(6+R()*16); mol.push([m,Math.min(dk,m+u)]); m+=u+Math.round(34+R()*46) }
+    g.push({id:"d"+i,dk,molalar:mol,sayilmayan:0,yas:i});
+  }
+  return g;
+}
+const DUVAR=duvarVeri();
+
+function wDuvar(buyuk){
+  const w=elm("div","w "+(buyuk?"s4x4":"s4x2"));
+  const top=elm("div","wtop");
+  top.appendChild(elm("div","wname","kertik · duvar"));
+  top.appendChild(elm("div","wsub","30 gün"));
+  w.appendChild(top);
+
+  const wall=elm("div","wwall");
+  wall.style.gap = buyuk?"3.5px":"2.5px";
+  DUVAR.forEach((d,i)=>{
+    const col=elm("div"); col.style.flex="1"; col.style.display="flex";
+    col.style.justifyContent="center"; col.style.alignItems="flex-end";
+    if(!d){
+      const v=elm("div");
+      v.style.width="100%"; v.style.maxWidth=buyuk?"9px":"7px"; v.style.height="1px";
+      v.style.background="var(--line)"; v.style.opacity=(1-i/40).toFixed(2);
+      col.appendChild(v);
+    }else{
+      const s=document.createElementNS(NS,"svg"); col.appendChild(s);
+      /* PATINA — yaş arttıkça solar. Ödül değil, kâğıdın davranışı. */
+      cizCubuk(s,d,{ rp:buyuk?1.35:.86, sw:buyuk?9:7, gap:buyuk?4:3, top:2,
+                     solma: Math.min(.68, d.yas/30*.68) });
+    }
+    wall.appendChild(col);
+  });
+  w.appendChild(wall);
+
+  const f=elm("div","wfoot");
+  f.appendChild(elm("span",null,"18 tem"));
+  f.appendChild(elm("span",null,"bugün"));
+  w.appendChild(f);
+
+  if(buyuk){
+    /* saat başı yoğunluk — sayı yok, oran var. Şeffaf bir gün ritmi. */
+    const h=elm("div"); h.style.marginTop="18px";
+    h.appendChild(elm("div","wname","gün ritmi"));
+    const bar=elm("div"); bar.style.display="flex"; bar.style.alignItems="flex-end";
+    bar.style.gap="2px"; bar.style.height="46px"; bar.style.marginTop="8px";
+    const R=rng32(7719);
+    const yog=[]; for(let s=0;s<24;s++){
+      const pik=Math.exp(-Math.pow((s-10)/3.4,2))+Math.exp(-Math.pow((s-15.5)/3,2))*.85
+               +Math.exp(-Math.pow((s-22)/2.2,2))*.4;
+      yog.push(Math.max(0,pik*(.72+R()*.56)));
+    }
+    const mx=Math.max(...yog);
+    yog.forEach((y,s)=>{
+      const b=elm("div");
+      b.style.flex="1";
+      b.style.height=Math.max(1,y/mx*46).toFixed(1)+"px";
+      b.style.background="var(--accent)";
+      /* kenarları yumuşak değil, kesik — kazıma dili */
+      b.style.opacity=(.16+y/mx*.5).toFixed(2);
+      bar.appendChild(b);
+    });
+    h.appendChild(bar);
+    const lb=elm("div","wfoot");
+    lb.appendChild(elm("span",null,"00")); lb.appendChild(elm("span",null,"12")); lb.appendChild(elm("span",null,"24"));
+    h.appendChild(lb);
+    w.appendChild(h);
+  }
+  return w;
+}
+
+/* ============================================================
+   Sahne
+   ============================================================ */
+const DURUMLAR=[["bos","boş"],["calisiyor","çalışıyor"],["molada","molada"]];
+let aktif="calisiyor";
+const chips=document.getElementById("durumlar");
+DURUMLAR.forEach(([k,ad])=>{
+  const b=document.createElement("button"); b.textContent=ad;
+  b.onclick=()=>ciz(k); b.dataset.k=k; chips.appendChild(b);
+});
+
+function ciz(durum){
+  aktif=durum;
+  [...chips.children].forEach(b=>b.classList.toggle("on",b.dataset.k===durum));
+  const s=document.getElementById("sahne"); s.innerHTML=""; s.appendChild(wKontrol(durum));
+  const i=document.getElementById("sahneInce"); i.innerHTML=""; i.appendChild(wInce(durum));
+  const k=document.getElementById("sahneKare"); k.innerHTML=""; k.appendChild(wKare(durum));
+}
+function cizDuvar(){
+  const a=document.getElementById("sahneDuvar"); a.innerHTML=""; a.appendChild(wDuvar(false));
+  const b=document.getElementById("sahneDuvarBuyuk"); b.innerHTML=""; b.appendChild(wDuvar(true));
+}
+function cizKarsilastirma(){
+  const se={id:"kars-1",dk:52,molalar:[[30,38]],sayilmayan:0};
+  cizCubuk(document.getElementById("kEski"),se,{rp:8.2,sw:46,gap:21,top:7,duz:true});
+  cizCubuk(document.getElementById("kYeni"),se,{rp:8.2,sw:46,gap:21,top:7});
+}
+
+document.getElementById("th").onclick=()=>{
+  const d=document.documentElement.classList.toggle("dark");
+  document.getElementById("th").textContent=d?"gündüz":"gece";
+  setTimeout(()=>{ ciz(aktif); cizDuvar(); cizKarsilastirma() },10);
+};
+
+ciz("calisiyor"); cizDuvar(); cizKarsilastirma();
+</script>
+</body>
+</html>

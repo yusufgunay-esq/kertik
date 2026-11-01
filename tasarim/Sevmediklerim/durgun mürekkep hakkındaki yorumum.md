@@ -1,0 +1,1 @@
+Çok fazla konuşulmaya değer mi bilemiyorum bile dümdüz statik bir görsel var sanki internetimiz bitmiş de o fotoğrafı yüklüyorsunuz gibi 1'de üstündeki kısımlar iğrenç gözüküyor açıkçası kesinlikle sevmedim bunu o yüzden sevmediklerim diye bir klasör yapıp onu buraya atacağım gerçekten o kadar sevmedim bu projeyi

@@ -1,0 +1,13 @@
+{
+  "name": "kertik-kronometre",
+  "version": "2.2.0",
+  "description": "Kertik — Kronometre, Pomodoro ve Görevler",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "sim": "node simulasyon/olustur-simulator.js",
+    "sim:watch": "node simulasyon/izle.js",
+    "test": "cd kertik-android/test && node hepsi.js --hizli",
+    "test:all": "cd kertik-android/test && node hepsi.js"
+  }
+}

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android'in otomatik yedeklemesi kayıtları da alsın. Google yedeği kapalı olan
+     kullanıcı için ikinci bir güvenlik ağı; tek başına güvenilmemeli. -->
+<full-backup-content>
+    <include domain="database" path="." />
+    <include domain="sharedpref" path="." />
+    <include domain="file" path="app_webview" />
+</full-backup-content>

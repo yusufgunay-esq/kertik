@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ko — kertik-android/dil/ sözlüğünden üretildi, elle düzenleme -->
+<resources>
+    <string name="bildirim_kanal">진행 중인 세션</string>
+    <string name="bildirim_kanal_aciklama">세션이 진행되는 동안 타이머를 보여줘요. 소리는 나지 않습니다.</string>
+    <string name="bildirim_devam">계속</string>
+    <string name="bildirim_mola">휴식</string>
+    <string name="bildirim_bitir">종료</string>
+    <string name="widget_baslat">시작</string>
+    <string name="widget_calisiyor">진행 중</string>
+    <string name="widget_molada">휴식 중</string>
+    <string name="widget_duvar_aciklama">지난 30일간의 작업을 한눈에.</string>
+    <string name="widget_kontrol_aciklama">앱을 열지 않고도 세션을 시작, 일시정지, 종료할 수 있어요.</string>
+    <string name="resmi_kaydet">이미지 저장</string>
+    <string name="yedegi_kaydet">백업 저장</string>
+    <string name="widget_bos">아직 기록이 없어요</string>
+    <string name="widget_pomodoro">뽀모도로</string>
+    <string name="widget_bugun">오늘</string>
+    <string name="widget_gun_once">%1$d일 전</string>
+    <string name="widget_bugun_dk">오늘 · %1$d분</string>
+    <string name="widget_mola_alt">휴식 중 · 숨 고르기</string>
+    <string name="widget_basladin">%1$s에 시작</string>
+    <string name="widget_centik">%1$d번째 눈금</string>
+    <string name="widget_ilerleme">%1$d / %2$d분</string>
+    <string name="widget_duvar_baslik">벽</string>
+    <string name="widget_otuz_gun">30일</string>
+    <string name="widget_gunde_seans">%1$d일 활동</string>
+    <string name="odak_modu_tetik">세션 중</string>
+</resources>

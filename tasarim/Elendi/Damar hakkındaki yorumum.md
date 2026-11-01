@@ -1,0 +1,1 @@
+Yani belki bu da olabilir ama çok yükselmedim. Hatta şöyle söyleyeyim, kum bahçesine ve tek sürüşe daha fazla yükselmiştim, çünkü var olan dışında bir şey göstermişlerdi bana. Senin yaptığın ise bizim ebru kısmının sanatını değiştirmek. Ama yani yapılabilir. Fakat şu anki ebruyu daha afilli hale getirmek daha mantıklı aynı kökten devam edeceksek gibi geliyor bana.

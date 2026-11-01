@@ -1,0 +1,1 @@
+T3b.png dosyasındakiler beni daha çok etkiliyor bu arada özellikle beşinci sıradaki o kalas çok minimalist duruyor

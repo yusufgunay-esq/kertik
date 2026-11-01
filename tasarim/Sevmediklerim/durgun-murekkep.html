@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Durgun Mürekkep — Kertik arka plan sanatı</title>
+<style>
+:root{
+  --bg:#F5F2EA; --bg2:#EFEBE1; --ink:#16181B; --ink2:#3E4148;
+  --muted:#726E65; --faint:#9C978C; --line:#DCD5C6; --acc:#2F5A57;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.top{max-width:1180px;margin:0 auto;padding:44px 22px 0}
+h1{font-size:32px;font-weight:400;letter-spacing:-.03em;margin:0}
+.sub{color:var(--muted);font-size:15px;margin-top:6px;max-width:66ch}
+.sub b{color:var(--ink2);font-weight:500}
+.shell{max-width:1180px;margin:0 auto;padding:26px 22px 90px;
+  display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:30px;align-items:start}
+@media (max-width:900px){ .shell{grid-template-columns:1fr} }
+
+.stage{display:flex;flex-direction:column;align-items:center;gap:14px}
+.phone{position:relative;border-radius:32px;overflow:hidden;
+  box-shadow:0 18px 50px rgba(0,0,0,.16);background:#0A0E10;line-height:0}
+.phone canvas{display:block;width:min(360px,86vw);height:auto}
+.hud{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  pointer-events:none;padding:46px 24px 34px;line-height:1.5}
+.hud .eyebrow{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:#D8A88F;margin-top:44%}
+.hud .glyph{margin:20px 0 14px;opacity:.9}
+.hud .t{font-size:54px;font-weight:200;letter-spacing:-.045em;font-variant-numeric:tabular-nums;
+  color:#F1EDE4;text-shadow:0 2px 22px rgba(0,0,0,.5)}
+.hud .n{font-size:13.5px;color:rgba(241,237,228,.62);margin-top:2px}
+.hud .b{font-size:13px;color:rgba(241,237,228,.42);margin-top:auto;margin-bottom:22px}
+.hud .btns{display:flex;gap:14px;align-items:center;margin-bottom:6px}
+.hud .p1{background:#F1EDE4;color:#14171A;border-radius:999px;padding:11px 30px;
+  font-size:15px;font-weight:600}
+.hud .p2{color:rgba(241,237,228,.66);font-size:15px;padding:11px 6px}
+.stage .cap{font-size:13px;color:var(--muted);text-align:center}
+
+.side{border:1px solid var(--line);border-radius:18px;background:var(--bg2);padding:18px 16px 20px}
+.sec{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);
+  margin:20px 0 10px;padding-top:16px;border-top:1px solid var(--line)}
+.sec:first-child{margin-top:0;padding-top:0;border-top:none}
+.seedrow{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.seedval{flex:1;font-variant-numeric:tabular-nums;font-size:19px;letter-spacing:-.02em}
+button,.btn{border:1px solid var(--line);background:var(--bg);color:var(--ink2);
+  border-radius:10px;padding:8px 12px;font-size:14px;font-family:inherit;cursor:pointer;transition:.18s}
+button:hover{border-color:var(--ink2);color:var(--ink)}
+button.acc{border-color:var(--acc);color:var(--acc)}
+button.on{border-color:var(--acc);color:var(--acc);background:rgba(47,90,87,.07)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+input[type=number],input[type=text]{border:1px solid var(--line);background:var(--bg);
+  color:var(--ink);border-radius:10px;padding:8px 10px;font-size:14px;font-family:inherit;width:100%}
+.ctl{margin-bottom:13px}
+.ctl label{display:flex;justify-content:space-between;font-size:13.5px;color:var(--muted);margin-bottom:5px}
+.ctl label b{color:var(--ink2);font-weight:500;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.pill{display:flex;flex-wrap:wrap;gap:6px}
+.pill button{padding:7px 12px;font-size:13px;border-radius:999px}
+.hint{font-size:12.5px;color:var(--faint);line-height:1.45;margin-top:9px}
+.stat{font-size:12.5px;color:var(--faint);font-variant-numeric:tabular-nums;margin-top:10px}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>Durgun Mürekkep</h1>
+  <div class="sub">Seansın kendisi bir ebru teknesi. <b>Her halka bir dakika</b> —
+  çalışılan dakika kılcallı ve çalkantılı, mola durgun ve pürüzsüz.
+  Desen seansın kimliğinden türüyor: aynı seans hep aynı, başka seans başka.
+  Hiçbir şey oynamıyor; tek kare hesaplanıp orada kalıyor.</div>
+</div>
+
+<div class="shell">
+  <div class="stage">
+    <div class="phone">
+      <canvas id="cv" width="360" height="760"></canvas>
+      <div class="hud" id="hud">
+        <div class="eyebrow">ÇALIŞIYOR</div>
+        <div class="glyph">
+          <svg width="58" height="14" viewBox="0 0 58 14">
+            <line x1="2" y1="2" x2="2" y2="12" stroke="#D8A88F" stroke-width="1.8" stroke-linecap="round"/>
+            <line x1="12" y1="7" x2="40" y2="8.4" stroke="#D8A88F" stroke-width="1.3" stroke-linecap="round" opacity=".8"/>
+            <circle cx="48" cy="8.4" r="3.1" fill="#D8A88F"/>
+          </svg>
+        </div>
+        <div class="t" id="hT">01:12</div>
+        <div class="n" id="hN">1. saat, 12. çentik</div>
+        <div class="b" id="hB">19:37'de başladın</div>
+        <div class="btns">
+          <div class="p1">Mola</div><div class="p2">Bitir</div>
+        </div>
+      </div>
+    </div>
+    <div class="cap" id="cap"></div>
+  </div>
+
+  <div class="side">
+    <div class="sec">Tohum</div>
+    <div class="seedrow">
+      <div class="seedval" id="seedVal">1</div>
+      <button onclick="adim(-1)">‹</button>
+      <button onclick="adim(1)">›</button>
+      <button onclick="rastgele()">rastgele</button>
+    </div>
+    <div class="seedrow">
+      <input type="number" id="seedIn" value="1" min="0">
+      <button class="acc" onclick="git()">git</button>
+    </div>
+
+    <div class="sec">Seans</div>
+    <div class="pill" id="seanslar"></div>
+    <div class="ctl" style="margin-top:13px">
+      <label>ilerleme <b id="vProg">100%</b></label>
+      <input type="range" id="prog" min="4" max="100" step="1" value="100">
+    </div>
+    <div class="stat" id="stat"></div>
+
+    <div class="sec">Alan</div>
+    <div class="ctl"><label>büküm <b id="vBuk">4.0</b></label>
+      <input type="range" id="buk" min="0" max="8" step=".1" value="4"></div>
+    <div class="ctl"><label>ölçek <b id="vOlc">1.00</b></label>
+      <input type="range" id="olc" min=".4" max="2.4" step=".02" value="1"></div>
+    <div class="ctl"><label>çalkantı <b id="vCal">1.00</b></label>
+      <input type="range" id="cal" min="0" max="2.5" step=".05" value="1"></div>
+
+    <div class="sec">Mürekkep</div>
+    <div class="ctl"><label>kılcal <b id="vKil">1.00</b></label>
+      <input type="range" id="kil" min="0" max="2" step=".05" value="1"></div>
+    <div class="ctl"><label>derinlik <b id="vDer">1.00</b></label>
+      <input type="range" id="der" min=".3" max="1.8" step=".05" value="1"></div>
+    <div class="ctl"><label>tane <b id="vTan">0.28</b></label>
+      <input type="range" id="tan" min="0" max="1.5" step=".05" value=".28"></div>
+
+    <div class="sec">Palet</div>
+    <div class="pill" id="paletler"></div>
+    <div class="hint">Gece paletleri seans modu için. Kâğıt paletleri boş ekran ve
+      kayıt sayfası için — aynı algoritma, ters değer aralığı.</div>
+
+    <div class="sec">Görünüm</div>
+    <div class="grid">
+      <button id="bHud" class="on" onclick="hudAc()">arayüz</button>
+      <button onclick="kalite()" id="bKal">kalite: yüksek</button>
+    </div>
+
+    <div class="sec">İşlem</div>
+    <div class="grid3">
+      <button onclick="ciz()">yenile</button>
+      <button onclick="sifirla()">sıfırla</button>
+      <button class="acc" onclick="indir()">png</button>
+    </div>
+    <div class="stat" id="sure"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DURGUN MÜREKKEP
+   Alan bükümü ile üretilen, seansın zamanını taşıyan mürekkep alanı.
+   Animasyon yok: tek kare hesaplanır, orada kalır.
+   ============================================================ */
+
+/* ---- tohumlu değer gürültüsü ---- */
+function h2i(i,j,s){
+  let n=Math.imul(i|0,374761393)^Math.imul(j|0,668265263)^Math.imul(s|0,362437);
+  n=Math.imul(n^(n>>>13),1274126177); return ((n^(n>>>16))>>>0)/4294967296;
+}
+function vn(x,y,s){
+  const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j;
+  const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);
+  const a=h2i(i,j,s),b=h2i(i+1,j,s),c=h2i(i,j+1,s),d=h2i(i+1,j+1,s);
+  return (a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v;
+}
+function fbm3(x,y,s){ return vn(x,y,s)*.56+vn(x*2.03,y*2.03,s+7)*.28+vn(x*4.11,y*4.11,s+19)*.16 }
+function fbm4(x,y,s){ return vn(x,y,s)*.50+vn(x*2.03,y*2.03,s+7)*.25
+                           +vn(x*4.11,y*4.11,s+19)*.15+vn(x*8.17,y*8.17,s+31)*.10 }
+
+const sstep=(a,b,x)=>{ const t=Math.min(1,Math.max(0,(x-a)/(b-a||1e-6))); return t*t*(3-2*t) };
+const lerp=(a,b,t)=>a+(b-a)*t;
+
+/* ---- paletler: [en koyu … en açık], vurgu ---- */
+const PALETLER={
+  "petrol":   {gece:1, d:["#05090B","#0C2126","#154047","#2D6E6C","#63AFA6","#B9E2D8"], v:"#E7C9A8"},
+  "arduvaz":  {gece:1, d:["#07080B","#12161F","#1E2938","#38495E","#6E8296","#C2CEDA"], v:"#D8B08C"},
+  "is":       {gece:1, d:["#050505","#111112","#20211F","#3A3B37","#6E6F68","#C6C6BC"], v:"#C08A63"},
+  "gece yarısı":{gece:1,d:["#04060C","#0A1226","#152449","#2A4478","#5E7AB0","#B6C4E4"], v:"#D6A97F"},
+  "kâğıt":    {gece:0, d:["#FAF8F2","#EFEBE0","#DDD6C6","#B9AF9B","#7E7767","#2A2C28"], v:"#8A5A3C"},
+  "kâğıt·mavi":{gece:0,d:["#F8F8F4","#EAECE8","#D2D8D6","#A3B0AF","#61756F","#1F2A2B"], v:"#7C5540"}
+};
+let PAL="petrol";
+
+/* ---- örnek seanslar ---- */
+const SEANSLAR={
+  "25 dk":       {id:"dm-25", dk:25,  molalar:[]},
+  "52 · 1 mola": {id:"dm-52", dk:64,  molalar:[[52,64]]},
+  "1s 47 · 2":   {id:"dm-107",dk:107, molalar:[[41,49],[78,84]]},
+  "3s 05 · 2":   {id:"dm-185",dk:185, molalar:[[58,71],[126,138]]},
+  "uzun mola":   {id:"dm-90", dk:90,  molalar:[[34,58]]}
+};
+let SEANS="1s 47 · 2";
+
+/* tan (tane) düşük tamponda iri çıkıyor — varsayılan kalite yüksek, tane az */
+let P={ seed:1, buk:4, olc:1, cal:1, kil:1, der:1, tan:.28, prog:1, kal:2, hud:1 };
+const VARSAY=JSON.parse(JSON.stringify(P));
+
+/* renk yardımcıları */
+function hx(c){ const n=parseInt(c.slice(1),16); return [n>>16&255,n>>8&255,n&255] }
+function rampa(st,t){
+  const n=st.length-1, x=Math.min(.9999,Math.max(0,t))*n;
+  const i=Math.floor(x), f=x-i;
+  const a=st[i], b=st[Math.min(n,i+1)];
+  return [lerp(a[0],b[0],f),lerp(a[1],b[1],f),lerp(a[2],b[2],f)];
+}
+
+/* ============================================================
+   ÇİZ
+   ============================================================ */
+function ciz(){
+  const t0=performance.now();
+  const cv=document.getElementById("cv"), ctx=cv.getContext("2d");
+  const DW=cv.width, DH=cv.height;
+  const kalite=[0.35,0.55,0.80][P.kal];
+  const W=Math.max(60,Math.round(DW*kalite)), H=Math.max(120,Math.round(DH*kalite));
+
+  const pal=PALETLER[PAL], st=pal.d.map(hx), vur=hx(pal.v), gece=pal.gece;
+  const se=SEANSLAR[SEANS];
+  const toplam=se.dk;
+  const molaMi=m=>{ for(const b of se.molalar) if(m>=b[0]&&m<b[1]) return true; return false };
+  /* mola dakikalarını hızlı okumak için tablo */
+  const tablo=new Uint8Array(Math.ceil(toplam)+2);
+  for(let m=0;m<tablo.length;m++) tablo[m]=molaMi(m)?1:0;
+
+  const S=P.seed*2654435761%2147483647;
+  const img=ctx.createImageData(W,H), d=img.data;
+  const AR=H/W;
+  const OL=1/(P.olc*1.35);          /* ölçek */
+  const BUK=P.buk;
+
+  /* alan: iki kez katlanmış gürültü */
+  function alan(u,v){
+    const q1=fbm3(u,v,S),           q2=fbm3(u+5.2,v+1.3,S);
+    const w1=u+BUK*(q1-.5),         w2=v+BUK*(q2-.5);
+    const r1=fbm3(w1+1.7,w2+9.2,S+41), r2=fbm3(w1+8.3,w2+2.8,S+41);
+    const z1=w1+BUK*.62*(r1-.5),    z2=w2+BUK*.62*(r2-.5);
+    const f=fbm4(z1,z2,S+97);
+    return [f,r1,r2,z1,z2];
+  }
+
+  /* m alanını normalize etmek için hızlı örnekleme */
+  let mn=1, mx=0;
+  const ORN=17;
+  for(let j=0;j<ORN;j++) for(let i=0;i<ORN;i++){
+    const f=alan((i/(ORN-1))*OL*2.2,(j/(ORN-1))*OL*2.2*AR)[0];
+    if(f<mn)mn=f; if(f>mx)mx=f;
+  }
+  const genis=Math.max(.05,mx-mn);
+
+  const prog=P.prog;
+  const zem=gece?[7,9,11]:[246,244,238];
+  const zeminR=zem[0], zeminG=zem[1], zeminB=zem[2];
+  let p=0;
+  for(let y=0;y<H;y++){
+    const v=(y/W)*OL*2.2;
+    for(let x=0;x<W;x++,p+=4){
+      const u=(x/W)*OL*2.2;
+      const [f,r1,r2,z1,z2]=alan(u,v);
+      /* m: pikselin zaman koordinatı, 0..1 */
+      let m=(f-mn)/genis; m=Math.min(1,Math.max(0,m));
+
+      /* --- ortaya çıkış: mürekkep m<=prog olan yere ulaşmış --- */
+      const gor=sstep(prog,prog-.055,m);
+      const dk=m*toplam;
+      const mola=tablo[Math.min(tablo.length-1,dk|0)]===1;
+
+      /* --- çalkantı: çalışmada yüksek, molada neredeyse sıfır --- */
+      const calk=(mola?.10:1)*P.cal;
+      const jit=(fbm3(z1*3.4+13,z2*3.4+29,S+131)-.5)*calk*.55;
+
+      /* --- halka: her dakika bir kılcal --- */
+      const halka=dk+jit;
+      const fr=halka-Math.floor(halka);
+      const kenar=Math.abs(fr-.5)*2;                 /* 1 = dakika sınırı */
+      const saatMi=Math.abs((halka%60))<.5;
+      let kil=sstep(.78,1,kenar)*(mola?.05:1)*P.kil;
+      if(saatMi) kil*=1.9;
+
+      /* --- değer: alanın kendi eğimi + ikinci oktav --- */
+      const par=fbm3(z1*1.9+7,z2*1.9+3,S+211);
+      let L=(f-mn)/genis*.46 + r1*.30 + par*.24;
+      /* Molada alan gerçekten düzleşir. Zayıf bir düzleştirme mola bandını
+         okunmaz bırakıyordu; durgun su düz olmalı ki uzaktan görülsün. */
+      if(mola) L=lerp(L,.52,.80);
+      /* derinlik: değer aralığını aç */
+      L=.5+(L-.5)*(1.30*P.der);
+      L=Math.min(1,Math.max(0,L));
+
+      let c=rampa(st,gece?L:1-L);
+
+      /* --- kılcal: paletin açık ucu, içinde az vurgu.
+         Saf sıcak vurgu kullanılınca kılcallar fotoğraf çiziği gibi
+         okunuyordu; renk ailesi içinde kalması gerekiyor. --- */
+      if(kil>.01){
+        const k=Math.min(1,kil)*(gece?.55:.42);
+        const kc=[lerp(st[5][0],vur[0],.22),lerp(st[5][1],vur[1],.22),lerp(st[5][2],vur[2],.22)];
+        c=[lerp(c[0],kc[0],k),lerp(c[1],kc[1],k),lerp(c[2],kc[2],k)];
+      }
+
+      /* --- ıslak kenar: mürekkebin ilerlediği sınır koyulaşır --- */
+      const kenarB=sstep(prog-.055,prog-.012,m)*(1-sstep(prog-.012,prog,m));
+      if(kenarB>.01){
+        const kk=kenarB*.5;
+        c=[lerp(c[0],gece?st[0][0]:st[5][0],kk),
+           lerp(c[1],gece?st[0][1]:st[5][1],kk),
+           lerp(c[2],gece?st[0][2]:st[5][2],kk)];
+      }
+
+      /* --- tane --- */
+      if(P.tan>0){
+        const g=(h2i(x*7+1,y*13+3,S+7)-.5)*P.tan*9;
+        c=[c[0]+g,c[1]+g,c[2]+g];
+      }
+
+      /* --- mola: doygunluk düşer. Durgun su renksizdir. --- */
+      if(mola){
+        const gr=c[0]*.30+c[1]*.60+c[2]*.10;
+        c=[lerp(c[0],gr,.62),lerp(c[1],gr,.62),lerp(c[2],gr,.62)];
+      }
+
+      /* --- HAYALET: mürekkebin ulaşmadığı yer DELİK değil.
+         Saydamlık kullanınca boşluklar "kesilmiş" gibi okunuyordu.
+         Desen orada zaten var; sadece henüz boyanmamış. --- */
+      if(gor<1){
+        const h=.10+gor*.90;
+        c=[lerp(zeminR,c[0],h),lerp(zeminG,c[1],h),lerp(zeminB,c[2],h)];
+      }
+
+      /* --- vinyet: göz ortada kalsın --- */
+      const cx=(x/W-.5), cy=(y/H-.5);
+      const vg=1-sstep(.34,.86,Math.sqrt(cx*cx*1.05+cy*cy*.72))*(gece?.55:.28);
+
+      d[p]  =Math.max(0,Math.min(255,c[0]*vg));
+      d[p+1]=Math.max(0,Math.min(255,c[1]*vg));
+      d[p+2]=Math.max(0,Math.min(255,c[2]*vg));
+      d[p+3]=255;
+    }
+  }
+
+  /* düşük çözünürlüklü tamponu yumuşatarak büyüt */
+  const tmp=document.createElement("canvas"); tmp.width=W; tmp.height=H;
+  tmp.getContext("2d").putImageData(img,0,0);
+  ctx.clearRect(0,0,DW,DH);
+  ctx.fillStyle=gece?"#07090B":"#F6F4EE"; ctx.fillRect(0,0,DW,DH);
+  ctx.imageSmoothingEnabled=true; ctx.imageSmoothingQuality="high";
+  ctx.drawImage(tmp,0,0,DW,DH);
+
+  /* arayüz ve bilgi */
+  document.querySelector(".phone").style.background=gece?"#07090B":"#F6F4EE";
+  const hud=document.getElementById("hud");
+  hud.style.display=P.hud?"flex":"none";
+  const gecen=Math.round(toplam*prog);
+  const netMol=se.molalar.reduce((a,b)=>a+Math.max(0,Math.min(b[1],gecen)-b[0]),0);
+  const net=Math.max(0,gecen-netMol);
+  document.getElementById("hT").textContent=
+    String(Math.floor(net/60)).padStart(2,"0")+":"+String(net%60).padStart(2,"0");
+  document.getElementById("hN").textContent=
+    (Math.floor(net/60)+1)+". saat, "+(net%60)+". çentik";
+  const koyu=gece?"#F1EDE4":"#22252A";
+  hud.querySelectorAll(".t").forEach(e=>e.style.color=koyu);
+  hud.querySelector(".p1").style.background=gece?"#F1EDE4":"#1B1E22";
+  hud.querySelector(".p1").style.color=gece?"#14171A":"#F4F1EA";
+
+  document.getElementById("cap").textContent=
+    SEANS+" · tohum "+P.seed+" · "+PAL+" · "+gecen+" dakika görünür";
+  document.getElementById("stat").textContent=
+    "toplam "+toplam+" dk · mola "+se.molalar.reduce((a,b)=>a+b[1]-b[0],0)+" dk · "+
+    (se.molalar.length||0)+" mola";
+  document.getElementById("sure").textContent=
+    Math.round(performance.now()-t0)+" ms · "+W+"×"+H+" tampon";
+}
+
+/* ============================================================
+   Arayüz
+   ============================================================ */
+const bag=(id,k,fmt)=>{
+  const el=document.getElementById(id), v=document.getElementById("v"+id[0].toUpperCase()+id.slice(1,3));
+  el.addEventListener("input",()=>{ P[k]=parseFloat(el.value);
+    if(v) v.textContent=fmt?fmt(P[k]):P[k].toFixed(2); ciz(); });
+};
+bag("buk","buk",x=>x.toFixed(1));
+bag("olc","olc");
+bag("cal","cal");
+bag("kil","kil");
+bag("der","der");
+bag("tan","tan");
+document.getElementById("prog").addEventListener("input",e=>{
+  P.prog=parseFloat(e.target.value)/100;
+  document.getElementById("vProg").textContent=Math.round(P.prog*100)+"%"; ciz();
+});
+
+function tohumYaz(){ document.getElementById("seedVal").textContent=P.seed;
+  document.getElementById("seedIn").value=P.seed }
+function adim(n){ P.seed=Math.max(0,P.seed+n); tohumYaz(); ciz() }
+function rastgele(){ P.seed=Math.floor(Math.random()*99999); tohumYaz(); ciz() }
+function git(){ P.seed=Math.max(0,parseInt(document.getElementById("seedIn").value)||0); tohumYaz(); ciz() }
+function hudAc(){ P.hud=P.hud?0:1;
+  document.getElementById("bHud").classList.toggle("on",!!P.hud); ciz() }
+function kalite(){ P.kal=(P.kal+1)%3;
+  document.getElementById("bKal").textContent="kalite: "+["düşük","orta","yüksek"][P.kal]; ciz() }
+function sifirla(){ Object.assign(P,JSON.parse(JSON.stringify(VARSAY)));
+  ["buk","olc","cal","kil","der","tan"].forEach(k=>{
+    const el=document.getElementById(k); el.value=P[k];
+    el.dispatchEvent(new Event("input")); });
+  document.getElementById("prog").value=100; P.prog=1;
+  document.getElementById("vProg").textContent="100%"; tohumYaz(); ciz(); }
+function indir(){ const a=document.createElement("a");
+  a.download="durgun-murekkep-"+P.seed+"-"+PAL+".png";
+  a.href=document.getElementById("cv").toDataURL("image/png"); a.click(); }
+
+const sBox=document.getElementById("seanslar");
+Object.keys(SEANSLAR).forEach(k=>{
+  const b=document.createElement("button"); b.textContent=k; b.dataset.k=k;
+  b.className=k===SEANS?"on":"";
+  b.onclick=()=>{ SEANS=k; [...sBox.children].forEach(x=>x.classList.toggle("on",x.dataset.k===k)); ciz() };
+  sBox.appendChild(b);
+});
+const pBox=document.getElementById("paletler");
+Object.keys(PALETLER).forEach(k=>{
+  const b=document.createElement("button"); b.textContent=k; b.dataset.k=k;
+  b.className=k===PAL?"on":"";
+  b.onclick=()=>{ PAL=k; [...pBox.children].forEach(x=>x.classList.toggle("on",x.dataset.k===k)); ciz() };
+  pBox.appendChild(b);
+});
+
+tohumYaz(); ciz();
+</script>
+</body>
+</html>

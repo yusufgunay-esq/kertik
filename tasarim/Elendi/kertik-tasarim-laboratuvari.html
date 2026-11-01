@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kertik · Tasarım Laboratuvarı</title>
+<style>
+/* ============================================================
+   LABORATUVAR KABUĞU
+   ============================================================ */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:#1c1c1e;
+  color:#a9a6a0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:15px;line-height:1.5;
+  display:flex;flex-direction:column;align-items:center;
+  padding:26px 18px 40px;gap:20px;
+  -webkit-font-smoothing:antialiased;
+}
+.lab-head{text-align:center;max-width:640px}
+.lab-head h1{
+  margin:0 0 6px;font-size:17px;font-weight:500;color:#f0ece5;
+  letter-spacing:.01em
+}
+.lab-head p{margin:0;font-size:13.5px;color:#8a8781;line-height:1.55}
+.picker{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:760px}
+.picker .lbl{
+  font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#6d6a65;
+  align-self:center;margin-right:2px
+}
+.picker button{
+  font:inherit;font-size:13.5px;cursor:pointer;
+  background:#2a2a2d;border:1px solid #37373b;color:#b6b2ab;
+  padding:7px 14px;border-radius:999px;transition:.18s
+}
+.picker button:hover{border-color:#4d4d52;color:#e6e2db}
+.picker button.on{background:#f0ece5;border-color:#f0ece5;color:#1c1c1e;font-weight:500}
+.dirnote{
+  max-width:560px;text-align:center;font-size:13.5px;line-height:1.65;color:#8f8c86;
+  min-height:44px
+}
+.dirnote b{color:#ddd8d0;font-weight:500}
+
+/* telefon çerçevesi */
+.phone{
+  width:390px;height:844px;flex-shrink:0;
+  border-radius:46px;padding:10px;background:#2c2c2f;
+  box-shadow:0 40px 90px -30px #000, 0 0 0 1px #3b3b3f inset;
+  position:relative
+}
+.screen{
+  width:100%;height:100%;border-radius:37px;overflow:hidden;position:relative;
+  isolation:isolate
+}
+@media (max-width:460px){
+  .phone{transform:scale(.86);transform-origin:top center;margin-bottom:-118px}
+}
+
+/* ============================================================
+   UYGULAMA · ORTAK İSKELET
+   ============================================================ */
+.app{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  font-size:16px;line-height:1.45;
+  transition:background .55s cubic-bezier(.4,0,.2,1), color .55s cubic-bezier(.4,0,.2,1);
+  background:var(--bg);color:var(--ink);
+  overflow:hidden
+}
+.app *{box-sizing:border-box}
+.app button{font-family:inherit;cursor:pointer}
+
+/* durum çubuğu taklidi */
+.statusbar{
+  height:46px;flex-shrink:0;display:flex;align-items:center;
+  justify-content:space-between;padding:0 26px;
+  font-size:13.5px;font-weight:600;color:var(--ink);letter-spacing:.01em;
+  opacity:.85
+}
+.statusbar .sig{display:flex;gap:4px;align-items:center}
+.statusbar .sig i{display:block;width:3.5px;border-radius:1px;background:currentColor}
+
+.view{flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
+.scroll{flex:1;overflow:hidden;padding:0 var(--pad) 12px}
+
+/* ---------- SAYAÇ EKRANI ---------- */
+.timer{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:0 26px;gap:0;
+  position:relative
+}
+.eyebrow{
+  font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--muted);font-weight:500;margin-bottom:26px;
+  transition:color .55s
+}
+.eyebrow.live{color:var(--accent)}
+
+/* halka */
+.dial{position:relative;display:grid;place-items:center;width:100%}
+.ring{
+  position:relative;width:var(--ring);height:var(--ring);
+  display:grid;place-items:center;margin-bottom:8px
+}
+.ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.ring .track{fill:none;stroke:var(--track);stroke-width:var(--rw)}
+.ring .prog{
+  fill:none;stroke:var(--accent);stroke-width:var(--rw);stroke-linecap:round;
+  transition:stroke-dashoffset 1s linear, stroke .55s, stroke-width .4s
+}
+.ring .prog.dash{stroke:var(--warn);stroke-dasharray:2 9 !important;stroke-linecap:butt}
+.breathe{animation:breathe 5.5s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes breathe{
+  0%,100%{transform:scale(1);opacity:1}
+  50%{transform:scale(1.022);opacity:.9}
+}
+.ring .halo{
+  position:absolute;inset:-14%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 50% 50%, var(--halo) 0%, transparent 62%);
+  opacity:0;transition:opacity .8s
+}
+.ring.on .halo{opacity:1}
+
+.clock{
+  position:absolute;z-index:2;
+  font-size:var(--clockSize);font-weight:var(--clockWeight);
+  letter-spacing:var(--clockTrack);
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
+  line-height:1;color:var(--ink);
+  transition:color .55s
+}
+.clock.long{font-size:calc(var(--clockSize) * .74)}
+.clock small{font-size:.42em;font-weight:400;letter-spacing:0;opacity:.5;margin-left:.12em}
+
+.context{
+  margin-top:20px;font-size:15px;color:var(--ink2);
+  max-width:230px;transition:color .55s
+}
+.context .ph{color:var(--muted)}
+.subline{
+  margin-top:9px;font-size:13.5px;color:var(--muted);
+  font-variant-numeric:tabular-nums
+}
+.subline b{color:var(--ink2);font-weight:500}
+
+.presence{
+  margin-top:20px;display:inline-flex;align-items:center;gap:9px;
+  border:1px solid var(--warn);color:var(--warn);background:none;
+  padding:10px 20px;border-radius:999px;font-size:14px;font-weight:500
+}
+.presence i{
+  width:6px;height:6px;border-radius:50%;background:currentColor;
+  animation:blip 2.4s ease-in-out infinite
+}
+@keyframes blip{0%,100%{opacity:1}50%{opacity:.2}}
+
+.controls{display:flex;gap:11px;margin-top:38px;align-items:center;justify-content:center}
+
+/* butonlar */
+.btn{
+  border:1px solid var(--line);background:transparent;color:var(--ink2);
+  padding:14px 26px;border-radius:var(--btnR);font-size:16px;font-weight:450;
+  transition:transform .16s cubic-bezier(.3,1.4,.5,1), background .3s, color .3s, border-color .3s
+}
+.btn:active{transform:scale(.96)}
+.btn.primary{
+  background:var(--fill);border-color:transparent;color:var(--onFill);font-weight:550;
+  padding:17px 44px;box-shadow:var(--fillShadow)
+}
+.btn.big{font-size:18px;padding:19px 56px}
+.btn.ghost{border-color:transparent;color:var(--muted);padding:14px 18px}
+
+/* ---------- ALT GEZİNTİ ---------- */
+.nav{flex-shrink:0;position:relative;z-index:5}
+.nav .inner{display:flex}
+.nav button{
+  flex:1;background:none;border:0;color:var(--muted);
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:11px 4px;font-size:11px;letter-spacing:.03em;transition:color .3s
+}
+.nav button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.nav button.on{color:var(--ink)}
+
+/* ---------- LİSTE / KART ORTAK ---------- */
+.h2{
+  font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);font-weight:500;margin:22px 0 12px
+}
+.h2:first-child{margin-top:8px}
+.pagetitle{
+  font-size:27px;font-weight:var(--titleWeight);letter-spacing:-.02em;
+  margin:14px 0 4px;color:var(--ink)
+}
+.pagesub{font-size:13.5px;color:var(--muted);margin-bottom:20px}
+
+.card{
+  background:var(--surface);border:var(--cardBorder);border-radius:var(--cardR);
+  padding:15px 17px;margin-bottom:9px;box-shadow:var(--cardShadow);
+  transition:background .55s,border-color .55s
+}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.mono{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted);font-size:13.5px}
+.faint{color:var(--muted);font-size:12.5px}
+
+/* görev satırı */
+.task{
+  display:flex;align-items:flex-start;gap:13px;
+  background:var(--surface);border:var(--cardBorder);border-radius:var(--cardR);
+  padding:14px 16px;margin-bottom:8px;box-shadow:var(--cardShadow)
+}
+.mark{
+  width:20px;height:20px;border-radius:50%;border:1.5px solid var(--faint);
+  flex-shrink:0;margin-top:2px;display:grid;place-items:center;
+  font-size:11px;background:none;color:var(--onFill);line-height:1
+}
+.mark.bitti{background:var(--ok);border-color:var(--ok)}
+.mark.yapiliyor{border-color:var(--accent);box-shadow:inset 0 0 0 3.5px var(--accent)}
+.mark.olmadi{background:var(--faint);border-color:var(--faint)}
+.mark.tasindi{border-color:var(--accent);color:var(--accent);font-size:12px}
+.task .tt{flex:1;font-size:15.5px;line-height:1.35}
+.task .tt small{display:block;font-size:12.5px;color:var(--muted);margin-top:3px}
+.task.done .tt{color:var(--muted)}
+.task.olmadi .tt{color:var(--muted)}
+.rep{
+  font-size:11px;color:var(--muted);border:1px solid var(--line);
+  border-radius:5px;padding:1px 5px;margin-left:7px;vertical-align:1px
+}
+
+/* şerit (seans ritmi) */
+.ribbon{display:flex;height:7px;border-radius:4px;overflow:hidden;gap:2px;margin:16px 0 6px}
+.ribbon i{display:block;height:100%;border-radius:2px}
+.ribbon i.w{background:var(--accent)}
+.ribbon i.b{background:var(--track)}
+.ribbon i.u{background:var(--warn);opacity:.55}
+.ribleg{display:flex;gap:14px;font-size:11.5px;color:var(--muted);margin-bottom:4px}
+.ribleg span{display:flex;align-items:center;gap:5px}
+.ribleg i{width:7px;height:7px;border-radius:2px;display:block}
+
+/* özet ekranı */
+.summary{
+  flex:1;display:flex;flex-direction:column;justify-content:center;
+  padding:0 30px;text-align:left
+}
+.summary .big{
+  font-size:46px;font-weight:var(--clockWeight);letter-spacing:-.035em;
+  font-variant-numeric:tabular-nums;line-height:1;margin:6px 0 2px
+}
+.brk{margin-top:26px;border-top:1px solid var(--line)}
+.brk div{
+  display:flex;justify-content:space-between;padding:13px 0;
+  border-bottom:1px solid var(--line);font-size:15px
+}
+.brk div span:last-child{font-variant-numeric:tabular-nums;color:var(--ink)}
+.brk div span:first-child{color:var(--muted)}
+.brk div.un span:last-child{color:var(--warn)}
+
+/* zaman çizelgesi */
+.tl{margin-top:12px;border-top:1px solid var(--line);padding-top:11px}
+.tl .ev{display:flex;gap:13px;font-size:13.5px;color:var(--muted);padding:3.5px 0}
+.tl .ev .h{font-variant-numeric:tabular-nums;color:var(--ink2);min-width:46px}
+.tl .ev.b .h{color:var(--accent)}
+
+/* ============================================================
+   YÖN A · KÂĞIT
+   düz, gölgesiz, saç teli çizgiler, tek toprak vurgusu
+   ============================================================ */
+.app[data-dir="a"]{
+  --bg:#F5F2EA; --surface:transparent; --ink:#16181B; --ink2:#3E4148;
+  --muted:#726E65; --faint:#9C978C; --line:#DCD5C6; --track:#E2DCCE;
+  --accent:#B05237; --warn:#8B6828; --ok:#4E7855; --halo:rgba(176,82,55,.10);
+  --fill:#16181B; --onFill:#F5F2EA; --fillShadow:none;
+  --cardBorder:0; --cardR:0; --cardShadow:none;
+  --ring:250px; --rw:1.5; --pad:24px; --btnR:999px;
+  --clockSize:66px; --clockWeight:250; --clockTrack:-.035em; --titleWeight:400;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+}
+.app[data-dir="a"][data-mode="dark"]{
+  --bg:#16171A; --ink:#EDE9E0; --ink2:#BCB7AC; --muted:#8B867C; --faint:#6A665E;
+  --line:#2C2D31; --track:#2C2D31; --accent:#D0785B; --warn:#C39A55; --ok:#7FA886;
+  --halo:rgba(208,120,91,.10); --fill:#EDE9E0; --onFill:#16171A;
+}
+.app[data-dir="a"] .card,
+.app[data-dir="a"] .task{
+  background:none;border-bottom:1px solid var(--line);border-radius:0;
+  padding:15px 2px;margin-bottom:0
+}
+.app[data-dir="a"] .nav{border-top:1px solid var(--line)}
+.app[data-dir="a"] .nav button svg{display:none}
+.app[data-dir="a"] .nav button{
+  font-size:12.5px;letter-spacing:.02em;padding:15px 4px 17px
+}
+.app[data-dir="a"] .btn{border-width:1px}
+
+/* ============================================================
+   YÖN B · CAM
+   Apple 2026: yüzen cam katmanlar, eşmerkezli yarıçaplar, derinlik
+   ============================================================ */
+.app[data-dir="b"]{
+  --bg:#F3F0E9; --surface:rgba(255,255,255,.62); --ink:#111318; --ink2:#41454D;
+  --muted:#6A6E73; --faint:#9CA0A6; --line:rgba(20,25,35,.10); --track:rgba(20,25,35,.09);
+  --accent:#3D6BA8; --warn:#906524; --ok:#41785A; --halo:rgba(61,107,168,.14);
+  --fill:#3D6BA8; --onFill:#fff; --fillShadow:0 8px 22px -8px rgba(61,107,168,.55);
+  --cardBorder:1px solid rgba(255,255,255,.7); --cardR:20px;
+  --cardShadow:0 1px 2px rgba(16,20,30,.05), 0 10px 26px -14px rgba(16,20,30,.22);
+  --ring:252px; --rw:9; --pad:20px; --btnR:999px;
+  --clockSize:62px; --clockWeight:300; --clockTrack:-.03em; --titleWeight:600;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+}
+.app[data-dir="b"][data-mode="dark"]{
+  --bg:#101215; --surface:rgba(255,255,255,.07); --ink:#F2F3F5; --ink2:#C3C7CD;
+  --muted:#8D9299; --faint:#6B7076; --line:rgba(255,255,255,.10); --track:rgba(255,255,255,.10);
+  --accent:#79A6DE; --warn:#D6A855; --ok:#77B18E;
+  --halo:rgba(121,166,222,.16); --fill:#79A6DE; --onFill:#0C1015;
+  --cardBorder:1px solid rgba(255,255,255,.09);
+  --cardShadow:0 1px 2px rgba(0,0,0,.4), 0 14px 30px -18px rgba(0,0,0,.8);
+}
+/* zeminde yumuşak ışık */
+.app[data-dir="b"]::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(46% 30% at 50% 32%, var(--halo) 0%, transparent 72%),
+    radial-gradient(72% 44% at 10% 96%, rgba(176,120,44,.13) 0%, transparent 70%);
+}
+.app[data-dir="b"] .card,
+.app[data-dir="b"] .task{
+  backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5)
+}
+.app[data-dir="b"] .nav{
+  padding:0 16px 14px
+}
+.app[data-dir="b"] .nav .inner{
+  background:var(--surface);border:1px solid var(--cardEdge,rgba(255,255,255,.7));
+  border-radius:26px;padding:5px 4px;
+  backdrop-filter:blur(26px) saturate(1.7);-webkit-backdrop-filter:blur(26px) saturate(1.7);
+  box-shadow:0 2px 4px rgba(16,20,30,.06), 0 16px 34px -16px rgba(16,20,30,.34)
+}
+.app[data-dir="b"][data-mode="dark"] .nav .inner{
+  border-color:rgba(255,255,255,.09);
+  box-shadow:0 2px 6px rgba(0,0,0,.5), 0 20px 40px -20px #000
+}
+.app[data-dir="b"] .nav button{border-radius:20px;padding:9px 4px}
+.app[data-dir="b"] .scroll{padding-bottom:24px}
+.app[data-dir="b"] .ring .track{stroke-linecap:round}
+/* camın parlaması */
+.app[data-dir="b"] .ring::after{
+  content:"";position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:conic-gradient(from 200deg, transparent 0deg, rgba(255,255,255,.75) 26deg, transparent 62deg);
+  -webkit-mask:radial-gradient(circle, transparent calc(50% - var(--rw) * 1px - 1px), #000 calc(50% - var(--rw) * 1px), #000 50%, transparent 50%);
+  mask:radial-gradient(circle, transparent calc(50% - var(--rw) * 1px - 1px), #000 calc(50% - var(--rw) * 1px), #000 50%, transparent 50%);
+  opacity:.7;mix-blend-mode:overlay
+}
+.app[data-dir="b"] .btn:not(.primary):not(.ghost){
+  background:var(--surface);border-color:var(--cardBorder,transparent);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:var(--cardShadow)
+}
+
+/* ============================================================
+   YÖN C · MÜREKKEP
+   editoryal: asimetri, sert tipografik kontrast, mürekkep yayı
+   ============================================================ */
+.app[data-dir="c"]{
+  --bg:#EDE9E0; --surface:#E6E1D6; --ink:#0E1013; --ink2:#3A3D42;
+  --muted:#6D6961; --faint:#98938A; --line:#D6D0C2; --track:#DAD4C6;
+  --accent:#2C3765; --warn:#8C6113; --ok:#3F6B4A; --halo:rgba(44,55,101,.09);
+  --fill:#2C3765; --onFill:#F3F0E8; --fillShadow:none;
+  --cardBorder:0; --cardR:3px; --cardShadow:none;
+  --ring:268px; --rw:3.5; --pad:26px; --btnR:8px;
+  --clockSize:78px; --clockWeight:200; --clockTrack:-.05em; --titleWeight:400;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+}
+.app[data-dir="c"][data-mode="dark"]{
+  --bg:#111214; --surface:#191A1D; --ink:#F0ECE3; --ink2:#B9B4AA; --muted:#8A857B;
+  --faint:#66625B; --line:#26272B; --track:#26272B;
+  --accent:#8FA0DC; --warn:#D9A93F; --ok:#7CA98A;
+  --halo:rgba(143,160,220,.11); --fill:#8FA0DC; --onFill:#0E0F12;
+}
+/* asimetrik yerleşim: sayaç sola yaslı, halka sağdan taşan büyük yay */
+.app[data-dir="c"] .timer{align-items:flex-start;text-align:left;padding:0 30px}
+.app[data-dir="c"] .dial{
+  display:block;position:relative;height:236px;overflow:visible
+}
+.app[data-dir="c"] .ring{
+  position:absolute;right:-200px;top:50%;transform:translateY(-50%);
+  width:340px;height:340px;margin:0
+}
+.app[data-dir="c"] .ring svg{transform:rotate(90deg)}
+.app[data-dir="c"] .ring .halo{display:none}
+.app[data-dir="c"] .clock{
+  position:absolute;left:0;top:50%;transform:translateY(-50%);z-index:3
+}
+.app[data-dir="c"] .context,
+.app[data-dir="c"] .subline{max-width:212px}
+.app[data-dir="c"] .breathe{animation-name:breatheC}
+@keyframes breatheC{
+  0%,100%{transform:translateY(-50%) scale(1);opacity:1}
+  50%{transform:translateY(-50%) scale(1.016);opacity:.9}
+}
+.app[data-dir="c"] .eyebrow{
+  font-family:Georgia,"Times New Roman",serif;font-style:italic;
+  text-transform:none;letter-spacing:.01em;font-size:15px;
+  color:var(--muted);margin-bottom:18px
+}
+.app[data-dir="c"] .ring .prog{stroke-linecap:butt}
+.app[data-dir="c"] .context{
+  font-family:Georgia,"Times New Roman",serif;font-size:17px;max-width:250px
+}
+.app[data-dir="c"] .controls{justify-content:flex-start;width:100%}
+.app[data-dir="c"] .card,
+.app[data-dir="c"] .task{border-left:2px solid var(--line);border-radius:0;padding-left:14px}
+.app[data-dir="c"] .nav{border-top:1px solid var(--line)}
+.app[data-dir="c"] .nav button svg{display:none}
+.app[data-dir="c"] .nav button{
+  font-family:Georgia,"Times New Roman",serif;font-size:13.5px;
+  padding:15px 4px 18px;position:relative
+}
+.app[data-dir="c"] .nav button.on::after{
+  content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:26px;height:2px;background:var(--accent)
+}
+.app[data-dir="c"] .pagetitle{font-family:Georgia,"Times New Roman",serif;font-size:30px}
+.app[data-dir="c"] .h2{font-family:Georgia,"Times New Roman",serif;font-style:italic;
+  text-transform:none;letter-spacing:0;font-size:15px;color:var(--muted)}
+.app[data-dir="c"] .summary .big{font-size:56px}
+
+/* mola: tüm yönlerde ekran birkaç ton soğur */
+.app[data-state="break"]{--accent:var(--cool)}
+.app[data-dir="a"]{--cool:#3E7C77}
+.app[data-dir="a"][data-mode="dark"]{--cool:#79B3AE}
+.app[data-dir="b"]{--cool:#3E7F84}
+.app[data-dir="b"][data-mode="dark"]{--cool:#74B4B8}
+.app[data-dir="c"]{--cool:#2F5F5C}
+.app[data-dir="c"][data-mode="dark"]{--cool:#84B5B1}
+.app[data-dir="b"][data-state="break"]{--fill:var(--cool);--fillShadow:0 8px 22px -8px rgba(62,127,132,.5)}
+.app[data-dir="c"][data-state="break"]{--fill:var(--cool)}
+.app[data-state="break"] .clock{opacity:.94}
+</style>
+</head>
+<body>
+
+<div class="lab-head">
+  <h1>Kertik · Tasarım Laboratuvarı</h1>
+  <p>Aynı uygulama, üç estetik yön. Yönü ve ekranı değiştir, açık/koyu arasında gez.
+     Halka canlı, birkaç saniye izle.</p>
+</div>
+
+<div class="picker" id="dirPick">
+  <span class="lbl">Yön</span>
+  <button data-dir="a" class="on">A · Kâğıt</button>
+  <button data-dir="b">B · Cam</button>
+  <button data-dir="c">C · Mürekkep</button>
+  <span class="lbl" style="margin-left:14px">Işık</span>
+  <button data-mode="light" class="on">Açık</button>
+  <button data-mode="dark">Koyu</button>
+</div>
+
+<div class="picker" id="scrPick">
+  <span class="lbl">Ekran</span>
+  <button data-scr="hazir" class="on">Hazır</button>
+  <button data-scr="calisiyor">Çalışıyor</button>
+  <button data-scr="teyit">Teyit</button>
+  <button data-scr="mola">Mola</button>
+  <button data-scr="ozet">Seans sonu</button>
+  <button data-scr="gorevler">Görevler</button>
+  <button data-scr="kayit">Kayıt</button>
+</div>
+
+<div class="dirnote" id="note"></div>
+
+<div class="phone">
+  <div class="screen">
+    <div class="app" id="app" data-dir="a" data-mode="light" data-state="idle">
+      <div class="statusbar">
+        <span>21:48</span>
+        <span class="sig">
+          <i style="height:6px"></i><i style="height:9px"></i><i style="height:12px"></i><i style="height:14px;opacity:.35"></i>
+          <span style="margin-left:8px;font-size:12px">78%</span>
+        </span>
+      </div>
+      <div class="view" id="view"></div>
+      <div class="nav" id="nav"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const app = document.getElementById('app');
+const view = document.getElementById('view');
+const navEl = document.getElementById('nav');
+const noteEl = document.getElementById('note');
+
+let dir = 'a', mode = 'light', scr = 'hazir';
+
+const NOTES = {
+  a: "<b>A · Kâğıt</b>. Hiç gölge, hiç kutu yok; sadece kâğıt, saç teli çizgiler ve tek bir toprak kırmızısı. Kart yerine satır, dolgu yerine boşluk. Muji sessizliği: anne profili buraya bir saniyede oturur, beş yıl sonra da modası geçmez.",
+  b: "<b>B · Cam</b>. Apple'ın 2026 dili; içerik altta, kontroller üstte yüzen buzlu cam katmanlar. Eşmerkezli yarıçaplar, yumuşak gölge, halkanın üstünde tek bir parıltı. En \"yerli iPhone\" hisseden, ekran görüntüsü en pahalı duran yön; bedeli biraz daha fazla piksel gürültüsü ve blur maliyeti.",
+  c: "<b>C · Mürekkep</b>. Editoryal: sayaç ortada değil sola yaslı, devasa ve ince; bağlam satırı serif. Halka tam çember değil, mürekkep gibi kalınlaşan bir yay. En karakterli, en \"bu benim uygulamam\" diyen yön; en riskli olan da bu."
+};
+
+/* ---------- ikonlar ---------- */
+const IC = {
+  timer:'<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9.5V13l2.4 1.6M9.5 2.5h5"/></svg>',
+  task:'<svg viewBox="0 0 24 24"><path d="M4 7l2 2 3.5-3.5M4 17l2 2 3.5-3.5M13 7h7M13 17h7"/></svg>',
+  log:'<svg viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h10"/><circle cx="19.5" cy="19" r="2.2"/></svg>',
+  set:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 3v2.4M12 18.6V21M21 12h-2.4M5.4 12H3M18.4 5.6l-1.7 1.7M7.3 16.7l-1.7 1.7M18.4 18.4l-1.7-1.7M7.3 7.3L5.6 5.6"/></svg>'
+};
+
+/* ---------- halka ---------- */
+function ring(pct, opts){
+  opts = opts || {};
+  const R = 46, C = 2*Math.PI*R;
+  const off = C * (1 - pct);
+  return `
+  <div class="dial">
+    <div class="ring ${opts.on?'on':''} ${opts.breathe?'breathe':''}">
+      <div class="halo"></div>
+      <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+        <circle class="track" cx="50" cy="50" r="${R}"></circle>
+        <circle class="prog ${opts.dash?'dash':''}" cx="50" cy="50" r="${R}"
+          stroke-dasharray="${C.toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}"></circle>
+      </svg>
+    </div>
+    <div class="clock${(opts.clock||'').replace(/<[^>]*>/g,'').split(':').length>2?' long':''}">${opts.clock||''}</div>
+  </div>`;
+}
+
+/* ---------- ekranlar ---------- */
+const SCREENS = {
+  hazir: () => ({
+    state:'idle', tab:0,
+    html:`<div class="timer">
+      <div class="eyebrow">hazır</div>
+      ${ring(0,{clock:'00<span style="opacity:.35">:</span>00'})}
+      <div class="context"><span class="ph">ne çalışıyorsun?</span></div>
+      <div class="subline">bugün <b>2s 10dk</b> · 3 seans</div>
+      <div class="controls"><button class="btn primary big">Başlat</button></div>
+    </div>`
+  }),
+
+  calisiyor: () => ({
+    state:'run', tab:0,
+    html:`<div class="timer">
+      <div class="eyebrow live">çalışıyor</div>
+      ${ring(.62,{clock:'52<span style="opacity:.35">:</span>14', on:true, breathe:true})}
+      <div class="context">Matematik · limit</div>
+      <div class="subline">2 mola · <b>18dk</b> · sonraki işaret 50dk'da</div>
+      <div class="controls">
+        <button class="btn primary">Mola</button>
+        <button class="btn ghost">Bitir</button>
+      </div>
+    </div>`
+  }),
+
+  teyit: () => ({
+    state:'run', tab:0,
+    html:`<div class="timer">
+      <div class="eyebrow live">çalışıyor</div>
+      ${ring(.78,{clock:'1:12<span style="opacity:.35">:</span>40', on:true, dash:true})}
+      <div class="context">Matematik · limit</div>
+      <div class="subline">son <b>22dk</b> onaylanmamış</div>
+      <button class="presence"><i></i> buradayım</button>
+      <div class="controls">
+        <button class="btn primary">Mola</button>
+        <button class="btn ghost">Bitir</button>
+      </div>
+    </div>`
+  }),
+
+  mola: () => ({
+    state:'break', tab:0,
+    html:`<div class="timer">
+      <div class="eyebrow live">mola</div>
+      ${ring(.34,{clock:'41<span style="opacity:.35">:</span>02', on:true, breathe:true})}
+      <div class="context">çalışman <b>52dk</b>'da donduruldu</div>
+      <div class="subline">mola kendiliğinden bitmez, sen bitirirsin</div>
+      <div class="controls">
+        <button class="btn primary">Devam et</button>
+        <button class="btn ghost">Bitir</button>
+      </div>
+    </div>`
+  }),
+
+  ozet: () => ({
+    state:'idle', tab:0,
+    html:`<div class="summary">
+      <div class="muted">bugün · 20:04 – 22:11</div>
+      <div class="big">1s 38dk</div>
+      <div class="muted" style="margin-top:2px">Matematik · limit</div>
+
+      <div class="ribbon">
+        <i class="w" style="flex:52"></i><i class="b" style="flex:41"></i>
+        <i class="w" style="flex:24"></i><i class="u" style="flex:22"></i>
+        <i class="b" style="flex:7"></i><i class="w" style="flex:16"></i>
+      </div>
+      <div class="ribleg">
+        <span><i class="w" style="background:var(--accent)"></i>çalışma</span>
+        <span><i class="b" style="background:var(--track)"></i>mola</span>
+        <span><i class="u" style="background:var(--warn);opacity:.55"></i>onaylanmamış</span>
+      </div>
+
+      <div class="brk">
+        <div><span>brüt süre</span><span>2s 07dk</span></div>
+        <div><span>mola</span><span>48dk</span></div>
+        <div class="un"><span>onaylanmamış</span><span>22dk</span></div>
+        <div><span>çalışma olarak yazılan</span><span>1s 38dk</span></div>
+      </div>
+
+      <div class="controls" style="margin-top:30px;justify-content:flex-start">
+        <button class="btn primary">Tamam</button>
+        <button class="btn ghost">Düzelt</button>
+      </div>
+    </div>`
+  }),
+
+  gorevler: () => ({
+    state:'idle', tab:1,
+    html:`<div class="scroll">
+      <div class="pagetitle">Bugün</div>
+      <div class="pagesub">4 işten 1'i oldu · 1'i olmadı</div>
+
+      <div class="task done">
+        <div class="mark bitti">✓</div>
+        <div class="tt">Limit konusunu bitir</div>
+      </div>
+      <div class="task">
+        <div class="mark yapiliyor"></div>
+        <div class="tt">Deneme çöz, 40 soru<small>şu an çalışılıyor · 52dk</small></div>
+      </div>
+      <div class="task olmadi">
+        <div class="mark olmadi">–</div>
+        <div class="tt">İngilizce kelime tekrarı<small>olmadı · vakit kalmadı</small></div>
+      </div>
+      <div class="task">
+        <div class="mark tasindi">→</div>
+        <div class="tt">Fizik föyünü tara<span class="rep">↻2</span><small>yarına taşındı</small></div>
+      </div>
+      <div class="task">
+        <div class="mark"></div>
+        <div class="tt">Ders programını güncelle</div>
+      </div>
+
+      <div class="h2">dünden kalanlar</div>
+      <div class="task">
+        <div class="mark"></div>
+        <div class="tt">Kimya testi<span class="rep">↻1</span></div>
+      </div>
+    </div>`
+  }),
+
+  kayit: () => ({
+    state:'idle', tab:2,
+    html:`<div class="scroll">
+      <div class="pagetitle">Kayıt</div>
+      <div class="pagesub">bu hafta 14s 20dk · günlük ortalama 2s 03dk</div>
+
+      <div class="h2">bugün · 3s 26dk</div>
+      <div class="card">
+        <div class="row">
+          <div>Matematik · limit</div>
+          <div class="mono" style="font-weight:500">1s 38dk</div>
+        </div>
+        <div class="muted mono" style="margin-top:3px">20:04 – 22:11 · 2 mola · 22dk onaylanmamış</div>
+        <div class="tl">
+          <div class="ev"><span class="h">20:04</span><span>başladı</span></div>
+          <div class="ev b"><span class="h">20:56</span><span>molaya girdi</span></div>
+          <div class="ev"><span class="h">21:37</span><span>devam etti, "erken döndüm" düzeltmesi</span></div>
+          <div class="ev"><span class="h">22:11</span><span>bitirdi</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row">
+          <div>Kimya · tepkime hızı</div>
+          <div class="mono" style="font-weight:500">1s 48dk</div>
+        </div>
+        <div class="muted mono" style="margin-top:3px">16:12 – 18:15 · 1 mola</div>
+      </div>
+
+      <div class="h2">dün · 2s 05dk</div>
+      <div class="card">
+        <div class="row">
+          <div>Deneme</div>
+          <div class="mono" style="font-weight:500">2s 05dk</div>
+        </div>
+        <div class="muted mono" style="margin-top:3px">09:30 – 11:52 · 1 mola</div>
+      </div>
+    </div>`
+  })
+};
+
+const TABS = [['Sayaç','timer'],['Görevler','task'],['Kayıt','log'],['Ayarlar','set']];
+
+function render(){
+  const s = SCREENS[scr]();
+  app.dataset.dir = dir;
+  app.dataset.mode = mode;
+  app.dataset.state = s.state;
+  view.innerHTML = s.html;
+  navEl.innerHTML = '<div class="inner">' + TABS.map((t,i)=>
+    `<button class="${i===s.tab?'on':''}">${IC[t[1]]}<span>${t[0]}</span></button>`
+  ).join('') + '</div>';
+  noteEl.innerHTML = NOTES[dir];
+}
+
+document.getElementById('dirPick').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.dir){ dir = b.dataset.dir; markGroup(b,'[data-dir]'); }
+  if(b.dataset.mode){ mode = b.dataset.mode; markGroup(b,'[data-mode]'); }
+  render();
+});
+document.getElementById('scrPick').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  scr = b.dataset.scr; markGroup(b,'[data-scr]'); render();
+});
+function markGroup(btn, sel){
+  btn.parentElement.querySelectorAll(sel).forEach(x=>x.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+render();
+</script>
+</body>
+</html>

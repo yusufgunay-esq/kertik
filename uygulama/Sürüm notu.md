@@ -1,0 +1,1 @@
+2.2 Notu: Google bağlantısı için özel key eklendi ama hala çalışmıyor

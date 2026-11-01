@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kertik — Duvar v5 (Zen Sanatı & Karesansui Rölyefi)</title>
+  <style>
+    :root {
+      --bg: #F5F2EA;
+      --bg-card: #FFFFFF;
+      --bg-inset: #EFECE3;
+      --ink: #1C1D1F;
+      --muted: #7A7975;
+      --faint: #B5B3AC;
+      --line: #E2DDD3;
+      --line-subtle: rgba(0,0,0,0.06);
+      --accent: #B05237;
+      --sand-rake: rgba(140, 130, 115, 0.65);
+      --sand-shadow: rgba(40, 35, 30, 0.28);
+      --stone-body: #282B32;
+      --stone-mid: #3C414C;
+      --stone-light: #585F6E;
+      --stone-spec: rgba(255,255,255,0.45);
+      --wood-base: #C2966A;
+      --wood-dark: #8F5E36;
+      --wood-grain: rgba(90, 48, 18, 0.25);
+      --shadow-sm: 0 2px 10px rgba(0,0,0,0.03);
+      --shadow-md: 0 10px 30px rgba(0,0,0,0.05);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+    }
+
+    body.dark {
+      --bg: #141518;
+      --bg-card: #1C1E22;
+      --bg-inset: #121316;
+      --ink: #EDEDED;
+      --muted: #95989F;
+      --faint: #52555D;
+      --line: #292C33;
+      --line-subtle: rgba(255,255,255,0.06);
+      --accent: #D96B4E;
+      --sand-rake: rgba(200, 210, 230, 0.35);
+      --sand-shadow: rgba(0, 0, 0, 0.75);
+      --stone-body: #20232A;
+      --stone-mid: #303540;
+      --stone-light: #484F5E;
+      --stone-spec: rgba(255,255,255,0.32);
+      --wood-base: #9E744D;
+      --wood-dark: #664222;
+      --wood-grain: rgba(40, 20, 5, 0.45);
+      --shadow-sm: 0 2px 10px rgba(0,0,0,0.25);
+      --shadow-md: 0 10px 30px rgba(0,0,0,0.40);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      padding: 36px 20px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background 0.4s ease, color 0.4s ease;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 820px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .page-sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .theme-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 20px;
+      width: 100%;
+    }
+
+    .compare-box {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .compare-box.highlight {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), var(--shadow-md);
+    }
+
+    .compare-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .compare-tag {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .compare-tag.old { background: rgba(150, 150, 150, 0.15); color: var(--muted); }
+    .compare-tag.new { background: rgba(176, 82, 55, 0.15); color: var(--accent); }
+
+    .preview-stage {
+      background: var(--bg-inset);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ANA ZAMAN DUVARI KARTI */
+    .zen-wall-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px 20px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .wall-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--line-subtle);
+      padding-bottom: 14px;
+    }
+
+    .wall-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .wall-filters {
+      display: flex;
+      background: var(--bg-inset);
+      padding: 3px;
+      border-radius: 999px;
+      gap: 2px;
+    }
+
+    .wall-filter-btn {
+      background: transparent;
+      border: none;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--muted);
+      padding: 4px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .wall-filter-btn.active {
+      background: var(--bg-card);
+      color: var(--ink);
+      font-weight: 600;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    /* ZAMAN ŞERİDİ */
+    .zen-shelf-wrapper {
+      position: relative;
+      width: 100%;
+      overflow-x: auto;
+      padding: 10px 0 6px;
+      scrollbar-width: none;
+    }
+    .zen-shelf-wrapper::-webkit-scrollbar { display: none; }
+
+    .zen-shelf {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      min-width: max-content;
+      padding: 8px 4px;
+    }
+
+    .zen-day-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 48px;
+      position: relative;
+    }
+
+    .zen-day-canvas {
+      height: 130px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      position: relative;
+    }
+
+    .zen-day-col::after {
+      content: "";
+      position: absolute;
+      left: -6px;
+      right: -6px;
+      bottom: 22px;
+      height: 1px;
+      background: var(--line);
+      opacity: 0.7;
+    }
+
+    .zen-day-col.today::after {
+      background: var(--accent);
+      opacity: 1;
+      height: 2px;
+    }
+
+    .zen-day-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--faint);
+      margin-top: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+    .zen-day-col.today .zen-day-label {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* İNTERAKTİF STRES KARTI */
+    .interactive-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .slider-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .slider-val {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    input[type=range] {
+      flex: 1;
+      min-width: 200px;
+      accent-color: var(--accent);
+      height: 6px;
+      border-radius: 999px;
+      background: var(--line);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <div class="top-bar">
+      <div>
+        <h1 class="page-title">Zaman Duvarı & Zen Sanatı v5</h1>
+        <p class="page-sub">Karesansui kum bahçesi, mineral nehir taşları ve kâğıda gömülü rölyef.</p>
+      </div>
+      <button class="theme-btn" onclick="toggleTheme()">
+        <span id="themeIcon">🌙</span> <span id="themeText">Gece Modu</span>
+      </button>
+    </div>
+
+    <!-- Karşılaştırma -->
+    <div class="compare-grid">
+      <div class="compare-box">
+        <div class="compare-header">
+          <span style="font-size: 15px; font-weight: 600;">Eski Şematik Taşlar</span>
+          <span class="compare-tag old">İçimize Sinmeyen</span>
+        </div>
+        <div class="preview-stage">
+          <svg width="180" height="50" viewBox="0 0 180 50">
+            <ellipse cx="30" cy="35" rx="9" ry="2.5" fill="#000" opacity="0.2"/>
+            <circle cx="30" cy="27" r="8" fill="#1C1D1F"/>
+            <ellipse cx="65" cy="35" rx="9" ry="2.5" fill="#000" opacity="0.2"/>
+            <circle cx="65" cy="27" r="8" fill="#1C1D1F"/>
+            <ellipse cx="100" cy="35" rx="9" ry="2.5" fill="#000" opacity="0.2"/>
+            <circle cx="100" cy="27" r="8" fill="#1C1D1F"/>
+            <ellipse cx="135" cy="35" rx="9" ry="2.5" fill="#000" opacity="0.2"/>
+            <circle cx="135" cy="27" r="8" fill="#1C1D1F"/>
+          </svg>
+        </div>
+        <p style="font-size: 13px; line-height: 1.5; color: var(--muted);">
+          ❌ Düz siyah bilye / havyar gibi görünüyor.<br>
+          ❌ Zeminle ve kumla hiçbir organik bağı yok.<br>
+          ❌ Ahşap çubuğun zanaat ağırlığının yanında şematik kalıyor.
+        </p>
+      </div>
+
+      <div class="compare-box highlight">
+        <div class="compare-header">
+          <span style="font-size: 15px; font-weight: 600;">Yeni Karesansui Zen Rölyefi</span>
+          <span class="compare-tag new">Zanaat & Sanat</span>
+        </div>
+        <div class="preview-stage" id="compareNewStage">
+        </div>
+        <p style="font-size: 13px; line-height: 1.5; color: var(--muted);">
+          ✅ Taşların etrafında genişleyen <strong>kum tırmığı dalgaları</strong> (karesansui).<br>
+          ✅ Mat mineral antrasit tonu, derin zemin gölgesi ve ışık vuruşu.<br>
+          ✅ Çoklu seanslar tek tek boncuk değil, <strong>organik Zen kaya adacığı</strong> oluşturur.
+        </p>
+      </div>
+    </div>
+
+    <!-- İnteraktif Stres Testi -->
+    <div class="interactive-card">
+      <div class="slider-row">
+        <div class="slider-title">
+          Canlı Seans Sayısı: <span class="slider-val" id="stoneCountText">5 Pomodoro</span>
+        </div>
+        <input type="range" id="stoneSlider" min="1" max="25" value="5" oninput="updateInteractiveStone(this.value)">
+      </div>
+      <div class="preview-stage" style="height: 140px;" id="interactiveStage"></div>
+    </div>
+
+    <!-- 30 Günlük Zaman Duvarı -->
+    <div class="zen-wall-card">
+      <div class="wall-top-bar">
+        <div class="wall-title">⛩️ Zaman Duvarı (Son 30 Gün)</div>
+        <div class="wall-filters">
+          <button class="wall-filter-btn active">Tümü</button>
+          <button class="wall-filter-btn">Kronometre</button>
+          <button class="wall-filter-btn">Pomodoro</button>
+        </div>
+      </div>
+      <div class="zen-shelf-wrapper">
+        <div class="zen-shelf" id="wallShelf"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function rng(seed) {
+      let s = seed % 2147483647; if (s <= 0) s += 2147483646;
+      return () => (s = s * 16807 % 2147483647) / 2147483647;
+    }
+
+    function fbmNoise(x, y, s) {
+      const R = rng(s);
+      return Math.sin(x * 1.5 + R() * 2) * 0.5 + Math.cos(y * 1.8 + R() * 3) * 0.5;
+    }
+
+    function renderZenStoneGroup(dkList, width, height, seed) {
+      const n = dkList.length;
+      if (!n) return `<svg width="${width}" height="${height}"></svg>`;
+
+      const svgNS = 'xmlns="http://www.w3.org/2000/svg"';
+      let svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" ${svgNS}>`;
+
+      const cx = width / 2;
+      const cy = height - 14;
+
+      const rippleRx = Math.min(width * 0.44, 18 + n * 0.95);
+      const rippleRy = Math.min(15, 7 + n * 0.35);
+
+      svg += `
+        <ellipse cx="${cx}" cy="${cy}" rx="${rippleRx + 6}" ry="${rippleRy + 3.5}" 
+                 fill="none" stroke="var(--sand-rake)" stroke-width="0.8" opacity="0.4" stroke-dasharray="3 2" />
+        <ellipse cx="${cx}" cy="${cy}" rx="${rippleRx}" ry="${rippleRy}" 
+                 fill="none" stroke="var(--sand-rake)" stroke-width="1.2" opacity="0.7" />
+        <ellipse cx="${cx}" cy="${cy + 1}" rx="${rippleRx * 0.85}" ry="${rippleRy * 0.7}" 
+                 fill="var(--sand-shadow)" opacity="0.45" />
+      `;
+
+      let layers = [];
+      if (n <= 4) {
+        layers.push(dkList);
+      } else if (n <= 9) {
+        const k1 = Math.ceil(n * 0.58);
+        layers.push(dkList.slice(0, k1));
+        layers.push(dkList.slice(k1));
+      } else {
+        const k1 = Math.ceil(n * 0.45);
+        const k2 = Math.ceil(n * 0.32);
+        layers.push(dkList.slice(0, k1));
+        layers.push(dkList.slice(k1, k1 + k2));
+        layers.push(dkList.slice(k1 + k2));
+      }
+
+      let globalIdx = 0;
+      const baseR = n <= 4 ? 7.2 : (n <= 9 ? 5.2 : 3.8);
+
+      layers.forEach((layerStones, lIdx) => {
+        const count = layerStones.length;
+        const layerY = cy - (lIdx * (baseR * 1.35));
+        const spanX = Math.min(width * 0.75, count * (baseR * 2.1));
+        const startX = cx - (spanX / 2) + baseR;
+        const stepX = count > 1 ? (spanX - baseR * 2) / (count - 1) : 0;
+
+        layerStones.forEach((dk, i) => {
+          const stoneSeed = seed + globalIdx * 37;
+          const R = rng(stoneSeed);
+          const r = baseR * Math.sqrt(Math.max(1, dk) / 25) * (0.92 + R() * 0.16);
+          const px = count === 1 ? cx : (startX + i * stepX + (R() - 0.5) * 1.5);
+          const py = layerY - (R() * 1.2);
+
+          const N_PTS = 12;
+          const rot = (R() - 0.5) * 0.6;
+          let d = "";
+          for (let p = 0; p <= N_PTS; p++) {
+            const a = rot + (p / N_PTS) * Math.PI * 2;
+            const rad = r * (0.90 + fbmNoise(Math.cos(a) * 2, Math.sin(a) * 2, stoneSeed) * 0.22);
+            const x = px + Math.cos(a) * rad;
+            const y = py + Math.sin(a) * rad * 0.78;
+            d += (p === 0 ? "M" : "L") + x.toFixed(2) + "," + y.toFixed(2) + " ";
+          }
+          d += "Z";
+
+          svg += `
+            <ellipse cx="${px}" cy="${py + r * 0.65}" rx="${r * 1.1}" ry="${r * 0.35}" 
+                     fill="var(--sand-shadow)" opacity="0.6" />
+            <path d="${d}" fill="var(--stone-body)" stroke="var(--stone-mid)" stroke-width="0.75" />
+            <ellipse cx="${px - r * 0.25}" cy="${py - r * 0.28}" rx="${r * 0.38}" ry="${r * 0.18}" 
+                     fill="var(--stone-spec)" transform="rotate(-15 ${px} ${py})" />
+          `;
+
+          globalIdx++;
+        });
+      });
+
+      svg += `</svg>`;
+      return svg;
+    }
+
+    function renderWoodStick(minutes, height, seed) {
+      if (!minutes) return "";
+      const h = Math.min(height, Math.max(16, (minutes / 180) * height));
+      const w = 11;
+
+      let notches = "";
+      const count = Math.min(24, Math.floor(minutes / 10));
+      for (let i = 0; i < count; i++) {
+        const ny = h - 4 - (i * (h - 8) / count);
+        notches += `<line x1="2" y1="${ny}" x2="9" y2="${ny}" stroke="var(--wood-dark)" stroke-width="1" opacity="0.85"/>`;
+      }
+
+      return `
+        <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="overflow: visible; margin-bottom: 3px;">
+          <rect x="0" y="0" width="${w}" height="${h}" rx="2.5" fill="var(--wood-base)" stroke="var(--wood-dark)" stroke-width="0.8"/>
+          <line x1="3.5" y1="2" x2="3.5" y2="${h - 2}" stroke="var(--wood-grain)" stroke-width="0.75"/>
+          <line x1="7.5" y1="2" x2="7.5" y2="${h - 2}" stroke="var(--wood-grain)" stroke-width="0.75"/>
+          ${notches}
+        </svg>
+      `;
+    }
+
+    document.getElementById("compareNewStage").innerHTML = renderZenStoneGroup([25, 25, 50, 25, 25], 180, 80, 42);
+
+    function updateInteractiveStone(val) {
+      document.getElementById("stoneCountText").innerText = val + " Pomodoro (" + (val * 25) + " dk)";
+      const list = [];
+      for (let i = 0; i < val; i++) list.push(25);
+      document.getElementById("interactiveStage").innerHTML = renderZenStoneGroup(list, 260, 115, 101);
+    }
+    updateInteractiveStone(5);
+
+    function populateWall() {
+      const shelf = document.getElementById("wallShelf");
+      shelf.innerHTML = "";
+
+      const today = 30;
+      for (let i = 1; i <= 30; i++) {
+        const col = document.createElement("div");
+        col.className = "zen-day-col" + (i === today ? " today" : "");
+
+        const canvas = document.createElement("div");
+        canvas.className = "zen-day-canvas";
+
+        let stickHtml = "";
+        let stoneHtml = "";
+
+        if (i === 10) {
+          const p = Array(18).fill(25);
+          stoneHtml = renderZenStoneGroup(p, 48, 52, i * 73);
+        } else if (i === 22) {
+          stickHtml = renderWoodStick(150, 68, i * 19);
+          stoneHtml = renderZenStoneGroup([25, 25, 50, 25, 25, 25], 48, 42, i * 73);
+        } else if (i % 4 === 0) {
+          const count = 2 + (i % 4);
+          stoneHtml = renderZenStoneGroup(Array(count).fill(25), 48, 38, i * 73);
+        } else if (i % 3 === 0) {
+          stickHtml = renderWoodStick(45 + (i * 4) % 120, 75, i * 19);
+        } else if (i === today) {
+          stickHtml = renderWoodStick(90, 58, 999);
+          stoneHtml = renderZenStoneGroup([25, 25, 25, 50], 48, 40, 888);
+        }
+
+        canvas.innerHTML = stickHtml + stoneHtml;
+        col.appendChild(canvas);
+
+        const lbl = document.createElement("div");
+        lbl.className = "zen-day-label";
+        lbl.textContent = (i === 1 || i % 5 === 0 || i === today) ? i : "·";
+        col.appendChild(lbl);
+
+        shelf.appendChild(col);
+      }
+    }
+    populateWall();
+
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+      const isDark = document.body.classList.contains("dark");
+      document.getElementById("themeIcon").innerText = isDark ? "☀️" : "🌙";
+      document.getElementById("themeText").innerText = isDark ? "Gündüz Modu" : "Gece Modu";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- tr — kertik-android/dil/ sözlüğünden üretildi, elle düzenleme -->
+<resources>
+    <string name="bildirim_kanal">çalışan seans</string>
+    <string name="bildirim_kanal_aciklama">açık bir seans varken sayacı gösterir. ses çıkarmaz.</string>
+    <string name="bildirim_devam">devam et</string>
+    <string name="bildirim_mola">mola</string>
+    <string name="bildirim_bitir">bitir</string>
+    <string name="widget_baslat">başlat</string>
+    <string name="widget_calisiyor">çalışıyor</string>
+    <string name="widget_molada">molada</string>
+    <string name="widget_duvar_aciklama">son 30 günün çalışma kaydı, tek bakışta.</string>
+    <string name="widget_kontrol_aciklama">uygulamayı açmadan seansı başlat, moladan devam et, bitir.</string>
+    <string name="resmi_kaydet">resmi kaydet</string>
+    <string name="yedegi_kaydet">yedeği kaydet</string>
+    <string name="widget_bos">henüz kayıt yok</string>
+    <string name="widget_pomodoro">pomodoro</string>
+    <string name="widget_bugun">bugün</string>
+    <string name="widget_gun_once">%1$d gün önce</string>
+    <string name="widget_bugun_dk">bugün · %1$d dk çalışma</string>
+    <string name="widget_mola_alt">mola sürüyor · nefes al</string>
+    <string name="widget_basladin">%1$s\'de başladın</string>
+    <string name="widget_centik">%1$d. çentik</string>
+    <string name="widget_ilerleme">%1$d / %2$d dk</string>
+    <string name="widget_duvar_baslik">duvar</string>
+    <string name="widget_otuz_gun">30 gün</string>
+    <string name="widget_gunde_seans">%1$d günde seans</string>
+    <string name="odak_modu_tetik">seans sürerken</string>
+</resources>

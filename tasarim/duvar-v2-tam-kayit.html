@@ -1,0 +1,509 @@
+﻿<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kertik — Yeni Duvar & Kayıt Ekranı (v2)</title>
+<style>
+:root {
+  --bg: #F5F2EA;
+  --bg2: #EAE6DC;
+  --card: #FDFCFA;
+  --card-border: rgba(0, 0, 0, 0.08);
+  --ink: #16181B;
+  --ink2: #3E4148;
+  --muted: #7A756B;
+  --faint: #A8A398;
+  --line: #DFD9CC;
+  --accent: #B05237;
+  --accent-glow: rgba(176, 82, 55, 0.15);
+  --cool: #3E7C77;
+  --mola1: #3E7C77;
+  --mola2: #2A5A56;
+  --kopru: #C28B62;
+  --sand-rake: rgba(122, 117, 107, 0.35);
+  --sand-shadow: rgba(0, 0, 0, 0.14);
+  --tas: #2B2C2E;
+  --tas-specular: rgba(255, 255, 255, 0.3);
+  --pad: 22px;
+}
+
+:root.dark {
+  --bg: #141518;
+  --bg2: #1C1E23;
+  --card: #1F2128;
+  --card-border: rgba(255, 255, 255, 0.09);
+  --ink: #EDE9E0;
+  --ink2: #BCB7AC;
+  --muted: #948F84;
+  --faint: #5E5B54;
+  --line: #2B2D35;
+  --accent: #D0785B;
+  --accent-glow: rgba(208, 120, 91, 0.25);
+  --cool: #79B3AE;
+  --mola1: #79B3AE;
+  --mola2: #52807C;
+  --kopru: #D09367;
+  --sand-rake: rgba(169, 178, 188, 0.28);
+  --sand-shadow: rgba(0, 0, 0, 0.45);
+  --tas: #DCE0E6;
+  --tas-specular: rgba(255, 255, 255, 0.45);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background .4s ease, color .4s ease;
+}
+
+#paper { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .45; }
+.app-viewport {
+  position: relative; z-index: 1; max-width: 520px; margin: 0 auto; min-height: 100vh;
+  padding: 44px var(--pad) 100px;
+}
+
+/* Üst Başlık & Özet */
+header { margin-bottom: 24px; }
+.header-row { display: flex; justify-content: space-between; align-items: baseline; }
+.pagetitle { font-size: 32px; font-weight: 500; letter-spacing: -.03em; margin: 0; }
+.theme-toggle {
+  background: var(--card); border: 1px solid var(--card-border); color: var(--muted);
+  border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 500; cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.pagesub { font-size: 15px; color: var(--muted); margin-top: 4px; }
+.pagesub b { color: var(--ink2); font-weight: 600; }
+
+/* Apple-Grade Duvar Kartı */
+.wall-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 22px 18px 18px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  margin-bottom: 34px;
+  transition: background .4s ease, border-color .4s ease;
+}
+.wall-card-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+}
+.wall-card-title {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 600;
+}
+.wall-tabs {
+  display: flex; gap: 4px; background: var(--bg2); border-radius: 999px; padding: 3px;
+}
+.wall-tab-btn {
+  border: 0; background: none; color: var(--muted); font-size: 12px; font-weight: 500;
+  padding: 4px 10px; border-radius: 999px; cursor: pointer; transition: .2s;
+}
+.wall-tab-btn.active {
+  background: var(--card); color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Zaman Şeridi (Shelf) */
+.wall-shelf {
+  display: flex; gap: 8px; overflow-x: auto; padding: 8px 2px 14px;
+  align-items: flex-end; scrollbar-width: none;
+}
+.wall-shelf::-webkit-scrollbar { display: none; }
+
+.wall-day-slot {
+  flex: 0 0 38px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  position: relative; cursor: pointer; transition: transform .18s ease;
+}
+.wall-day-slot:hover, .wall-day-slot.selected { transform: translateY(-3px); }
+.wall-day-plot {
+  height: 78px; width: 100%; display: flex; align-items: flex-end; justify-content: center; position: relative;
+}
+.wall-day-plot::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 1px;
+  background: var(--sand-rake); opacity: .45;
+}
+.wall-day-num {
+  font-size: 11px; font-variant-numeric: tabular-nums; color: var(--faint); font-weight: 500;
+}
+.wall-day-slot.today .wall-day-num { color: var(--accent); font-weight: 700; }
+.wall-day-slot.today::after {
+  content: ""; position: absolute; bottom: -4px; width: 4px; height: 4px;
+  border-radius: 50%; background: var(--accent);
+}
+.wall-empty-groove {
+  width: 14px; height: 2px; border-radius: 999px; background: var(--sand-rake); opacity: .3; margin-bottom: 4px;
+}
+
+/* Günlük Seans Listesi (Kayıtlar) */
+.section-title {
+  font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  font-weight: 600; margin: 0 0 14px 2px;
+}
+.day-group { margin-bottom: 28px; }
+.day-header {
+  display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;
+  padding-bottom: 4px; border-bottom: 1px solid var(--line);
+}
+.day-title { font-size: 17px; font-weight: 500; color: var(--ink); }
+.day-total { font-size: 13.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.session-card {
+  background: var(--card); border: 1px solid var(--card-border); border-radius: 18px;
+  padding: 16px 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02); transition: transform .15s ease;
+}
+.session-card:active { transform: scale(0.99); }
+.session-left { display: flex; flex-direction: column; gap: 4px; }
+.session-note { font-size: 16px; font-weight: 500; color: var(--ink); }
+.session-meta { font-size: 13px; color: var(--muted); }
+.session-badge {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500;
+  padding: 4px 10px; border-radius: 999px; background: var(--bg2); color: var(--muted);
+}
+.session-badge.pomo { color: var(--cool); background: rgba(62, 124, 119, 0.12); }
+.session-badge.stop { color: var(--accent); background: var(--accent-glow); }
+
+</style>
+</head>
+<body>
+<canvas id="paper"></canvas>
+
+<div class="app-viewport">
+  <!-- ÜST ALAN -->
+  <header>
+    <div class="header-row">
+      <h1 class="pagetitle">Kayıt</h1>
+      <button class="theme-toggle" id="thToggle">🌓 Gece</button>
+    </div>
+    <div class="pagesub">Son 30 günde <b>48s 20d</b> odak · <b>32 seans</b></div>
+  </header>
+
+  <!-- YENİ DUVAR KARTI -->
+  <div class="wall-card">
+    <div class="wall-card-header">
+      <span class="wall-card-title" id="wallCardLabel">Zaman Duvarı (30 Gün)</span>
+      <div class="wall-tabs">
+        <button class="wall-tab-btn active" data-filter="all">Tümü</button>
+        <button class="wall-tab-btn" data-filter="wood">Kronometre</button>
+        <button class="wall-tab-btn" data-filter="stone">Pomodoro</button>
+      </div>
+    </div>
+
+    <!-- 30 Günlük Zaman Şeridi -->
+    <div class="wall-shelf" id="wallShelf"></div>
+  </div>
+
+  <!-- GÜNLÜK SEANS LİSTESİ -->
+  <div class="section-title">Geçmiş Seanslar</div>
+  <div id="sessionList"></div>
+</div>
+
+<script>
+/* Kağıt Dokusu */
+function paper() {
+  const c = document.getElementById("paper"), x = c.getContext("2d");
+  const w = c.width = innerWidth, h = c.height = innerHeight;
+  const dark = document.documentElement.classList.contains("dark");
+  x.clearRect(0, 0, w, h);
+  const img = x.createImageData(w, h), d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const v = Math.random();
+    d[i] = d[i+1] = d[i+2] = dark ? 255 : 0;
+    d[i+3] = v < .5 ? 0 : (dark ? 4 + v * 6 : 6 + v * 8);
+  }
+  x.putImageData(img, 0, 0);
+}
+paper();
+window.onresize = paper;
+
+/* Tohumlu Rastgelelik & SVG Araçları */
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng32(sd){let a=sd>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function h2i(i,j,s){let n=Math.imul(i|0,374761393)^Math.imul(j|0,668265263)^Math.imul(s|0,362437);
+  n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967296}
+function vn(x,y,s){const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j;
+  const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);
+  const a=h2i(i,j,s),b=h2i(i+1,j,s),c=h2i(i,j+1,s),d=h2i(i+1,j+1,s);
+  return (a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v}
+const fbm=(x,y,s)=>vn(x,y,s)*.6+vn(x*2.07,y*2.07,s+7)*.27+vn(x*4.13,y*4.13,s+19)*.13;
+const NS = "http://www.w3.org/2000/svg";
+const mk = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* --- 1. ORİJİNAL ÇUBUK ÇİZİM MOTORU (KORUNDU) --- */
+function tonu(mm) {
+  const c = mm === 0 ? [176,82,55] : mm % 5 === 0 ? [55,58,64] : [22,24,27];
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+function firca(x1, y1, x2, y2, w1, w2, seed, N) {
+  const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+  const nx = -dy / L, ny = dx / L;
+  const R = rng32(seed || 1);
+  const sol = [], sag = [];
+  N = N || 5;
+  for (let i = 0; i <= N; i++) {
+    const t = i / N, x = x1 + dx * t, y = y1 + dy * t;
+    const w = (w1 + (w2 - w1) * t) * (1 + (R() - .5) * .2);
+    sol.push([x + nx * w, y + ny * w]);
+    sag.push([x - nx * w * .2, y - ny * w * .2]);
+  }
+  let d = `M${sol[0][0].toFixed(2)},${sol[0][1].toFixed(2)}`;
+  for (let i = 1; i < sol.length; i++) d += `L${sol[i][0].toFixed(2)},${sol[i][1].toFixed(2)}`;
+  for (let i = sag.length - 1; i >= 0; i--) d += `L${sag[i][0].toFixed(2)},${sag[i][1].toFixed(2)}`;
+  return d + "Z";
+}
+function cizCubuk(svg, v, o) {
+  o = o || {};
+  const RP = o.rp || 1.15, SW = o.sw || 8.5, GAP = o.gap || 3.5, TOP = o.top || 2;
+  const KAL = SW * .62;
+  svg.innerHTML = "";
+  const dk = Math.max(1, Math.round(v.dk));
+  const kolon = Math.max(1, Math.ceil(dk / 60));
+  const satir = kolon > 1 ? 60 : dk;
+  const W = kolon * (SW + GAP) - GAP, H = TOP * 2 + Math.max(1, satir - 1) * RP;
+  svg.setAttribute("viewBox", `-3 0 ${(W + 6).toFixed(1)} ${H.toFixed(1)}`);
+  svg.setAttribute("width", (W + 6).toFixed(1));
+  svg.setAttribute("height", H.toFixed(1));
+
+  const ink = css("--ink"), kop = css("--kopru");
+  const id = v.id || "x";
+  const R = rng32(hash32(id));
+  const j = []; for (let i = 0; i < dk * 4 + 40; i++) j.push(R());
+  const g = mk("g", {}); svg.appendChild(g);
+  const colX = k => k * (SW + GAP);
+  const yOf = m => TOP + (m % 60) * RP;
+
+  for (let k = 0; k < kolon; k++) {
+    const son = Math.min(60, dk - k * 60);
+    const y0 = TOP - 2, y1 = yOf(son - 1) + 2, x = colX(k);
+    const kg = mk("g", {});
+    const Rk = rng32(hash32(id + "k" + k));
+    let sol = "M" + x.toFixed(2) + "," + y0.toFixed(2); const sag = [];
+    const N = Math.max(4, Math.round((y1 - y0) / 9));
+    for (let i = 0; i <= N; i++) {
+      const t = i / N, yy = y0 + (y1 - y0) * t;
+      sol += "L" + (x + (Rk() - .5) * .8).toFixed(2) + "," + yy.toFixed(2);
+      sag.push([x + KAL + (Rk() - .5) * .8, yy]);
+    }
+    for (let i = sag.length - 1; i >= 0; i--) sol += "L" + sag[i][0].toFixed(2) + "," + sag[i][1].toFixed(2);
+    kg.appendChild(mk("path", { d: sol + "Z", fill: kop, opacity: .22 }));
+    kg.appendChild(mk("line", { x1: x, y1: y0, x2: x, y2: y1, stroke: ink, "stroke-width": .8, opacity: .35 }));
+    kg.appendChild(mk("line", { x1: x + KAL, y1: y0, x2: x + KAL, y2: y1, stroke: ink, "stroke-width": .6, opacity: .2 }));
+    g.appendChild(kg);
+  }
+
+  for (let m = 0; m < dk; m++) {
+    const k = Math.floor(m / 60), mm = m % 60;
+    const r1 = j[m * 4], r2 = j[m * 4 + 1], r3 = j[m * 4 + 2], r4 = j[m * 4 + 3];
+    const derin = KAL * (mm === 0 ? .94 : mm % 15 === 0 ? .80 : mm % 5 === 0 ? .66 : .48) * (1 + (r1 - .5) * .30);
+    const x = colX(k), y = yOf(m) + (r2 - .5) * RP * .34;
+    const kal = RP * (mm === 0 ? .62 : mm % 5 === 0 ? .50 : .38) * (1 + (r3 - .5) * .34);
+    const egim = (r4 - .5) * RP * .5;
+
+    const ng = mk("g", {});
+    ng.appendChild(mk("path", {
+      d: `M${x.toFixed(2)},${(y + kal * .5).toFixed(2)}` +
+         `L${(x + derin).toFixed(2)},${(y + egim + kal * .16).toFixed(2)}` +
+         `L${(x + derin).toFixed(2)},${(y + egim - kal * .16).toFixed(2)}` +
+         `L${x.toFixed(2)},${(y - kal * .5).toFixed(2)}Z`,
+      fill: tonu(mm), opacity: (mm === 0 ? .95 : .72 + r3 * .2).toFixed(3) }));
+    ng.appendChild(mk("path", {
+      d: firca(x, y - kal * .5, x + derin * .94, y + egim - kal * .14, kal * .30, kal * .10, 0, 5),
+      fill: css("--bg"), opacity: .42 }));
+    g.appendChild(ng);
+  }
+}
+
+/* --- 2. YENİ NESİL ZEN TAŞI MOTORU (KUM BAHÇESİ UYUMLU) --- */
+function cizZenTasi(svg, seanslar, seed) {
+  svg.innerHTML = "";
+  const n = seanslar.length;
+  if (!n) return;
+  const H = 42, W = Math.max(30, n * 16 + 4);
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.setAttribute("width", W);
+  svg.setAttribute("height", H);
+
+  const g = mk("g", {}); svg.appendChild(g);
+  let curX = 4;
+  seanslar.forEach((dk, idx) => {
+    const r = Math.min(11, Math.max(6.5, Math.round(Math.sqrt(dk / 25) * 7.5)));
+    const cx = curX + r;
+    const cy = H - r - 3;
+    curX += r * 1.85 + 2;
+
+    const seedT = hash32(seed + "_t_" + idx);
+    const Rt = rng32(seedT);
+    const rot = (Rt() - .5) * .4;
+    const el = .74 + Rt() * .22;
+
+    // Tırmık halesi
+    g.appendChild(mk("ellipse", {
+      cx: cx.toFixed(1), cy: (H - 2.5).toFixed(1),
+      rx: (r * 1.45).toFixed(1), ry: (r * .32).toFixed(1),
+      fill: "none", stroke: css("--sand-rake"), "stroke-width": .7, opacity: .4
+    }));
+
+    // Gölge
+    g.appendChild(mk("ellipse", {
+      cx: (cx + r * .08).toFixed(1), cy: (H - 3).toFixed(1),
+      rx: (r * 1.12).toFixed(1), ry: (r * .26).toFixed(1),
+      fill: css("--sand-shadow"), opacity: .75
+    }));
+
+    // Taş gövdesi
+    const N = 12;
+    let d = "";
+    for (let i = 0; i <= N; i++) {
+      const a = rot + i / N * Math.PI * 2;
+      const rad = r * (.88 + fbm(Math.cos(a) * 1.8 + idx, Math.sin(a) * 1.8 + idx, seedT % 89) * .24);
+      const px = cx + Math.cos(a) * rad;
+      const py = cy + Math.sin(a) * rad * el;
+      d += (i ? "L" : "M") + px.toFixed(2) + "," + py.toFixed(2) + " ";
+    }
+    d += "Z";
+    g.appendChild(mk("path", { d, fill: css("--tas") }));
+
+    // Parıltı
+    g.appendChild(mk("ellipse", {
+      cx: (cx - r * .22).toFixed(1), cy: (cy - r * .24).toFixed(1),
+      rx: (r * .35).toFixed(1), ry: (r * .18).toFixed(1),
+      fill: css("--tas-specular"), transform: `rotate(-15 ${cx} ${cy})`
+    }));
+  });
+}
+
+/* 30 Günlük Veri & Seanslar */
+const DAYS = [];
+const SESSIONS = [];
+for (let i = 29; i >= 0; i--) {
+  const d = new Date(Date.now() - i * 864e5);
+  const dayKey = d.toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" });
+  const hasStop = i % 2 === 0;
+  const hasPomo = i % 3 === 0;
+  const stopMins = hasStop ? [35, 55, 80, 110][i % 4] : 0;
+  const pomoList = hasPomo ? [25, 50, 25].slice(0, (i % 3) + 1) : [];
+
+  DAYS.push({ i, dayNum: d.getDate(), dayKey, stopMins, pomoList, isToday: i === 0, patina: (1 - (i / 29) * 0.52).toFixed(2) });
+
+  if (i < 5) { // Son 5 günün seans detayları
+    const daySessions = [];
+    if (stopMins) daySessions.push({ title: "Derin Kodlama & Mimari", type: "stopwatch", dk: stopMins, time: "14:20 – 15:45" });
+    if (pomoList.length) pomoList.forEach((p, idx) => daySessions.push({ title: "Tasarım İnceleme #" + (idx + 1), type: "pomodoro", dk: p, time: "10:00 – 10:" + p }));
+    if (daySessions.length) SESSIONS.push({ dayKey: i === 0 ? "Bugün, " + d.getDate() + " Ağustos" : dayKey, sessions: daySessions });
+  }
+}
+
+/* Duvarı Render Et */
+let currentFilter = "all";
+function renderWall() {
+  const shelf = document.getElementById("wallShelf");
+  shelf.innerHTML = "";
+
+  DAYS.forEach(d => {
+    const slot = document.createElement("div");
+    slot.className = "wall-day-slot" + (d.isToday ? " today" : "");
+    slot.style.opacity = d.patina;
+
+    const plot = document.createElement("div");
+    plot.className = "wall-day-plot";
+
+    let hasDrawing = false;
+
+    // Filtreye göre çizim
+    if (currentFilter === "all" || currentFilter === "wood") {
+      if (d.stopMins > 0) {
+        const svg = document.createElementNS(NS, "svg");
+        cizCubuk(svg, { id: "w_" + d.i, dk: d.stopMins }, { rp: 1.1, sw: 8.5, gap: 3.5, top: 2 });
+        plot.appendChild(svg);
+        hasDrawing = true;
+      }
+    }
+    
+    if (currentFilter === "all" || currentFilter === "stone") {
+      if (d.pomoList.length > 0 && (!hasDrawing || currentFilter === "stone")) {
+        const svg = document.createElementNS(NS, "svg");
+        cizZenTasi(svg, d.pomoList, "s_" + d.i);
+        plot.appendChild(svg);
+        hasDrawing = true;
+      }
+    }
+
+    if (!hasDrawing) {
+      const empty = document.createElement("div");
+      empty.className = "wall-empty-groove";
+      plot.appendChild(empty);
+    }
+
+    const num = document.createElement("div");
+    num.className = "wall-day-num";
+    num.textContent = d.dayNum;
+
+    slot.appendChild(plot);
+    slot.appendChild(num);
+    shelf.appendChild(slot);
+  });
+}
+
+/* Seans Listesini Render Et */
+function renderSessionList() {
+  const box = document.getElementById("sessionList");
+  box.innerHTML = "";
+  SESSIONS.forEach(g => {
+    const group = document.createElement("div");
+    group.className = "day-group";
+    const totalDk = g.sessions.reduce((a, b) => a + b.dk, 0);
+
+    group.innerHTML = `
+      <div class="day-header">
+        <span class="day-title">${g.dayKey}</span>
+        <span class="day-total">${Math.floor(totalDk / 60)}s ${totalDk % 60}d</span>
+      </div>
+    `;
+
+    g.sessions.forEach(s => {
+      const card = document.createElement("div");
+      card.className = "session-card";
+      card.innerHTML = `
+        <div class="session-left">
+          <span class="session-note">${s.title}</span>
+          <span class="session-meta">${s.time} · ${s.dk} dk</span>
+        </div>
+        <div class="session-badge ${s.type === "pomodoro" ? "pomo" : "stop"}">
+          ${s.type === "pomodoro" ? " Taş" : " Kertik"}
+        </div>
+      `;
+      group.appendChild(card);
+    });
+
+    box.appendChild(group);
+  });
+}
+
+renderWall();
+renderSessionList();
+
+/* Filtre Butonları */
+document.querySelectorAll(".wall-tab-btn").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".wall-tab-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentFilter = btn.dataset.filter;
+    renderWall();
+  };
+});
+
+/* Tema Butonu */
+document.getElementById("thToggle").onclick = () => {
+  document.documentElement.classList.toggle("dark");
+  paper();
+  renderWall();
+};
+</script>
+</body>
+</html>

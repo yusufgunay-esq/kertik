@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kertik — Pomodoro Mola & Rüzgar Mekaniği Demosu</title>
+<style>
+:root{
+  --bg:#F6F3EC; --bg-card:#FFFFFF; --ink:#16181B; --ink2:#3E4249;
+  --muted:#787369; --line:#E2DCD0; --accent:#2F6B67; --danger:#8C3D2B;
+  --tas:#16181B; --tas-isik:#FFFFFF;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#121315; --bg-card:#1A1C1F; --ink:#EDE9E0; --ink2:#B2ACA0;
+    --muted:#8C8578; --line:#2A2C30; --accent:#5C9B96; --danger:#C45C45;
+    --tas:#EDE9E0; --tas-isik:#FFFFFF;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 60px;
+}
+.header{max-width:880px;width:100%;margin-bottom:24px;text-align:center}
+.header h1{font-size:26px;font-weight:600;letter-spacing:-.02em;margin-bottom:8px}
+.header p{font-size:15px;color:var(--muted);line-height:1.5}
+
+.layout{
+  display:grid;grid-template-columns:minmax(320px,380px) minmax(320px,460px);
+  gap:28px;max-width:880px;width:100%;align-items:start;
+}
+@media(max-width:760px){
+  .layout{grid-template-columns:1fr}
+}
+
+/* Telefon Çerçevesi */
+.phone-mock{
+  background:var(--bg);border:1px solid var(--line);border-radius:40px;
+  box-shadow:0 18px 48px rgba(0,0,0,.08);overflow:hidden;position:relative;
+  height:620px;display:flex;flex-direction:column;
+}
+.canvas-wrap{position:absolute;inset:0;z-index:1}
+canvas{width:100%;height:100%;display:block}
+.hud{
+  position:relative;z-index:2;height:100%;display:flex;flex-direction:column;
+  justify-content:space-between;padding:36px 24px 30px;pointer-events:none;
+}
+.top-status{text-align:center}
+.status-pill{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
+  background:rgba(0,0,0,.04);border:1px solid var(--line);border-radius:999px;
+  font-size:13px;font-weight:500;color:var(--ink2);backdrop-filter:blur(8px);
+}
+.status-pill.break{color:var(--accent);border-color:var(--accent)}
+.status-pill.wind{color:var(--danger);border-color:var(--danger)}
+
+.center-timer{text-align:center;margin-top:auto;margin-bottom:auto}
+.timer-clock{
+  font-size:52px;font-weight:300;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums;margin-bottom:6px;
+}
+.timer-sub{font-size:14px;color:var(--muted)}
+.wind-badge{
+  font-size:12px;color:var(--danger);margin-top:6px;font-weight:500;
+  opacity:0;transition:opacity .3s;
+}
+.wind-badge.show{opacity:1}
+
+.bottom-controls{display:flex;justify-content:center;gap:12px;pointer-events:auto}
+.app-btn{
+  border:1px solid var(--line);background:var(--bg-card);color:var(--ink);
+  padding:14px 32px;border-radius:999px;font-size:16px;font-weight:500;
+  cursor:pointer;transition:.15s transform,.2s background,.2s border-color;
+  box-shadow:0 4px 14px rgba(0,0,0,.04);
+}
+.app-btn:active{transform:scale(.96)}
+.app-btn.primary{background:var(--ink);color:var(--bg);border-color:transparent}
+.app-btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.app-btn.ghost:hover{color:var(--danger)}
+
+/* Kontrol Paneli */
+.panel{display:flex;flex-direction:column;gap:18px}
+.card{
+  background:var(--bg-card);border:1px solid var(--line);border-radius:20px;
+  padding:20px;box-shadow:0 4px 18px rgba(0,0,0,.02);
+}
+.card h2{font-size:16px;font-weight:600;margin-bottom:12px;display:flex;justify-content:space-between}
+.btn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.ctl-btn{
+  border:1px solid var(--line);background:var(--bg);color:var(--ink2);
+  padding:10px 14px;border-radius:12px;font-size:13.5px;font-weight:500;
+  cursor:pointer;transition:.15s;text-align:center;
+}
+.ctl-btn:hover{border-color:var(--ink);color:var(--ink)}
+.ctl-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(47,107,103,.08)}
+
+.timeline-log{
+  list-style:none;font-size:13px;color:var(--muted);max-height:190px;
+  overflow-y:auto;display:flex;flex-direction:column;gap:6px;
+}
+.timeline-log li{padding:6px 10px;background:var(--bg);border-radius:8px;line-height:1.4}
+.timeline-log b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Pomodoro Mola & Rüzgar İnteraktif Demosu</h1>
+  <p>Pomodoro süresine bağlı <b>hak edilen mola</b>, mola aşıldıkça çıkan <b>kademeli rüzgar</b> ve çizgilerin silinip yalnızca <b>taşın kalması</b> mekanizmasını canlı test edin.</p>
+</div>
+
+<div class="layout">
+  <!-- Telefon Simülatörü -->
+  <div class="phone-mock">
+    <div class="canvas-wrap">
+      <canvas id="cv"></canvas>
+    </div>
+    <div class="hud">
+      <div class="top-status">
+        <span class="status-pill" id="durumPill">Hazır</span>
+      </div>
+      <div class="center-timer">
+        <div class="timer-clock" id="sayac">25:00</div>
+        <div class="timer-sub" id="altBilgi">25 dakikalık odak</div>
+        <div class="wind-badge" id="ruzgarBadge">Rüzgar: Çizgiler silindi</div>
+      </div>
+      <div class="bottom-controls" id="butonlar">
+        <button class="app-btn primary" id="btnAna">Başlat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Senaryo Kontrol Masası -->
+  <div class="panel">
+    <div class="card">
+      <h2>1. Adım: Pomodoro Hedefi & Başlat/Bitir</h2>
+      <div class="btn-grid">
+        <button class="ctl-btn active" id="btn25">25 dk Hedef (5 dk mola)</button>
+        <button class="ctl-btn" id="btn15">15 dk Hedef (3 dk mola)</button>
+        <button class="ctl-btn" id="btn50">50 dk Hedef (10 dk mola)</button>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:10px">
+        <button class="ctl-btn" style="flex:1" id="btnHemenBitir">Pomodoroyu Tamamla</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2. Adım: Mola Süresini İlerlet & Rüzgarı İzle</h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Hak edilen mola süresini aşınca kumdaki tırmık izlerinin nasıl silindiğini test edin:</p>
+      <div class="btn-grid">
+        <button class="ctl-btn" id="btnMola3">+3 dk (Hak içi)</button>
+        <button class="ctl-btn" id="btnMola8">+8 dk (1. Esinti)</button>
+        <button class="ctl-btn" id="btnMola18">+18 dk (2. Fırtına)</button>
+        <button class="ctl-btn" id="btnMola30">+30 dk (3. Silme - Sadece Taş)</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>3. Adım: 2. Pomodoroyu Başlat</h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Eğer çok mola verildiyse eski tırmıklar gitmiştir, 1. taş tek başına durur ve 2. taş yeni taze çizgileriyle düşer.</p>
+      <button class="ctl-btn" style="width:100%" id="btnPomo2">+ 2. Pomodoroyu Başlat</button>
+    </div>
+
+    <div class="card">
+      <h2>Olay Kayıtları</h2>
+      <ul class="timeline-log" id="loglar">
+        <li><b>Hazır:</b> Pomodoro başlatmayı bekliyor.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+let state = {
+  durum: "idle",
+  target: 25,
+  pomoSayisi: 0,
+  seanslar: [],
+  molaGecenDk: 0,
+  ruzgarKademe: 0
+};
+
+const cv = document.getElementById("cv");
+const ctx = cv.getContext("2d");
+let W = 0, H = 0;
+
+function resize() {
+  const rect = cv.parentElement.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  W = rect.width; H = rect.height;
+  cv.width = W * dpr; cv.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ciz();
+}
+window.addEventListener("resize", resize);
+
+function logEkle(txt) {
+  const ul = document.getElementById("loglar");
+  const li = document.createElement("li");
+  li.innerHTML = txt;
+  ul.insertBefore(li, ul.firstChild);
+}
+
+function hakEdilenMola(target) {
+  return Math.max(3, Math.round(target / 5));
+}
+
+function pomoHedefSec(dk, btn) {
+  if (state.durum === "running") return;
+  state.target = dk;
+  document.querySelectorAll(".ctl-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  document.getElementById("sayac").textContent = dk + ":00";
+  document.getElementById("altBilgi").textContent = dk + " dakikalık odak (Hak: " + hakEdilenMola(dk) + " dk mola)";
+  logEkle("<b>Hedef Değişti:</b> " + dk + " dk (Hak edilen mola: " + hakEdilenMola(dk) + " dk)");
+}
+
+function baslat() {
+  state.durum = "running";
+  state.pomoSayisi++;
+  const hak = hakEdilenMola(state.target);
+  state.seanslar.push({
+    id: state.pomoSayisi,
+    target: state.target,
+    hak: hak,
+    x: W * (state.pomoSayisi === 1 ? 0.5 : 0.32 + Math.random() * 0.36),
+    y: H * (state.pomoSayisi === 1 ? 0.38 : 0.28 + Math.random() * 0.28),
+    r: 18 + Math.sqrt(state.target) * 3
+  });
+  
+  document.getElementById("durumPill").className = "status-pill";
+  document.getElementById("durumPill").textContent = state.pomoSayisi + ". Pomodoro Çalışıyor";
+  document.getElementById("sayac").textContent = state.target + ":00";
+  document.getElementById("altBilgi").textContent = "Odaklanılıyor (Mola butonu yok)";
+  document.getElementById("ruzgarBadge").classList.remove("show");
+
+  document.getElementById("butonlar").innerHTML = '<button class="app-btn ghost" id="btnBitir">Bitir</button>';
+  document.getElementById("btnBitir").onclick = bitir;
+  logEkle("<b>" + state.pomoSayisi + ". Pomodoro Başladı:</b> Mola butonu yok, tekil Bitir butonu devrede.");
+  ciz();
+}
+
+function hemenBitir() {
+  if (state.durum !== "running") baslat();
+  bitir();
+}
+
+function bitir() {
+  state.durum = "break";
+  state.molaGecenDk = 0;
+  state.ruzgarKademe = 0;
+  const hak = hakEdilenMola(state.target);
+  
+  document.getElementById("durumPill").className = "status-pill break";
+  document.getElementById("durumPill").textContent = "Dinlenme Evresi";
+  document.getElementById("sayac").textContent = "00:00";
+  document.getElementById("altBilgi").textContent = "Hak edilen mola: " + hak + " dk";
+  document.getElementById("butonlar").innerHTML = '<button class="app-btn primary" id="btnYeni">Yeni Pomodoro</button>';
+  document.getElementById("btnYeni").onclick = baslat;
+  
+  logEkle("<b>Pomodoro Tamamlandı:</b> Otomatik mola evresi başladı. Hak edilen mola: " + hak + " dk.");
+  ciz();
+}
+
+function molaEkle(dk) {
+  if (state.durum !== "break") {
+    if (state.seanslar.length === 0) hemenBitir();
+    else state.durum = "break";
+  }
+  state.molaGecenDk += dk;
+  const hak = hakEdilenMola(state.target);
+  const asim = state.molaGecenDk - hak;
+
+  let yeniKademe = 0;
+  if (asim <= 0) yeniKademe = 0;
+  else if (asim < 10) yeniKademe = 1;
+  else if (asim < 20) yeniKademe = 2;
+  else yeniKademe = 3;
+
+  state.ruzgarKademe = yeniKademe;
+
+  document.getElementById("sayac").textContent = "+" + state.molaGecenDk + " dk";
+  const badge = document.getElementById("ruzgarBadge");
+  
+  if (yeniKademe === 0) {
+    document.getElementById("altBilgi").textContent = "Hak edilen mola süresindesin (Rüzgar yok)";
+    badge.className = "wind-badge";
+    logEkle("<b>Mola " + state.molaGecenDk + " dk oldu:</b> Hak edilen " + hak + " dk içinde, kum çizgileri tertemiz.");
+  } else if (yeniKademe === 1) {
+    document.getElementById("altBilgi").textContent = "Hafif esinti başladı (+" + asim + " dk aşım)";
+    badge.className = "wind-badge show";
+    badge.textContent = "Hafif Esinti: Çizgiler yumuşadı";
+    logEkle("<b>Mola " + state.molaGecenDk + " dk oldu:</b> +" + asim + " dk aşım -> 1. Kademe Esinti. Çizgiler yumuşar.");
+  } else if (yeniKademe === 2) {
+    document.getElementById("altBilgi").textContent = "Fırtına çıktı (+" + asim + " dk aşım)";
+    badge.className = "wind-badge show";
+    badge.textContent = "Fırtına: Çizgiler dağıldı";
+    logEkle("<b>Mola " + state.molaGecenDk + " dk oldu:</b> +" + asim + " dk aşım -> 2. Kademe Fırtına. Çizgiler dağılır.");
+  } else {
+    document.getElementById("altBilgi").textContent = "Büyük rüzgar esti (+" + asim + " dk aşım)";
+    badge.className = "wind-badge show";
+    badge.textContent = "Büyük Rüzgar: Bütün çizgiler silindi, sadece taş kaldı.";
+    logEkle("<b>Mola " + state.molaGecenDk + " dk oldu:</b> +" + asim + " dk aşım -> 3. Kademe Silme! Tırmık izleri silindi, taş korundu.");
+  }
+  ciz();
+}
+
+document.getElementById("btnAna").onclick = baslat;
+document.getElementById("btn25").onclick = function() { pomoHedefSec(25, this); };
+document.getElementById("btn15").onclick = function() { pomoHedefSec(15, this); };
+document.getElementById("btn50").onclick = function() { pomoHedefSec(50, this); };
+document.getElementById("btnHemenBitir").onclick = hemenBitir;
+document.getElementById("btnMola3").onclick = function() { molaEkle(3); };
+document.getElementById("btnMola8").onclick = function() { molaEkle(8); };
+document.getElementById("btnMola18").onclick = function() { molaEkle(18); };
+document.getElementById("btnMola30").onclick = function() { molaEkle(30); };
+document.getElementById("btnPomo2").onclick = baslat;
+
+function ciz() {
+  if (!W || !H) return;
+  ctx.clearRect(0, 0, W, H);
+
+  // Kum zemini
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim() || "#F6F3EC";
+  ctx.fillRect(0, 0, W, H);
+
+  const as = state.ruzgarKademe;
+
+  // 1. Tırmık Çizgileri (Aşınma < 3 ise çizilir, aşınma >= 3 ise silinmiştir)
+  if (state.seanslar.length > 0 && as < 3) {
+    const op = as === 0 ? 0.65 : as === 1 ? 0.35 : 0.15;
+    ctx.lineWidth = as === 0 ? 1.2 : as === 1 ? 1.8 : 2.6;
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--line").trim() || "#DFD9CB";
+    
+    // Taşların etrafındaki halkalar
+    for (const se of state.seanslar) {
+      for (let r = se.r + 14; r < W * 0.45; r += 16) {
+        ctx.globalAlpha = op * Math.max(0.05, 1 - r / (W * 0.48));
+        ctx.beginPath();
+        ctx.arc(se.x, se.y, r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // 2. Taşlar ve Kraterleri (TAŞLAR ASLA SİLİNMEZ, rüzgar 3. kademe olsa bile dingin durur)
+  for (const se of state.seanslar) {
+    // Krater halkası
+    ctx.globalAlpha = 0.25;
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--line").trim() || "#DFD9CB";
+    ctx.beginPath();
+    ctx.arc(se.x, se.y, se.r * 1.45, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Gölge
+    ctx.globalAlpha = 0.35;
+    ctx.fillStyle = "#000000";
+    ctx.beginPath();
+    ctx.ellipse(se.x, se.y + se.r * 0.4, se.r * 1.15, se.r * 0.7, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Taş gövdesi
+    ctx.globalAlpha = 0.95;
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--tas").trim() || "#16181B";
+    ctx.beginPath();
+    ctx.arc(se.x, se.y, se.r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Işık parıltısı
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = "#FFFFFF";
+    ctx.beginPath();
+    ctx.ellipse(se.x - se.r * 0.28, se.y - se.r * 0.28, se.r * 0.45, se.r * 0.28, -Math.PI / 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.globalAlpha = 1;
+}
+
+setTimeout(resize, 50);
+</script>
+</body>
+</html>

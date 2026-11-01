@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kertik — Duvar & Kayıt Ekranı Stres Testi Laboratuvarı</title>
+  <style>
+    :root {
+      --bg: #F5F2EA;
+      --bg2: #EFEBE1;
+      --card: #FDFBF7;
+      --ink: #16181B;
+      --ink2: #3E4148;
+      --muted: #726E65;
+      --faint: #9C978C;
+      --line: #DCD5C6;
+      --accent: #B05237;
+      --cool: #3E7C77;
+      --is1: #8C3B24;
+      --is2: #B05237;
+      --is3: #D0785B;
+      --kopru: #C28B62;
+      --mola1: #3E7C77;
+      --mola2: #5A9994;
+      --tas: #2D2E33;
+    }
+    :root.dark {
+      --bg: #16171A;
+      --bg2: #212227;
+      --card: #1B1C22;
+      --ink: #EDE9E0;
+      --ink2: #BCB7AC;
+      --muted: #948F84;
+      --faint: #6A665E;
+      --line: #2E2F34;
+      --accent: #D0785B;
+      --cool: #79B3AE;
+      --is1: #E08568;
+      --is2: #D0785B;
+      --is3: #B05237;
+      --kopru: #D09367;
+      --mola1: #79B3AE;
+      --mola2: #52807C;
+      --tas: #D6D8DE;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 30px 16px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background .4s, color .4s;
+    }
+    .wrap { width: 100%; max-width: 860px; display: flex; flex-direction: column; gap: 28px; }
+    .header { display: flex; justify-content: space-between; align-items: center; }
+    .title { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+    .subtitle { font-size: 14px; color: var(--muted); margin-top: 4px; }
+    
+    .ctrl-bar {
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+      background: var(--bg2); padding: 12px 16px; border-radius: 16px; border: 1px solid var(--line);
+    }
+    .btn {
+      background: var(--card); border: 1px solid var(--line); color: var(--ink);
+      border-radius: 999px; padding: 7px 15px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+      transition: .2s;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn.active { background: var(--accent); color: #FFF; border-color: var(--accent); }
+
+    /* TEST SAHNESİ */
+    .stage-container {
+      background: var(--bg2); border: 1.5px solid var(--line);
+      border-radius: 24px; padding: 24px 20px; display: flex; flex-direction: column; gap: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    }
+    
+    .viewport-box {
+      margin: 0 auto; width: 100%; max-width: 100%;
+      background: var(--card); border: 1px solid var(--line); border-radius: 20px;
+      padding: 20px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); transition: max-width .3s ease;
+    }
+
+    .walltitle {
+      font-size: 12px; color: var(--muted); margin: -2px 0 14px 2px;
+      letter-spacing: .08em; text-transform: uppercase; font-weight: 600;
+    }
+    
+    /* YATAY ZEN RAFI */
+    .wallgrid {
+      display: flex; gap: 8px; align-items: flex-end; overflow-x: auto;
+      padding: 6px 2px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    }
+    .wallgrid::-webkit-scrollbar { display: none; }
+    
+    .day {
+      position: relative; display: flex; flex-direction: column; align-items: center;
+      gap: 8px; flex: 0 0 54px; min-width: 54px; cursor: pointer;
+    }
+    .day .plot {
+      height: 96px; width: 100%; display: flex; align-items: flex-end; justify-content: center;
+    }
+    .wall-tas .day .plot { height: 56px; }
+    .day svg { overflow: visible; display: block; }
+    
+    .day::after {
+      content: ""; position: absolute; left: -4px; right: -4px; bottom: 20px; height: 1.5px;
+      background: var(--line); opacity: .8; pointer-events: none;
+    }
+    .day.today::after {
+      background: var(--accent); opacity: 1; height: 2.5px;
+    }
+    .day.void .plot::before {
+      content: ""; width: 16px; height: 1.5px; border-radius: 999px; background: var(--line); opacity: .6; margin-bottom: 3px;
+    }
+    
+    .day .d {
+      font-size: 12px; color: var(--faint); font-variant-numeric: tabular-nums;
+      line-height: 1; height: 13px; font-weight: 500;
+    }
+    .day.today .d { color: var(--accent); font-weight: 800; font-size: 13px; }
+
+    .legend {
+      display: flex; gap: 18px; flex-wrap: wrap; justify-content: center;
+      margin-top: 14px; font-size: 12px; color: var(--muted);
+    }
+    .legend i {
+      display: inline-block; width: 14px; height: 0; border-top: 2px solid var(--accent);
+      vertical-align: middle; margin-right: 6px;
+    }
+    .legend i.b { border-top-color: var(--cool); }
+    .legend i.u { border-top-style: dashed; opacity: .65; }
+
+    /* İNTERAKTİF SLİDERLAR */
+    .slider-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;
+      background: var(--card); padding: 18px; border-radius: 16px; border: 1px solid var(--line);
+    }
+    .slider-group { display: flex; flex-direction: column; gap: 6px; }
+    .slider-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; }
+    .slider-val { color: var(--accent); font-weight: 700; }
+    input[type=range] { accent-color: var(--accent); height: 6px; width: 100%; cursor: pointer; }
+
+    /* TELEMETRİ & RAPOR */
+    .telemetry-row {
+      display: flex; gap: 16px; flex-wrap: wrap; justify-content: space-around;
+      background: var(--card); padding: 14px; border-radius: 14px; border: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .stat-val { font-weight: 700; color: var(--ink); font-size: 15px; }
+    .stat-val.ok { color: #2E7D32; }
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+    <div class="header">
+      <div>
+        <h1 class="title">Kertik — Duvar Stres Testi Laboratuvarı</h1>
+        <p class="subtitle">Aşırı süreler, taş höyükleri, çoklu seanslar ve ekran genişliği stres testleri</p>
+      </div>
+      <button class="btn" onclick="document.documentElement.classList.toggle('dark')">🌓 Tema</button>
+    </div>
+
+    <!-- PRESET BUTONLARI -->
+    <div class="ctrl-bar">
+      <span style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-right:4px;">Senaryolar:</span>
+      <button class="btn active" onclick="applyPreset('standard')">Standart Gün</button>
+      <button class="btn" onclick="applyPreset('marathon')">12 Saat Maraton</button>
+      <button class="btn" onclick="applyPreset('pomo_heap')">20 Pomodoro Höyüğü</button>
+      <button class="btn" onclick="applyPreset('full_month')">30 Gün Full Dolu</button>
+      <button class="btn" onclick="applyPreset('sparse_month')">Seyrek Ay (1 Gün)</button>
+    </div>
+
+    <!-- EKRAN GENİŞLİĞİ SİMÜLATÖRÜ -->
+    <div class="ctrl-bar">
+      <span style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; margin-right:4px;">Görünüm:</span>
+      <button class="btn" onclick="setViewport('320px')">📱 320px (Kompakt)</button>
+      <button class="btn" onclick="setViewport('390px')">📱 390px (iPhone 15)</button>
+      <button class="btn" onclick="setViewport('680px')">📱 680px (Geniş)</button>
+      <button class="btn active" onclick="setViewport('100%')">💻 100% (Tam Ekran)</button>
+    </div>
+
+    <!-- İNTERAKTİF KONTROLLER -->
+    <div class="slider-grid">
+      <div class="slider-group">
+        <div class="slider-header">
+          <span>Kronometre Süresi</span>
+          <span class="slider-val" id="valKron">180 dk (3.0 sa)</span>
+        </div>
+        <input type="range" id="rngKron" min="5" max="720" step="5" value="180" oninput="updateLive()">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span>Pomodoro Taş Adedi</span>
+          <span class="slider-val" id="valPomo">6 adet (150 dk)</span>
+        </div>
+        <input type="range" id="rngPomo" min="1" max="30" step="1" value="6" oninput="updateLive()">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span>Mola Süresi</span>
+          <span class="slider-val" id="valMola">20 dk</span>
+        </div>
+        <input type="range" id="rngMola" min="0" max="180" step="5" value="20" oninput="updateLive()">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span>Sayılmayan Süre</span>
+          <span class="slider-val" id="valSayilmayan">15 dk</span>
+        </div>
+        <input type="range" id="rngSayilmayan" min="0" max="120" step="5" value="15" oninput="updateLive()">
+      </div>
+    </div>
+
+    <!-- STRES RAPORU / TELEMETRİ -->
+    <div class="telemetry-row">
+      <div class="stat-item">
+        <span class="stat-label">Taşma / Çakışma</span>
+        <span class="stat-val ok" id="statOverflow">SIFIR (Temiz)</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Toplam Kalas Sütunu</span>
+        <span class="stat-val" id="statCols">3 Sütun</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Taş Höyük Katmanı</span>
+        <span class="stat-val" id="statLayers">2 Katmanlı</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Render Süresi</span>
+        <span class="stat-val ok" id="statRender">0.8 ms</span>
+      </div>
+    </div>
+
+    <!-- CANLI TEST SAHNESİ -->
+    <div class="stage-container">
+      <div class="viewport-box" id="vpBox">
+        
+        <!-- KRONOMETRE DUVARI -->
+        <div class="wall" id="wallKronWrap">
+          <div class="walltitle">Kronometre Duvarı (Kertik Kalasları)</div>
+          <div class="wallgrid" id="gridKron"></div>
+          <div class="legend">
+            <span><i></i>çalışma</span>
+            <span><i class="b"></i>mola</span>
+            <span><i class="u"></i>çalışmaya sayılmayan</span>
+          </div>
+        </div>
+
+        <!-- POMODORO DUVARI -->
+        <div class="wall wall-tas" id="wallPomoWrap">
+          <div class="walltitle">Pomodoro Duvarı (Hesap Taşları / Zen Höyüğü)</div>
+          <div class="wallgrid" id="gridPomo"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const NS = "http://www.w3.org/2000/svg";
+
+    // 1. ÇOK KATMANLI ZEN TAŞI ÇİZİCİ (AKILLI HÖYÜK / PEBBLE BED)
+    function cizTasStress(svg, stones) {
+      const H = 56, W = 54;
+      svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+      svg.setAttribute("width", W.toString());
+      svg.setAttribute("height", H.toString());
+
+      const n = stones.length;
+      if (!n) return;
+
+      let katmanSayisi = 1;
+      if (n > 10) katmanSayisi = 3;
+      else if (n > 4) katmanSayisi = 2;
+
+      const baseR = n <= 2 ? 14 : (n <= 4 ? 10.5 : (n <= 10 ? 7.2 : 5.4));
+      const cx = W / 2, cy = H - 12;
+
+      let str = `
+        <ellipse cx="${cx}" cy="${cy + 1}" rx="${W * 0.44}" ry="9" fill="none" stroke="var(--line)" stroke-width="1.2" opacity="0.8"/>
+        <ellipse cx="${cx}" cy="${cy + 1}" rx="${W * 0.36}" ry="6.5" fill="rgba(0,0,0,0.06)"/>
+      `;
+
+      const katmanlar = [];
+      if (katmanSayisi === 1) katmanlar.push(stones);
+      else if (katmanSayisi === 2) {
+        const k1 = Math.ceil(n * 0.58);
+        katmanlar.push(stones.slice(0, k1));
+        katmanlar.push(stones.slice(k1));
+      } else {
+        const k1 = Math.ceil(n * 0.45), k2 = Math.ceil(n * 0.32);
+        katmanlar.push(stones.slice(0, k1));
+        katmanlar.push(stones.slice(k1, k1 + k2));
+        katmanlar.push(stones.slice(k1 + k2));
+      }
+
+      katmanlar.forEach((layerStones, lIdx) => {
+        const count = layerStones.length;
+        const layerY = cy - (lIdx * (baseR * 1.2));
+        const spanX = Math.min(W * 0.76, count * (baseR * 1.8));
+        const startX = cx - (spanX / 2) + baseR;
+
+        layerStones.forEach((dk, i) => {
+          const r = baseR * Math.sqrt(dk / 25);
+          const px = count === 1 ? cx : startX + i * ((spanX - baseR * 2) / Math.max(1, count - 1));
+          const py = layerY - 2;
+
+          str += `
+            <ellipse cx="${px + 1}" cy="${py + r * 0.65}" rx="${r * 1.15}" ry="${r * 0.38}" fill="#000" opacity="0.32"/>
+            <ellipse cx="${px}" cy="${py}" rx="${r}" ry="${r * 0.78}" fill="var(--tas)"/>
+            <ellipse cx="${px - r * 0.25}" cy="${py - r * 0.25}" rx="${r * 0.42}" ry="${r * 0.2}" fill="rgba(255,255,255,0.35)" transform="rotate(-15 ${px} ${py})"/>
+          `;
+        });
+      });
+
+      svg.innerHTML = str;
+      return katmanSayisi;
+    }
+
+    // 2. ÇOK SÜTUNLU KERTİK KALASI ÇİZİCİ (MARATON SÜRELERİ)
+    function cizCubukStress(svg, dk, molaDk, sayilmayanDk) {
+      const kolon = Math.max(1, Math.ceil(dk / 60));
+      const H = 96, SW = 15, GAP = 6;
+      const totalW = kolon * (SW + GAP) - GAP + (sayilmayanDk > 0 ? 10 : 0);
+
+      svg.setAttribute("viewBox", `-8 0 ${totalW + 16} ${H}`);
+      svg.setAttribute("width", (totalW + 16).toString());
+      svg.setAttribute("height", H.toString());
+
+      let str = "";
+
+      for (let k = 0; k < kolon; k++) {
+        const sonDk = Math.min(60, dk - k * 60);
+        const kalH = Math.min(84, Math.max(20, (sonDk / 60) * 84));
+        const y0 = H - kalH;
+        const x = k * (SW + GAP);
+
+        str += `
+          <rect x="${x}" y="${y0}" width="${SW * 0.75}" height="${kalH}" rx="3" fill="var(--kopru)" opacity="0.88"/>
+          <line x1="${x + 3.5}" y1="${y0 + 2}" x2="${x + 3.5}" y2="${H - 2}" stroke="rgba(0,0,0,0.15)" stroke-width="0.8"/>
+          <line x1="${x + 7.5}" y1="${y0 + 2}" x2="${x + 7.5}" y2="${H - 2}" stroke="rgba(255,255,255,0.3)" stroke-width="0.75"/>
+        `;
+
+        const notches = Math.min(14, Math.floor(sonDk / 5));
+        for (let i = 0; i < notches; i++) {
+          const ny = H - 5 - (i * (kalH - 8) / notches);
+          const derin = (SW * 0.75) * (i % 5 === 0 ? 0.95 : 0.72);
+          const kal = i % 5 === 0 ? 2.4 : 1.7;
+          str += `
+            <line x1="${x + 0.5}" y1="${ny + 1}" x2="${x + derin}" y2="${ny + 1}" stroke="var(--ink)" stroke-width="${kal * 0.8}" opacity="0.28"/>
+            <line x1="${x}" y1="${ny}" x2="${x + derin}" y2="${ny}" stroke="var(--is1)" stroke-width="${kal}" stroke-linecap="round"/>
+            <line x1="${x}" y1="${ny - 1}" x2="${x + derin * 0.9}" y2="${ny - 1}" stroke="var(--bg)" stroke-width="0.8" opacity="0.55"/>
+          `;
+        }
+
+        if (molaDk > 0 && k === 0) {
+          str += `
+            <rect x="${x - 4}" y="${y0}" width="3.5" height="${kalH}" rx="1.5" fill="var(--mola1)" opacity="0.5"/>
+            <line x1="${x - 5.5}" y1="${y0}" x2="${x - 5.5}" y2="${H}" stroke="var(--mola2)" stroke-width="2.2" stroke-linecap="round"/>
+          `;
+        }
+      }
+
+      if (sayilmayanDk > 0) {
+        const lastX = (kolon - 1) * (SW + GAP) + (SW * 0.75) + 5;
+        str += `
+          <line x1="${lastX}" y1="${H - 60}" x2="${lastX}" y2="${H}" stroke="var(--accent)" stroke-width="1.8" stroke-dasharray="3 3" opacity="0.6"/>
+        `;
+      }
+
+      svg.innerHTML = str;
+      return kolon;
+    }
+
+    let isFullMonth = false, isSparseMonth = false;
+
+    function renderStress() {
+      const t0 = performance.now();
+
+      const dkKron = parseInt(document.getElementById("rngKron").value);
+      const pomoCount = parseInt(document.getElementById("rngPomo").value);
+      const molaDk = parseInt(document.getElementById("rngMola").value);
+      const sayilmayanDk = parseInt(document.getElementById("rngSayilmayan").value);
+
+      document.getElementById("valKron").innerText = `${dkKron} dk (${(dkKron/60).toFixed(1)} sa)`;
+      document.getElementById("valPomo").innerText = `${pomoCount} adet (${pomoCount * 25} dk)`;
+      document.getElementById("valMola").innerText = `${molaDk} dk`;
+      document.getElementById("valSayilmayan").innerText = `${sayilmayanDk} dk`;
+
+      const gK = document.getElementById("gridKron");
+      const gP = document.getElementById("gridPomo");
+      gK.innerHTML = ""; gP.innerHTML = "";
+
+      let lastCols = 1, lastLayers = 1;
+
+      for (let i = 29; i >= 0; i--) {
+        const gun = 30 - i;
+        const isToday = i === 0;
+
+        let hasKron = isFullMonth ? true : (isSparseMonth ? isToday : (gun % 3 === 0 || isToday));
+        let hasPomo = isFullMonth ? true : (isSparseMonth ? false : (gun % 4 === 0 || isToday));
+
+        // --- KRONOMETRE ---
+        const dK = document.createElement("div");
+        dK.className = "day" + (isToday ? " today" : "") + (hasKron ? "" : " void");
+        dK.style.opacity = (1 - (i / 29) * 0.52).toFixed(3);
+        const pK = document.createElement("div"); pK.className = "plot";
+        if (hasKron) {
+          const s = document.createElementNS(NS, "svg");
+          const curDk = isToday ? dkKron : (gun * 22) % 360 + 30;
+          lastCols = cizCubukStress(s, curDk, isToday ? molaDk : 0, isToday ? sayilmayanDk : 0);
+          pK.appendChild(s);
+        }
+        dK.appendChild(pK);
+        const lK = document.createElement("div"); lK.className = "d";
+        lK.textContent = (isToday || gun === 1 || gun % 5 === 0) ? gun : "·";
+        dK.appendChild(lK);
+        gK.appendChild(dK);
+
+        // --- POMODORO ---
+        const dP = document.createElement("div");
+        dP.className = "day" + (isToday ? " today" : "") + (hasPomo ? "" : " void");
+        dP.style.opacity = (1 - (i / 29) * 0.52).toFixed(3);
+        const pP = document.createElement("div"); pP.className = "plot";
+        if (hasPomo) {
+          const s = document.createElementNS(NS, "svg");
+          const count = isToday ? pomoCount : (gun % 6) + 2;
+          const arr = []; for (let c = 0; c < count; c++) arr.push(25);
+          lastLayers = cizTasStress(s, arr);
+          pP.appendChild(s);
+        }
+        dP.appendChild(pP);
+        const lP = document.createElement("div"); lP.className = "d";
+        lP.textContent = (isToday || gun === 1 || gun % 5 === 0) ? gun : "·";
+        dP.appendChild(lP);
+        gP.appendChild(dP);
+      }
+
+      gK.scrollLeft = gK.scrollWidth;
+      gP.scrollLeft = gP.scrollWidth;
+
+      const t1 = performance.now();
+      document.getElementById("statRender").innerText = (t1 - t0).toFixed(1) + " ms";
+      document.getElementById("statCols").innerText = lastCols + " Sütun";
+      document.getElementById("statLayers").innerText = lastLayers + " Katmanlı";
+    }
+
+    function updateLive() {
+      isFullMonth = false; isSparseMonth = false;
+      renderStress();
+    }
+
+    function setViewport(w) {
+      document.getElementById("vpBox").style.maxWidth = w;
+      document.querySelectorAll(".ctrl-bar .btn").forEach(b => {
+        if (b.innerText.includes(w) || (w === "100%" && b.innerText.includes("Tam Ekran"))) b.classList.add("active");
+        else if (b.innerText.includes("px") || b.innerText.includes("Tam Ekran")) b.classList.remove("active");
+      });
+    }
+
+    function applyPreset(type) {
+      isFullMonth = false; isSparseMonth = false;
+      if (type === "standard") {
+        document.getElementById("rngKron").value = 120;
+        document.getElementById("rngPomo").value = 4;
+        document.getElementById("rngMola").value = 15;
+        document.getElementById("rngSayilmayan").value = 0;
+      } else if (type === "marathon") {
+        document.getElementById("rngKron").value = 600;
+        document.getElementById("rngPomo").value = 8;
+        document.getElementById("rngMola").value = 45;
+        document.getElementById("rngSayilmayan").value = 30;
+      } else if (type === "pomo_heap") {
+        document.getElementById("rngKron").value = 60;
+        document.getElementById("rngPomo").value = 22;
+        document.getElementById("rngMola").value = 10;
+        document.getElementById("rngSayilmayan").value = 0;
+      } else if (type === "full_month") {
+        isFullMonth = true;
+        document.getElementById("rngKron").value = 240;
+        document.getElementById("rngPomo").value = 8;
+      } else if (type === "sparse_month") {
+        isSparseMonth = true;
+        document.getElementById("rngKron").value = 45;
+        document.getElementById("rngPomo").value = 2;
+      }
+      renderStress();
+    }
+
+    renderStress();
+  </script>
+</body>
+</html>

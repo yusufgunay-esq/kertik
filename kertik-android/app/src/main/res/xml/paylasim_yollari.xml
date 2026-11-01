@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sadece önbellekteki resim klasörü paylaşılabilir. Kayıtların tutulduğu
+     yere (WebView'in kendi deposu) buradan erişilemez. -->
+<paths>
+    <cache-path name="seans_resmi" path="resim/" />
+    <cache-path name="yedek" path="yedek/" />
+</paths>

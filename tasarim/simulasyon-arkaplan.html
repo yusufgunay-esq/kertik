@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Simülasyon — Kum Bahçesi ve Tek Sürüş</title>
+<style>
+:root{
+  --bg:#F6F3EC; --bg2:#F0EDE4; --ink:#1A1C1F; --ink2:#43464B;
+  --muted:#77736A; --faint:#A29D92; --line:#DFD9CB; --acc:#3F6B66; --dan:#8E3F2B;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.top{max-width:1240px;margin:0 auto;padding:40px 22px 0}
+h1{font-size:32px;font-weight:400;letter-spacing:-.03em;margin:0}
+.sub{color:var(--muted);font-size:15px;margin-top:8px;max-width:70ch}
+.sub b{color:var(--ink2);font-weight:500}
+.shell{max-width:1240px;margin:0 auto;padding:24px 22px 90px;
+  display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:34px;align-items:start}
+@media (max-width:940px){ .shell{grid-template-columns:1fr} }
+
+/* ---------- telefon ---------- */
+.stage{display:flex;flex-direction:column;align-items:center;gap:16px}
+.ekran{position:relative;width:min(348px,86vw);border-radius:30px;overflow:hidden;
+  border:1px solid var(--line);line-height:0}
+.ekran canvas{display:block;width:100%;height:auto}
+.ekran canvas.ust{position:absolute;inset:0}
+.hud{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  padding:40px 22px 22px;line-height:1.5;pointer-events:none}
+.hud .ey{font-size:11.5px;letter-spacing:.17em;text-transform:uppercase;margin-top:34%}
+.hud .gl{margin:16px 0 10px;line-height:0}
+.hud .t{font-size:50px;font-weight:200;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.hud .n{font-size:15px;margin-top:2px}
+.hud .b{font-size:15px;margin-top:auto;margin-bottom:16px}
+.hud .btns{display:flex;gap:12px;align-items:center;pointer-events:auto}
+.hud .p1{border-radius:999px;padding:12px 30px;font-size:16px;font-weight:600;cursor:pointer;border:none;
+  font-family:inherit}
+.hud .p2{font-size:16px;padding:12px 8px;cursor:pointer;background:none;border:none;font-family:inherit}
+.sars{animation:sars .17s linear}
+@keyframes sars{0%{transform:translateY(0)}30%{transform:translateY(2.4px)}
+  60%{transform:translateY(-1.3px)}100%{transform:translateY(0)}}
+
+/* ---------- kumanda ---------- */
+.kum{width:min(560px,92vw);display:flex;flex-direction:column;gap:12px}
+.satir{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.satir .et{font-size:13px;color:var(--faint);letter-spacing:.06em;text-transform:uppercase;
+  width:74px;flex:0 0 74px}
+button{border:1px solid var(--line);background:var(--bg);color:var(--ink2);
+  border-radius:999px;padding:9px 15px;font-size:14.5px;font-family:inherit;cursor:pointer;transition:.16s}
+button:hover:not(:disabled){border-color:var(--ink2);color:var(--ink)}
+button.on{border-color:var(--acc);color:var(--acc);background:rgba(63,107,102,.08)}
+button.acc{border-color:var(--acc);color:var(--acc)}
+button.dan{border-color:var(--dan);color:var(--dan)}
+button:disabled{opacity:.38;cursor:default}
+.kart{border:1px solid var(--line);border-radius:18px;background:var(--bg2);padding:16px 16px 18px}
+.sec{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+  margin:20px 0 10px;padding-top:16px;border-top:1px solid var(--line)}
+.sec:first-child{margin-top:0;padding-top:0;border-top:none}
+.ctl{margin-bottom:12px}
+.ctl label{display:flex;justify-content:space-between;font-size:13.5px;color:var(--muted);margin-bottom:4px}
+.ctl label b{color:var(--ink2);font-weight:500;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.kayit{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;
+  max-height:230px;overflow:auto;margin:0;padding:0;list-style:none}
+.kayit li{padding:3px 0;border-bottom:1px solid var(--line)}
+.kayit li:last-child{border-bottom:none}
+.kayit b{color:var(--ink2);font-weight:500}
+.stat{font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stat div{display:flex;justify-content:space-between;padding:3px 0}
+.stat b{color:var(--ink);font-weight:500}
+.ipuc{font-size:13px;color:var(--faint);line-height:1.45}
+.cap{font-size:14px;color:var(--muted);text-align:center;max-width:44ch}
+h2{font-size:22px;font-weight:400;letter-spacing:-.02em;margin:56px 0 4px}
+.not{color:var(--muted);font-size:15px;max-width:70ch}
+.not b{color:var(--ink2);font-weight:500}
+.iki{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px;margin-top:20px}
+.pj{border:1px solid var(--line);border-radius:22px;overflow:hidden;line-height:0;position:relative}
+.pj canvas{display:block;width:100%;height:auto}
+.pjc{font-size:14px;color:var(--muted);text-align:center;margin-top:9px;line-height:1.45}
+.pjc b{color:var(--ink2);font-weight:500;display:block;font-size:15px}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>Simülasyon</h1>
+  <div class="sub">Tanıtım değil, <b>çalışan seans.</b> Saat gerçekten işliyor, her dakika
+  kendi izini bir kez çiziyor ve bir daha dokunulmuyor. Hızı 600×'e alıp altı saatlik
+  bir günü 36 saniyede izleyebilirsin. Mola ver, geç dön, bitir — bahçe ne olduysa onu gösterir.</div>
+</div>
+
+<div class="shell">
+  <div class="stage">
+    <div class="ekran" id="ekran">
+      <canvas id="ana"></canvas>
+      <canvas id="ust" class="ust"></canvas>
+      <div class="hud" id="hud">
+        <div class="ey" id="hEy">HAZIR</div>
+        <div class="gl" id="hGl"></div>
+        <div class="t" id="hT">0:00</div>
+        <div class="n" id="hN">bugün için iş yok</div>
+        <div class="b" id="hB"></div>
+        <div class="btns">
+          <button class="p1" id="hP1">Başla</button>
+          <button class="p2" id="hP2">Bitir</button>
+        </div>
+      </div>
+    </div>
+    <div class="cap" id="cap">Başla'ya bas.</div>
+
+    <div class="kum">
+      <div class="satir"><span class="et">sanat</span><span id="gSanat"></span></div>
+      <div class="satir"><span class="et">mod</span><span id="gMod"></span></div>
+      <div class="satir"><span class="et">hız</span><span id="gHiz"></span></div>
+      <div class="satir"><span class="et">kâğıt</span><span id="gPal"></span></div>
+      <div class="satir"><span class="et">olay</span>
+        <button id="bGec">geç döndüm</button>
+        <button id="bYeni">yeni gün</button>
+        <button id="bPng">png</button>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="kart">
+      <div class="sec">Seans</div>
+      <div class="stat" id="stat"></div>
+      <div class="sec">Kayıt</div>
+      <ul class="kayit" id="kayit"></ul>
+      <div class="sec">Tırmık</div>
+      <div class="ctl"><label>aralık <b id="vAra">11.0</b></label>
+        <input type="range" id="ara" min="6" max="20" step=".5" value="11"></div>
+      <div class="ctl"><label>bir çizgi kaç dakika (kronometre) <b id="vDkl">3</b></label>
+        <input type="range" id="dkl" min="1" max="8" step="1" value="3"></div>
+      <div class="ctl"><label>el titremesi <b id="vTit">1.00</b></label>
+        <input type="range" id="tit" min="0" max="2.5" step=".05" value="1"></div>
+      <div class="ctl"><label>mola sınırı (dk) <b id="vMol">10</b></label>
+        <input type="range" id="mol" min="3" max="30" step="1" value="10"></div>
+      <div class="ipuc">Tırmık ayarları seans <b>başlarken</b> okunuyor; süren bir seansın
+        geçmişi değişmez.</div>
+    </div>
+  </div>
+</div>
+
+<div class="top">
+  <h2>Pomodoro ve kronometre neden aynı çizmiyor</h2>
+  <p class="not"><code>20</code>'nin 5. maddesi: ayrım <b>tamamlanma değil, kompozisyonun sınırı.</b>
+  Pomodoro'da tırmık ilk taşın <b>çevresinden</b> başlar ve hedefte kâğıdın kenarına varır —
+  12. dakikada durdurulan bahçe eksik değil, sadece daha küçük bir halka takımıdır.
+  Kronometrede cephe yukarıdan aşağı yürür, kâğıdı bitirince <b>ikinci kata</b> geçip
+  önceki izlerin arasını tırmıklar. Altı saat artık ekrandan taşmıyor, <b>derinleşiyor.</b></p>
+  <div class="iki" id="ornek"></div>
+</div>
+
+<script>
+/* ==========================================================================
+   ORTAK MATEMATİK
+   ========================================================================== */
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng32(sd){let a=sd>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function h2i(i,j,s){let n=Math.imul(i|0,374761393)^Math.imul(j|0,668265263)^Math.imul(s|0,362437);
+  n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967296}
+function vn(x,y,s){const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j;
+  const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);
+  const a=h2i(i,j,s),b=h2i(i+1,j,s),c=h2i(i,j+1,s),d=h2i(i+1,j+1,s);
+  return (a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v}
+const fbm=(x,y,s)=>vn(x,y,s)*.6+vn(x*2.07,y*2.07,s+7)*.27+vn(x*4.13,y*4.13,s+19)*.13;
+/* yumuşak enküçük — kuru bahçenin sırrı */
+function smin(a,b,k){const h=Math.max(0,Math.min(1,.5+.5*(b-a)/k));return b*(1-h)+a*h-k*h*(1-h)}
+/* van der Corput: katları en geniş aralıklı yerleştirir (1. kat ortaya, 2. kat çeyreklere...) */
+function vdc(i){let r=0,f=.5;i|=0;while(i>0){r+=(i&1)*f;i>>=1;f*=.5}return r}
+const kirp=(a,b,c)=>a<b?b:a>c?c:a;
+function karis(a,b,t){ /* #rrggbb harmanı */
+  const p=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+  const A=p(a),B=p(b);
+  return "#"+[0,1,2].map(i=>Math.round(A[i]+(B[i]-A[i])*t).toString(16).padStart(2,"0")).join("")}
+
+const PALET={
+  "kum":   {kagit:"#F3EFE5", cizgi:"#8C8577", tas:"#3A3A36", golge:"#CFC7B4", metin:"#22252A", vurgu:"#A85A3C",
+            is:["#8E3F2B","#A85A3C","#C77A54"]},
+  "kireç": {kagit:"#F7F6F1", cizgi:"#9A9A93", tas:"#2E3130", golge:"#DCDAD1", metin:"#1E2122", vurgu:"#4A6E68",
+            is:["#3A5C57","#4A6E68","#6E938E"]},
+  "kül":   {kagit:"#EDEBE5", cizgi:"#807C74", tas:"#33322E", golge:"#D2CEC4", metin:"#212320", vurgu:"#7A5C3E",
+            is:["#5E4630","#7A5C3E","#9C7C58"]},
+  "gece":  {kagit:"#15171A", cizgi:"#A9B2BC", tas:"#D8DADB", golge:"#0C0E11", metin:"#EDE9E0", vurgu:"#8FB6AF",
+            is:["#B45C40","#D0785B","#E09C7C"], gece:1}
+};
+
+/* ==========================================================================
+   YÜRÜYEN KARELER
+   ========================================================================== */
+function kontur(G,gw,gh,ST,c){
+  const seg=[];
+  const ara=(a,b)=>{const d=b-a;return Math.abs(d)<1e-9?.5:(c-a)/d};
+  for(let j=0;j<gh-1;j++){
+    for(let i=0;i<gw-1;i++){
+      const a=G[j*gw+i],b=G[j*gw+i+1],d=G[(j+1)*gw+i+1],e=G[(j+1)*gw+i];
+      let k=0;if(a<c)k|=1;if(b<c)k|=2;if(d<c)k|=4;if(e<c)k|=8;
+      if(k===0||k===15)continue;
+      const x=i*ST,y=j*ST;
+      const U=()=>[x+ST*ara(a,b),y], Rr=()=>[x+ST,y+ST*ara(b,d)],
+            D=()=>[x+ST*ara(e,d),y+ST], L=()=>[x,y+ST*ara(a,e)];
+      let p=null;
+      switch(k){
+        case 1: case 14: p=[L(),U()];break;
+        case 2: case 13: p=[U(),Rr()];break;
+        case 3: case 12: p=[L(),Rr()];break;
+        case 4: case 11: p=[Rr(),D()];break;
+        case 6: case 9:  p=[U(),D()];break;
+        case 7: case 8:  p=[L(),D()];break;
+        case 5:  p=[L(),U()];seg.push([Rr(),D()]);break;
+        case 10: p=[U(),Rr()];seg.push([L(),D()]);break;
+      }
+      if(p)seg.push(p);
+    }
+  }
+  return seg;
+}
+
+/* ==========================================================================
+   KUM BAHÇESİ — canlı, artımlı, kalıcı
+   Bir çizgi çizildikten sonra ASLA yeniden çizilmez. Taş düştükten sonra
+   gelen çizgiler onun etrafından dolanır; ondan önce çizilenler düz kalır.
+   Bahçe böylece taşın hangi dakikada geldiğini de kaydeder.
+   ========================================================================== */
+function KumBahcesi(o){
+  const {g,go,W,H,seed,mod,hedef,PAL,ARA0,DKL0,tit,hizli}=o;
+  const C=PALET[PAL], S=seed, R=rng32(S);
+  const ST=3.2, gw=Math.ceil(W/ST)+1, gh=Math.ceil(H/ST)+1;
+  const G=new Float32Array(gw*gh);
+  const ARA=ARA0;
+
+  /* --- her gün başka bir bahçe: yön, eğim, lob, taş iriliği, yumuşama tohumdan.
+     Tohum seansın başlama anından geliyor; hangi bahçeyi göreceğini
+     başlamadan bilmiyorsun. --- */
+  /* Tek cephe ailesi: uzaktaki bir merkezden çıkan çok geniş yaylar.
+     Yön 360° serbest, kavis yarıçapı da tohumdan — yani her gün başka bir
+     cephe, ama HER seviye kâğıdı boydan boya geçiyor. Merkezi kâğıda
+     yakın tutan eski "yay" denemesi ilk yirmi dakikada köşede birkaç güdük
+     kavis bırakıyordu, ekran "boş" görünüyordu. */
+  const yum=(.65+R()*1.15), tasIri=(.82+R()*.72);
+  const lobN=2+Math.floor(R()*3), lobF=R()*Math.PI*2, lobA=.07+R()*.10;
+  const yonAci=R()*Math.PI*2, kavis=H*(3.4+R()*5.5);
+  let merkez = mod==="pomodoro" ? {x:W*.5,y:H*.42}
+    : {x:W*.5+Math.cos(yonAci)*kavis, y:H*.5+Math.sin(yonAci)*kavis};
+  const yon = mod==="pomodoro" ? "halka" : (Math.round(yonAci*180/Math.PI)+"°");
+
+  /* --- sakin alan: saatin oturduğu yer hafif tırmıklanır.
+     Perde/gradyan değil — bahçenin göz hizasındaki yeri az işlenmiş kalır (ma).
+     Okunabilirlik böyle çözülüyor, metnin altına kutu koyarak değil. --- */
+  const SAK={cx:W*(.46+R()*.08),cy:H*(.40+R()*.05),rx:W*.50,ry:H*.135};
+
+  /* --- taş havuzu: sıra tohumdan, kaç tanesinin konduğu GÜNDEN --- */
+  const havuz=[];let d=0;
+  while(havuz.length<8&&d++<1600){
+    const x=W*(.16+R()*.68), y=H*(.14+R()*.72), r=W*(.030+R()*R()*.078)*tasIri;
+    /* saatin rakamlarının ve alt satırının tam arkasına taş düşmesin */
+    if(Math.abs(x-W*.5)<W*.36+r&&Math.abs(y-SAK.cy)<H*.10+r) continue;
+    let ok=true;
+    for(const t of havuz) if(Math.hypot(t.x-x,t.y-y)<t.r+r+W*.165) ok=false;
+    if(ok) havuz.push({x,y,r,a:R()*Math.PI,e:.70+R()*.52,tohum:hash32("t"+x.toFixed(1)+y.toFixed(1)+S)});
+  }
+  const taslar=[];
+
+  /* halkalar/yaylar kusursuz olmasın (fukinsei): açıya bağlı loblanma.
+     Uzak merkezlerde genlik ölçekleniyor, yoksa cephe aşırı buruşuyor. */
+  function taban(x,y){
+    const dx=x-merkez.x, dy=y-merkez.y, r=Math.hypot(dx,dy);
+    const gen=Math.min(r,H*.55)*Math.min(1,H*1.2/Math.max(1,r));
+    return r+gen*lobA*Math.sin(lobN*Math.atan2(dy,dx)+lobF);
+  }
+  /* cephe + ölü düzlüğü kıran sapma */
+  const taban2=(x,y)=>taban(x,y)+(fbm(x/(W*.85),y/(W*1.7),S+3)-.5)*ARA*.95;
+  /* Taşın alanı YEREL. İki tuzak da böyle atlatılıyor:
+     - Ham `smin(f, mesafe)` uzakta cepheyi tamamen yutuyor; alanın üst sınırı
+       çöküyor ve bir yerden sonra hiç yeni çizgi doğmuyor (Baki'nin
+       "ekranıma güncelleme gelmeyecek" itirazının asıl teknik hâli).
+     - Konisi cepheye kaydırmak sınırı koruyor ama halkaları yok ediyor,
+       ekran ahşap damarına dönüyor.
+     Çözüm: taşın çevresinde ~3 aralık genişliğinde bir etki alanı. İçinde alan
+     taşın mesafesi (halkalar taşı sarıyor), dışında cephe olduğu gibi kalıyor. */
+  function F(x,y){
+    let f=taban2(x,y);
+    for(const t of taslar){
+      const dx=(x-t.x)*Math.cos(t.a)+(y-t.y)*Math.sin(t.a);
+      const dy=(-(x-t.x)*Math.sin(t.a)+(y-t.y)*Math.cos(t.a))/t.e;
+      const dd=Math.hypot(dx,dy)-t.r;
+      const E=Math.max(2.9*ARA,2.5*t.r)*yum;
+      if(dd>=E)continue;
+      let w=kirp(1-dd/E,0,1);w=w*w*(3-2*w);
+      f=f*(1-w)+(dd+t.taban0)*w;
+    }
+    return f;
+  }
+  let gmin=0,gmax=1;
+  function alanKur(){
+    gmin=1e9;gmax=-1e9;
+    for(let j=0;j<gh;j++)for(let i=0;i<gw;i++){
+      const v=F(i*ST,j*ST);G[j*gw+i]=v;if(v<gmin)gmin=v;if(v>gmax)gmax=v}
+  }
+
+  /* --- kâğıt --- */
+  g.fillStyle=C.kagit;g.fillRect(0,0,W,H);
+  (function alaca(){ /* ölü düzlüğü kıran çok hafif kum alacası — doku katmanı değil */
+    g.save();g.globalAlpha=C.gece?.05:.045;g.fillStyle=C.golge;
+    const Rz=rng32(S+91);
+    for(let i=0;i<W*H/900;i++) g.fillRect(Rz()*W,Rz()*H,1.1,1.1);
+    g.restore();
+  })();
+
+  /* --- ilk taş: seansın açılış hareketi. Sonra alan kurulur. --- */
+  let N=1, DKL=DKL0, kat=1;
+  /* Pomodoro kompozisyonu kâğıdın TAMAMINI kaplamaz — köşelerde açık kum kalır.
+     Bahçenin ferah kalması ma'nın kendisi; dolu kâğıt parmak izine benziyor. */
+  const KAPSAM = mod==="pomodoro" ? .52 : 1;
+  let SGMIN=0, sabit=false;
+  function taslariKurVeAlan(){
+    if(mod==="pomodoro"&&taslar.length===1){
+      /* halkalar taşın tam merkezinde olmasın — nişan tahtası değil, eksantrik oval */
+      const a=R()*Math.PI*2, d=W*(.10+R()*.09);
+      merkez={x:kirp(taslar[0].x+Math.cos(a)*d,W*.2,W*.8),
+              y:kirp(taslar[0].y+Math.sin(a)*d,H*.2,H*.8)};
+    }
+    alanKur();
+    /* N ve taban seviyesi seans boyunca DEĞİŞMEZ: sonradan düşen taşlar
+       kat sayacını kaydırmasın. */
+    if(!sabit){
+      /* Başlangıç payı: en alçak seviyeler kâğıdın köşesinde birkaç santimlik
+         güdük yay veriyor, ekran "yüklenmiyor" gibi duruyordu. İlk iz de
+         kâğıdı boydan boya geçen bir kavis olmalı. */
+      const PAY=.12, ac=gmax-gmin;
+      SGMIN=gmin+ac*PAY;
+      N=Math.max(6,Math.ceil(ac*(KAPSAM-PAY)/ARA));
+      DKL = mod==="pomodoro" ? Math.max(.12,hedef/N) : DKL0;
+      sabit=true;
+    }
+  }
+
+  let n=0, artT=0, imlec=0, sonSeg=null, sonDkl=0;
+
+  function tasCiz(cx,c2,t,yOfs,alfa){
+    c2.save();c2.translate(t.x,t.y+yOfs);c2.rotate(t.a);c2.scale(1,t.e);
+    c2.globalAlpha=alfa===undefined?1:alfa;
+    const kose=[];
+    const NN=19;
+    for(let i=0;i<NN;i++){
+      const a=i/NN*Math.PI*2;
+      const rr=t.r*(.86+fbm(Math.cos(a)*1.5+3,Math.sin(a)*1.5+3,t.tohum)*.36);
+      kose.push([Math.cos(a)*rr,Math.sin(a)*rr]);
+    }
+    /* gövde */
+    c2.beginPath();kose.forEach((p,i)=>i?c2.lineTo(p[0],p[1]):c2.moveTo(p[0],p[1]));
+    c2.closePath();c2.fillStyle=C.tas;c2.fill();
+    /* tek yüzey — düz dolgu, gradyan yok (kırılmış mineral kesiti) */
+    const k=Math.floor(NN*.55);
+    c2.beginPath();
+    for(let i=0;i<=k;i++){const p=kose[i%NN];i?c2.lineTo(p[0]*.92,p[1]*.92):c2.moveTo(p[0]*.92,p[1]*.92)}
+    c2.lineTo(kose[k%NN][0]*.16,kose[k%NN][1]*.16);
+    c2.closePath();
+    c2.fillStyle=karis(C.tas,C.gece?"#000000":"#FFFFFF",C.gece?.28:.17);c2.fill();
+    c2.restore();
+  }
+  function tasGolge(c2,t,yuk,alfa){
+    c2.save();c2.globalAlpha=alfa;c2.fillStyle=C.golge;
+    c2.beginPath();
+    c2.ellipse(t.x+t.r*.12,t.y+t.r*.20,t.r*(1.02+yuk*.55),t.r*t.e*(1.00+yuk*.55),t.a,0,7);
+    c2.fill();c2.restore();
+  }
+
+  /* --- taşın kuma oturması: kalıcı krater + savrulan tane --- */
+  function tasPisir(t){
+    g.save();
+    g.strokeStyle=C.golge;g.lineWidth=1.1;g.globalAlpha=.34;
+    for(let r=1;r<=2;r++){
+      g.beginPath();
+      const rr=t.r*(1.22+r*.30);
+      for(let i=0;i<=44;i++){
+        const a=i/44*Math.PI*2;
+        const w=rr*(1+(fbm(Math.cos(a)*2+r*7,Math.sin(a)*2+r*7,t.tohum+r)-.5)*.20);
+        const px=t.x+Math.cos(a)*w, py=t.y+Math.sin(a)*w*t.e;
+        i?g.lineTo(px,py):g.moveTo(px,py);
+      }
+      g.closePath();g.globalAlpha=.30/r;g.stroke();
+    }
+    const Rt=rng32(t.tohum+5);
+    g.globalAlpha=.42;g.fillStyle=C.golge;
+    for(let i=0;i<26;i++){
+      const a=Rt()*Math.PI*2, rr=t.r*(1.15+Rt()*Rt()*1.5);
+      g.fillRect(t.x+Math.cos(a)*rr, t.y+Math.sin(a)*rr*t.e, 1.3, 1.3);
+    }
+    g.restore();
+    tasGolge(g,t,0,.52);
+    tasCiz(null,g,t,0,1);
+  }
+
+  /* --- taş düşüşü: DOĞUŞ animasyonu. Biter ve durur; döngü yok. --- */
+  let animasyon=false;
+  function tasDus(cb){
+    const t=havuz[taslar.length];
+    if(!t){cb&&cb(null);return}
+    t.taban0=taban2(t.x,t.y);
+    if(hizli){ taslar.push(t);taslariKurVeAlan();tasPisir(t);cb&&cb(t);return }
+    animasyon=true;
+    const t0=performance.now(), sure=560;
+    (function kare(){
+      const p=Math.min(1,(performance.now()-t0)/sure), e=p*p; /* yerçekimi */
+      go.clearRect(0,0,W,H);
+      tasGolge(go,t,(1-e)*1.0,.10+e*.42);
+      tasCiz(null,go,t,-(1-e)*H*.46,1);
+      if(p<1) requestAnimationFrame(kare);
+      else{
+        taslar.push(t);
+        taslariKurVeAlan();
+        tasPisir(t);
+        go.clearRect(0,0,W,H);
+        animasyon=false;
+        cb&&cb(t);
+      }
+    })();
+  }
+
+  /* --- bir tırmık izi --- */
+  function cizgi(idx,dk,kuru){
+    /* Pomodoro tek kat: kompozisyonun sınırı hedefin kendisi. */
+    if(mod==="pomodoro"&&idx>=N)return;
+    const pass=Math.floor(idx/N), slot=idx%N;
+    const seviye=SGMIN+(slot+vdc(pass))*ARA;
+    kat=pass+1;
+    const seg=kontur(G,gw,gh,ST,seviye);
+    if(!seg.length)return;
+    const saat=(dk%60)<DKL;
+    const kal=(saat?1.38:1)*(C.gece?1.05:1);
+    const op=(C.gece?.44:.52)+(saat?.15:0)-Math.min(.13,pass*.045);
+    /* Mürekkep/basınç dalgalanması: tek çizgi boyunca ton değişiyor.
+       Aynı yolu üç kovaya bölüp farklı opaklıkla vuruyoruz — düz vektör hissi
+       ("çizgi film") böyle kırılıyor, üstüne serpilmiş dokuyla değil. */
+    const opC=[.72,1,1.26], kalC=[.82,1,1.2];      /* mürekkep dalgalanması */
+    const sakC=[1,.74,.55,.40];                    /* sakin alana doğru sönme */
+    const kova=[];for(let i=0;i<12;i++)kova.push([]);
+    const golgeK=[[],[],[],[]];
+    for(const p of seg){
+      const q=fbm(p[0][0]/(W*.26),p[0][1]/(W*.26),S+51);
+      const ik=q<.44?0:q<.61?1:2;
+      const u=Math.hypot((p[0][0]-SAK.cx)/SAK.rx,(p[0][1]-SAK.cy)/SAK.ry);
+      const zn=u>1.34?0:u>1.11?1:u>.90?2:3;
+      kova[ik*4+zn].push(p);golgeK[zn].push(p);
+    }
+    g.lineCap="round";
+    /* kumun kabarttığı kenar — tek yönlü, kazıma derinliği */
+    for(let z=0;z<4;z++){
+      if(!golgeK[z].length)continue;
+      g.strokeStyle=C.golge;g.lineWidth=kal*2.1;g.globalAlpha=op*.55*sakC[z];
+      yolCiz(golgeK[z],dk,1.15);
+    }
+    for(let k=0;k<3;k++)for(let z=0;z<4;z++){
+      const b=kova[k*4+z];if(!b.length)continue;
+      g.strokeStyle=C.cizgi;g.lineWidth=kal*kalC[k];
+      g.globalAlpha=Math.min(.95,op*opC[k]*sakC[z]);
+      if(kuru)g.setLineDash([2.5*kal,3.6*kal]);
+      yolCiz(b,dk,0);
+      g.setLineDash([]);
+    }
+    g.globalAlpha=1;
+    sonSeg=seg;sonDkl=dk;
+  }
+  function yolCiz(seg,dk,ofs){
+    g.beginPath();
+    const A=tit*1.15;
+    for(const p of seg){
+      const [a,b]=p;
+      const j1=(vn(a[0]*.09,a[1]*.09,S+dk)-.5)*A;
+      const j2=(vn(b[0]*.09,b[1]*.09,S+dk)-.5)*A;
+      g.moveTo(a[0]+j1,a[1]+j1*.6+ofs);
+      g.lineTo(b[0]+j2,b[1]+j2*.6+ofs);
+    }
+    g.stroke();
+  }
+
+  /* --- kapanış: hedefe VARILDIYSA son iz bir kez daha, daha derin çekilir.
+     Çerçeve yok: çerçeve "tamamlanmayan" bir hâl icat ediyor ve kart gibi
+     duruyor. Duraklama, elin son noktada beklemesidir. --- */
+  function kapanis(vardi){
+    if(mod!=="pomodoro"||!vardi||!sonSeg)return;
+    g.save();g.lineCap="round";
+    g.strokeStyle=C.golge;g.lineWidth=3.2;g.globalAlpha=.26;
+    yolCiz(sonSeg,sonDkl,1.3);
+    g.strokeStyle=C.cizgi;g.lineWidth=1.7;g.globalAlpha=.62;
+    yolCiz(sonSeg,sonDkl,0);
+    g.restore();g.globalAlpha=1;
+  }
+
+  return {
+    ad:"Kum Bahçesi",
+    baslat(cb){ tasDus(cb) },
+    /* bir dakika geçti. tip: is | mola | kuru */
+    ilerle(tip){
+      if(!taslar.length)return;
+      artT+=1;
+      while(imlec<=artT+1e-9){
+        if(tip==="is") cizgi(n,imlec,false);
+        else if(tip==="kuru") cizgi(n,imlec,true);
+        /* mola: tırmık geçmiyor — cephe yürüyor, kum düz kalıyor (ma) */
+        n++;
+        /* Her kat aralığı yarıya indiriyor. Görsel değişim hızı sabit kalsın diye
+           çizgi başına süre iki katına çıkıyor: 6 saat artık kâğıdı boğmuyor. */
+        imlec+=DKL*Math.pow(2,Math.floor(n/N));
+      }
+    },
+    saatBasi(cb){ tasDus(cb) },
+    bitir(vardi){ kapanis(vardi) },
+    bilgi(){ return {yon,kat,taş:taslar.length,çizgi:n,N,DKL} },
+    animasyondaMi(){ return animasyon }
+  };
+}
+
+/* ==========================================================================
+   TEK SÜRÜŞ — canlı. Fırça yürüdükçe uzuyor; mola fırçayı kaldırıyor.
+   Yol önceden bilinmiyor: yürüyüşçü adım adım gidiyor, bitiş süresine bağlı
+   hiçbir parametre yok (kronometrede açık uç bu yüzden dürüst).
+   ========================================================================== */
+function TekSurus(o){
+  const {g,go,W,H,seed,mod,hedef,PAL,tit}=o;
+  const C=PALET[PAL], S=seed, R=rng32(S);
+  g.fillStyle=C.kagit;g.fillRect(0,0,W,H);
+  const sol=W*.11,sag=W*.89,ust=H*.07,alt=H*.93;
+  let x=sol+(sag-sol)*(.2+R()*.6), y=ust+H*.03, a=Math.PI*.5+(R()-.5)*1.4;
+  /* Şerit ilk denemede çok kalındı: canlı seansta ekran paralel kalın
+     sucuklara dönüyordu. İnceltildi, opaklık 1'e çekildi (yarı saydam
+     dörtgenler eklem yerlerinde tarama deseni yapıyordu). */
+  const TABAN=Math.max(1.8,W*.0145);
+  const adim = mod==="pomodoro" ? (H*1.75)/(hedef*4) : W*.0092;
+  let onceki=null, artT=0, saatKat=0, gecis=0;
+
+  function basinc(px,py,m){
+    let q=fbm(px/(W*.19),py/(W*.19),S+31);
+    q=kirp((q-.5)*2.35+.5,0,1);q=q*q*(3-2*q);
+    /* saat başı mürekkep tazelenir — malzeme olayı, ödül değil */
+    const taze=Math.max(0,1-(m-saatKat*60)/9);
+    return (.24+q*1.5)*(1+taze*.55);
+  }
+  /* beş kademeli ton merdiveni — aynı ton ailesi, şerit içi hue karışımı yok */
+  const MERD=[karis(C.is[0],C.is[1],0),karis(C.is[0],C.is[1],.5),C.is[1],
+              karis(C.is[1],C.is[2],.5),karis(C.is[2],C.kagit,.18)];
+  function ton(w){
+    const t=kirp((w/TABAN-.25)/1.5,0,1);
+    return MERD[4-Math.min(4,Math.floor(t*5))];
+  }
+  function dilim(p,q,olcek,kayma){
+    const dx=q[0]-p[0],dy=q[1]-p[1],L=Math.hypot(dx,dy)||1;
+    const nx=-dy/L,ny=dx/L;
+    const wp=p[2]*olcek*.5, wq=q[2]*olcek*.5;
+    const kp=p[2]*kayma, kq=q[2]*kayma;
+    g.beginPath();
+    g.moveTo(p[0]+nx*(kp+wp), p[1]+ny*(kp+wp));
+    g.lineTo(q[0]+nx*(kq+wq), q[1]+ny*(kq+wq));
+    g.lineTo(q[0]+nx*(kq-wq), q[1]+ny*(kq-wq));
+    g.lineTo(p[0]+nx*(kp-wp), p[1]+ny*(kp-wp));
+    g.closePath();g.fill();
+  }
+  function parca(p,q,kuru){
+    if(kuru){                       /* kuru fırça: çizgi ikiye ayrılıyor */
+      g.globalAlpha=.5;g.fillStyle=karis(C.is[2],C.kagit,.34);
+      dilim(p,q,.34,-.36);dilim(p,q,.24,.38);
+    }else{
+      /* Ofsetli alt gölge KALDIRILDI: bu kalınlıkta kıvrımların içinde
+         dörtgen eklemleri tarak dişi gibi sırıtıyordu. */
+      g.globalAlpha=1;g.fillStyle=ton((p[2]+q[2])/2);
+      dilim(p,q,1,0);
+    }
+    g.globalAlpha=1;
+  }
+  function adimAt(m,tip){
+    /* dönme hızı .42 iken çizgi kendi üstüne kıvrılıp yumak yapıyordu */
+    a+=((fbm(x/(W*.34),y/(W*.34),S)-.5)*2.5+(fbm(x/(W*.12),y/(W*.12),S+9)-.5)*1.15)*.24;
+    let vx=Math.cos(a),vy=Math.sin(a);
+    const it=13;
+    if(x<sol)vx+=(sol-x)/W*it;else if(x>sag)vx+=(sag-x)/W*it;
+    if(y<ust)vy+=(ust-y)/H*it;
+    vy+=.17;                    /* çok hafif iniş — sert olunca paralel sütunlar çıkıyor */
+    const L=Math.hypot(vx,vy)||1;a=Math.atan2(vy/L,vx/L);
+    x+=Math.cos(a)*adim;y+=Math.sin(a)*adim;
+    if(y>alt){ /* kâğıdın sonu: fırça kalkar, kâğıdın başka bir yerinden devam */
+      gecis++;y=ust+H*.02;x=sol+(sag-sol)*R();onceki=null;return null }
+    const w=Math.max(.5,TABAN*basinc(x,y,m)*.62);
+    return [x,y,w];
+  }
+  return {
+    ad:"Tek Sürüş",
+    baslat(cb){ cb&&cb(null) },
+    ilerle(tip){
+      artT+=1;
+      if(tip==="mola"){ onceki=null; for(let i=0;i<4;i++) adimAt(artT,tip); return }
+      for(let i=0;i<4;i++){
+        const p=adimAt(artT,tip);
+        if(!p){onceki=null;continue}
+        if(onceki) parca(onceki,p,tip==="kuru");
+        onceki=p;
+      }
+    },
+    saatBasi(cb){ saatKat++; cb&&cb(null) },
+    bitir(){},
+    bilgi(){ return {geçiş:gecis+1} },
+    animasyondaMi(){ return false }
+  };
+}
+
+/* ==========================================================================
+   SEANS — gerçek saat
+   ========================================================================== */
+const SANATLAR={"kum bahçesi":KumBahcesi,"tek sürüş":TekSurus};
+let SANAT="kum bahçesi", MOD="kronometre", HIZ=60, PAL="kum";
+const HIZLAR={"1×":1/60,"60×":1,"600×":10};
+let HIZAD="60×";
+let P={ara:11,dkl:3,tit:1,mol:10};
+
+const ana=document.getElementById("ana"), ust=document.getElementById("ust");
+let W=348,H=734,g,go,dpr=Math.min(2,window.devicePixelRatio||1);
+function tuvalKur(){
+  const kut=document.getElementById("ekran").getBoundingClientRect();
+  W=Math.round(kut.width);H=Math.round(W*734/348);
+  [ana,ust].forEach(c=>{c.width=Math.round(W*dpr);c.height=Math.round(H*dpr);
+    c.style.height=H+"px"});
+  g=ana.getContext("2d");go=ust.getContext("2d");
+  g.setTransform(dpr,0,0,dpr,0,0);go.setTransform(dpr,0,0,dpr,0,0);
+}
+
+let sanat=null, saat=null;
+let D={durum:"hazir",t:0,net:0,mola:0,kuru:0,molaBas:0,sonDk:-1,saat:0,seed:1,baslama:""};
+
+function seansKur(yeniTohum){
+  if(saat){clearInterval(saat);saat=null}
+  tuvalKur();
+  if(yeniTohum!==false) D.seed=(Math.random()*1e9)|0;
+  D={durum:"hazir",t:0,net:0,mola:0,kuru:0,molaBas:0,sonDk:-1,saat:0,seed:D.seed,baslama:""};
+  go.clearRect(0,0,W,H);
+  sanat=SANATLAR[SANAT]({g,go,W,H,seed:D.seed,mod:MOD,hedef:25,PAL,
+    ARA0:P.ara,DKL0:P.dkl,tit:P.tit});
+  document.getElementById("kayit").innerHTML="";
+  logla("hazır","tohum "+D.seed+" · "+SANAT+" · "+MOD);
+  hudYaz();statYaz();
+  document.getElementById("cap").textContent=
+    MOD==="pomodoro"?"Pomodoro: 25 dakikada bahçe kâğıdın kenarına varır.":
+    "Kronometre: cephe kâğıdı bitirince ikinci kata geçer.";
+}
+
+function logla(baslik,metin){
+  const li=document.createElement("li");
+  li.innerHTML="<b>"+baslik+"</b> "+(metin||"");
+  const u=document.getElementById("kayit");u.insertBefore(li,u.firstChild);
+}
+const ss=m=>Math.floor(m/60)+":"+String(Math.floor(m%60)).padStart(2,"0");
+
+function basla(){
+  D.durum="calisiyor";
+  const now=new Date();
+  D.baslama=String(now.getHours()).padStart(2,"0")+":"+String(now.getMinutes()).padStart(2,"0");
+  logla("başladı",D.baslama);
+  sars();                                  /* dokunuşa cevap — haptik burada meşru */
+  sanat.baslat(t=>{ if(t)logla("taş düştü","açılış");hudYaz() });
+  if(!saat) saat=setInterval(tik,100);
+  hudYaz();
+}
+function molaVer(){
+  D.durum="molada";D.molaBas=D.t;logla("mola",ss(D.net)+"'de");sars();hudYaz();
+}
+function devam(){
+  const uz=D.t-D.molaBas;
+  logla("devam", Math.round(uz)+" dk mola"+(uz>P.mol?" · "+Math.round(uz-P.mol)+" dk sayılmadı":""));
+  D.durum="calisiyor";sars();hudYaz();
+}
+function bitir(){
+  D.durum="bitti";sanat.bitir(MOD==="pomodoro"&&D.net>=25-1e-6);sars();
+  logla("bitti","net "+ss(D.net)+" · mola "+Math.round(D.mola)+" dk"+
+    (D.kuru?" · sayılmayan "+Math.round(D.kuru)+" dk":""));
+  if(saat){clearInterval(saat);saat=null}
+  hudYaz();statYaz();
+}
+/* Forest şikâyetinin kendisi: molada uyuyakaldın. Geçen süre gerçekten geçiyor,
+   sınırın ötesi çalışma sayılmıyor ve bahçede KURU TIRMIK bandı olarak duruyor. */
+function gecDon(){
+  if(D.durum!=="molada"){logla("—","geç dönme yalnız molada anlamlı");return}
+  const hedefUz=(D.t-D.molaBas)+18;
+  while(D.t-D.molaBas<hedefUz){
+    D.t+=1;
+    const uz=D.t-D.molaBas;
+    const tip=uz>P.mol?"kuru":"mola";
+    if(tip==="kuru")D.kuru+=1;else D.mola+=1;
+    while(Math.floor(D.t)>D.sonDk){D.sonDk++;sanat.ilerle(tip)}
+  }
+  logla("geç dönüş","18 dk daha geçti");
+  devam();
+}
+function sars(){
+  const e=document.getElementById("ekran");
+  e.classList.remove("sars");void e.offsetWidth;e.classList.add("sars");
+}
+
+function tik(){
+  if(D.durum==="bitti")return;
+  if(sanat.animasyondaMi())return;              /* doğuş animasyonu bitene kadar bekle */
+  const dm=HIZLAR[HIZAD]*.1;
+  if(D.durum==="hazir")return;
+  D.t+=dm;
+  let tip="is";
+  if(D.durum==="molada"){
+    const uz=D.t-D.molaBas;
+    tip = uz>P.mol ? "kuru" : "mola";
+    if(tip==="kuru")D.kuru+=dm; else D.mola+=dm;
+  } else { D.net+=dm }
+
+  while(Math.floor(D.t)>D.sonDk){
+    D.sonDk++;
+    sanat.ilerle(tip);
+  }
+  /* saat başı: yeni taş. Kullanıcının dokunuşu değil → TİTREŞİM YOK. */
+  const s=Math.floor(D.net/60);
+  if(s>D.saat){
+    D.saat=s;
+    sanat.saatBasi(t=>{ logla(s+". saat tamam", t?"yeni taş":"mürekkep tazelendi") });
+  }
+  if(MOD==="pomodoro"&&D.net>=25&&D.durum!=="bitti"){ logla("hedef","25 dakika");bitir();return }
+  hudYaz();statYaz();
+}
+
+function hudYaz(){
+  const C=PALET[PAL];
+  const h=document.getElementById("hud");
+  const cal=D.durum==="calisiyor", mol=D.durum==="molada", bit=D.durum==="bitti";
+  const kuruMu = mol && (D.t-D.molaBas)>P.mol;
+  h.querySelector("#hEy").textContent=
+    D.durum==="hazir"?"HAZIR":cal?"ÇALIŞIYOR":bit?"BİTTİ":kuruMu?"SAYILMIYOR":"MOLADA";
+  h.querySelector("#hEy").style.color=cal?C.vurgu:karis(C.metin,C.kagit,.28);
+  h.querySelector("#hT").textContent=ss(D.net);
+  h.querySelector("#hT").style.color=C.metin;
+  const ikincil=karis(C.metin,C.kagit,.32);
+  const b=sanat?sanat.bilgi():{};
+  h.querySelector("#hN").textContent=
+    D.durum==="hazir" ? (MOD==="pomodoro"?"25 dakika":"kronometre")
+    : MOD==="pomodoro" ? (bit?"tamam":"25 dakikadan")
+    : (b.kat?(Math.floor(D.net/60)+1)+". saat · "+b.kat+". kat":(Math.floor(D.net/60)+1)+". saat");
+  h.querySelector("#hN").style.color=ikincil;
+  h.querySelector("#hB").textContent=D.baslama?D.baslama+"'de başladın":"";
+  h.querySelector("#hB").style.color=ikincil;
+  const p1=h.querySelector("#hP1"), p2=h.querySelector("#hP2");
+  p1.style.background=C.metin;p1.style.color=C.kagit;p2.style.color=ikincil;
+  if (MOD === "pomodoro") {
+    p1.style.display = cal ? "none" : "inline-block";
+    p1.textContent = D.durum==="hazir" ? "Başla" : bit ? "Yeni" : "Başla";
+    p2.textContent = bit ? "" : "Bitir";
+    p2.style.visibility = bit ? "hidden" : "visible";
+  } else {
+    p1.style.display = "inline-block";
+    p1.textContent = D.durum==="hazir" ? "Başla" : cal ? "Mola" : bit ? "Yeni" : "Devam";
+    p2.textContent = bit ? "" : "Bitir";
+    p2.style.visibility = bit ? "hidden" : "visible";
+  }
+  document.getElementById("ekran").style.background=C.kagit;
+}
+function statYaz(){
+  const b=sanat?sanat.bilgi():{};
+  const sat=[["geçen",ss(D.t)],["sayılan",ss(D.net)],["mola",Math.round(D.mola)+" dk"],
+    ["sayılmayan",Math.round(D.kuru)+" dk"]];
+  for(const k in b) sat.push([k,b[k]]);
+  document.getElementById("stat").innerHTML=
+    sat.map(s=>"<div><span>"+s[0]+"</span><b>"+s[1]+"</b></div>").join("");
+}
+
+document.getElementById("hP1").onclick=()=>{
+  if(D.durum==="hazir")basla();
+  else if(D.durum==="calisiyor")molaVer();
+  else if(D.durum==="molada")devam();
+  else seansKur(true);
+};
+document.getElementById("hP2").onclick=()=>{ if(D.durum!=="hazir"&&D.durum!=="bitti")bitir() };
+document.getElementById("bGec").onclick=gecDon;
+document.getElementById("bYeni").onclick=()=>seansKur(true);
+document.getElementById("bPng").onclick=()=>{
+  const a=document.createElement("a");a.download="kertik-"+SANAT.replace(/ /g,"-")+"-"+D.seed+".png";
+  a.href=ana.toDataURL("image/png");a.click();
+};
+
+/* --- şeritler --- */
+function serit(kap,liste,secili,cb){
+  const el=document.getElementById(kap);el.innerHTML="";
+  liste.forEach(k=>{
+    const b=document.createElement("button");b.textContent=k;b.dataset.k=k;
+    b.className=k===secili()?"on":"";
+    b.onclick=()=>{cb(k);[...el.children].forEach(x=>x.classList.toggle("on",x.dataset.k===secili()))};
+    el.appendChild(b);
+  });
+}
+serit("gSanat",Object.keys(SANATLAR),()=>SANAT,k=>{SANAT=k;seansKur(false)});
+serit("gMod",["kronometre","pomodoro"],()=>MOD,k=>{MOD=k;seansKur(false)});
+serit("gHiz",Object.keys(HIZLAR),()=>HIZAD,k=>{HIZAD=k});
+serit("gPal",Object.keys(PALET),()=>PAL,k=>{PAL=k;seansKur(false);ornekCiz()});
+
+const bagla=(id,k,f)=>{const el=document.getElementById(id);
+  el.addEventListener("input",()=>{P[k]=parseFloat(el.value);
+    document.getElementById("v"+id[0].toUpperCase()+id.slice(1)).textContent=f?f(P[k]):P[k].toFixed(2);
+    if(D.durum==="hazir")seansKur(false)})};
+bagla("ara","ara",x=>x.toFixed(1));
+bagla("dkl","dkl",x=>x.toFixed(0));
+bagla("tit","tit");
+bagla("mol","mol",x=>x.toFixed(0));
+
+/* ==========================================================================
+   ÖRNEKLER — aynı motor, hızlı ileri sarılmış hazır günler
+   ========================================================================== */
+const GUNLER=[
+  {ad:"Pomodoro · 25 dk",mod:"pomodoro",dk:25,molalar:[],vardi:true,not:"Halkalar taşın çevresinden açılıyor; hedefte son iz bir kez daha derin çekiliyor. Köşeler açık kum kalıyor."},
+  {ad:"Pomodoro · 13. dakikada bırakıldı",mod:"pomodoro",dk:13,molalar:[],not:"Eksik değil, daha küçük bir halka takımı. Suçlamıyor."},
+  {ad:"Kronometre · 6 saat",mod:"kronometre",dk:360,molalar:[[70,82],[168,190],[262,272]],not:"Altı taş, ikinci kat. Ekrandan taşmıyor — derinleşiyor."},
+  {ad:"Kronometre · geç dönülen gün",mod:"kronometre",dk:150,molalar:[[52,94]],not:"42 dakikalık molanın 32'si sayılmadı: kuru tırmık bandı."}
+];
+function ornekCiz(){
+  const kap=document.getElementById("ornek");kap.innerHTML="";
+  GUNLER.forEach((G0,i)=>{
+    const d=document.createElement("div");
+    const pj=document.createElement("div");pj.className="pj";
+    const c=document.createElement("canvas"),c2=document.createElement("canvas");
+    const w=330,h=696;
+    [c,c2].forEach(k=>{k.width=w*2;k.height=h*2;k.style.width="100%"});
+    c2.style.position="absolute";c2.style.inset="0";
+    const cg=c.getContext("2d"),cg2=c2.getContext("2d");
+    cg.setTransform(2,0,0,2,0,0);cg2.setTransform(2,0,0,2,0,0);
+    pj.appendChild(c);pj.appendChild(c2);
+    const s=KumBahcesi({g:cg,go:cg2,W:w,H:h,seed:hash32("ornek"+i),mod:G0.mod,hedef:25,
+      PAL,ARA0:P.ara,DKL0:P.dkl,tit:P.tit,hizli:true});
+    /* animasyonsuz hızlı sarma: taşları anında koy */
+    s.baslat(null);
+    hemenBitir(s,G0);
+    d.appendChild(pj);
+    const cc=document.createElement("div");cc.className="pjc";
+    cc.innerHTML="<b>"+G0.ad+"</b>"+G0.not;
+    d.appendChild(cc);kap.appendChild(d);
+  });
+}
+/* hızlı sarma — hizli:true olduğu için taş düşüşü de eşzamanlı */
+function hemenBitir(s,G0){
+  let net=0,saat=0;
+  for(let m=1;m<=G0.dk;m++){
+    let tip="is",mola=null;
+    for(const b of G0.molalar) if(m>b[0]&&m<=b[1]) mola=b;
+    if(mola) tip=(m-mola[0])>P.mol?"kuru":"mola"; else net++;
+    s.ilerle(tip);
+    if(Math.floor(net/60)>saat){saat=Math.floor(net/60);s.saatBasi(null)}
+  }
+  s.bitir(!!G0.vardi);
+}
+
+/* --- açılış --- */
+window.addEventListener("resize",()=>{ if(D.durum==="hazir")seansKur(false) });
+seansKur(true);
+ornekCiz();
+</script>
+</body>
+</html>

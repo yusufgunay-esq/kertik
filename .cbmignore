@@ -1,0 +1,18 @@
+# Kertik — kod indeksi (codebase-memory) dışı tutulanlar
+# Amaç: indeksin sadece canlı kaynağı ve gerçek çalışan kodu görmesi.
+
+# Gradle/Android üretim çıktıları (indeksin %40'ını dolduruyordu)
+kertik-android/build/
+kertik-android/app/build/
+kertik-android/.gradle/
+kertik-android/.idea/
+
+# Ajan/araç geçici çıktıları
+kertik-android/.artifacts/
+.artifacts/
+
+# Çöpe ayrılmış dosyalar
+_to_delete/
+
+# Bağımlılıklar
+node_modules/

@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Çubuk Laboratuvarı — Kertik</title>
+<style>
+:root{
+  --bg:#F5F1E6; --bg2:#EBE5D6; --ink:#1A1B1E; --ink2:#3C3E44;
+  --muted:#6E6A61; --faint:#A09A8C; --line:#DCD5C4;
+  --accent:#B4432B; --cool:#7A8791;
+  /* palet v3.1 — ahşap & zincifre, uygulama :root ile aynı kaynak */
+  --is1:#8E3F2B; --is2:#A9614A; --is3:#C08D75;
+  --kopru:#8A6A4F;
+  --mola1:#8E9AA3; --mola2:#B4BEC5;
+  --pad:24px;
+}
+:root.dark{
+  --bg:#131417; --bg2:#1B1D22; --ink:#EDE8DC; --ink2:#BAB4A7;
+  --muted:#8F8A7E; --faint:#65605A; --line:#292B31;
+  --accent:#D3785A; --cool:#7E8B96;
+  --is1:#B45C40; --is2:#D0785B; --is3:#E3A88C;
+  --kopru:#A98A6C;
+  --mola1:#5E6A75; --mola2:#8A959E;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:17px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  transition:background .55s cubic-bezier(.4,0,.2,1), color .55s cubic-bezier(.4,0,.2,1);
+}
+.wrap{max-width:1120px;margin:0 auto;padding:0 var(--pad) 120px}
+header{padding:54px 0 8px}
+h1{font-size:34px;font-weight:400;letter-spacing:-.032em;margin:0}
+.sub{color:var(--muted);font-size:15px;margin-top:6px;max-width:62ch}
+h2{font-size:23px;font-weight:400;letter-spacing:-.02em;margin:60px 0 4px}
+.note{color:var(--muted);font-size:15px;margin:0 0 24px;max-width:60ch}
+.note b{color:var(--ink2);font-weight:500}
+
+.lab{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:18px}
+.cell{
+  border:1px solid var(--line);border-radius:20px;background:var(--bg2);
+  padding:26px 14px 18px;display:flex;flex-direction:column;align-items:center;gap:0;
+  transition:background .55s,border-color .55s
+}
+.cell .art{min-height:330px;display:flex;align-items:flex-start;justify-content:center;width:100%}
+.cell h3{font-size:15.5px;font-weight:500;margin:16px 0 3px;letter-spacing:.01em;text-align:center}
+.cell p{font-size:13px;color:var(--muted);margin:0;text-align:center;line-height:1.45}
+.cell.win{border-color:var(--accent)}
+.cell.win h3{color:var(--accent)}
+svg{overflow:visible;display:block}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 22px}
+.chips button{
+  border:1px solid var(--line);background:none;color:var(--muted);
+  border-radius:999px;padding:9px 17px;font-size:14.5px;font-family:inherit;cursor:pointer;transition:.22s
+}
+.chips button.on{border-color:var(--accent);color:var(--accent)}
+.themebtn{position:fixed;top:16px;right:16px;z-index:5;border:1px solid var(--line);background:var(--bg);
+  color:var(--muted);border-radius:999px;padding:9px 16px;font-size:14px;font-family:inherit;cursor:pointer}
+
+/* yabancı testi — gerçek telefon ölçüsünde, küçük */
+.mini{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:14px}
+.minicell{border:1px solid var(--line);border-radius:16px;background:var(--bg2);
+  padding:16px 10px 12px;text-align:center}
+.minicell .art{height:132px;display:flex;align-items:flex-start;justify-content:center}
+.minicell b{font-size:12.5px;font-weight:500;color:var(--ink2);display:block;margin-top:10px}
+
+.box{border:1px solid var(--line);border-radius:20px;background:var(--bg2);padding:28px 22px;
+  transition:background .55s}
+.pal{display:flex;flex-wrap:wrap;gap:0;border-radius:14px;overflow:hidden;margin:8px 0 4px}
+.pal div{flex:1;min-width:70px;height:62px;display:flex;align-items:flex-end;justify-content:center;
+  padding-bottom:7px;font-size:11px;letter-spacing:.03em;color:rgba(255,255,255,.86)}
+.legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:22px;font-size:14.5px;color:var(--muted)}
+.legend i{display:inline-block;width:20px;height:0;border-top:2px solid var(--accent);
+  vertical-align:middle;margin-right:7px}
+.legend i.b{border-top-color:var(--cool)}
+ul.tight{margin:12px 0 0;padding-left:20px;color:var(--muted);font-size:14.5px}
+ul.tight li{margin:6px 0}
+ul.tight b{color:var(--ink2);font-weight:500}
+@media (max-width:520px){ :root{--pad:16px} h1{font-size:29px} }
+</style>
+</head>
+<body>
+<button class="themebtn" id="th">gece</button>
+<div class="wrap">
+
+<header>
+  <h1>Çubuk Laboratuvarı</h1>
+  <div class="sub">Aynı seans, aynı veri, aynı renk. Değişen tek şey <b>çizginin neyden yapıldığı.</b>
+  Amaç: "şirket grafiği" tepkisini kırmak. Ölçüt <code>24-sanat-dili.md</code>'deki altı soruluk filtre.</div>
+</header>
+
+<div class="chips" id="secim"></div>
+
+<div class="lab" id="lab"></div>
+
+<h2>Yabancı testi</h2>
+<p class="note">Gerçek telefon ölçüsü, seans kartı boyu. Uzaktan bak, gözünü kıs.
+<b>Hangisi hâlâ grafik gibi duruyor?</b> Bu ölçekte kazanan, büyük ölçekte de kazanır —
+tersi doğru değil.</p>
+<div class="mini" id="mini"></div>
+
+<h2>Palet</h2>
+<p class="note">İki çiğ renk yerine <b>üç iş tonu, iki mola tonu, bir köprü.</b>
+Şerit içi karışım yok — ton, çentiğin <b>ağırlığından</b> geliyor: saat başı en koyu (is1),
+beşlikler orta (is2), tek dakikalar en açık (is3). Böylece renk süslemek için değil,
+<b>bilgi taşımak</b> için var.</p>
+<div class="box">
+  <div class="pal">
+    <div style="background:var(--is1)">is1 · saat</div>
+    <div style="background:var(--is2)">is2 · beşlik</div>
+    <div style="background:var(--is3)">is3 · dakika</div>
+    <div style="background:var(--kopru)">köprü</div>
+    <div style="background:var(--mola1)">mola1</div>
+    <div style="background:var(--mola2)">mola2</div>
+  </div>
+  <div class="legend">
+    <span><i></i>çalışma</span>
+    <span><i class="b"></i>mola</span>
+    <span>köprü tonu — sayılmayan süre ve gün geçişleri</span>
+  </div>
+  <ul class="tight">
+    <li><b>Süre dağılımı okunabilir</b> (20 nolu notun en değerli maddesi): mola artık yalnız
+      kenarda ince bir iz değil — molanın uzunluğu sütunda <b>görünür bir sessizlik</b> bırakıyor.
+      Uzaktan bakınca ne kadar çalışıldığı, ne kadar durulduğu ölçmeden anlaşılıyor.</li>
+    <li>Palet tek yerden besleniyor: <code>:root</code> değişkenleri. Kadran, akış, çubuk, widget —
+      hepsi aynı altı tonu okuyor.</li>
+  </ul>
+</div>
+
+</div>
+
+<script>
+/* ---------- ortak ---------- */
+function hash32(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0 }
+function rng32(seed){ let a=seed>>>0; return ()=>{ a=a+0x6D2B79F5|0;
+  let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296 } }
+const NS="http://www.w3.org/2000/svg";
+const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e};
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* Dolgulu fırça şeridi: girişte dolgun, uçta incelir.
+   DİKKAT — konikleşme oranı kritik. w0/w1 oranı 3'ü geçerse her çentik
+   dikene döner ve çubuk "kılçık" gibi görünür. 1.6–2.2 arası doğru bant.
+   `sivri` profil eğrisi: 1 = düz koni, <1 = uçta daha dolgun (bıçak),
+   >1 = dipte dolgun uçta ince (fırça). */
+function firca(x0,y0,x1,y1,w0,w1,bend,segs,sivri){
+  segs=segs||9; sivri=sivri||1;
+  const dx=x1-x0, dy=y1-y0, L=Math.hypot(dx,dy)||1;
+  const px=-dy/L, py=dx/L;
+  const ust=[], alt=[];
+  for(let i=0;i<=segs;i++){
+    const t=i/segs, e=Math.pow(1-t,sivri), w=(w1+(w0-w1)*e)/2;
+    const bow=Math.sin(t*Math.PI)*bend;
+    const cx=x0+dx*t+px*bow, cy=y0+dy*t+py*bow;
+    ust.push([cx+px*w,cy+py*w]); alt.push([cx-px*w,cy-py*w]);
+  }
+  let d="M"+ust[0][0].toFixed(2)+","+ust[0][1].toFixed(2);
+  for(let i=1;i<ust.length;i++) d+="L"+ust[i][0].toFixed(2)+","+ust[i][1].toFixed(2);
+  for(let i=alt.length-1;i>=0;i--) d+="L"+alt[i][0].toFixed(2)+","+alt[i][1].toFixed(2);
+  return d+"Z";
+}
+/* Uç davranışı — hepsi aynı biçimde bitmemeli (yugen).
+   Çentiklerin ~%38'i küt biter (bıçak kalktı), gerisi incelir (mürekkep bitti). */
+function ucOrani(r){ return r<.38 ? .74 : .44+r*.16 }
+
+/* ---------- örnek seans ---------- */
+const ORNEK=[
+  {ad:"52 dk · 1 mola", v:{id:"lab-52", dk:64, molalar:[[52,64]], sayilmayan:0}},
+  {ad:"1s 47 · 2 mola", v:{id:"lab-107",dk:107,molalar:[[41,49],[78,84]], sayilmayan:0}},
+  {ad:"25 dk kesintisiz",v:{id:"lab-25", dk:25, molalar:[], sayilmayan:0}},
+  {ad:"3s 05 · sayılmayan",v:{id:"lab-185",dk:185,molalar:[[58,71],[126,138]], sayilmayan:24}}
+];
+let SEC=1;
+
+/* her yorum için ortak iskelet hesabı */
+function iskelet(v,o){
+  const dk=Math.max(1,Math.round(v.dk));
+  const kolon=Math.max(1,Math.ceil(dk/60));
+  const satir=kolon>1?60:dk;
+  const W=kolon*(o.sw+o.gap)-o.gap, H=o.top*2+Math.max(1,satir-1)*o.rp;
+  const R=rng32(hash32(v.id)); const j=[];
+  for(let i=0;i<dk*5+80;i++) j.push(R());
+  const tur=m=>{ for(const b of (v.molalar||[])) if(m>=b[0]&&m<b[1]) return "mola"; return "is" };
+  return {dk,kolon,satir,W,H,j,tur};
+}
+function kur(svg,I,o,sagPay){
+  const S=sagPay||2;
+  svg.setAttribute("viewBox",`-8 0 ${(I.W+8+S).toFixed(1)} ${I.H.toFixed(1)}`);
+  svg.setAttribute("width",(I.W+8+S).toFixed(1));
+  svg.setAttribute("height",I.H.toFixed(1));
+  svg.innerHTML="";
+  const g=mk("g",{}); svg.appendChild(g); return g;
+}
+const boyu=mm=> mm===0?1.02 : mm%15===0?.86 : mm%5===0?.72 : .54;
+const tonu=mm=> mm===0?css("--is1") : mm%5===0?css("--is2") : css("--is3");
+
+/* ============================================================
+   A · MEVCUT — düz vektör. Kontrol grubu.
+   ============================================================ */
+function cizA(svg,v,o){
+  const I=iskelet(v,o), g=kur(svg,I,o,v.sayilmayan?9:2);
+  const acc=css("--accent"), cool=css("--cool"), ink=css("--ink"), line=css("--line");
+  const colX=k=>k*(o.sw+o.gap), yOf=m=>o.top+(m%60)*o.rp;
+  for(let k=0;k<I.kolon;k++){
+    const son=Math.min(60,I.dk-k*60);
+    g.appendChild(mk("line",{x1:colX(k),y1:o.top-2.5,x2:colX(k),y2:yOf(son-1)+2.5,
+      stroke:line,"stroke-width":1.1,"stroke-linecap":"round"}));
+  }
+  for(const b of (v.molalar||[])){
+    let a=b[0];
+    while(a<Math.min(b[1],I.dk)){
+      const k=Math.floor(a/60), son=Math.min(b[1],I.dk,(k+1)*60);
+      if(son>a) g.appendChild(mk("line",{x1:colX(k)-4,y1:yOf(a)-o.rp*.4,x2:colX(k)-4,y2:yOf(son-1)+o.rp*.4,
+        stroke:cool,"stroke-width":Math.max(1.6,o.sw*.08),"stroke-linecap":"round",opacity:.45}));
+      a=son;
+    }
+  }
+  for(let m=0;m<I.dk;m++){
+    if(I.tur(m)!=="is") continue;
+    const k=Math.floor(m/60), mm=m%60;
+    const r1=I.j[m*5], r2=I.j[m*5+1], r3=I.j[m*5+2];
+    const L=o.sw*boyu(mm)*(1+(r1-.5)*.09);
+    const x0=colX(k), y0=yOf(m)+(r2-.5)*.7, y1=y0+(r3-.5)*1.5;
+    const kal=mm===0?2.0:(mm%5===0?1.7:1.35+(r1-.5)*.35);
+    g.appendChild(mk("line",{x1:x0+.6,y1:y0+1.1,x2:x0+L*.92,y2:y1+1.1,
+      stroke:ink,"stroke-width":.8,"stroke-linecap":"round",opacity:.10}));
+    g.appendChild(mk("line",{x1:x0,y1:y0,x2:x0+L,y2:y1,stroke:acc,
+      "stroke-width":kal,"stroke-linecap":"round",opacity:mm===0?1:.74+r3*.22}));
+  }
+}
+
+/* ============================================================
+   B · MALZEME — aynı geometri, fırça basıncı + kazıma derinliği + palet.
+   En düşük riskli yol: yapı değişmiyor, sadece çizgi malzeme kazanıyor.
+   ============================================================ */
+function cizB(svg,v,o){
+  const I=iskelet(v,o), g=kur(svg,I,o,v.sayilmayan?9:2);
+  const ink=css("--ink"), line=css("--line"), m1=css("--mola1"), m2=css("--mola2");
+  const colX=k=>k*(o.sw+o.gap), yOf=m=>o.top+(m%60)*o.rp;
+  for(let k=0;k<I.kolon;k++){
+    const son=Math.min(60,I.dk-k*60);
+    g.appendChild(mk("line",{x1:colX(k),y1:o.top-2.5,x2:colX(k),y2:yOf(son-1)+2.5,
+      stroke:line,"stroke-width":1.1,"stroke-linecap":"round"}));
+  }
+  /* mola — iki tonlu: dış serin iz + iç açık çekirdek. Uzunluk okunur. */
+  for(const b of (v.molalar||[])){
+    let a=b[0];
+    while(a<Math.min(b[1],I.dk)){
+      const k=Math.floor(a/60), son=Math.min(b[1],I.dk,(k+1)*60);
+      if(son>a){
+        g.appendChild(mk("line",{x1:colX(k)-4.4,y1:yOf(a)-o.rp*.4,x2:colX(k)-4.4,y2:yOf(son-1)+o.rp*.4,
+          stroke:m1,"stroke-width":Math.max(2,o.sw*.10),"stroke-linecap":"round",opacity:.40}));
+        g.appendChild(mk("line",{x1:colX(k)-4.4,y1:yOf(a)+o.rp*.3,x2:colX(k)-4.4,y2:yOf(son-1)-o.rp*.3,
+          stroke:m2,"stroke-width":Math.max(.9,o.sw*.035),"stroke-linecap":"round",opacity:.55}));
+      }
+      a=son;
+    }
+  }
+  for(let m=0;m<I.dk;m++){
+    if(I.tur(m)!=="is") continue;
+    const k=Math.floor(m/60), mm=m%60;
+    const r1=I.j[m*5],r2=I.j[m*5+1],r3=I.j[m*5+2],r4=I.j[m*5+3];
+    const L=o.sw*boyu(mm)*(1+(r1-.5)*.26);
+    const x0=colX(k)+(r4-.5)*1.3, y0=yOf(m)+(r2-.5)*o.rp*.30, y1=y0+(r3-.5)*o.rp*.62;
+    const bend=(r4-.5)*Math.max(.5,o.sw*.035);
+    const kal=mm===0?2.2:(mm%5===0?1.85:1.45+(r1-.5)*.40);
+    const op=mm===0?1:.76+r3*.20;
+    const dOf=Math.max(.7,o.sw*.045);
+    /* uç: bazıları küt, bazıları incelir — hepsi diken değil */
+    const uc=ucOrani(I.j[m*5+4]);
+    /* kazıma gölgesi — çentikten geniş, tek yönlü */
+    g.appendChild(mk("path",{d:firca(x0+dOf*.55,y0+dOf,x0+L*.90+dOf*.55,y1+dOf,
+      kal*1.24,kal*uc*1.05,bend,9,1.15), fill:ink,opacity:.14}));
+    /* gövde */
+    g.appendChild(mk("path",{d:firca(x0,y0,x0+L,y1,kal*1.16,kal*uc,bend,9,1.15),
+      fill:tonu(mm),opacity:op.toFixed(3)}));
+    /* emiş — bıçağın girdiği yerde biriken mürekkep */
+    if(mm%5===0) g.appendChild(mk("path",{d:firca(x0-.4,y0,x0+L*.24,y0+(y1-y0)*.24,
+      kal*1.46,kal*1.02,0,4,1), fill:tonu(mm),opacity:(op*.40).toFixed(3)}));
+  }
+  if(v.sayilmayan>0) rayCiz(g,I,o,v,css("--kopru"));
+}
+
+/* ============================================================
+   C · KERTİK — gerçek çentik. Bir tahtaya kazınmış çetele.
+   Sütun artık bir çizgi değil, GENİŞLİĞİ olan bir kalas.
+   Çentikler kalasa açılmış V kesitler: üstte ışık, altta gölge.
+   Datsuzoku — "eksen + işaret" şablonunu tamamen terk ediyor.
+   ============================================================ */
+function cizC(svg,v,o){
+  const I=iskelet(v,o), KAL=o.sw*.62;                /* kalasın kalınlığı */
+  const g=kur(svg,I,o,v.sayilmayan?11:3);
+  const ink=css("--ink"), m1=css("--mola1"), m2=css("--mola2"), kop=css("--kopru");
+  const colX=k=>k*(o.sw+o.gap), yOf=m=>o.top+(m%60)*o.rp;
+
+  for(let k=0;k<I.kolon;k++){
+    const son=Math.min(60,I.dk-k*60);
+    const y0=o.top-3, y1=yOf(son-1)+3, x=colX(k);
+    /* kalas gövdesi — düz değil, hafif düzensiz kenarlı */
+    const R=rng32(hash32(v.id+"k"+k));
+    let sol="M"+x.toFixed(2)+","+y0.toFixed(2), sag=[];
+    const N=Math.max(6,Math.round((y1-y0)/9));
+    for(let i=0;i<=N;i++){
+      const t=i/N, yy=y0+(y1-y0)*t;
+      sol+="L"+(x+(R()-.5)*.9).toFixed(2)+","+yy.toFixed(2);
+      sag.push([x+KAL+(R()-.5)*1.1, yy]);
+    }
+    for(let i=sag.length-1;i>=0;i--) sol+="L"+sag[i][0].toFixed(2)+","+sag[i][1].toFixed(2);
+    /* Kalas gövdesi — mürekkep grisi DEĞİL, ılık ahşap tonu (köprü rengi).
+       Gri bir bant "seçili sütun" gibi okunuyordu; ahşap tonu malzeme okutuyor. */
+    g.appendChild(mk("path",{d:sol+"Z",fill:kop,opacity:.19}));
+    /* damar — ahşabın kendi çizgisi, 2-3 tane, düzensiz */
+    const R2=rng32(hash32(v.id+"damar"+k));
+    for(let n=0;n<3;n++){
+      const dx=KAL*(.22+R2()*.56);
+      let dd="M"+(x+dx).toFixed(2)+","+y0.toFixed(2);
+      for(let i=1;i<=10;i++){ const t=i/10;
+        dd+="L"+(x+dx+(R2()-.5)*KAL*.16).toFixed(2)+","+(y0+(y1-y0)*t).toFixed(2) }
+      g.appendChild(mk("path",{d:dd,fill:"none",stroke:kop,"stroke-width":.8,opacity:.24}));
+    }
+    /* kenarlar — solda ışık, sağda gölge */
+    g.appendChild(mk("line",{x1:x,y1:y0,x2:x,y2:y1,stroke:ink,"stroke-width":1.1,opacity:.30}));
+    g.appendChild(mk("line",{x1:x+KAL,y1:y0,x2:x+KAL,y2:y1,stroke:ink,"stroke-width":.8,opacity:.15}));
+  }
+
+  /* mola — kalasta hiç kesik yok, ARKASINDA serin bir gölge bandı.
+     Uzunluğu doğrudan okunuyor: süre dağılımı gözle görülür. */
+  for(const b of (v.molalar||[])){
+    let a=b[0];
+    while(a<Math.min(b[1],I.dk)){
+      const k=Math.floor(a/60), son=Math.min(b[1],I.dk,(k+1)*60);
+      if(son>a){
+        /* Kalas burada KESİLMEMİŞ — pürüzsüz ahşap. Dolgu kutusu YOK
+           (dolgu arayüz öğesi gibi okunuyor); sadece çok soluk bir serinlik. */
+        g.appendChild(mk("rect",{x:colX(k)+.6,y:yOf(a)-o.rp*.45,width:KAL-1.2,
+          height:Math.max(1.5,(son-1-a)*o.rp+o.rp*.9),fill:m1,opacity:.085}));
+        /* kenarda serin iz — molanın uzunluğu buradan okunuyor */
+        g.appendChild(mk("line",{x1:colX(k)-3.6,y1:yOf(a)-o.rp*.45,x2:colX(k)-3.6,
+          y2:yOf(son-1)+o.rp*.45,stroke:m2,"stroke-width":Math.max(1.5,o.sw*.065),
+          "stroke-linecap":"round",opacity:.66}));
+        /* başlangıç ve bitiş — iki ince yatay sınır, molanın nerede bittiğini söyler */
+        [yOf(a)-o.rp*.45, yOf(son-1)+o.rp*.45].forEach(yy=>
+          g.appendChild(mk("line",{x1:colX(k)-5,y1:yy,x2:colX(k)+KAL*.42,y2:yy,
+            stroke:m2,"stroke-width":.75,opacity:.42})));
+      }
+      a=son;
+    }
+  }
+
+  /* çentikler — kalasa açılmış V. İki yüz: ışık ve gölge. */
+  for(let m=0;m<I.dk;m++){
+    if(I.tur(m)!=="is") continue;
+    const k=Math.floor(m/60), mm=m%60;
+    const r1=I.j[m*5],r2=I.j[m*5+1],r3=I.j[m*5+2],r4=I.j[m*5+3];
+    const derin=KAL*(mm===0?.94:mm%15===0?.80:mm%5===0?.66:.48)*(1+(r1-.5)*.30);
+    const x=colX(k), y=yOf(m)+(r2-.5)*o.rp*.34;
+    const kal=o.rp*(mm===0?.62:mm%5===0?.50:.38)*(1+(r3-.5)*.34);
+    const egim=(r4-.5)*o.rp*.5;
+
+    /* gölge yüzü — kesiğin alt duvarı, koyu */
+    g.appendChild(mk("path",{
+      d:`M${x.toFixed(2)},${(y+kal*.5).toFixed(2)}`+
+        `L${(x+derin).toFixed(2)},${(y+egim+kal*.16).toFixed(2)}`+
+        `L${(x+derin).toFixed(2)},${(y+egim-kal*.16).toFixed(2)}`+
+        `L${x.toFixed(2)},${(y-kal*.5).toFixed(2)}Z`,
+      fill:tonu(mm),opacity:(mm===0?.95:.72+r3*.2).toFixed(3)}));
+    /* ışık yüzü — kesiğin üst kenarı, ince ve açık */
+    g.appendChild(mk("path",{
+      d:firca(x,y-kal*.5,x+derin*.94,y+egim-kal*.14,kal*.30,kal*.10,0,5),
+      fill:css("--bg"),opacity:.42}));
+    /* dip gölgesi */
+    g.appendChild(mk("path",{
+      d:firca(x+.4,y+kal*.52,x+derin*.86,y+egim+kal*.20,kal*.26,kal*.08,0,5),
+      fill:ink,opacity:.20}));
+  }
+  if(v.sayilmayan>0) rayCiz(g,I,o,v,kop,KAL);
+}
+
+/* ============================================================
+   D · SUMİ-E — boy değil, MÜREKKEP AĞIRLIĞI konuşur.
+   Bütün çentikler yaklaşık aynı boyda; fark yoğunlukta ve
+   kuru fırçanın dağılmasında. Bar grafiği okuması imkânsız,
+   çünkü "yükseklik = değer" ilişkisi yok.
+   ============================================================ */
+function cizD(svg,v,o){
+  const I=iskelet(v,o), g=kur(svg,I,o,v.sayilmayan?9:2);
+  const ink=css("--ink"), m1=css("--mola1"), m2=css("--mola2");
+  const colX=k=>k*(o.sw+o.gap), yOf=m=>o.top+(m%60)*o.rp;
+
+  for(const b of (v.molalar||[])){
+    let a=b[0];
+    while(a<Math.min(b[1],I.dk)){
+      const k=Math.floor(a/60), son=Math.min(b[1],I.dk,(k+1)*60);
+      if(son>a){
+        /* MA — mola boş kâğıt. Dolgu yok, kutu yok. Sadece birkaç seyrek,
+           soluk yatay yıkama vuruşu: su değmiş ama mürekkep değmemiş. */
+        const RW=rng32(hash32(v.id+"y"+a));
+        /* Sık ve kısa vuruşlar — seyrek/uzun olunca köşeli parantez gibi
+           okunuyordu. Her vuruş farklı yerden başlıyor, hizalanmıyor. */
+        const n=Math.max(3,Math.round((son-a)*1.15));
+        for(let i=0;i<n;i++){
+          const yy=yOf(a)+(son-1-a)*o.rp*(i/(n-1))+(RW()-.5)*o.rp*.7;
+          const bas=colX(k)-3+RW()*o.sw*.30;
+          g.appendChild(mk("path",{d:firca(bas,yy,bas+o.sw*(.14+RW()*.26),yy+(RW()-.5)*o.rp*.6,
+            o.rp*.24,o.rp*.07,(RW()-.5)*o.sw*.04,7,1.3), fill:m1,opacity:(.13+RW()*.13).toFixed(3)}));
+        }
+        g.appendChild(mk("line",{x1:colX(k)-5,y1:yOf(a),x2:colX(k)-5,y2:yOf(son-1),
+          stroke:m2,"stroke-width":Math.max(1.3,o.sw*.055),"stroke-linecap":"round",opacity:.55}));
+      }
+      a=son;
+    }
+  }
+  for(let m=0;m<I.dk;m++){
+    if(I.tur(m)!=="is") continue;
+    const k=Math.floor(m/60), mm=m%60;
+    const r1=I.j[m*5],r2=I.j[m*5+1],r3=I.j[m*5+2],r4=I.j[m*5+3],r5=I.j[m*5+4];
+    /* boy neredeyse sabit — bilgi ağırlıkta */
+    const L=o.sw*(.56+(r1-.5)*.20);
+    const x0=colX(k)+(r4-.5)*o.sw*.10, y0=yOf(m)+(r2-.5)*o.rp*.42;
+    const y1=y0+(r3-.5)*o.rp*.9;
+    const agir=mm===0?1:mm%15===0?.82:mm%5===0?.66:.40+r5*.22;   /* mürekkep yükü */
+    const kal=o.rp*(.30+agir*.42);
+    const bend=(r5-.5)*o.sw*.06;
+
+    const uc=ucOrani(I.j[m*5+4]);
+    g.appendChild(mk("path",{d:firca(x0,y0,x0+L,y1,kal*1.10,kal*uc,bend,11,1.2),
+      fill:tonu(mm),opacity:(.34+agir*.56).toFixed(3)}));
+    /* kuru fırça — yalnız en hafif çentiklerde, gövdeye yapışık ikinci tel */
+    if(agir<.48){
+      g.appendChild(mk("path",{d:firca(x0+L*.30,y0+kal*.50,x0+L*.94,y1+kal*.40,kal*.26,kal*.12,bend*.5,7,1.2),
+        fill:tonu(mm),opacity:(.22+agir*.24).toFixed(3)}));
+    }
+    /* ağır çentiklerde girişte mürekkep birikir — yuvarlak değil, yassı */
+    if(agir>.62){
+      g.appendChild(mk("ellipse",{cx:x0+kal*.34,cy:y0,rx:kal*.66,ry:kal*.50,
+        fill:tonu(mm),opacity:(.26+agir*.28).toFixed(3)}));
+    }
+    g.appendChild(mk("path",{d:firca(x0+.5,y0+o.rp*.16,x0+L*.9+.5,y1+o.rp*.16,kal*.95,kal*uc*.9,bend,9,1.2),
+      fill:ink,opacity:.09}));
+  }
+  if(v.sayilmayan>0) rayCiz(g,I,o,v,css("--kopru"));
+}
+
+/* ============================================================
+   E · KIRIK OMURGA — datsuzoku, tam doz.
+   Omurga düz bir çizgi değil, elle çekilmiş kavisli bir fırça darbesi.
+   Sütunlar birbirine hizalanmıyor; her saat kendi eğimini alıyor.
+   Çentikler omurganın eğrisini takip ediyor. Grid ölür.
+   ============================================================ */
+function cizE(svg,v,o){
+  const I=iskelet(v,o), g=kur(svg,I,o,v.sayilmayan?10:6);
+  const ink=css("--ink"), m1=css("--mola1"), m2=css("--mola2");
+  const R=rng32(hash32(v.id+"omurga"));
+  /* her sütun için: yatay kayma, eğim, kavis */
+  const kol=[];
+  for(let k=0;k<I.kolon;k++) kol.push({dx:(R()-.5)*o.sw*.55, eg:(R()-.5)*o.sw*.85, bow:(R()-.5)*o.sw*.62});
+  const colX=k=>k*(o.sw+o.gap)+kol[k].dx;
+  const yOf=m=>o.top+(m%60)*o.rp;
+  /* omurganın t noktasındaki x kayması */
+  const kay=(k,t)=> kol[k].eg*t + Math.sin(t*Math.PI)*kol[k].bow;
+  const tOf=(m,k)=>{ const son=Math.min(60,I.dk-k*60); return son>1?(m%60)/(son-1):0 };
+
+  for(let k=0;k<I.kolon;k++){
+    const son=Math.min(60,I.dk-k*60);
+    let d="M"; const N=Math.max(8,Math.round(son/4));
+    for(let i=0;i<=N;i++){
+      const t=i/N, y=o.top+t*(son-1)*o.rp;
+      d+=(i?"L":"")+(colX(k)+kay(k,t)).toFixed(2)+","+y.toFixed(2);
+    }
+    const p=mk("path",{d,fill:"none",stroke:ink,"stroke-width":1.05,
+      "stroke-linecap":"round",opacity:.22}); g.appendChild(p);
+  }
+  for(const b of (v.molalar||[])){
+    let a=b[0];
+    while(a<Math.min(b[1],I.dk)){
+      const k=Math.floor(a/60), son=Math.min(b[1],I.dk,(k+1)*60);
+      if(son>a){
+        let d="M"; const N=Math.max(3,son-a);
+        for(let i=0;i<=N;i++){
+          const mm=a+(son-1-a)*(i/N), t=tOf(mm,k);
+          d+=(i?"L":"")+(colX(k)+kay(k,t)-4.4).toFixed(2)+","+yOf(mm).toFixed(2);
+        }
+        g.appendChild(mk("path",{d,fill:"none",stroke:m1,"stroke-width":Math.max(2,o.sw*.10),
+          "stroke-linecap":"round",opacity:.38}));
+        g.appendChild(mk("path",{d,fill:"none",stroke:m2,"stroke-width":Math.max(.9,o.sw*.036),
+          "stroke-linecap":"round",opacity:.58}));
+      }
+      a=son;
+    }
+  }
+  for(let m=0;m<I.dk;m++){
+    if(I.tur(m)!=="is") continue;
+    const k=Math.floor(m/60), mm=m%60, t=tOf(m,k);
+    const r1=I.j[m*5],r2=I.j[m*5+1],r3=I.j[m*5+2],r4=I.j[m*5+3];
+    const L=o.sw*boyu(mm)*(1+(r1-.5)*.30);
+    const x0=colX(k)+kay(k,t)+(r4-.5)*1.5;
+    const y0=yOf(m)+(r2-.5)*o.rp*.34;
+    /* çentik omurganın teğetine dik değil — hafif serbest */
+    const y1=y0+(r3-.5)*o.rp*.7+kol[k].eg*.05;
+    const kal=o.rp*(mm===0?.60:mm%5===0?.48:.36)*(1+(r1-.5)*.3);
+    const bend=(r4-.5)*o.sw*.05;
+    const uc=ucOrani(I.j[m*5+4]);
+    /* çentik omurganın o noktadaki eğimine dik değil — serbest, elle */
+    const teg=(kay(k,Math.min(1,t+.06))-kay(k,Math.max(0,t-.06)))*1.1;
+    g.appendChild(mk("path",{d:firca(x0+.6,y0+o.rp*.2,x0+L*.9+.6+teg,y1+o.rp*.2,kal*1.14,kal*uc,bend,9,1.15),
+      fill:ink,opacity:.13}));
+    g.appendChild(mk("path",{d:firca(x0,y0,x0+L+teg,y1,kal*1.16,kal*uc,bend,9,1.15),
+      fill:tonu(mm),opacity:(mm===0?1:.76+r3*.2).toFixed(3)}));
+  }
+  if(v.sayilmayan>0) rayCiz(g,I,o,v,css("--kopru"));
+}
+
+/* sayılmayan süre — hepsinde ortak: miktar var, konum yok */
+function rayCiz(g,I,o,v,renk,kaydir){
+  const k=I.kolon-1, b=Math.min(v.sayilmayan,I.satir);
+  const x=k*(o.sw+o.gap)+(kaydir||o.sw)+5;
+  g.appendChild(mk("line",{x1:x,y1:o.top,x2:x,y2:o.top+Math.max(1,b-1)*o.rp,
+    stroke:renk,"stroke-width":1.7,"stroke-linecap":"round",
+    "stroke-dasharray":(o.rp*.55).toFixed(2)+" "+(o.rp*.45).toFixed(2),opacity:.5}));
+}
+
+/* ============================================================
+   Yorumlar
+   ============================================================ */
+const YORUM=[
+  {k:"A",ad:"Mevcut",     fn:cizA, aciklama:"Düz vektör, sabit kalınlık, mikro sapma görünmüyor. Kontrol grubu — şu an telefonda bu var."},
+  {k:"B",ad:"Malzeme",    fn:cizB, aciklama:"Aynı yapı. Fırça basıncı, kazıma derinliği, genişletilmiş palet. En düşük risk.",win:true},
+  {k:"C",ad:"Kertik",     fn:cizC, aciklama:"Çizgi değil kalas. Çentikler V kesit — ışık yüzü ve gölge yüzü. Adı neyse o.",win:true},
+  {k:"D",ad:"Sumi-e",     fn:cizD, aciklama:"Boy sabit, bilgi mürekkep ağırlığında. \"Yükseklik = değer\" yok, grafik okuması imkânsız."},
+  {k:"E",ad:"Kırık omurga",fn:cizE,aciklama:"Omurga elle çekilmiş, sütunlar hizasız. Grid ölür — ama kayıt okunaklılığı da zorlanır."}
+];
+
+const secim=document.getElementById("secim");
+ORNEK.forEach((s,i)=>{
+  const b=document.createElement("button"); b.textContent=s.ad;
+  b.onclick=()=>{SEC=i;ciz()}; secim.appendChild(b);
+});
+
+function ciz(){
+  [...secim.children].forEach((b,i)=>b.classList.toggle("on",i===SEC));
+  const v=ORNEK[SEC].v;
+  const lab=document.getElementById("lab"); lab.innerHTML="";
+  const mini=document.getElementById("mini"); mini.innerHTML="";
+  YORUM.forEach(y=>{
+    /* büyük */
+    const c=document.createElement("div"); c.className="cell"+(y.win?" win":"");
+    const art=document.createElement("div"); art.className="art";
+    const s=document.createElementNS(NS,"svg"); art.appendChild(s); c.appendChild(art);
+    const h=document.createElement("h3"); h.textContent=y.k+" · "+y.ad; c.appendChild(h);
+    const p=document.createElement("p"); p.textContent=y.aciklama; c.appendChild(p);
+    lab.appendChild(c);
+    y.fn(s,v,{rp:5.0,sw:34,gap:19,top:6});
+
+    /* küçük — yabancı testi */
+    const mc=document.createElement("div"); mc.className="minicell";
+    const ma=document.createElement("div"); ma.className="art";
+    const ms=document.createElementNS(NS,"svg"); ma.appendChild(ms); mc.appendChild(ma);
+    const mb=document.createElement("b"); mb.textContent=y.k+" · "+y.ad; mc.appendChild(mb);
+    mini.appendChild(mc);
+    y.fn(ms,v,{rp:1.85,sw:15,gap:9,top:3});
+  });
+}
+
+document.getElementById("th").onclick=()=>{
+  const d=document.documentElement.classList.toggle("dark");
+  document.getElementById("th").textContent=d?"gündüz":"gece";
+  setTimeout(ciz,10);
+};
+ciz();
+</script>
+</body>
+</html>

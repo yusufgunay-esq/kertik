@@ -1,0 +1,27 @@
+- generic [ref=f24e2]:
+  - generic [ref=f24e3]:
+    - generic [ref=f24e26]:
+      - button "kronometre" [ref=f24e28] [cursor=pointer]
+      - button "pomodoro" [active] [ref=f24e29] [cursor=pointer]
+    - generic [ref=f24e5]:
+      - generic [ref=f24e6]:
+        - generic [ref=f24e7]:
+          - generic [ref=f24e8]: hazır
+          - button "Masaüstü Odak Modu" [ref=f24e9] [cursor=pointer]
+        - generic [ref=f24e12]:
+          - generic:
+            - generic: 00:00
+            - generic: 25 dakika
+      - generic [ref=f24e13]:
+        - generic [ref=f24e30]: bugün 2s 23dk · 2 seans
+        - generic: çalıştıkça bir şeyler oluyor
+        - generic [ref=f24e47]:
+          - button "25dk" [ref=f24e48] [cursor=pointer]
+          - button "50dk" [ref=f24e49] [cursor=pointer]
+          - button "90dk" [ref=f24e50] [cursor=pointer]
+        - button "başlat" [ref=f24e31] [cursor=pointer]
+  - navigation [ref=f24e32]:
+    - button "sayaç" [ref=f24e33] [cursor=pointer]
+    - button "görevler" [ref=f24e34] [cursor=pointer]
+    - button "kayıt" [ref=f24e35] [cursor=pointer]
+    - button "ayarlar" [ref=f24e36] [cursor=pointer]

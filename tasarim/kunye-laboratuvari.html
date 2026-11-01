@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Künye Laboratuvarı — Kertik</title>
+<style>
+:root{
+  --bg:#F5F1E6; --bg2:#EBE5D6; --ink:#1A1B1E; --ink2:#3C3E44;
+  --muted:#6E6A61; --faint:#A09A8C; --line:#DCD5C4;
+  --accent:#B4432B; --cool:#7A8791;
+  --is1:#8E3F2B; --is2:#A9614A; --is3:#C08D75;
+  --kopru:#8A6A4F;
+  --mola1:#8E9AA3; --mola2:#B4BEC5;
+  --pad:24px;
+}
+:root.dark{
+  --bg:#131417; --bg2:#1B1D22; --ink:#EDE8DC; --ink2:#BAB4A7;
+  --muted:#8F8A7E; --faint:#65605A; --line:#292B31;
+  --accent:#D3785A; --cool:#7E8B96;
+  --is1:#B45C40; --is2:#D0785B; --is3:#E3A88C;
+  --kopru:#A98A6C;
+  --mola1:#5E6A75; --mola2:#8A959E;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:17px; line-height:1.5; -webkit-font-smoothing:antialiased;
+  transition:background .55s cubic-bezier(.4,0,.2,1), color .55s cubic-bezier(.4,0,.2,1);
+}
+.wrap{max-width:1120px;margin:0 auto;padding:0 var(--pad) 120px}
+header{padding:54px 0 8px}
+h1{font-size:34px;font-weight:400;letter-spacing:-.032em;margin:0}
+.sub{color:var(--muted);font-size:15px;margin-top:6px;max-width:64ch}
+.sub b{color:var(--ink2);font-weight:500}
+h2{font-size:23px;font-weight:400;letter-spacing:-.02em;margin:60px 0 4px}
+.note{color:var(--muted);font-size:15px;margin:0 0 24px;max-width:62ch}
+.note b{color:var(--ink2);font-weight:500}
+code{background:var(--bg2);border-radius:5px;padding:1px 6px;font-size:.92em}
+
+.themebtn{position:fixed;top:16px;right:16px;z-index:5;border:1px solid var(--line);background:var(--bg);
+  color:var(--muted);border-radius:999px;padding:9px 16px;font-size:14px;font-family:inherit;cursor:pointer}
+
+/* ---- seans kartları ---- */
+.kartlar{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px}
+.kart{
+  border:1px solid var(--line);border-radius:20px;background:var(--bg2);
+  padding:22px 20px 20px;display:flex;flex-direction:column;gap:0;
+  transition:background .55s,border-color .55s;position:relative;overflow:hidden
+}
+.kart .ust{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.kart .is-adi{font-size:16px;font-weight:500;letter-spacing:-.01em}
+.kart .sure{font-size:13px;color:var(--muted)}
+.kart .art{width:100%;display:flex;justify-content:flex-start}
+svg{overflow:visible;display:block}
+
+/* künye — kalasın dibine kazınmış tek satır, kutu yok, ikon yok */
+.kunye{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);
+  font-size:14px;color:var(--kopru);display:flex;align-items:baseline;gap:10px;
+  opacity:.92;letter-spacing:.005em;min-height:1.4em}
+.kunye .fark{color:var(--muted);font-size:12.5px}
+.kunye .isaret{font-size:12px;letter-spacing:.14em;color:var(--kopru)}
+.kunye.bos{color:var(--faint);font-style:normal}
+.kunye.bos::before{content:"";}
+
+/* başlat ekranı yer imi */
+.yerimi{border:1px solid var(--line);border-radius:20px;background:var(--bg2);
+  padding:20px 22px;max-width:320px}
+.yerimi .ad{font-size:17px;font-weight:500;margin-bottom:4px}
+.yerimi .satir{font-size:14px;color:var(--muted)}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 8px}
+.chips button{
+  border:1px solid var(--line);background:none;color:var(--muted);
+  border-radius:999px;padding:9px 17px;font-size:14.5px;font-family:inherit;cursor:pointer;transition:.22s
+}
+.chips button.on{border-color:var(--accent);color:var(--accent)}
+
+.mini{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:8px}
+.minicell{border:1px solid var(--line);border-radius:16px;background:var(--bg2);
+  padding:16px 14px 14px;text-align:center}
+.minicell b{font-size:12.5px;font-weight:500;color:var(--ink2);display:block;margin-top:6px}
+
+ul.tight{margin:12px 0 0;padding-left:20px;color:var(--muted);font-size:14.5px}
+ul.tight li{margin:6px 0}
+ul.tight b{color:var(--ink2);font-weight:500}
+@media (max-width:520px){ :root{--pad:16px} h1{font-size:29px} }
+</style>
+</head>
+<body>
+<button class="themebtn" id="th">gece</button>
+<div class="wrap">
+
+<header>
+  <h1>Künye Laboratuvarı</h1>
+  <div class="sub">
+    <code>31-seans-ciktisi.md</code>'nin görsel karşılığı. Kalasın kendisi <b>29-kertik-cubuk-karari.md</b>'deki
+    çizim; buraya eklenen tek şey, kalasın dibine kazınmış <b>tek satırlık künye</b>. Zaman kalasın üstünde,
+    ölçü kalasın dibinde — ikisi aynı malzemeye kazınmış iki farklı derinlik. Kutu yok, ikon yok, renk kodu yok.
+  </div>
+</header>
+
+<h2>Üç seans, üç ölçü</h2>
+<p class="note">Aynı kalas çizim mantığı (<code>cizC</code>), aynı palet. Değişen tek şey seans sonunda
+  girilen (ya da girilmeyen) künye. <b>Soldaki hiçbir şey söylemiyor — bu varsayılan davranış, arıza değil.</b></p>
+
+<div class="kartlar" id="kartlar"></div>
+
+<h2>Başlat ekranındaki yer imi</h2>
+<p class="note">Sayfa ölçüsü olan bir işin, bir önceki seanstan kalan tek satırlık izi. İstatistik değil,
+  <b>yer imi</b> — dokunulamaz, tıklanamaz, sadece orada durur.</p>
+<div class="yerimi">
+  <div class="ad">Kimya</div>
+  <div class="satir">s.52'de kaldın</div>
+</div>
+
+<h2>Yabancı testi</h2>
+<p class="note">Küçült, uzaktan bak. <b>"İstatistik" ya da "grafik" diyorsan başarısız</b> — bkz.
+  <code>24-sanat-dili.md §1</code>.</p>
+<div class="mini" id="mini"></div>
+
+<h2>Kırmızı çizgiler — bilerek burada olmayanlar</h2>
+<ul class="tight">
+  <li><b>Renk kodu yok.</b> ▲▼○ hepsi aynı ılık ahşap tonunda (<code>--kopru</code>). Doğru yeşil,
+    yanlış kırmızı olsaydı bu bir puan kartına dönerdi.</li>
+  <li><b>Yüzde yok.</b> "3/5 doğru" görünmez, sadece üç işaret ayrı ayrı durur — toplamı kullanıcı
+    isterse kendi çıkarır.</li>
+  <li><b>Aralık yok, imleç var.</b> Sayfa satırı <code>s.45–52</code> değil, tek sayı: <code>52</code>.
+    Fark (<span class="fark">+7</span>) yalnız bir önceki seans varsa ve mantıklıysa görünür.</li>
+  <li><b>Boş künye, boş görünmez.</b> Üçüncü kart (araştırma) bir eksiklik değil — çizgi orada bitiyor,
+    hiçbir şey onun yerini doldurmaya çalışmıyor. <i>Ma</i> — boşluk kompozisyonun malzemesi.</li>
+</ul>
+
+</div>
+
+<script>
+/* ---------- ortak (29-kertik-cubuk-karari.md ile birebir) ---------- */
+function hash32(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return h>>>0 }
+function rng32(seed){ let a=seed>>>0; return ()=>{ a=a+0x6D2B79F5|0;
+  let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296 } }
+const NS="http://www.w3.org/2000/svg";
+const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e};
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+function firca(x0,y0,x1,y1,w0,w1,bend,segs,sivri){
+  segs=segs||9; sivri=sivri||1;
+  const dx=x1-x0, dy=y1-y0, L=Math.hypot(dx,dy)||1;
+  const px=-dy/L, py=dx/L;
+  const ust=[], alt=[];
+  for(let i=0;i<=segs;i++){
+    const t=i/segs, e=Math.pow(1-t,sivri), w=(w1+(w0-w1)*e)/2;
+    const bow=Math.sin(t*Math.PI)*bend;
+    const cx=x0+dx*t+px*bow, cy=y0+dy*t+py*bow;
+    ust.push([cx+px*w,cy+py*w]); alt.push([cx-px*w,cy-py*w]);
+  }
+  let d="M"+ust[0][0].toFixed(2)+","+ust[0][1].toFixed(2);
+  for(let i=1;i<ust.length;i++) d+="L"+ust[i][0].toFixed(2)+","+ust[i][1].toFixed(2);
+  for(let i=alt.length-1;i>=0;i--) d+="L"+alt[i][0].toFixed(2)+","+alt[i][1].toFixed(2);
+  return d+"Z";
+}
+function ucOrani(r){ return r<.38 ? .74 : .44+r*.16 }
+const boyu=mm=> mm===0?1.02 : mm%15===0?.86 : mm%5===0?.72 : .54;
+const tonu=mm=> mm===0?css("--is1") : mm%5===0?css("--is2") : css("--is3");
+
+function iskelet(v,o){
+  const dk=Math.max(1,Math.round(v.dk));
+  const kolon=Math.max(1,Math.ceil(dk/60));
+  const satir=kolon>1?60:dk;
+  const W=kolon*(o.sw+o.gap)-o.gap, H=o.top*2+Math.max(1,satir-1)*o.rp;
+  const R=rng32(hash32(v.id)); const j=[];
+  for(let i=0;i<dk*5+80;i++) j.push(R());
+  const tur=m=>{ for(const b of (v.molalar||[])) if(m>=b[0]&&m<b[1]) return "mola"; return "is" };
+  return {dk,kolon,satir,W,H,j,tur};
+}
+function kur(svg,I,o,sagPay){
+  const S=sagPay||2;
+  svg.setAttribute("viewBox",`-8 0 ${(I.W+8+S).toFixed(1)} ${I.H.toFixed(1)}`);
+  svg.setAttribute("width",(I.W+8+S).toFixed(1));
+  svg.setAttribute("height",I.H.toFixed(1));
+  svg.innerHTML="";
+  const g=mk("g",{}); svg.appendChild(g); return g;
+}
+
+/* ---------- C · KERTİK çizimi (29-kertik-cubuk-karari.md'den birebir) ---------- */
+function cizC(svg,v,o){
+  const I=iskelet(v,o), KAL=o.sw*.62;
+  const g=kur(svg,I,o,v.sayilmayan?11:3);
+  const ink=css("--ink"), m1=css("--mola1"), m2=css("--mola2"), kop=css("--kopru");
+  const colX=k=>k*(o.sw+o.gap), yOf=m=>o.top+(m%60)*o.rp;
+
+  for(let k=0;k<I.kolon;k++){
+    const son=Math.min(60,I.dk-k*60);
+    const y0=o.top-3, y1=yOf(son-1)+3, x=colX(k);
+    const R=rng32(hash32(v.id+"k"+k));
+    let sol="M"+x.toFixed(2)+","+y0.toFixed(2), sag=[];
+    const N=Math.max(6,Math.round((y1-y0)/9));
+    for(let i=0;i<=N;i++){
+      const t=i/N, yy=y0+(y1-y0)*t;
+      sol+="L"+(x+(R()-.5)*.9).toFixed(2)+","+yy.toFixed(2);
+      sag.push([x+KAL+(R()-.5)*1.1, yy]);
+    }
+    for(let i=sag.length-1;i>=0;i--) sol+="L"+sag[i][0].toFixed(2)+","+sag[i][1].toFixed(2);
+    g.appendChild(mk("path",{d:sol+"Z",fill:kop,opacity:.19}));
+    const R2=rng32(hash32(v.id+"damar"+k));
+    for(let n=0;n<3;n++){
+      const dx=KAL*(.22+R2()*.56);
+      let dd="M"+(x+dx).toFixed(2)+","+y0.toFixed(2);
+      for(let i=1;i<=10;i++){ const t=i/10;
+        dd+="L"+(x+dx+(R2()-.5)*KAL*.16).toFixed(2)+","+(y0+(y1-y0)*t).toFixed(2) }
+      g.appendChild(mk("path",{d:dd,fill:"none",stroke:kop,"stroke-width":.8,opacity:.24}));
+    }
+    g.appendChild(mk("line",{x1:x,y1:y0,x2:x,y2:y1,stroke:ink,"stroke-width":1.1,opacity:.30}));
+    g.appendChild(mk("line",{x1:x+KAL,y1:y0,x2:x+KAL,y2:y1,stroke:ink,"stroke-width":.8,opacity:.15}));
+  }
+
+  for(const b of (v.molalar||[])){
+    let a=b[0];
+    while(a<Math.min(b[1],I.dk)){
+      const k=Math.floor(a/60), son=Math.min(b[1],I.dk,(k+1)*60);
+      if(son>a){
+        g.appendChild(mk("rect",{x:colX(k)+.6,y:yOf(a)-o.rp*.45,width:KAL-1.2,
+          height:Math.max(1.5,(son-1-a)*o.rp+o.rp*.9),fill:m1,opacity:.085}));
+        g.appendChild(mk("line",{x1:colX(k)-3.6,y1:yOf(a)-o.rp*.45,x2:colX(k)-3.6,
+          y2:yOf(son-1)+o.rp*.45,stroke:m2,"stroke-width":Math.max(1.5,o.sw*.065),
+          "stroke-linecap":"round",opacity:.66}));
+        [yOf(a)-o.rp*.45, yOf(son-1)+o.rp*.45].forEach(yy=>
+          g.appendChild(mk("line",{x1:colX(k)-5,y1:yy,x2:colX(k)+KAL*.42,y2:yy,
+            stroke:m2,"stroke-width":.75,opacity:.42})));
+      }
+      a=son;
+    }
+  }
+
+  for(let m=0;m<I.dk;m++){
+    if(I.tur(m)!=="is") continue;
+    const k=Math.floor(m/60), mm=m%60;
+    const r1=I.j[m*5],r2=I.j[m*5+1],r3=I.j[m*5+2],r4=I.j[m*5+3];
+    const derin=KAL*(mm===0?.94:mm%15===0?.80:mm%5===0?.66:.48)*(1+(r1-.5)*.30);
+    const x=colX(k), y=yOf(m)+(r2-.5)*o.rp*.34;
+    const kal=o.rp*(mm===0?.62:mm%5===0?.50:.38)*(1+(r3-.5)*.34);
+    const egim=(r4-.5)*o.rp*.5;
+
+    g.appendChild(mk("path",{
+      d:`M${x.toFixed(2)},${(y+kal*.5).toFixed(2)}`+
+        `L${(x+derin).toFixed(2)},${(y+egim+kal*.16).toFixed(2)}`+
+        `L${(x+derin).toFixed(2)},${(y+egim-kal*.16).toFixed(2)}`+
+        `L${x.toFixed(2)},${(y-kal*.5).toFixed(2)}Z`,
+      fill:tonu(mm),opacity:(mm===0?.95:.72+r3*.2).toFixed(3)}));
+    g.appendChild(mk("path",{
+      d:firca(x,y-kal*.5,x+derin*.94,y+egim-kal*.14,kal*.30,kal*.10,0,5),
+      fill:css("--bg"),opacity:.42}));
+    g.appendChild(mk("path",{
+      d:firca(x+.4,y+kal*.52,x+derin*.86,y+egim+kal*.20,kal*.26,kal*.08,0,5),
+      fill:ink,opacity:.20}));
+  }
+}
+
+/* ---------- künye render ---------- */
+function kunyeYaz(el, tip, veri){
+  el.innerHTML="";
+  if(tip==="yok"){
+    el.classList.add("bos");
+    el.textContent="";
+    return;
+  }
+  el.classList.remove("bos");
+  if(tip==="sayfa"){
+    const span=document.createElement("span");
+    span.textContent="s."+veri.sayfa;
+    el.appendChild(span);
+    if(veri.fark!=null && veri.fark>0){
+      const f=document.createElement("span");
+      f.className="fark";
+      f.textContent="+"+veri.fark;
+      el.appendChild(f);
+    }
+  } else if(tip==="soru"){
+    const parts=[["▲",veri.d],["▼",veri.y],["○",veri.b]];
+    parts.forEach(([isaret,n])=>{
+      if(n==null) return;
+      const s=document.createElement("span");
+      s.className="isaret";
+      s.textContent=isaret+" "+n;
+      el.appendChild(s);
+    });
+  }
+}
+
+/* ---------- üç örnek seans ---------- */
+const SEANSLAR=[
+  {ad:"Fizik", ust:"52 dk", v:{id:"k-sayfa",dk:52,molalar:[[28,34]]}, kunye:"sayfa", veri:{sayfa:52, fark:7}},
+  {ad:"Borçlar Hukuku", ust:"64 dk", v:{id:"k-soru",dk:64,molalar:[[40,46]]}, kunye:"soru", veri:{d:12,y:3,b:1}},
+  {ad:"Tez okuması", ust:"38 dk", v:{id:"k-yok",dk:38,molalar:[]}, kunye:"yok", veri:{}},
+];
+
+function ciz(){
+  const o={sw:15.5,gap:2.6,top:7,rp:5.6};
+  const wrap=document.getElementById("kartlar");
+  wrap.innerHTML="";
+  SEANSLAR.forEach(s=>{
+    const kart=document.createElement("div"); kart.className="kart";
+    const ust=document.createElement("div"); ust.className="ust";
+    ust.innerHTML=`<span class="is-adi">${s.ad}</span><span class="sure">${s.ust}</span>`;
+    const art=document.createElement("div"); art.className="art";
+    const svg=document.createElementNS(NS,"svg"); art.appendChild(svg);
+    const kunye=document.createElement("div"); kunye.className="kunye";
+    kart.appendChild(ust); kart.appendChild(art); kart.appendChild(kunye);
+    wrap.appendChild(kart);
+    cizC(svg, s.v, o);
+    kunyeYaz(kunye, s.kunye, s.veri);
+  });
+
+  const mini=document.getElementById("mini");
+  mini.innerHTML="";
+  SEANSLAR.forEach(s=>{
+    const cell=document.createElement("div"); cell.className="minicell";
+    const svg=document.createElementNS(NS,"svg"); svg.style.height="86px";
+    cell.appendChild(svg);
+    const kunye=document.createElement("div"); kunye.className="kunye"; kunye.style.marginTop="8px";
+    kunye.style.borderTop="none"; kunye.style.paddingTop="0"; kunye.style.fontSize="11.5px";
+    cell.appendChild(kunye);
+    const b=document.createElement("b"); b.textContent=s.ad; cell.appendChild(b);
+    mini.appendChild(cell);
+    cizC(svg, {...s.v, dk:Math.min(s.v.dk,45)}, {sw:9,gap:1.6,top:4,rp:3.2});
+    kunyeYaz(kunye, s.kunye, s.veri);
+  });
+}
+
+/* ---------- tema ---------- */
+const th=document.getElementById("th");
+function setTheme(dark){
+  document.documentElement.classList.toggle("dark",dark);
+  th.textContent=dark?"gündüz":"gece";
+  localStorage.setItem("kunye-lab-theme",dark?"dark":"light");
+  ciz();
+}
+th.onclick=()=>setTheme(!document.documentElement.classList.contains("dark"));
+setTheme((()=>{ try{return localStorage.getItem("kunye-lab-theme")==="dark"}catch(e){return false} })());
+</script>
+</body>
+</html>

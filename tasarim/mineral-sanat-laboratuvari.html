@@ -1,0 +1,1237 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kertik — Mineral & Sanat Laboratuvarı: 4 Özgün Sanat Felsefesi</title>
+<style>
+:root {
+  --bg: #F6F3EC;
+  --bg2: #EBE6DA;
+  --surface: rgba(255, 255, 255, 0.75);
+  --surface-border: #DCD5C5;
+  --ink: #16181B;
+  --ink-secondary: #4A463F;
+  --muted: #7A756C;
+  --faint: #A8A296;
+  --line: #DCD5C6;
+  --acc: #B05237;
+  --cool: #3E7C77;
+  --shadow: rgba(60, 50, 35, 0.12);
+}
+
+:root.dark {
+  --bg: #141619;
+  --bg2: #1C1E23;
+  --surface: rgba(26, 28, 34, 0.78);
+  --surface-border: #2D3038;
+  --ink: #EDE9E0;
+  --ink-secondary: #BBB5A8;
+  --muted: #8E8A80;
+  --faint: #5C584E;
+  --line: #2B2D35;
+  --acc: #D0785B;
+  --cool: #79B3AE;
+  --shadow: rgba(0, 0, 0, 0.45);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--bg2);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding: 24px 20px 80px;
+  transition: background .3s, color .3s;
+}
+
+.wrap { max-width: 1380px; margin: 0 auto; }
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.header-titles h1 {
+  font-size: 27px;
+  font-weight: 350;
+  letter-spacing: -.03em;
+  margin: 0 0 6px;
+}
+.header-titles p {
+  color: var(--muted);
+  font-size: 13.5px;
+  margin: 0;
+  max-width: 90ch;
+}
+.header-actions { display: flex; gap: 8px; align-items: center; }
+.btn-pill {
+  border: 1px solid var(--surface-border);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: .18s;
+  backdrop-filter: blur(8px);
+}
+.btn-pill:hover { border-color: var(--ink); }
+.btn-pill.active {
+  border-color: var(--acc);
+  color: var(--acc);
+  background: rgba(176, 82, 55, 0.1);
+  font-weight: 500;
+}
+
+/* Master 4-Column Grid */
+.stage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 26px;
+}
+
+.device-card {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 28px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  box-shadow: 0 16px 36px var(--shadow);
+  backdrop-filter: blur(12px);
+  transition: transform .2s, border-color .2s;
+}
+.device-card:hover { border-color: var(--ink-secondary); }
+
+.device-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+.device-tag {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.tag-lapis { background: rgba(30, 60, 110, 0.12); color: #2A5A9E; }
+:root.dark .tag-lapis { background: rgba(70, 120, 200, 0.18); color: #7CA6E8; }
+.tag-jade { background: rgba(45, 95, 60, 0.12); color: #2E7246; }
+:root.dark .tag-jade { background: rgba(80, 160, 100, 0.18); color: #6DBE88; }
+.tag-agate { background: rgba(150, 80, 30, 0.12); color: #A05C28; }
+:root.dark .tag-agate { background: rgba(220, 130, 60, 0.18); color: #E89A5A; }
+.tag-obsidian { background: rgba(50, 50, 60, 0.12); color: #4A5060; }
+:root.dark .tag-obsidian { background: rgba(180, 190, 210, 0.18); color: #C0C8DA; }
+
+.device-title {
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Phone Canvas Box */
+.phone-box {
+  width: 100%;
+  aspect-ratio: 9 / 18.5;
+  max-width: 320px;
+  border-radius: 36px;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1), 0 12px 28px rgba(0,0,0,0.12);
+  cursor: pointer;
+  user-select: none;
+}
+.phone-box canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.phone-hud {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 36px 16px 20px;
+  pointer-events: none;
+  z-index: 10;
+}
+.hud-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 15%;
+}
+.hud-pomo {
+  font-size: 10px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--acc);
+}
+.hud-time {
+  font-size: 42px;
+  font-weight: 200;
+  letter-spacing: -.04em;
+  color: var(--ink);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.hud-task {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.hud-hint {
+  font-size: 11px;
+  color: var(--faint);
+  background: rgba(0,0,0,0.04);
+  padding: 4px 10px;
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+}
+:root.dark .hud-hint { background: rgba(255,255,255,0.06); }
+
+/* Diagnostics under each card */
+.device-desc {
+  width: 100%;
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.45;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+.device-desc strong { color: var(--ink); }
+
+/* Master Toolbar */
+.controls-bar {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 20px;
+  padding: 16px 22px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  backdrop-filter: blur(12px);
+}
+.ctrl-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ctrl-label { font-size: 12.5px; font-weight: 600; color: var(--muted); margin-right: 4px; }
+
+/* Simulation Slider Bar */
+.sim-controls-bar {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 20px;
+  padding: 18px 24px;
+  margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  backdrop-filter: blur(12px);
+}
+.sim-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+.sim-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--line);
+  outline: none;
+  cursor: pointer;
+}
+.sim-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--acc);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Analysis Section */
+.analysis-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 20px;
+  padding: 20px;
+  backdrop-filter: blur(12px);
+}
+.info-card h3 {
+  font-size: 15.5px;
+  font-weight: 600;
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.info-card p {
+  color: var(--ink-secondary);
+  font-size: 13px;
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+.info-card ul {
+  margin: 0;
+  padding-left: 16px;
+  color: var(--ink-secondary);
+  font-size: 12.5px;
+}
+.info-card li { margin-bottom: 5px; }
+
+/* Shake animation */
+.impact-shake {
+  animation: shakeAnim .25s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes shakeAnim {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-2.5px, 0, 0); }
+  40%, 60% { transform: translate3d(2px, 0, 0); }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-titles">
+      <h1>Mineral & Sanat Felsefesi Laboratuvarı</h1>
+      <p>Kertik'in 'Dürüst Kayıt' ve Wabi-Sabi ruhunu 4 farklı doğal mineral dünyasında keşfedin. Hiçbir dijital filtre olmadan, doğrudan yer kabuğunun organik estetiği.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-pill" id="themeToggle" onclick="toggleTheme()">🌓 Açık / Koyu</button>
+      <button class="btn-pill active" onclick="dropAllStones()">⚡ Taş Düşür (Tetikle)</button>
+      <button class="btn-pill" onclick="resetAll()">🔄 Sıfırla</button>
+    </div>
+  </header>
+
+  <!-- Slider Bar -->
+  <div class="sim-controls-bar">
+    <div class="sim-slider-header">
+      <span>⏱️ Pomodoro Akışı & Tırmık İlerlemesi:</span>
+      <span id="progressLabel" style="color:var(--acc); font-weight:700;">%100 (25 dk Tamamlandı)</span>
+    </div>
+    <input type="range" min="0" max="100" value="100" class="sim-slider" id="progressSlider" oninput="onProgressChange(this.value)">
+  </div>
+
+  <!-- Master Controls Bar -->
+  <div class="controls-bar">
+    <div class="ctrl-group">
+      <span class="ctrl-label">Seans Sayısı:</span>
+      <button class="btn-pill active" onclick="setSessionCount(1, this)">1. Seans</button>
+      <button class="btn-pill" onclick="setSessionCount(3, this)">3. Seans</button>
+      <button class="btn-pill" onclick="setSessionCount(5, this)">5. Seans</button>
+    </div>
+
+    <div class="ctrl-group">
+      <span class="ctrl-label">Taş Durumu:</span>
+      <button class="btn-pill active" onclick="setStoneState('intact', this)">Sağlam Mineral</button>
+      <button class="btn-pill" onclick="setStoneState('broken', this)">Kırık Fay Hattı</button>
+      <button class="btn-pill" onclick="setStoneState('kintsugi', this)">Kintsugi Altın Damar</button>
+    </div>
+
+    <div class="ctrl-group">
+      <button class="btn-pill active" id="soundToggle" onclick="toggleSound(this)">🔊 Solfeggio Akortlu Sesler Açık</button>
+    </div>
+  </div>
+
+  <!-- Master Stage: 4 Unique Visual Philosophies -->
+  <div class="stage-grid">
+
+    <!-- 1. LAPIS LAZULI & ALTIN PİRİT -->
+    <div class="device-card">
+      <div class="device-header">
+        <span class="device-title">1. Lapis Lazuli & Pirit</span>
+        <span class="device-tag tag-lapis">Krallara Layık</span>
+      </div>
+      <div class="phone-box" id="box0" onclick="dropStone(0)">
+        <canvas id="cv0"></canvas>
+        <div class="phone-hud">
+          <div class="hud-center">
+            <span class="hud-pomo" style="color:#2A5A9E;">POMODORO 25 DK</span>
+            <span class="hud-time" id="time0">25:00</span>
+            <span class="hud-task">Felsefe Makalesi</span>
+          </div>
+          <span class="hud-hint">Ekrana tıkla: taş düşür</span>
+        </div>
+      </div>
+      <div class="device-desc">
+        <strong>Sanat Dili & Malzeme:</strong>
+        <br>• <strong>Derin Kobalt & Ultramarin:</strong> Afganistan dağlarının lapis lazuli kayası.
+        <br>• <strong>Altın Pirit Zerrecikleri:</strong> Taşın içinde doğal olarak parıldayan altın benekler.
+        <br>• <strong>Gümüşi Kum Tırmığı:</strong> Gece gökyüzünü andıran kristal tırmık olukları.
+      </div>
+    </div>
+
+    <!-- 2. KOKE-DERA: YEŞİM & TAPINAK YOSUNU -->
+    <div class="device-card">
+      <div class="device-header">
+        <span class="device-title">2. Koke-Dera Yeşim Taşı</span>
+        <span class="device-tag tag-jade">Biyofilik Huzur</span>
+      </div>
+      <div class="phone-box" id="box1" onclick="dropStone(1)">
+        <canvas id="cv1"></canvas>
+        <div class="phone-hud">
+          <div class="hud-center">
+            <span class="hud-pomo" style="color:#2E7246;">POMODORO 25 DK</span>
+            <span class="hud-time" id="time1">25:00</span>
+            <span class="hud-task">Felsefe Makalesi</span>
+          </div>
+          <span class="hud-hint">Ekrana tıkla: taş düşür</span>
+        </div>
+      </div>
+      <div class="device-desc">
+        <strong>Sanat Dili & Malzeme:</strong>
+        <br>• <strong>Derin Nefrit & Yeşim:</strong> Kyoto Yosun Tapınağı'nın suyla yıkanmış nehir taşı.
+        <br>• <strong>Kadife Yosun Rölyefi:</strong> Taşın üst sırtında mikroskobik adaçayı yeşili patina.
+        <br>• <strong>Sıcak Bambu Kumu:</strong> Yağmur sonrası nemli kumun huzurlu tonu.
+      </div>
+    </div>
+
+    <!-- 3. AKİK KESİTİ & ZAMAN JEOTU -->
+    <div class="device-card">
+      <div class="device-header">
+        <span class="device-title">3. Akik Jeotu (Banded Agate)</span>
+        <span class="device-tag tag-agate">Zaman Kristalleri</span>
+      </div>
+      <div class="phone-box" id="box2" onclick="dropStone(2)">
+        <canvas id="cv2"></canvas>
+        <div class="phone-hud">
+          <div class="hud-center">
+            <span class="hud-pomo" style="color:#A05C28;">POMODORO 25 DK</span>
+            <span class="hud-time" id="time2">25:00</span>
+            <span class="hud-task">Felsefe Makalesi</span>
+          </div>
+          <span class="hud-hint">Ekrana tıkla: taş düşür</span>
+        </div>
+      </div>
+      <div class="device-desc">
+        <strong>Sanat Dili & Malzeme:</strong>
+        <br>• <strong>Konsantrik Büyüme Halkaları:</strong> Seans aktıkça taşın içine akik halkaları işlenir!
+        <br>• <strong>Kehribar & Duman Kuvarsı:</strong> Yarı saydam mineral ışık kırılmaları.
+        <br>• <strong>Kumla Bütünleşme:</strong> Akik halkaları tırmık dalgalarıyla iç içe geçer.
+      </div>
+    </div>
+
+    <!-- 4. VULKANİK OBSİDYEN & PRİZMATİK KENAR -->
+    <div class="device-card">
+      <div class="device-header">
+        <span class="device-title">4. Vulkanik Obsidyen</span>
+        <span class="device-tag tag-obsidian">Keskin Odaklanma</span>
+      </div>
+      <div class="phone-box" id="box3" onclick="dropStone(3)">
+        <canvas id="cv3"></canvas>
+        <div class="phone-hud">
+          <div class="hud-center">
+            <span class="hud-pomo" style="color:#4A5060;">POMODORO 25 DK</span>
+            <span class="hud-time" id="time3">25:00</span>
+            <span class="hud-task">Felsefe Makalesi</span>
+          </div>
+          <span class="hud-hint">Ekrana tıkla: taş düşür</span>
+        </div>
+      </div>
+      <div class="device-desc">
+        <strong>Sanat Dili & Malzeme:</strong>
+        <br>• <strong>Ayna Cam Obsidyen:</strong> Yanardağ lavının heykelsi soğuma kütlesi.
+        <br>• <strong>Spektral Prizma Işıltısı:</strong> Keskin yontu kenarlarında titanyum/gökkuşağı kırılması.
+        <br>• <strong>Grafit Kumu:</strong> Minimalist, modern ve aşırı disiplinli Zen kontrastı.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Deep Philosophical Context -->
+  <section class="analysis-section">
+    <div class="info-card">
+      <h3>💎 1. Lapis Lazuli & Pirit Felsefesi</h3>
+      <p>Antik Mısır ve Rönesans'ta yalnızca kutsal metinleri ve kralları resmetmek için kullanılan 'Ultramarin'.</p>
+      <ul>
+        <li>Kedi kumu hissi %0: Açık renk kum üzerine mavi-altın mücevher kütlesi düşer.</li>
+        <li>Ses: 528 Hz Solfeggio frekansı (Zihin yenilenmesi çanı).</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h3>🌿 2. Koke-Dera Yeşim Felsefesi</h3>
+      <p>Kyoto'daki 120 farklı yosun türüne ev sahipliği yapan Saihō-ji (Koke-dera) tapınağının su taşları.</p>
+      <ul>
+        <li>Gözü dinlendiren yeşil nefrit dokusu; uzun çalışma seanslarında bilişsel yorgunluğu azaltır.</li>
+        <li>Ses: 432 Hz Doğa & Toprak frekansı.</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h3>🪐 3. Akik Jeotu Felsefesi</h3>
+      <p>Jeolojide zamanın en somut kanıtı: Her seans, akik taşının gövdesine yeni bir sedimanter halka ekler.</p>
+      <ul>
+        <li>Çalışılan her 5 dakika taşın içindeki konsantrik ışık halkasını büyütür.</li>
+        <li>Ses: 639 Hz Harmonik rezonans çanı.</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <h3>⚡ 4. Vulkanik Obsidyen Felsefesi</h3>
+      <p>Keskin, net ve tavizsiz odaklanma (Hyperfocus). Yanardağ camının prizmatik monolitik duruşu.</p>
+      <ul>
+        <li>Heykelsi fasetler ve prizmatik ışık kırılmalarıyla modern mimari zarafeti.</li>
+        <li>Ses: 741 Hz Zihinsel berraklık & derin akış çanı.</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ==========================================================================
+   MATEMATİK & SOLFEGGIO SES MOTORU
+   ========================================================================== */
+function rng32(seed) {
+  let s = seed >>> 0;
+  return function() {
+    s = (s + 0x6D2B79F5) >>> 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function fbm(x, y, seed) {
+  const s = (seed || 0) * 17.13;
+  let v = 0, a = 0.5, f = 1.0;
+  for (let i = 0; i < 3; i++) {
+    v += a * Math.sin(x * f + s) * Math.cos(y * f - s * 0.7);
+    f *= 2.02; a *= 0.5;
+  }
+  return (v + 0.5);
+}
+
+let audioCtx = null;
+let soundEnabled = true;
+
+function initAudio() {
+  if (!audioCtx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) audioCtx = new AudioContext();
+  }
+  if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+}
+
+function playMineralImpactSound(styleIdx) {
+  if (!soundEnabled) return;
+  initAudio();
+  if (!audioCtx) return;
+
+  const now = audioCtx.currentTime;
+  
+  // Kütle vuruşu
+  const osc1 = audioCtx.createOscillator();
+  const gain1 = audioCtx.createGain();
+  osc1.type = "sine";
+  osc1.frequency.setValueAtTime(styleIdx === 3 ? 110 : (styleIdx === 0 ? 90 : 75), now);
+  osc1.frequency.exponentialRampToValueAtTime(30, now + 0.18);
+  gain1.gain.setValueAtTime(0.45, now);
+  gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+  osc1.connect(gain1);
+  gain1.connect(audioCtx.destination);
+  osc1.start(now);
+  osc1.stop(now + 0.23);
+
+  // Solfeggio Frekans Çanları: Lapis=528Hz, Jade=432Hz, Agate=639Hz, Obsidian=741Hz
+  const freqs = [528, 432, 639, 741];
+  const bellFreq = freqs[styleIdx] || 528;
+
+  const oscBell = audioCtx.createOscillator();
+  const gainBell = audioCtx.createGain();
+  oscBell.type = "sine";
+  oscBell.frequency.setValueAtTime(bellFreq, now + 0.02);
+  gainBell.gain.setValueAtTime(0.10, now + 0.02);
+  gainBell.gain.exponentialRampToValueAtTime(0.0001, now + 1.4);
+  oscBell.connect(gainBell);
+  gainBell.connect(audioCtx.destination);
+  oscBell.start(now + 0.02);
+  oscBell.stop(now + 1.45);
+}
+
+/* ==========================================================================
+   SİMÜLASYON DURUMU
+   ========================================================================== */
+let sessionCount = 1;
+let stoneState = "intact";
+let progressRatio = 1.0;
+
+const VIEWPORTS = [
+  { id: "cv0", boxId: "box0", style: "lapis" },
+  { id: "cv1", boxId: "box1", style: "jade" },
+  { id: "cv2", boxId: "box2", style: "agate" },
+  { id: "cv3", boxId: "box3", style: "obsidian" }
+];
+
+function setupCanvases() {
+  VIEWPORTS.forEach((vp, idx) => {
+    const cv = document.getElementById(vp.id);
+    const box = document.getElementById(vp.boxId);
+    const rect = box.getBoundingClientRect();
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    
+    cv.width = Math.round(rect.width * dpr);
+    cv.height = Math.round(rect.height * dpr);
+    
+    const ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    renderViewport(idx);
+  });
+}
+
+function getStonesForCount(count, W, H) {
+  const coords = [
+    { x: W * 0.50, y: H * 0.72, r: W * 0.16, e: 0.88, angle: -0.15, seed: 101 },
+    { x: W * 0.28, y: H * 0.44, r: W * 0.12, e: 0.82, angle: 0.35, seed: 204 },
+    { x: W * 0.74, y: H * 0.38, r: W * 0.10, e: 0.92, angle: -0.45, seed: 309 },
+    { x: W * 0.78, y: H * 0.62, r: W * 0.13, e: 0.85, angle: 0.20, seed: 412 },
+    { x: W * 0.22, y: H * 0.82, r: W * 0.09, e: 0.90, angle: -0.60, seed: 518 }
+  ];
+  return coords.slice(0, Math.min(count, coords.length));
+}
+
+function renderViewport(idx) {
+  const vp = VIEWPORTS[idx];
+  const cv = document.getElementById(vp.id);
+  if (!cv) return;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const W = cv.width / dpr;
+  const H = cv.height / dpr;
+  const ctx = cv.getContext("2d");
+  const isDark = document.documentElement.classList.contains("dark");
+  const stones = getStonesForCount(sessionCount, W, H);
+
+  ctx.clearRect(0, 0, W, H);
+
+  if (idx === 0) renderLapisLazuli(ctx, W, H, stones, isDark);
+  else if (idx === 1) renderKokeDeraJade(ctx, W, H, stones, isDark);
+  else if (idx === 2) renderBandedAgate(ctx, W, H, stones, isDark);
+  else if (idx === 3) renderObsidianPrism(ctx, W, H, stones, isDark);
+}
+
+/* --------------------------------------------------------------------------
+   1. LAPIS LAZULI & ALTIN PİRİT
+   -------------------------------------------------------------------------- */
+function renderLapisLazuli(ctx, W, H, stones, isDark) {
+  const bg = isDark ? "#12151B" : "#F4F2EE";
+  const sandLine = isDark ? "#283448" : "#D4DCE6";
+  const sandLineHighlight = isDark ? "#3A4B68" : "#E8EEF6";
+  const lapisBase = isDark ? "#1A2B44" : "#243A5E";
+  const lapisMid = isDark ? "#263E63" : "#325082";
+  const lapisHigh = isDark ? "#3B5F96" : "#4A70AD";
+  const goldPyrite = "#D8AF54";
+  const goldPyriteLight = "#F6E09A";
+  const shadow = isDark ? "rgba(0,0,0,0.85)" : "rgba(20,35,60,0.24)";
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Samon Ripples
+  ctx.save();
+  ctx.lineCap = "round";
+  stones.forEach(st => {
+    for (let ring = 1; ring <= 4; ring++) {
+      const rad = st.r * (1.18 + ring * 0.32);
+      ctx.beginPath();
+      for (let i = 0; i <= 36; i++) {
+        const a = (i / 36) * Math.PI * 2;
+        const rx = Math.cos(a) * rad;
+        const ry = Math.sin(a) * rad * st.e;
+        i ? ctx.lineTo(st.x + rx, st.y + ry) : ctx.moveTo(st.x + rx, st.y + ry);
+      }
+      ctx.strokeStyle = sandLine;
+      ctx.lineWidth = Math.max(0.75, 1.8 - ring * 0.3);
+      ctx.globalAlpha = Math.max(0.15, 0.65 - ring * 0.12);
+      ctx.stroke();
+    }
+  });
+
+  // Tırmık Hatları
+  const maxY = Math.min(H, 24 + (H - 24) * progressRatio);
+  for (let y = 24; y < maxY; y += 18) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    for (let x = 0; x <= W; x += 10) {
+      let dy = Math.sin(x * 0.015 + y * 0.03) * 1.5;
+      stones.forEach(st => {
+        const d = Math.hypot(x - st.x, y - st.y);
+        if (d < st.r * 2.2) dy += (y > st.y ? 1 : -1) * (1 - d / (st.r * 2.2)) * 16;
+      });
+      ctx.lineTo(x, y + dy);
+    }
+    ctx.strokeStyle = sandLine;
+    ctx.lineWidth = 1.4;
+    ctx.globalAlpha = 0.55;
+    ctx.stroke();
+    ctx.strokeStyle = sandLineHighlight;
+    ctx.lineWidth = 0.7;
+    ctx.globalAlpha = 0.40;
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Lapis Taşları
+  stones.forEach((st, sIdx) => {
+    ctx.save();
+    ctx.translate(st.x, st.y);
+    ctx.rotate(st.angle);
+
+    // Koyu kobalt gömülme gölgesi
+    const gr = ctx.createRadialGradient(st.r * 0.15, st.r * 0.25, st.r * 0.2, st.r * 0.15, st.r * 0.25, st.r * 1.35);
+    gr.addColorStop(0, shadow);
+    gr.addColorStop(0.7, shadow);
+    gr.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = gr;
+    ctx.beginPath();
+    ctx.ellipse(st.r * 0.15, st.r * 0.25, st.r * 1.35, st.r * st.e * 1.35, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.scale(1, st.e);
+    const N = 32;
+    const pts = [];
+    for (let i = 0; i < N; i++) {
+      const a = (i / N) * Math.PI * 2;
+      const rr = st.r * (0.90 + fbm(Math.cos(a) * 2.2 + 2, Math.sin(a) * 2.2 + 6, st.seed) * 0.25);
+      pts.push([Math.cos(a) * rr, Math.sin(a) * rr]);
+    }
+
+    // Katman 1: Derin Kobalt Gövde
+    ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fillStyle = lapisBase;
+    ctx.fill();
+
+    // Katman 2: Ultramarin Işık Rölyefi
+    ctx.save();
+    ctx.beginPath();
+    const kHalf = Math.floor(N * 0.55);
+    for (let i = 0; i <= kHalf; i++) {
+      const p = pts[i];
+      i ? ctx.lineTo(p[0] * 0.88, p[1] * 0.88) : ctx.moveTo(p[0] * 0.88, p[1] * 0.88);
+    }
+    for (let i = kHalf; i >= 0; i--) ctx.lineTo(pts[i][0] * 0.25, pts[i][1] * 0.25);
+    ctx.closePath();
+    ctx.fillStyle = lapisHigh;
+    ctx.globalAlpha = 0.70;
+    ctx.fill();
+    ctx.restore();
+
+    // Katman 3: Altın Pirit Zerrecikleri (Doğal Altın Benekler)
+    ctx.save();
+    const R_pyr = rng32(st.seed + 77);
+    ctx.fillStyle = goldPyrite;
+    for (let i = 0; i < 14; i++) {
+      const px = (R_pyr() - 0.5) * st.r * 1.2;
+      const py = (R_pyr() - 0.5) * st.r * 1.2;
+      const sz = 0.8 + R_pyr() * 1.6;
+      ctx.globalAlpha = 0.75 + R_pyr() * 0.25;
+      ctx.fillRect(px, py, sz, sz);
+    }
+    ctx.restore();
+
+    // Kırık / Kintsugi
+    if (stoneState === "broken" || (stoneState === "kintsugi" && sIdx === 0)) {
+      renderMineralCrack(ctx, pts, st, goldPyrite, goldPyriteLight, isDark ? "#12151B" : "#F4F2EE", stoneState === "kintsugi");
+    }
+
+    ctx.restore();
+  });
+}
+
+/* --------------------------------------------------------------------------
+   2. KOKE-DERA: YEŞİM & TAPINAK YOSUNU
+   -------------------------------------------------------------------------- */
+function renderKokeDeraJade(ctx, W, H, stones, isDark) {
+  const bg = isDark ? "#121814" : "#F4F4EE";
+  const sandLine = isDark ? "#2A3A2F" : "#D2DDD4";
+  const jadeBase = isDark ? "#1C2D22" : "#2A4734";
+  const jadeHigh = isDark ? "#2C4835" : "#446E52";
+  const mossGreen = isDark ? "#487352" : "#689B74";
+  const shadow = isDark ? "rgba(0,0,0,0.85)" : "rgba(25,45,30,0.22)";
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Tırmık Hatları
+  ctx.save();
+  ctx.lineCap = "round";
+  stones.forEach(st => {
+    for (let ring = 1; ring <= 4; ring++) {
+      const rad = st.r * (1.18 + ring * 0.32);
+      ctx.beginPath();
+      for (let i = 0; i <= 36; i++) {
+        const a = (i / 36) * Math.PI * 2;
+        const rx = Math.cos(a) * rad;
+        const ry = Math.sin(a) * rad * st.e;
+        i ? ctx.lineTo(st.x + rx, st.y + ry) : ctx.moveTo(st.x + rx, st.y + ry);
+      }
+      ctx.strokeStyle = sandLine;
+      ctx.lineWidth = Math.max(0.75, 1.8 - ring * 0.3);
+      ctx.globalAlpha = Math.max(0.15, 0.65 - ring * 0.12);
+      ctx.stroke();
+    }
+  });
+
+  const maxY = Math.min(H, 24 + (H - 24) * progressRatio);
+  for (let y = 24; y < maxY; y += 18) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    for (let x = 0; x <= W; x += 10) {
+      let dy = Math.sin(x * 0.015 + y * 0.03) * 1.5;
+      stones.forEach(st => {
+        const d = Math.hypot(x - st.x, y - st.y);
+        if (d < st.r * 2.2) dy += (y > st.y ? 1 : -1) * (1 - d / (st.r * 2.2)) * 16;
+      });
+      ctx.lineTo(x, y + dy);
+    }
+    ctx.strokeStyle = sandLine;
+    ctx.lineWidth = 1.4;
+    ctx.globalAlpha = 0.55;
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Yeşim Taşları
+  stones.forEach((st, sIdx) => {
+    ctx.save();
+    ctx.translate(st.x, st.y);
+    ctx.rotate(st.angle);
+
+    const gr = ctx.createRadialGradient(st.r * 0.15, st.r * 0.25, st.r * 0.2, st.r * 0.15, st.r * 0.25, st.r * 1.35);
+    gr.addColorStop(0, shadow);
+    gr.addColorStop(0.7, shadow);
+    gr.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = gr;
+    ctx.beginPath();
+    ctx.ellipse(st.r * 0.15, st.r * 0.25, st.r * 1.35, st.r * st.e * 1.35, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.scale(1, st.e);
+    const N = 32;
+    const pts = [];
+    for (let i = 0; i < N; i++) {
+      const a = (i / N) * Math.PI * 2;
+      const rr = st.r * (0.92 + fbm(Math.cos(a) * 2.2 + 2, Math.sin(a) * 2.2 + 6, st.seed) * 0.22);
+      pts.push([Math.cos(a) * rr, Math.sin(a) * rr]);
+    }
+
+    // Katman 1: Derin Nefrit Gövdesi
+    ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fillStyle = jadeBase;
+    ctx.fill();
+
+    // Katman 2: Yeşim Işık Yüzeyi
+    ctx.save();
+    ctx.beginPath();
+    const kHalf = Math.floor(N * 0.55);
+    for (let i = 0; i <= kHalf; i++) {
+      const p = pts[i];
+      i ? ctx.lineTo(p[0] * 0.88, p[1] * 0.88) : ctx.moveTo(p[0] * 0.88, p[1] * 0.88);
+    }
+    for (let i = kHalf; i >= 0; i--) ctx.lineTo(pts[i][0] * 0.25, pts[i][1] * 0.25);
+    ctx.closePath();
+    ctx.fillStyle = jadeHigh;
+    ctx.globalAlpha = 0.65;
+    ctx.fill();
+    ctx.restore();
+
+    // Katman 3: Kadife Tapınak Yosunu Patinası
+    ctx.save();
+    ctx.strokeStyle = mossGreen;
+    ctx.lineWidth = 1.6;
+    ctx.globalAlpha = 0.45;
+    ctx.beginPath();
+    for (let i = 0; i <= Math.floor(N * 0.4); i++) {
+      const p = pts[i];
+      i ? ctx.lineTo(p[0] * 0.95, p[1] * 0.95) : ctx.moveTo(p[0] * 0.95, p[1] * 0.95);
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    if (stoneState === "broken" || (stoneState === "kintsugi" && sIdx === 0)) {
+      renderMineralCrack(ctx, pts, st, "#C59A3F", "#E8CA7D", isDark ? "#121814" : "#F4F4EE", stoneState === "kintsugi");
+    }
+
+    ctx.restore();
+  });
+}
+
+/* --------------------------------------------------------------------------
+   3. AKİK KESİTİ & ZAMAN JEOTU
+   -------------------------------------------------------------------------- */
+function renderBandedAgate(ctx, W, H, stones, isDark) {
+  const bg = isDark ? "#181513" : "#F6F1EA";
+  const sandLine = isDark ? "#3A2E26" : "#DECBC0";
+  const agateBase = isDark ? "#342218" : "#523321";
+  const agateAmber = isDark ? "#623D26" : "#8C5832";
+  const agateOpal = isDark ? "#8C6044" : "#C48A62";
+  const agateCore = isDark ? "#C09070" : "#E4BA98";
+  const shadow = isDark ? "rgba(0,0,0,0.85)" : "rgba(60,35,20,0.22)";
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Tırmık Hatları
+  ctx.save();
+  ctx.lineCap = "round";
+  stones.forEach(st => {
+    for (let ring = 1; ring <= 4; ring++) {
+      const rad = st.r * (1.18 + ring * 0.32);
+      ctx.beginPath();
+      for (let i = 0; i <= 36; i++) {
+        const a = (i / 36) * Math.PI * 2;
+        const rx = Math.cos(a) * rad;
+        const ry = Math.sin(a) * rad * st.e;
+        i ? ctx.lineTo(st.x + rx, st.y + ry) : ctx.moveTo(st.x + rx, st.y + ry);
+      }
+      ctx.strokeStyle = sandLine;
+      ctx.lineWidth = Math.max(0.75, 1.8 - ring * 0.3);
+      ctx.globalAlpha = Math.max(0.15, 0.65 - ring * 0.12);
+      ctx.stroke();
+    }
+  });
+
+  const maxY = Math.min(H, 24 + (H - 24) * progressRatio);
+  for (let y = 24; y < maxY; y += 18) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    for (let x = 0; x <= W; x += 10) {
+      let dy = Math.sin(x * 0.015 + y * 0.03) * 1.5;
+      stones.forEach(st => {
+        const d = Math.hypot(x - st.x, y - st.y);
+        if (d < st.r * 2.2) dy += (y > st.y ? 1 : -1) * (1 - d / (st.r * 2.2)) * 16;
+      });
+      ctx.lineTo(x, y + dy);
+    }
+    ctx.strokeStyle = sandLine;
+    ctx.lineWidth = 1.4;
+    ctx.globalAlpha = 0.55;
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Akik Jeotları (Konsantrik büyüme halkaları)
+  stones.forEach((st, sIdx) => {
+    ctx.save();
+    ctx.translate(st.x, st.y);
+    ctx.rotate(st.angle);
+
+    const gr = ctx.createRadialGradient(st.r * 0.15, st.r * 0.25, st.r * 0.2, st.r * 0.15, st.r * 0.25, st.r * 1.35);
+    gr.addColorStop(0, shadow);
+    gr.addColorStop(0.7, shadow);
+    gr.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = gr;
+    ctx.beginPath();
+    ctx.ellipse(st.r * 0.15, st.r * 0.25, st.r * 1.35, st.r * st.e * 1.35, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.scale(1, st.e);
+    const N = 32;
+    const pts = [];
+    for (let i = 0; i < N; i++) {
+      const a = (i / N) * Math.PI * 2;
+      const rr = st.r * (0.92 + fbm(Math.cos(a) * 2.2 + 2, Math.sin(a) * 2.2 + 6, st.seed) * 0.22);
+      pts.push([Math.cos(a) * rr, Math.sin(a) * rr]);
+    }
+
+    // Dış Kabuk
+    ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fillStyle = agateBase;
+    ctx.fill();
+
+    // Konsantrik Akik Katmanları (Halkalar)
+    const layers = [
+      { scale: 0.78, color: agateAmber },
+      { scale: 0.56, color: agateOpal },
+      { scale: 0.32, color: agateCore }
+    ];
+
+    layers.forEach(ly => {
+      ctx.beginPath();
+      pts.forEach((p, i) => i ? ctx.lineTo(p[0] * ly.scale, p[1] * ly.scale) : ctx.moveTo(p[0] * ly.scale, p[1] * ly.scale));
+      ctx.closePath();
+      ctx.fillStyle = ly.color;
+      ctx.fill();
+    });
+
+    if (stoneState === "broken" || (stoneState === "kintsugi" && sIdx === 0)) {
+      renderMineralCrack(ctx, pts, st, "#D8AF54", "#F6E09A", isDark ? "#181513" : "#F6F1EA", stoneState === "kintsugi");
+    }
+
+    ctx.restore();
+  });
+}
+
+/* --------------------------------------------------------------------------
+   4. VULKANİK OBSİDYEN & PRİZMATİK KENAR
+   -------------------------------------------------------------------------- */
+function renderObsidianPrism(ctx, W, H, stones, isDark) {
+  const bg = isDark ? "#101114" : "#F2F3F5";
+  const sandLine = isDark ? "#282B34" : "#D0D4DC";
+  const obsBase = isDark ? "#16181D" : "#22252B";
+  const obsHigh = isDark ? "#2D323E" : "#3F4552";
+  const prismColor1 = "#7EA8BE";
+  const prismColor2 = "#D68E94";
+  const shadow = isDark ? "rgba(0,0,0,0.92)" : "rgba(20,25,35,0.28)";
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Tırmık Hatları
+  ctx.save();
+  ctx.lineCap = "round";
+  stones.forEach(st => {
+    for (let ring = 1; ring <= 4; ring++) {
+      const rad = st.r * (1.18 + ring * 0.32);
+      ctx.beginPath();
+      for (let i = 0; i <= 36; i++) {
+        const a = (i / 36) * Math.PI * 2;
+        const rx = Math.cos(a) * rad;
+        const ry = Math.sin(a) * rad * st.e;
+        i ? ctx.lineTo(st.x + rx, st.y + ry) : ctx.moveTo(st.x + rx, st.y + ry);
+      }
+      ctx.strokeStyle = sandLine;
+      ctx.lineWidth = Math.max(0.75, 1.8 - ring * 0.3);
+      ctx.globalAlpha = Math.max(0.15, 0.65 - ring * 0.12);
+      ctx.stroke();
+    }
+  });
+
+  const maxY = Math.min(H, 24 + (H - 24) * progressRatio);
+  for (let y = 24; y < maxY; y += 18) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    for (let x = 0; x <= W; x += 10) {
+      let dy = Math.sin(x * 0.015 + y * 0.03) * 1.5;
+      stones.forEach(st => {
+        const d = Math.hypot(x - st.x, y - st.y);
+        if (d < st.r * 2.2) dy += (y > st.y ? 1 : -1) * (1 - d / (st.r * 2.2)) * 16;
+      });
+      ctx.lineTo(x, y + dy);
+    }
+    ctx.strokeStyle = sandLine;
+    ctx.lineWidth = 1.4;
+    ctx.globalAlpha = 0.55;
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Fasetli Obsidyen Monolitleri
+  stones.forEach((st, sIdx) => {
+    ctx.save();
+    ctx.translate(st.x, st.y);
+    ctx.rotate(st.angle);
+
+    const gr = ctx.createRadialGradient(st.r * 0.15, st.r * 0.25, st.r * 0.2, st.r * 0.15, st.r * 0.25, st.r * 1.35);
+    gr.addColorStop(0, shadow);
+    gr.addColorStop(0.7, shadow);
+    gr.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = gr;
+    ctx.beginPath();
+    ctx.ellipse(st.r * 0.15, st.r * 0.25, st.r * 1.35, st.r * st.e * 1.35, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    const facets = [
+      [-0.85, -0.4], [-0.3, -0.9], [0.5, -0.8], [0.9, -0.2],
+      [0.8, 0.6], [0.2, 0.95], [-0.5, 0.8], [-0.95, 0.2]
+    ];
+    const pts = facets.map(p => [p[0] * st.r, p[1] * st.r * st.e]);
+
+    ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fillStyle = obsBase;
+    ctx.fill();
+
+    // Üst Ayna Faseti
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    ctx.lineTo(pts[1][0], pts[1][1]);
+    ctx.lineTo(pts[2][0], pts[2][1]);
+    ctx.lineTo(0, -st.r * 0.1);
+    ctx.closePath();
+    ctx.fillStyle = obsHigh;
+    ctx.fill();
+
+    // Spektral Titanyum Prizma Sırtı
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    ctx.lineTo(pts[1][0], pts[1][1]);
+    ctx.lineTo(pts[2][0], pts[2][1]);
+    ctx.strokeStyle = prismColor1;
+    ctx.lineWidth = 1.8;
+    ctx.globalAlpha = 0.85;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(pts[2][0], pts[2][1]);
+    ctx.lineTo(pts[3][0], pts[3][1]);
+    ctx.strokeStyle = prismColor2;
+    ctx.lineWidth = 1.4;
+    ctx.globalAlpha = 0.70;
+    ctx.stroke();
+    ctx.restore();
+
+    if (stoneState === "broken" || (stoneState === "kintsugi" && sIdx === 0)) {
+      renderMineralCrack(ctx, pts, st, "#D8AF54", "#F6E09A", isDark ? "#101114" : "#F2F3F5", stoneState === "kintsugi");
+    }
+
+    ctx.restore();
+  });
+}
+
+/* Wabi-Sabi Fay Hattı ve Kintsugi Çizimi */
+function renderMineralCrack(ctx, pts, st, gold, goldLight, bgStroke, isKintsugi) {
+  ctx.save();
+  const pStart = pts[0];
+  const pEnd = pts[Math.floor(pts.length / 2)];
+  
+  ctx.beginPath();
+  ctx.moveTo(pStart[0], pStart[1]);
+  ctx.lineTo(pStart[0] * 0.3 + pEnd[0] * 0.7 + (st.r * 0.08), pStart[1] * 0.3 + pEnd[1] * 0.7);
+  ctx.lineTo(pEnd[0], pEnd[1]);
+
+  if (isKintsugi) {
+    ctx.strokeStyle = gold;
+    ctx.lineWidth = Math.max(2.2, st.r * 0.12);
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.shadowColor = goldLight;
+    ctx.shadowBlur = 8;
+    ctx.stroke();
+
+    ctx.strokeStyle = goldLight;
+    ctx.lineWidth = Math.max(1.0, st.r * 0.05);
+    ctx.stroke();
+  } else {
+    ctx.strokeStyle = bgStroke;
+    ctx.lineWidth = Math.max(2.0, st.r * 0.10);
+    ctx.lineCap = "round";
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* ==========================================================================
+   ETKİLEŞİMLER
+   ========================================================================== */
+function onProgressChange(val) {
+  progressRatio = val / 100;
+  const remSec = Math.round(25 * 60 * (1 - progressRatio));
+  const m = Math.floor(remSec / 60);
+  const s = remSec % 60;
+  const timeStr = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+  
+  document.getElementById("progressLabel").innerText = `%${val} (${25 - m} dk tamamlandı)`;
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById("time" + i);
+    if (el) el.innerText = timeStr;
+  }
+  VIEWPORTS.forEach((_, i) => renderViewport(i));
+}
+
+function dropStone(idx) {
+  const box = document.getElementById(VIEWPORTS[idx].boxId);
+  box.classList.remove("impact-shake");
+  void box.offsetWidth;
+  box.classList.add("impact-shake");
+
+  playMineralImpactSound(idx);
+  renderViewport(idx);
+}
+
+function dropAllStones() {
+  VIEWPORTS.forEach((_, i) => dropStone(i));
+}
+
+function setSessionCount(cnt, btn) {
+  sessionCount = cnt;
+  document.querySelectorAll('.controls-bar .ctrl-group')[0].querySelectorAll('button').forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  VIEWPORTS.forEach((_, i) => renderViewport(i));
+}
+
+function setStoneState(st, btn) {
+  stoneState = st;
+  document.querySelectorAll('.controls-bar .ctrl-group')[1].querySelectorAll('button').forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  VIEWPORTS.forEach((_, i) => renderViewport(i));
+}
+
+function toggleTheme() {
+  document.documentElement.classList.toggle("dark");
+  setupCanvases();
+}
+
+function toggleSound(btn) {
+  soundEnabled = !soundEnabled;
+  btn.innerText = soundEnabled ? "🔊 Solfeggio Akortlu Sesler Açık" : "🔇 Ses Kapalı";
+  btn.classList.toggle("active", soundEnabled);
+}
+
+function resetAll() {
+  sessionCount = 1;
+  stoneState = "intact";
+  progressRatio = 1.0;
+  document.getElementById("progressSlider").value = 100;
+  onProgressChange(100);
+  setupCanvases();
+}
+
+window.addEventListener("resize", setupCanvases);
+window.addEventListener("load", () => {
+  setupCanvases();
+});
+</script>
+</body>
+</html>

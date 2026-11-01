@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kertik — Kayıt & Duvar Boyutlandırma Önizlemesi</title>
+  <style>
+    :root {
+      --bg: #F5F2EA;
+      --bg2: #EFEBE1;
+      --card: #FDFBF7;
+      --ink: #16181B;
+      --ink2: #3E4148;
+      --muted: #726E65;
+      --faint: #9C978C;
+      --line: #DCD5C6;
+      --accent: #B05237;
+      --cool: #3E7C77;
+      --is1: #8C3B24;
+      --is2: #B05237;
+      --is3: #D0785B;
+      --kopru: #C28B62;
+      --mola1: #3E7C77;
+      --mola2: #5A9994;
+      --tas: #2D2E33;
+    }
+    :root.dark {
+      --bg: #16171A;
+      --bg2: #212227;
+      --card: #1B1C22;
+      --ink: #EDE9E0;
+      --ink2: #BCB7AC;
+      --muted: #948F84;
+      --faint: #6A665E;
+      --line: #2E2F34;
+      --accent: #D0785B;
+      --cool: #79B3AE;
+      --is1: #E08568;
+      --is2: #D0785B;
+      --is3: #B05237;
+      --kopru: #D09367;
+      --mola1: #79B3AE;
+      --mola2: #52807C;
+      --tas: #D6D8DE;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 32px 18px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background .4s, color .4s;
+    }
+    .wrap { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 32px; }
+    .header { display: flex; justify-content: space-between; align-items: center; }
+    .title { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+    .subtitle { font-size: 14.5px; color: var(--muted); margin-top: 4px; }
+    .theme-btn {
+      background: var(--bg2); border: 1px solid var(--line); color: var(--ink);
+      border-radius: 999px; padding: 9px 18px; font-size: 13.5px; font-weight: 500; cursor: pointer;
+    }
+
+    .badge {
+      display: inline-block; font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; padding: 5px 12px; border-radius: 6px; margin-bottom: 8px;
+    }
+    .badge.tiny { background: rgba(220, 50, 50, 0.12); color: #C0392B; }
+    .badge.bold { background: rgba(46, 125, 50, 0.12); color: #2E7D32; }
+
+    /* =================== A: ESKİ MİNİK HAL =================== */
+    .compare-card {
+      background: var(--bg2); border-radius: 24px; padding: 22px 18px;
+      border: 1px solid var(--line);
+    }
+    .compare-card.highlight {
+      border: 2px solid var(--accent); box-shadow: 0 10px 35px rgba(0,0,0,0.06);
+    }
+
+    .wall {
+      border: 1px solid var(--line); border-radius: 20px; background: var(--card);
+      padding: 20px 16px 16px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .walltitle {
+      font-size: 12px; color: var(--muted); margin: -2px 0 14px 2px;
+      letter-spacing: .08em; text-transform: uppercase; font-weight: 600;
+    }
+    
+    /* YATAY ZEN RAFI */
+    .wallgrid {
+      display: flex; gap: 8px; align-items: flex-end; overflow-x: auto;
+      padding: 6px 2px 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    }
+    .wallgrid::-webkit-scrollbar { display: none; }
+    
+    /* 1. MİNİK BOYUT (ESKİ) */
+    .grid-small .day {
+      position: relative; display: flex; flex-direction: column; align-items: center;
+      gap: 6px; flex: 0 0 34px; min-width: 34px;
+    }
+    .grid-small .day .plot { height: 60px; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+    .grid-small.wall-tas .day .plot { height: 38px; }
+    .grid-small .day::after {
+      content: ""; position: absolute; left: -3px; right: -3px; bottom: 17px; height: 1px;
+      background: var(--line); opacity: .7;
+    }
+    .grid-small .day.today::after { background: var(--accent); opacity: 1; height: 2px; }
+    .grid-small .day.void .plot::before { content: ""; width: 10px; height: 1px; background: var(--line); opacity: .5; margin-bottom: 2px; }
+    .grid-small .day .d { font-size: 10.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+
+    /* 2. DOLGUN, GÖZ ALICI ZEN BOYUTU (YENİ) */
+    .grid-large .day {
+      position: relative; display: flex; flex-direction: column; align-items: center;
+      gap: 8px; flex: 0 0 54px; min-width: 54px; cursor: pointer;
+    }
+    .grid-large .day .plot {
+      height: 96px; width: 100%; display: flex; align-items: flex-end; justify-content: center;
+    }
+    .grid-large.wall-tas .day .plot { height: 56px; }
+    .grid-large .day svg { overflow: visible; display: block; }
+    
+    .grid-large .day::after {
+      content: ""; position: absolute; left: -4px; right: -4px; bottom: 20px; height: 1.5px;
+      background: var(--line); opacity: .8; pointer-events: none;
+    }
+    .grid-large .day.today::after {
+      background: var(--accent); opacity: 1; height: 2.5px;
+    }
+    .grid-large .day.void .plot::before {
+      content: ""; width: 16px; height: 1.5px; border-radius: 999px; background: var(--line); opacity: .6; margin-bottom: 3px;
+    }
+    
+    .grid-large .day .d {
+      font-size: 12.5px; color: var(--faint); font-variant-numeric: tabular-nums;
+      line-height: 1; height: 13px; font-weight: 500;
+    }
+    .grid-large .day.today .d { color: var(--accent); font-weight: 800; font-size: 13.5px; }
+
+    .legend {
+      display: flex; gap: 18px; flex-wrap: wrap; justify-content: center;
+      margin-top: 14px; font-size: 12.5px; color: var(--muted);
+    }
+    .legend i {
+      display: inline-block; width: 16px; height: 0; border-top: 2.5px solid var(--accent);
+      vertical-align: middle; margin-right: 6px;
+    }
+    .legend i.b { border-top-color: var(--cool); }
+    .legend i.u { border-top-style: dashed; opacity: .65; }
+
+    .size-controls {
+      display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-bottom: 12px;
+    }
+    .size-btn {
+      border: 1px solid var(--line); background: var(--card); color: var(--muted);
+      border-radius: 999px; padding: 6px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+    }
+    .size-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(176,82,55,0.08); }
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+    <div class="header">
+      <div>
+        <h1 class="title">Kayıt & Duvar Boyut İncelemesi</h1>
+        <p class="subtitle">Minik/İğne boyutundan zengin, dokunsal ve dolgun Zen boyutuna geçiş</p>
+      </div>
+      <button class="theme-btn" onclick="document.documentElement.classList.toggle('dark')">🌓 Tema</button>
+    </div>
+
+    <!-- DOLGUN & GÖZ ALICI BÜYÜK BOYUT -->
+    <div class="compare-card highlight">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="badge bold">🟢 Yeni: Dolgun & Hacimli Zen Boyutu</span>
+        <span style="font-size:12.5px; color:var(--accent); font-weight:600;">Geniş Kalas & İri Taşlar</span>
+      </div>
+      <p style="font-size: 13.5px; color: var(--muted); margin: 6px 0 16px;">
+        Kertik kalasları 18px kalınlığında net V-kesitlerle, pomodoro taşları ise 32px çapında zengin nehir çakılları olarak çizildi. Sağa-sola kaydırılabilir:
+      </p>
+
+      <div class="wall">
+        <div class="walltitle">Kronometre (Dolgun Kertik Kalası)</div>
+        <div class="wallgrid grid-large" id="newKronL"></div>
+        <div class="legend">
+          <span><i></i>çalışma</span>
+          <span><i class="b"></i>mola</span>
+          <span><i class="u"></i>çalışmaya sayılmayan</span>
+        </div>
+      </div>
+
+      <div class="wall">
+        <div class="walltitle">Pomodoro (Dolgun Zen Taşları)</div>
+        <div class="wallgrid grid-large wall-tas" id="newPomoL"></div>
+      </div>
+    </div>
+
+    <!-- ESKİ MİNİK BOYUT -->
+    <div class="compare-card" style="opacity: 0.75;">
+      <span class="badge tiny">🔴 Eski: Minik / İğne Boyutu (Şikayet Edilen)</span>
+      <p style="font-size: 12.5px; color: var(--muted); margin: 4px 0 12px;">
+        Kalaslar 6px genişliğinde kibrit çöpü gibi, taşlar ise 10px çapında pirinç tanesi gibi minicik kalıyordu:
+      </p>
+
+      <div class="wall">
+        <div class="walltitle">Kronometre (Minik)</div>
+        <div class="wallgrid grid-small" id="oldKronS"></div>
+      </div>
+      <div class="wall">
+        <div class="walltitle">Pomodoro (Minik)</div>
+        <div class="wallgrid grid-small wall-tas" id="oldPomoS"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const NS = "http://www.w3.org/2000/svg";
+
+    // 1. DOLGUN ÇUBUK (V-Kesitli Kalas)
+    function cizCubukBuyuk(svg, dk, molaDk) {
+      const H = 96, W = 28;
+      svg.setAttribute("viewBox", `-8 0 ${W + 10} ${H}`);
+      svg.setAttribute("width", (W + 10).toString());
+      svg.setAttribute("height", H.toString());
+      
+      const kalH = Math.min(84, Math.max(24, dk * 1.0));
+      const y0 = H - kalH;
+      const kalW = 14;
+
+      let str = `
+        <!-- Kalas Gövdesi -->
+        <rect x="0" y="${y0}" width="${kalW}" height="${kalH}" rx="3" fill="var(--kopru)" opacity="0.88"/>
+        <!-- Kalas Damar Çizgileri -->
+        <line x1="4.5" y1="${y0 + 2}" x2="4.5" y2="${H - 2}" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>
+        <line x1="9.5" y1="${y0 + 2}" x2="9.5" y2="${H - 2}" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/>
+      `;
+
+      // V-Kesit Çentikler
+      const notches = Math.min(16, Math.floor(dk / 6));
+      for (let i = 0; i < notches; i++) {
+        const ny = H - 5 - (i * (kalH - 8) / notches);
+        const derin = i % 5 === 0 ? kalW * 0.95 : kalW * 0.72;
+        const kal = i % 5 === 0 ? 2.6 : 1.8;
+        str += `
+          <!-- V-Kesit Dip Gölgesi -->
+          <line x1="0.5" y1="${ny + 1}" x2="${derin}" y2="${ny + 1}" stroke="var(--ink)" stroke-width="${kal * 0.8}" opacity="0.3"/>
+          <!-- V-Kesit Ana Çentik -->
+          <line x1="0" y1="${ny}" x2="${derin}" y2="${ny}" stroke="var(--is1)" stroke-width="${kal}" stroke-linecap="round"/>
+          <!-- Işık Yüzü -->
+          <line x1="0" y1="${ny - 1}" x2="${derin * 0.9}" y2="${ny - 1}" stroke="var(--bg)" stroke-width="0.8" opacity="0.6"/>
+        `;
+      }
+
+      // Mola Kenar İzi
+      if (molaDk) {
+        str += `
+          <rect x="-4" y="${y0}" width="4" height="${kalH}" rx="2" fill="var(--mola1)" opacity="0.5"/>
+          <line x1="-5.5" y1="${y0}" x2="-5.5" y2="${H}" stroke="var(--mola2)" stroke-width="2.5" stroke-linecap="round"/>
+        `;
+      }
+
+      svg.innerHTML = str;
+    }
+
+    // 2. DOLGUN TAŞLAR (Doğal Nehir Çakılları)
+    function cizTasBuyuk(svg, stones) {
+      const H = 56, W = 52;
+      svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+      svg.setAttribute("width", W.toString());
+      svg.setAttribute("height", H.toString());
+      
+      let str = "";
+      const n = stones.length;
+      const baseR = n <= 2 ? 14 : (n <= 4 ? 10.5 : 8);
+      const cx = W / 2, cy = H - 12;
+
+      // Kum Tırmığı İzi
+      str += `
+        <ellipse cx="${cx}" cy="${cy + 1}" rx="${W * 0.44}" ry="9" fill="none" stroke="var(--line)" stroke-width="1.2" opacity="0.8"/>
+        <ellipse cx="${cx}" cy="${cy + 1}" rx="${W * 0.36}" ry="6.5" fill="rgba(0,0,0,0.06)"/>
+      `;
+
+      stones.forEach((dk, i) => {
+        const r = baseR * Math.sqrt(dk / 25);
+        const spanX = Math.min(W * 0.72, n * baseR * 1.8);
+        const startX = cx - spanX / 2 + baseR;
+        const px = n === 1 ? cx : startX + i * ((spanX - baseR * 2) / Math.max(1, n - 1));
+        const py = cy - 2;
+
+        str += `
+          <!-- Zemin Gölgesi -->
+          <ellipse cx="${px + 1}" cy="${py + r * 0.65}" rx="${r * 1.15}" ry="${r * 0.38}" fill="#000" opacity="0.32"/>
+          <!-- Taş Gövdesi -->
+          <ellipse cx="${px}" cy="${py}" rx="${r}" ry="${r * 0.78}" fill="var(--tas)"/>
+          <!-- İnce Dokusal Vurgu -->
+          <ellipse cx="${px - r * 0.25}" cy="${py - r * 0.25}" rx="${r * 0.42}" ry="${r * 0.2}" fill="rgba(255,255,255,0.35)" transform="rotate(-15 ${px} ${py})"/>
+        `;
+      });
+
+      svg.innerHTML = str;
+    }
+
+    // 3. ESKİ MİNİK ÇUBUK VE TAŞ
+    function cizCubukKucuk(svg, dk) {
+      svg.setAttribute("viewBox", "-4 0 16 60");
+      svg.setAttribute("width", "16");
+      svg.setAttribute("height", "60");
+      const h = Math.min(50, Math.max(12, dk * 0.6));
+      svg.innerHTML = `
+        <rect x="0" y="${60 - h}" width="5" height="${h}" rx="1" fill="var(--kopru)" opacity="0.6"/>
+        <line x1="0" y1="${60 - h + 5}" x2="4" y2="${60 - h + 5}" stroke="var(--is1)" stroke-width="1"/>
+      `;
+    }
+
+    function cizTasKucuk(svg, stones) {
+      svg.setAttribute("viewBox", "0 0 34 38");
+      svg.setAttribute("width", "34");
+      svg.setAttribute("height", "38");
+      let str = "";
+      stones.forEach((dk, i) => {
+        str += `<circle cx="${17 + (i - 1) * 8}" cy="30" r="5" fill="var(--tas)"/>`;
+      });
+      svg.innerHTML = str;
+    }
+
+    // Doldurma Fonksiyonu
+    function renderGrids() {
+      const gKL = document.getElementById("newKronL");
+      const gPL = document.getElementById("newPomoL");
+      const gKS = document.getElementById("oldKronS");
+      const gPS = document.getElementById("oldPomoS");
+
+      for (let i = 29; i >= 0; i--) {
+        const gun = 30 - i;
+        const isToday = i === 0;
+        const hasKron = (gun === 5 || gun === 12 || gun === 18 || gun === 24 || isToday);
+        const hasPomo = (gun === 8 || gun === 15 || gun === 21 || isToday);
+
+        // --- BÜYÜK KRONOMETRE ---
+        const dKL = document.createElement("div");
+        dKL.className = "day" + (isToday ? " today" : "") + (hasKron ? "" : " void");
+        dKL.style.opacity = (1 - (i / 29) * 0.52).toFixed(3);
+        const pKL = document.createElement("div"); pKL.className = "plot";
+        if (hasKron) {
+          const s = document.createElementNS(NS, "svg");
+          cizCubukBuyuk(s, (gun * 7) % 90 + 35, gun % 2 === 0 ? 15 : 0);
+          pKL.appendChild(s);
+        }
+        dKL.appendChild(pKL);
+        const lKL = document.createElement("div"); lKL.className = "d";
+        lKL.textContent = (isToday || gun === 1 || gun % 5 === 0) ? gun : "·";
+        dKL.appendChild(lKL);
+        gKL.appendChild(dKL);
+
+        // --- BÜYÜK POMODORO ---
+        const dPL = document.createElement("div");
+        dPL.className = "day" + (isToday ? " today" : "") + (hasPomo ? "" : " void");
+        dPL.style.opacity = (1 - (i / 29) * 0.52).toFixed(3);
+        const pPL = document.createElement("div"); pPL.className = "plot";
+        if (hasPomo) {
+          const s = document.createElementNS(NS, "svg");
+          const arr = isToday ? [25, 25, 50] : (gun % 2 === 0 ? [25, 50] : [25]);
+          cizTasBuyuk(s, arr);
+          pPL.appendChild(s);
+        }
+        dPL.appendChild(pPL);
+        const lPL = document.createElement("div"); lPL.className = "d";
+        lPL.textContent = (isToday || gun === 1 || gun % 5 === 0) ? gun : "·";
+        dPL.appendChild(lPL);
+        gPL.appendChild(dPL);
+
+        // --- KÜÇÜK KRONOMETRE ---
+        const dKS = document.createElement("div");
+        dKS.className = "day" + (isToday ? " today" : "");
+        const pKS = document.createElement("div"); pKS.className = "plot";
+        if (hasKron) {
+          const s = document.createElementNS(NS, "svg"); cizCubukKucuk(s, 50); pKS.appendChild(s);
+        }
+        dKS.appendChild(pKS);
+        const lKS = document.createElement("div"); lKS.className = "d";
+        lKS.textContent = (isToday || gun === 1 || gun % 5 === 0) ? gun : "·";
+        dKS.appendChild(lKS);
+        gKS.appendChild(dKS);
+
+        // --- KÜÇÜK POMODORO ---
+        const dPS = document.createElement("div");
+        dPS.className = "day" + (isToday ? " today" : "");
+        const pPS = document.createElement("div"); pPS.className = "plot";
+        if (hasPomo) {
+          const s = document.createElementNS(NS, "svg"); cizTasKucuk(s, [25, 50]); pPS.appendChild(s);
+        }
+        dPS.appendChild(pPS);
+        const lPS = document.createElement("div"); lPS.className = "d";
+        lPS.textContent = (isToday || gun === 1 || gun % 5 === 0) ? gun : "·";
+        dPS.appendChild(lPS);
+        gPS.appendChild(dPS);
+      }
+
+      setTimeout(() => {
+        gKL.scrollLeft = gKL.scrollWidth;
+        gPL.scrollLeft = gPL.scrollWidth;
+        gKS.scrollLeft = gKS.scrollWidth;
+        gPS.scrollLeft = gPS.scrollWidth;
+      }, 50);
+    }
+
+    renderGrids();
+  </script>
+</body>
+</html>

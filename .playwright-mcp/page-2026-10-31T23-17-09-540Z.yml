@@ -1,0 +1,32 @@
+- generic [active] [ref=f27e1]:
+  - generic [ref=f27e2]:
+    - generic [ref=f27e3]:
+      - generic [ref=f27e4]:
+        - generic:
+          - button "kronometre"
+          - button "pomodoro"
+      - generic [ref=f27e5]:
+        - generic [ref=f27e6]:
+          - generic [ref=f27e7]:
+            - generic [ref=f27e8]: mola
+            - button "Masaüstü Odak Modu" [ref=f27e9] [cursor=pointer]
+          - generic [ref=f27e12]:
+            - generic:
+              - generic: 32:06
+              - generic: çalışma 15dk'da donduruldu
+        - generic [ref=f27e13]:
+          - button "bugünkü işler ›" [ref=f27e15] [cursor=pointer]:
+            - generic [ref=f27e16]: bugünkü işler
+            - generic [ref=f27e17]: ›
+          - generic [ref=f27e18]: 1:45'den beri moladasın
+          - generic: çalıştıkça bir şeyler oluyor
+          - generic [ref=f27e19]:
+            - button "devam et" [ref=f27e20] [cursor=pointer]
+            - button "bitir" [ref=f27e21] [cursor=pointer]
+          - textbox "aklına bir şey gelirse yaz…" [ref=f27e24]
+    - navigation:
+      - button "sayaç"
+      - button "görevler"
+      - button "kayıt"
+      - button "ayarlar"
+  - button "gezintiyi göster" [ref=f27e25] [cursor=pointer]

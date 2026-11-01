@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Açılış ekranı işareti — gece. v4 logosuyla aynı geometri, gece renk
+     paleti (tasarim/logo/v4/v4-gece.svg) ile. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp" android:height="200dp"
+    android:viewportWidth="432" android:viewportHeight="432">
+    <path
+        android:pathData="M112,216 A104,104 0 1,0 320,216 A104,104 0 1,0 112,216 Z"
+        android:strokeColor="#EDE8DC"
+        android:strokeWidth="8"
+        android:strokeAlpha="0.22"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M224,146 Q220,110 219,94 L213,94 Q212,110 208,146 Z"
+        android:fillColor="#D3785A"
+        android:fillAlpha="0.95" />
+    <path
+        android:pathData="M206,216 A10,10 0 1,0 226,216 A10,10 0 1,0 206,216 Z"
+        android:fillColor="#EDE8DC"
+        android:fillAlpha="0.55" />
+</vector>

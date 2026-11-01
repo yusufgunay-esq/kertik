@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Damar — arka plan</title>
+<style>
+:root{
+  --bg:#F5F2EA; --bg2:#EFEBE1; --ink:#16181B; --muted:#726E65; --line:#DCD5C6;
+  --acc:#B05237; --cool:#3E7C77; --ekran:#F5F2EA; --ekranInk:#16181B;
+}
+html.gece{ --bg:#101114; --bg2:#191A1E; --ink:#EDE9E0; --muted:#948F84; --line:#2A2B30;
+  --acc:#D0785B; --cool:#79B3AE; --ekran:#16171A; --ekranInk:#EDE9E0 }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding:40px 30px 90px;transition:background .35s,color .35s}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-weight:300;font-size:38px;letter-spacing:-.6px;margin:0 0 8px}
+h2{font-weight:400;font-size:23px;margin:56px 0 4px}
+p{color:var(--muted);max-width:78ch;margin:8px 0}
+p.k{color:var(--ink)}
+b{font-weight:600;color:var(--ink)}
+i{color:var(--ink)}
+code{font-size:.88em;background:var(--bg2);padding:1px 5px;border-radius:4px}
+.gecebtn{position:fixed;top:18px;right:20px;border:1px solid var(--line);background:var(--bg2);
+  color:var(--muted);border-radius:999px;padding:7px 16px;font:inherit;font-size:14px;cursor:pointer;z-index:9}
+.satir{display:flex;gap:20px;flex-wrap:wrap;margin-top:24px;align-items:flex-start}
+.tel{width:250px}
+.cam{width:250px;height:516px;border-radius:30px;overflow:hidden;background:var(--ekran);
+  border:1px solid var(--line);position:relative}
+.cam canvas{position:absolute;inset:0}
+.cam .ust{position:absolute;top:18px;left:0;right:0;text-align:center;font-size:9.5px;
+  letter-spacing:.19em;color:var(--acc)}
+.cam .sayi{position:absolute;left:0;right:0;top:222px;text-align:center;
+  font-weight:200;font-size:44px;letter-spacing:-.02em;color:var(--ekranInk)}
+.cam .alt2{position:absolute;left:0;right:0;top:274px;text-align:center;font-size:10.5px;color:var(--muted)}
+.cam .nav{position:absolute;bottom:0;left:0;right:0;height:42px;display:flex;
+  align-items:center;justify-content:space-around;font-size:9.5px;color:var(--muted);opacity:.22}
+.tel .ad{margin-top:12px;font-size:13px;font-weight:600}
+.tel .no{font-size:12.5px;color:var(--muted);line-height:1.45}
+ul{color:var(--muted);max-width:80ch;font-size:14.5px;padding-left:20px}
+li{margin:8px 0}
+li b{color:var(--ink)}
+.kolon{display:flex;gap:24px;flex-wrap:wrap;margin-top:20px}
+.kart{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:18px 20px;width:342px}
+.kart h3{margin:0 0 6px;font-size:15px}
+.kart p{font-size:13.5px;margin:4px 0}
+.uyari{border-left:2px solid var(--acc);padding:2px 0 2px 16px;margin:22px 0;max-width:78ch}
+.uyari p{color:var(--ink)}
+.zoom{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:16px}
+</style></head><body>
+<button class="gecebtn" onclick="document.documentElement.classList.toggle('gece');ciz()">gece</button>
+<div class="wrap">
+
+<h1>Damar</h1>
+<p class="k">Arka plan duruyor, kaldırılmıyor. Ama akan çizgiler <b>rastgele bir alan</b> olmaktan
+çıkıp <b>bir malzeme</b> oluyor: uygulamanın adının kazındığı tahta.
+Motor aynı — aynı şerit çizme, aynı artımlı tuval, aynı maliyet. Değişen, çizgilerin
+neyin etrafından aktığı.</p>
+
+<h2>Tek kural: <i>mola bir budaktır</i></h2>
+<p>Ağaçta budak, dalın çıktığı yerdir — büyümenin durup yön değiştirdiği nokta.
+Tahtada damar onun etrafından akar, sıkışır, yumuşar.</p>
+<ul>
+  <li><b>Çalışılan her dakika bir damar teli ekler.</b> Yön değil yoğunluk artar — dolan bir şey yok.</li>
+  <li><b>Her mola bir budak bırakır.</b> Molanın uzunluğu budağın büyüklüğü. O andan sonra
+    çizilen her tel onun etrafından akar; daha önce çizilmiş hiçbir tel değişmez.
+    <i>Tekne bir kere kaldırılır.</i></li>
+  <li><b>Kesintisiz seans düz damarlıdır.</b> Dağınık gün budaklıdır. İkisi de tahta.</li>
+</ul>
+<p class="k">Böylece <code>20</code>'nin "en yüksek değerli" maddesi karşılanıyor:
+<b>süre dağılımı ölçmeden okunuyor.</b> Kaç mola verdiğini saymana gerek yok — tahtaya bakınca
+görüyorsun.</p>
+
+<div class="satir" id="s_ana"></div>
+
+<h2>Aynı süre, başka gün</h2>
+<p>Üçü de tam olarak 118 dakika çalışma. Farkı yaratan tek şey nasıl geçtiği.</p>
+<div class="satir" id="s_gun"></div>
+
+<h2>Yakın plan — budak</h2>
+<p>Budağın kendisi çizilmiyor; <b>damarın davranışından</b> doğuyor. Teller etrafından
+dolanırken sıkışıyor, bu sıkışma koyu bir halka gibi okunuyor. Eklenen doku yok —
+shizen kuralı bozulmuyor.</p>
+<div class="satir"><div class="zoom"><canvas id="c_zoom"></canvas></div></div>
+
+<h2>Neyi düzeltiyor</h2>
+<div class="kolon">
+  <div class="kart"><h3>"Bakılacak bir yer yok" → var</h3>
+    <p>Akışın en ağır kusuru buydu: her yeri her yerine benziyordu. Budak kompozisyonu
+    kuruyor — göz nereye bakacağını biliyor, üstelik bakılan yer <b>bir bilgi</b>.</p></div>
+  <div class="kart"><h3>"Süreyi anlatmıyor" → anlatıyor</h3>
+    <p>25 dakika ile 3 saat artık aynı dokunun iki yoğunluğu değil: biri tek parça temiz
+    tahta, öteki üç budaklı bir kesit.</p></div>
+  <div class="kart"><h3>"Klişe" → değil</h3>
+    <p>Akış alanı üretken sanatın en çok yapılan ilk projesi. Aynı motorla çizilse de
+    <b>budaklı tahta</b> öyle okunmuyor; kimse ona "flow field" demiyor, "ahşap" diyor.</p></div>
+  <div class="kart"><h3>Malzeme sorunu → kaynağında</h3>
+    <p><code>24</code>: "eksik olan malzeme." Bu, malzemeyi çizgiye eklemek yerine
+    <b>ekranın kendisine</b> veriyor. Çentik artık bir şeyin üstüne kazınıyor.</p></div>
+</div>
+
+<div class="uyari">
+<p><b>Tek gerçek risk ve cevabı:</b> "temiz damar = iyi gün, budaklı = kötü gün" okunursa
+bu Forest'ın kuruyan ağacı olur ve ürünün sözünü bozar. Cevap tasarımda olmalı, yazıda değil:
+<b>budak tahtanın kusuru değil, karakteridir.</b> Ekranda en güzel yer orası — en zengin doku,
+gözün dinlendiği nokta. Molalarını veren kişi daha çirkin değil <b>daha ilginç</b> bir tahta
+alıyor. Sınırsız mola sözü ancak böyle görselleşir.</p>
+</div>
+
+<h2>Bu neden "var olanı geliştirmek"</h2>
+<ul>
+  <li>Şerit çizme, çevrimdışı tuval, artımlı ekleme, kadran çevresindeki boşluk, tema
+    değişiminde yeniden çizim — <b>hepsi olduğu gibi kalıyor.</b></li>
+  <li>Değişen tek fonksiyon yön alanı: sabit gürültü yerine <b>düşey akış + budak etrafında
+    dolanma</b>. Silindir etrafındaki akış çözümü, kapalı formül, ucuz.</li>
+  <li>22.000 deneme + komşuluk taraması duruyor; istenirse azaltılabilir çünkü artık
+    kompozisyonu yoğunluk değil budaklar taşıyor.</li>
+  <li><code>akis-renk.md</code>'de bekleyen dört madde (12 adımlık merdiven, akıtma,
+    mola okunabilirliği, geniş palet) bu yönde de aynen geçerli — hiçbiri boşa gitmiyor.</li>
+</ul>
+
+</div>
+<script>
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng32(a){a=a>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* ---------- budaklar: her mola bir budak ----------
+   Konum tohumdan, ama molanın SIRASI belirliyor: erken mola üstte, geç mola altta.
+   Boyut molanın uzunluğundan. Merkezdeki sayı bölgesi korunuyor. */
+function budaklar(v,W,H,cx,cy,bosR){
+  const R=rng32(hash32("b"+v.id)), out=[];
+  const mol=(v.molalar||[]);
+  mol.forEach((b,i)=>{
+    const uz=b[1]-b[0];
+    const a=(uz/Math.max(1,v.dk));                 /* seansın ne kadarı */
+    const rr=8+Math.min(26,uz*1.15);               /* budak yarıçapı */
+    let x,y,dn=0;
+    do{
+      const t=(b[0]+uz/2)/Math.max(1,v.dk);        /* zamansal konum → dikey konum */
+      y=H*(.13+t*.74)+(R()-.5)*H*.10;
+      x=Math.max(rr+10,Math.min(W-rr-10, W*(.5+(R()-.5)*1.55)));
+      dn++;
+    }while(dn<40 && Math.hypot(x-cx,y-cy)<bosR+rr*.7);
+    out.push({x,y,r:rr,g:(R()<.5?-1:1)*(0.9+R()*.5),uz});
+  });
+  return out;
+}
+
+/* ---------- yön alanı: düşey akış + silindir etrafında dolanma ---------- */
+function yon(x,y,B,faz){
+  let vx=Math.sin(y*.0125+(faz||0))*.13+Math.sin(y*.031+(faz||0)*2.1)*.05;
+  let vy=1;                                        /* taban: aşağı akış, hafif salınımlı */
+  for(const k of B){
+    const dx=x-k.x, dy=y-k.y, d2=dx*dx+dy*dy, a2=k.r*k.r;
+    if(d2<a2*.92){ return null; }                   /* budağın içi: tel girmez */
+    const s=a2/d2;
+    if(s<.008) continue;
+    /* silindir etrafındaki potansiyel akış (akış +y yönünde) */
+    vx += -2*s*dx*dy/d2;
+    vy += -s*(dy*dy-dx*dx)/d2;
+    /* hafif burulma — damar budağın etrafında simetrik dönmez */
+    vx += k.g*s*.55*(-dy)/Math.max(1,Math.sqrt(d2));
+    vy += k.g*s*.55*( dx)/Math.max(1,Math.sqrt(d2));
+  }
+  const L=Math.hypot(vx,vy)||1;
+  return [vx/L,vy/L];
+}
+
+function tel(g,x0,B,W,H,P,R,cx,cy,bosR,kal,faz,gucA){
+  let x=x0, y=-6;
+  const pts=[];
+  for(let i=0;i<520;i++){
+    const d=yon(x,y,B,faz);
+    if(!d) break;
+    x+=d[0]*2.2+(R()-.5)*.16; y+=d[1]*2.2;
+    if(y>H+6||x<-30||x>W+30) break;
+    pts.push([x,y]);
+  }
+  if(pts.length<3) return;
+  /* kadran/sayı bölgesinde sönerek yok olur */
+  g.lineCap="round"; g.lineJoin="round";
+  let seg=[];
+  const bas=()=>{
+    if(seg.length<2){seg=[];return}
+    g.beginPath();g.moveTo(seg[0][0],seg[0][1]);
+    for(let i=1;i<seg.length;i++)g.lineTo(seg[i][0],seg[i][1]);
+    g.stroke(); seg=[];
+  };
+  g.strokeStyle=P.acc;
+  for(const p of pts){
+    const d=Math.hypot(p[0]-cx,p[1]-cy);
+    let a=1;
+    if(d<bosR) a=0; else if(d<bosR*1.55) a=(d-bosR)/(bosR*.55);
+    if(a<=0){ bas(); continue }
+    g.globalAlpha=a*(.30+R()*.30)*(gucA===undefined?1:gucA);
+    g.lineWidth=kal*(.75+R()*.6);
+    seg.push(p);
+    if(seg.length>7){ bas(); seg=[p] }
+  }
+  bas(); g.globalAlpha=1;
+}
+
+function budakCiz(g,k,P,R,cx,cy,bosR,gucA){
+  g.lineCap="round";g.strokeStyle=P.acc;
+  const n=3+Math.floor(k.r/11);
+  for(let i=0;i<n;i++){
+    const rr=k.r*(.30+.62*(i/Math.max(1,n-1)));
+    g.beginPath();
+    for(let a=0;a<=64;a++){
+      const t=a/64*Math.PI*2;
+      const w=rr*(1+Math.sin(t*2+k.g*3)*.16+Math.sin(t*3+i)*.06);
+      const x=k.x+Math.cos(t)*w*1.12, y=k.y+Math.sin(t)*w*.86;
+      a?g.lineTo(x,y):g.moveTo(x,y);
+    }
+    g.closePath();
+    const d=Math.hypot(k.x-cx,k.y-cy);
+    let al=1; if(d<bosR) al=0; else if(d<bosR*1.5) al=(d-bosR)/(bosR*.5);
+    g.globalAlpha=al*(.26+R()*.18)*(gucA===undefined?1:gucA);
+    g.lineWidth=.75+R()*.5;
+    g.stroke();
+  }
+  g.globalAlpha=1;
+}
+
+function cizDamar(g,v,o){
+  const P={acc:o.acc||css("--acc"),ink:css("--ekranInk")};
+  const W=o.W,H=o.H,cx=o.cx,cy=o.cy,bosR=o.bosR;
+  const R=rng32(hash32("d"+v.id));
+  const B=budaklar(v,W,H,cx,cy,bosR);
+  const n=Math.min(250,Math.round(v.dk*(o.telPerDk||.92)));
+  const gucA=Math.max(.42,1-n/380);                 /* kalabalıklaştıkça her tel siliniyor */
+  const faz=R()*6.28;
+  for(const k of B) budakCiz(g,k,P,R,cx,cy,bosR,gucA);
+  for(let i=0;i<n;i++){
+    const x0=(R()*1.5-.25)*W;
+    tel(g,x0,B,W,H,P,R,cx,cy,bosR,o.kal||.85,faz,gucA);
+  }
+}
+
+function hhmm(dk){const s=Math.floor(dk/60),d=dk%60;
+  return s?s+":"+String(d).padStart(2,"0"):"0:"+String(d).padStart(2,"0")}
+
+function telefon(hedef,v,ad,not,alt2){
+  const t=document.createElement("div");t.className="tel";
+  const c=document.createElement("div");c.className="cam";
+  const cv=document.createElement("canvas");c.appendChild(cv);
+  const e=document.createElement("div");e.className="ust";e.textContent="ÇALIŞIYOR";c.appendChild(e);
+  const s=document.createElement("div");s.className="sayi";s.textContent=hhmm(v.dk);c.appendChild(s);
+  const a2=document.createElement("div");a2.className="alt2";a2.textContent=alt2||"";c.appendChild(a2);
+  const n=document.createElement("div");n.className="nav";
+  n.innerHTML="<span>SAYAÇ</span><span>KAYIT</span><span>GÖREV</span><span>AYAR</span>";c.appendChild(n);
+  t.appendChild(c);
+  const ad2=document.createElement("div");ad2.className="ad";ad2.textContent=ad;t.appendChild(ad2);
+  const p=document.createElement("div");p.className="no";p.textContent=not;t.appendChild(p);
+  hedef.appendChild(t);
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=250*dpr;cv.height=516*dpr;cv.style.width="250px";cv.style.height="516px";
+  const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);
+  cizDamar(g,v,{W:250,H:516,cx:125,cy:246,bosR:74,kal:.85});
+}
+
+const A25 ={id:"a25", dk:25, molalar:[]};
+const A107={id:"a107",dk:107,molalar:[[41,49],[78,84]]};
+const A362={id:"a362",dk:362,molalar:[[55,68],[121,133],[190,205],[248,259],[310,322]]};
+
+function ciz(){
+  const S=document.getElementById("s_ana");S.innerHTML="";
+  telefon(S,A25,"25 dakika · kesintisiz",
+    "Budak yok. Düz, sakin, seyrek damarlı bir kesit. Kısa seans eksik değil — sade.","1. saat, 25. çentik");
+  telefon(S,A107,"1 saat 47 dakika · 2 mola",
+    "8 ve 6 dakikalık iki mola, iki küçük budak. Teller etraflarından dolanıyor.","2. saat, 47. çentik");
+  telefon(S,A362,"6 saat 02 dakika · 5 mola",
+    "Yoğun ama okunur: beş budak, aralarında sıkışmış damar. Ekran sınırı sorunu yok — yoğunluk artıyor, kompozisyon taşmıyor.","7. saat, 2. çentik");
+
+  const G=document.getElementById("s_gun");G.innerHTML="";
+  telefon(G,{id:"g1",dk:118,molalar:[]},"118 dk · hiç durmadan",
+    "Tek parça. Bu bir ödül değil, sadece o günün nasıl geçtiği.","");
+  telefon(G,{id:"g2",dk:118,molalar:[[52,64]]},"118 dk · tek uzun mola",
+    "Tek büyük budak, ortada. Kompozisyonun merkezi o oluyor.","");
+  telefon(G,{id:"g3",dk:118,molalar:[[14,19],[31,44],[57,62],[70,88],[96,101]]},"118 dk · dağınık gün",
+    "Beş budak. En zengin tahta bu — ve bu bilinçli: molalı gün cezalandırılmıyor.","");
+
+  /* yakın plan */
+  const cv=document.getElementById("c_zoom");
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=760*dpr;cv.height=300*dpr;cv.style.width="760px";cv.style.height="300px";
+  const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);
+  const P={acc:css("--acc")}, R=rng32(hash32("zoom"));
+  const B=[{x:250,y:150,r:44,g:1.1},{x:540,y:130,r:26,g:-.9}];
+  for(const k of B) budakCiz(g,k,P,R,-999,-999,0,.85);
+  for(let i=0;i<300;i++){
+    const x0=(R()*1.4-.2)*760;
+    tel(g,x0,B,760,300,P,R,-999,-999,0,1.15,1.7,.85);
+  }
+}
+ciz();
+</script></body></html>

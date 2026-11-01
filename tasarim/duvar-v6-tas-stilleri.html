@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kertik — Taş Stilleri & Ayrık Duvar Zanaatı (v6)</title>
+  <style>
+    :root {
+      --bg: #F5F2EA;
+      --bg-card: #FFFFFF;
+      --bg-inset: #EFECE3;
+      --ink: #1C1D1F;
+      --muted: #7A7975;
+      --faint: #B5B3AC;
+      --line: #E2DDD3;
+      --line-subtle: rgba(0,0,0,0.06);
+      --accent: #B05237;
+      --sand-rake: rgba(140, 130, 115, 0.65);
+      --sand-shadow: rgba(40, 35, 30, 0.28);
+      --wood-base: #C2966A;
+      --wood-dark: #8F5E36;
+      --wood-grain: rgba(90, 48, 18, 0.25);
+      --shadow-sm: 0 2px 10px rgba(0,0,0,0.03);
+      --shadow-md: 0 10px 30px rgba(0,0,0,0.05);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+    }
+
+    body.dark {
+      --bg: #141518;
+      --bg-card: #1C1E22;
+      --bg-inset: #121316;
+      --ink: #EDEDED;
+      --muted: #95989F;
+      --faint: #52555D;
+      --line: #292C33;
+      --line-subtle: rgba(255,255,255,0.06);
+      --accent: #D96B4E;
+      --sand-rake: rgba(200, 210, 230, 0.35);
+      --sand-shadow: rgba(0, 0, 0, 0.75);
+      --wood-base: #9E744D;
+      --wood-dark: #664222;
+      --wood-grain: rgba(40, 20, 5, 0.45);
+      --shadow-sm: 0 2px 10px rgba(0,0,0,0.25);
+      --shadow-md: 0 10px 30px rgba(0,0,0,0.40);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      padding: 36px 20px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: background 0.4s ease, color 0.4s ease;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 840px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .page-sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .theme-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    /* BÖLÜM 1: 4 FARKLI TAŞ STİLİ VİTRİNİ */
+    .section-title {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: -12px;
+    }
+
+    .styles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 20px;
+      width: 100%;
+    }
+
+    .style-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+    }
+
+    .style-card.featured {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), var(--shadow-md);
+    }
+
+    .style-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .style-name {
+      font-size: 15.5px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .style-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 3px 9px;
+      border-radius: 6px;
+      background: rgba(176, 82, 55, 0.12);
+      color: var(--accent);
+    }
+
+    .style-stage {
+      background: var(--bg-inset);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .style-desc {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
+    /* BÖLÜM 2: AYRIK DUVARLAR (KRONOMETRE VS POMODORO) */
+    .duvar-card {
+      background: var(--bg-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 22px 20px 18px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .duvar-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--line-subtle);
+      padding-bottom: 12px;
+    }
+
+    .duvar-badge {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .duvar-shelf-wrap {
+      width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 8px 0 4px;
+    }
+    .duvar-shelf-wrap::-webkit-scrollbar { display: none; }
+
+    .duvar-shelf {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      min-width: max-content;
+      padding: 4px 2px;
+    }
+
+    .duvar-day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 46px;
+      position: relative;
+    }
+
+    .duvar-canvas-stick {
+      height: 100px;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 4px;
+    }
+
+    .duvar-canvas-stone {
+      height: 52px;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 2px;
+    }
+
+    .duvar-day::after {
+      content: "";
+      position: absolute;
+      left: -6px;
+      right: -6px;
+      bottom: 19px;
+      height: 1px;
+      background: var(--line);
+      opacity: 0.75;
+    }
+    .duvar-day.today::after {
+      background: var(--accent);
+      opacity: 1;
+      height: 2px;
+    }
+
+    .duvar-d {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--faint);
+      margin-top: 8px;
+      font-variant-numeric: tabular-nums;
+    }
+    .duvar-day.today .duvar-d {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .legend-row {
+      display: flex;
+      gap: 18px;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-line { width: 14px; height: 0; border-top: 2px solid var(--accent); }
+    .legend-line.break { border-top-color: #6A8D9D; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- Üst Başlık -->
+    <div class="top-bar">
+      <div>
+        <h1 class="page-title">Taş Stilleri & Ayrık Duvar Zanaatı</h1>
+        <p class="page-sub">Taşlar ile Ahşap Kertikler ayrı duvarlarda, her biri kendi malzeme asaletinde.</p>
+      </div>
+      <button class="theme-btn" onclick="toggleTheme()">
+        <span id="themeIcon">🌙</span> <span id="themeText">Gece Modu</span>
+      </button>
+    </div>
+
+    <!-- BÖLÜM 1: 4 FARKLI TAŞ STİLİ -->
+    <h2 class="section-title">🪨 1. Taş Stili Adayları (Seçilebilir Zanaat Yönleri)</h2>
+    
+    <div class="styles-grid">
+
+      <!-- STİL 1: Karesansui Nehir Çakılları -->
+      <div class="style-card featured">
+        <div class="style-header">
+          <span class="style-name">1. Karesansui Nehir Çakılı</span>
+          <span class="style-tag">Kum Bahçesiyle %100 Uyumlu</span>
+        </div>
+        <div class="style-stage" id="stage1"></div>
+        <p class="style-desc">
+          <strong>Özellik:</strong> Canlı Pomodoro kum bahçesindeki gibi etrafında eliptik tırmık halkaları (`--sand-rake`) yayılır. Mat bazalt taşları ve difüz gölgeyle sakin bir Zen bahçesi etkisi verir.
+        </p>
+      </div>
+
+      <!-- STİL 2: Dokulu Mineral / Kaya Bloğu -->
+      <div class="style-card">
+        <div class="style-header">
+          <span class="style-name">2. Hacimli Granit Kaya Grubu</span>
+          <span class="style-tag">Tok & Hacimli</span>
+        </div>
+        <div class="style-stage" id="stage2"></div>
+        <p class="style-desc">
+          <strong>Özellik:</strong> FBM mineral kabartmasıyla daha köşeli, doğal taş kırığı hissi veren tok form. Üst kenarında güneş/ay parıltısı, altında yoğun gölge oturumu.
+        </p>
+      </div>
+
+      <!-- STİL 3: Gömülü Kâğıt Rölyefi (Washi Blind Deboss) -->
+      <div class="style-card">
+        <div class="style-header">
+          <span class="style-name">3. Gömülü Kâğıt Rölyefi</span>
+          <span class="style-tag">Minimalist Kâğıt Sanatı</span>
+        </div>
+        <div class="style-stage" id="stage3"></div>
+        <p class="style-desc">
+          <strong>Özellik:</strong> Kâğıdın içine preslenmiş (blind deboss / harf baskı) gibi durur. Zemin renginden türeyen yumuşak iç oyuntu ve açık renkli zemin halkası.
+        </p>
+      </div>
+
+      <!-- STİL 4: Sumi-e Islak Mürekkep Taşı -->
+      <div class="style-card">
+        <div class="style-header">
+          <span class="style-name">4. Sumi-e Mürekkep Çakılı</span>
+          <span class="style-tag">Doğu Fırça Zanaatı</span>
+        </div>
+        <div class="style-stage" id="stage4"></div>
+        <p class="style-desc">
+          <strong>Özellik:</strong> Su ve mürekkeple kâğıda damlatılmış gibi yarı saydam katmanlar, yumuşak geçişler ve akışkan fırça dokunuşu.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- BÖLÜM 2: AYRIK DUVARLAR (AYRI KARTLAR) -->
+    <h2 class="section-title">🧱 2. Ayrık Duvar Mimarisi (Her Malzeme Kendi Evreninde)</h2>
+
+    <!-- DUVAR A: KRONOMETRE DUVARI -->
+    <div class="duvar-card">
+      <div class="duvar-top">
+        <div class="duvar-badge">🪵 Kronometre Odak Duvarı (Kertikli Ahşap Kalas)</div>
+        <div style="font-size: 12px; color: var(--muted); font-weight: 500;">Son 30 Gün · Süreye Göre Yükselen Kalas</div>
+      </div>
+      <div class="duvar-shelf-wrap">
+        <div class="duvar-shelf" id="shelfKronometre"></div>
+      </div>
+      <div class="legend-row">
+        <div class="legend-item"><span class="legend-line"></span> Çalışma Kertiği</div>
+        <div class="legend-item"><span class="legend-line break"></span> Mola Aralığı</div>
+      </div>
+    </div>
+
+    <!-- DUVAR B: POMODORO DUVARI -->
+    <div class="duvar-card">
+      <div class="duvar-top">
+        <div class="duvar-badge">🪨 Pomodoro Odak Duvarı (Karesansui Çakıl Bahçesi)</div>
+        <div style="font-size: 12px; color: var(--muted); font-weight: 500;">Son 30 Gün · Tamamlanan Seans Sayısı</div>
+      </div>
+      <div class="duvar-shelf-wrap">
+        <div class="duvar-shelf" id="shelfPomodoro"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function rng(seed) {
+      let s = seed % 2147483647; if (s <= 0) s += 2147483646;
+      return () => (s = s * 16807 % 2147483647) / 2147483647;
+    }
+
+    function fbm(x, y, s) {
+      const R = rng(s);
+      return Math.sin(x * 1.5 + R() * 2) * 0.5 + Math.cos(y * 1.8 + R() * 3) * 0.5;
+    }
+
+    // 1. STİL A: Karesansui Nehir Çakılı
+    function drawStyleA(dkList, w, h, seed) {
+      const n = dkList.length;
+      const cx = w / 2, cy = h - 14;
+      const rx = Math.min(w * 0.44, 16 + n * 1.1), ry = Math.min(15, 6 + n * 0.35);
+
+      let svg = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
+      svg += `
+        <ellipse cx="${cx}" cy="${cy}" rx="${rx + 6}" ry="${ry + 3.5}" fill="none" stroke="var(--sand-rake)" stroke-width="0.8" opacity="0.4" stroke-dasharray="3 2"/>
+        <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="none" stroke="var(--sand-rake)" stroke-width="1.2" opacity="0.7"/>
+        <ellipse cx="${cx}" cy="${cy + 1}" rx="${rx * 0.85}" ry="${ry * 0.7}" fill="var(--sand-shadow)" opacity="0.45"/>
+      `;
+      const baseR = n <= 4 ? 7.2 : 5.0;
+      const spanX = Math.min(w * 0.75, n * baseR * 2.1);
+      const startX = cx - spanX / 2 + baseR;
+      const stepX = n > 1 ? (spanX - baseR * 2) / (n - 1) : 0;
+
+      dkList.forEach((dk, i) => {
+        const px = n === 1 ? cx : startX + i * stepX;
+        const py = cy - 1;
+        const r = baseR * Math.sqrt(dk / 25);
+        svg += `
+          <ellipse cx="${px}" cy="${py + r * 0.6}" rx="${r * 1.1}" ry="${r * 0.35}" fill="var(--sand-shadow)" opacity="0.6"/>
+          <ellipse cx="${px}" cy="${py}" rx="${r * 1.05}" ry="${r * 0.82}" fill="#2A2D34" stroke="#3E424C" stroke-width="0.75"/>
+          <ellipse cx="${px - r * 0.25}" cy="${py - r * 0.25}" rx="${r * 0.35}" ry="${r * 0.18}" fill="rgba(255,255,255,0.4)" transform="rotate(-15 ${px} ${py})"/>
+        `;
+      });
+      svg += `</svg>`;
+      return svg;
+    }
+
+    // 2. STİL B: Granit Kaya Grubu
+    function drawStyleB(dkList, w, h, seed) {
+      const n = dkList.length;
+      const cx = w / 2, cy = h - 14;
+      let svg = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
+      const baseR = n <= 4 ? 7.5 : 5.2;
+      const spanX = Math.min(w * 0.75, n * baseR * 2.1);
+      const startX = cx - spanX / 2 + baseR;
+      const stepX = n > 1 ? (spanX - baseR * 2) / (n - 1) : 0;
+
+      dkList.forEach((dk, i) => {
+        const px = n === 1 ? cx : startX + i * stepX;
+        const py = cy - 2;
+        const r = baseR * Math.sqrt(dk / 25);
+        const s = seed + i * 29;
+        const R = rng(s);
+        let d = "";
+        for (let p = 0; p <= 8; p++) {
+          const a = (p / 8) * Math.PI * 2;
+          const rad = r * (0.88 + fbm(Math.cos(a) * 2, Math.sin(a) * 2, s) * 0.25);
+          const x = px + Math.cos(a) * rad;
+          const y = py + Math.sin(a) * rad * 0.82;
+          d += (p === 0 ? "M" : "L") + x.toFixed(2) + "," + y.toFixed(2) + " ";
+        }
+        d += "Z";
+        svg += `
+          <ellipse cx="${px + 1}" cy="${py + r * 0.7}" rx="${r * 1.15}" ry="${r * 0.4}" fill="#000" opacity="0.4"/>
+          <path d="${d}" fill="#333740" stroke="#4C5260" stroke-width="1"/>
+          <path d="${d}" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.75" stroke-dasharray="${r * 2} ${r * 4}"/>
+        `;
+      });
+      svg += `</svg>`;
+      return svg;
+    }
+
+    // 3. STİL C: Washi Blind Deboss (Gömülü Kâğıt)
+    function drawStyleC(dkList, w, h, seed) {
+      const n = dkList.length;
+      const cx = w / 2, cy = h - 14;
+      let svg = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
+      const baseR = n <= 4 ? 7.5 : 5.2;
+      const spanX = Math.min(w * 0.75, n * baseR * 2.1);
+      const startX = cx - spanX / 2 + baseR;
+      const stepX = n > 1 ? (spanX - baseR * 2) / (n - 1) : 0;
+
+      dkList.forEach((dk, i) => {
+        const px = n === 1 ? cx : startX + i * stepX;
+        const py = cy - 2;
+        const r = baseR * Math.sqrt(dk / 25);
+        svg += `
+          <!-- Dış Işık Halkası (Kabartma hissi) -->
+          <ellipse cx="${px}" cy="${py + 1}" rx="${r * 1.1}" ry="${r * 0.9}" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.2"/>
+          <!-- İç Oyuntu -->
+          <ellipse cx="${px}" cy="${py}" rx="${r * 1.05}" ry="${r * 0.85}" fill="rgba(0,0,0,0.14)" stroke="rgba(0,0,0,0.35)" stroke-width="0.9"/>
+          <!-- İç Gölge -->
+          <ellipse cx="${px}" cy="${py - r * 0.2}" rx="${r * 0.75}" ry="${r * 0.45}" fill="rgba(0,0,0,0.08)"/>
+        `;
+      });
+      svg += `</svg>`;
+      return svg;
+    }
+
+    // 4. STİL D: Sumi-e Islak Mürekkep
+    function drawStyleD(dkList, w, h, seed) {
+      const n = dkList.length;
+      const cx = w / 2, cy = h - 14;
+      let svg = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
+      const baseR = n <= 4 ? 7.5 : 5.2;
+      const spanX = Math.min(w * 0.75, n * baseR * 2.1);
+      const startX = cx - spanX / 2 + baseR;
+      const stepX = n > 1 ? (spanX - baseR * 2) / (n - 1) : 0;
+
+      dkList.forEach((dk, i) => {
+        const px = n === 1 ? cx : startX + i * stepX;
+        const py = cy - 2;
+        const r = baseR * Math.sqrt(dk / 25);
+        svg += `
+          <!-- Mürekkep Yayılması -->
+          <ellipse cx="${px}" cy="${py}" rx="${r * 1.25}" ry="${r * 0.95}" fill="var(--ink)" opacity="0.12"/>
+          <ellipse cx="${px}" cy="${py}" rx="${r * 1.05}" ry="${r * 0.82}" fill="var(--ink)" opacity="0.45"/>
+          <ellipse cx="${px}" cy="${py}" rx="${r * 0.8}" ry="${r * 0.6}" fill="var(--ink)" opacity="0.88"/>
+        `;
+      });
+      svg += `</svg>`;
+      return svg;
+    }
+
+    // Orijinal Ahşap Çubuk Motoru
+    function drawWoodStick(minutes, height, seed) {
+      if (!minutes) return "";
+      const h = Math.min(height, Math.max(16, (minutes / 180) * height));
+      const w = 11;
+      let notches = "";
+      const count = Math.min(24, Math.floor(minutes / 10));
+      for (let i = 0; i < count; i++) {
+        const ny = h - 4 - (i * (h - 8) / count);
+        notches += `<line x1="2" y1="${ny}" x2="9" y2="${ny}" stroke="var(--wood-dark)" stroke-width="1" opacity="0.85"/>`;
+      }
+      return `
+        <svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+          <rect x="0" y="0" width="${w}" height="${h}" rx="2.5" fill="var(--wood-base)" stroke="var(--wood-dark)" stroke-width="0.8"/>
+          <line x1="3.5" y1="2" x2="3.5" y2="${h - 2}" stroke="var(--wood-grain)" stroke-width="0.75"/>
+          <line x1="7.5" y1="2" x2="7.5" y2="${h - 2}" stroke="var(--wood-grain)" stroke-width="0.75"/>
+          ${notches}
+        </svg>
+      `;
+    }
+
+    // 4 Adayı Önizleme Alanlarına Çiz
+    document.getElementById("stage1").innerHTML = drawStyleA([25, 25, 50, 25, 25], 220, 80, 1);
+    document.getElementById("stage2").innerHTML = drawStyleB([25, 25, 50, 25, 25], 220, 80, 2);
+    document.getElementById("stage3").innerHTML = drawStyleC([25, 25, 50, 25, 25], 220, 80, 3);
+    document.getElementById("stage4").innerHTML = drawStyleD([25, 25, 50, 25, 25], 220, 80, 4);
+
+    // 30 Günlük Ayrık Duvarları Doldur
+    function renderSeparateWalls() {
+      const sKron = document.getElementById("shelfKronometre");
+      const sPomo = document.getElementById("shelfPomodoro");
+      sKron.innerHTML = ""; sPomo.innerHTML = "";
+
+      const today = 30;
+      for (let i = 1; i <= 30; i++) {
+        // Kronometre Gün Hücresi
+        const dkKron = (i % 3 === 0 || i === today) ? (45 + (i * 7) % 150) : 0;
+        const colK = document.createElement("div");
+        colK.className = "duvar-day" + (i === today ? " today" : "");
+        const canK = document.createElement("div");
+        canK.className = "duvar-canvas-stick";
+        canK.innerHTML = drawWoodStick(dkKron, 85, i * 43);
+        colK.appendChild(canK);
+        const lblK = document.createElement("div");
+        lblK.className = "duvar-d";
+        lblK.textContent = (i === 1 || i % 5 === 0 || i === today) ? i : "·";
+        colK.appendChild(lblK);
+        sKron.appendChild(colK);
+
+        // Pomodoro Gün Hücresi
+        const colP = document.createElement("div");
+        colP.className = "duvar-day" + (i === today ? " today" : "");
+        const canP = document.createElement("div");
+        canP.className = "duvar-canvas-stone";
+
+        let stones = [];
+        if (i === 10) stones = [25, 25, 25, 25, 25, 25, 25, 25];
+        else if (i % 4 === 0 || i === today) {
+          const count = 2 + (i % 3);
+          for (let k = 0; k < count; k++) stones.push(25);
+        }
+        canP.innerHTML = drawStyleA(stones, 46, 46, i * 89);
+        colP.appendChild(canP);
+        const lblP = document.createElement("div");
+        lblP.className = "duvar-d";
+        lblP.textContent = (i === 1 || i % 5 === 0 || i === today) ? i : "·";
+        colP.appendChild(lblP);
+        sPomo.appendChild(colP);
+      }
+    }
+    renderSeparateWalls();
+
+    function toggleTheme() {
+      document.body.classList.toggle("dark");
+      const isDark = document.body.classList.contains("dark");
+      document.getElementById("themeIcon").innerText = isDark ? "☀️" : "🌙";
+      document.getElementById("themeText").innerText = isDark ? "Gündüz Modu" : "Gece Modu";
+    }
+  </script>
+</body>
+</html>

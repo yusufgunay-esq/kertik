@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kertik — Saf Zen Widget Koleksiyonu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-page: #F4EFE6;
+  --text-main: #18191B;
+  --text-sub: #635F56;
+  --text-muted: #9E988D;
+  --border-light: rgba(0, 0, 0, 0.08);
+
+  /* Widget Light Palette (Washi Paper & Serene Sumi-e) */
+  --w-bg: #FAF7F0;
+  --w-surface: #FFFFFF;
+  --w-border: rgba(28, 29, 33, 0.06);
+  --w-ink-main: #17181A;
+  --w-ink-sub: #5C5850;
+  --w-ink-faint: #A19B90;
+  --w-accent: #2A5952;        /* Dingin Yeşim */
+  --w-accent-soft: rgba(42, 89, 82, 0.10);
+  --w-warm: #BD532B;          /* Sıcak Kertik */
+  --w-warm-soft: rgba(189, 83, 43, 0.10);
+  --w-btn-bg: #17181A;
+  --w-btn-text: #FAF7F0;
+  --w-btn-sec-bg: rgba(0, 0, 0, 0.04);
+  --w-btn-sec-text: #3D3A33;
+  --w-track: rgba(0, 0, 0, 0.05);
+  --w-shadow: 0 12px 32px -8px rgba(0,0,0,0.06), 0 2px 6px -1px rgba(0,0,0,0.03);
+}
+
+:root.dark {
+  --bg-page: #0E0F12;
+  --text-main: #EDEAE1;
+  --text-sub: #9E998E;
+  --text-muted: #646057;
+  --border-light: rgba(255, 255, 255, 0.08);
+
+  /* Widget Dark Palette (Obsidian & Luminous Jade) */
+  --w-bg: #151619;
+  --w-surface: #1D1E22;
+  --w-border: rgba(255, 255, 255, 0.07);
+  --w-ink-main: #F4F1EA;
+  --w-ink-sub: #B0ABA0;
+  --w-ink-faint: #69655C;
+  --w-accent: #6EABA1;        /* Işıltılı Yeşim */
+  --w-accent-soft: rgba(110, 171, 161, 0.14);
+  --w-warm: #DE754E;
+  --w-warm-soft: rgba(222, 117, 78, 0.15);
+  --w-btn-bg: #F4F1EA;
+  --w-btn-text: #151619;
+  --w-btn-sec-bg: rgba(255, 255, 255, 0.07);
+  --w-btn-sec-text: #DCD7CD;
+  --w-track: rgba(255, 255, 255, 0.07);
+  --w-shadow: 0 14px 40px -8px rgba(0,0,0,0.5);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  margin: 0;
+  padding: 48px 24px 120px;
+  background: var(--bg-page);
+  color: var(--text-main);
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+/* Header */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 40px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+h1 {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin: 0 0 6px;
+}
+
+.subtitle {
+  color: var(--text-sub);
+  font-size: 15px;
+  margin: 0;
+}
+
+.theme-toggle-btn {
+  background: var(--w-surface);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Controls bar */
+.state-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 40px;
+  background: var(--w-surface);
+  padding: 10px 14px;
+  border-radius: 18px;
+  border: 1px solid var(--border-light);
+}
+
+.state-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 6px;
+  margin-left: 4px;
+}
+
+.ctrl-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-sub);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ctrl-btn.active {
+  background: var(--w-accent-soft);
+  color: var(--w-accent);
+  border-color: var(--w-accent);
+  font-weight: 600;
+}
+
+/* Section styling */
+.section-title {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 44px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title span.badge {
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--w-accent-soft);
+  color: var(--w-accent);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.section-desc {
+  color: var(--text-sub);
+  font-size: 14px;
+  margin: 0 0 24px;
+  max-width: 680px;
+  line-height: 1.5;
+}
+
+/* Launcher Mock Grid */
+.phone-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.phone-mock {
+  background: var(--w-bg);
+  border-radius: 34px;
+  padding: 24px;
+  border: 1px solid var(--w-border);
+  box-shadow: var(--w-shadow);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.mock-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--w-ink-faint);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ============================================================
+   SAF WIDGET 1: 4x2 MONOLIT (KONTROL VE CANLI ODAK)
+   ============================================================ */
+.widget-4x2 {
+  background: var(--w-surface);
+  border: 1px solid var(--w-border);
+  border-radius: 26px;
+  padding: 20px 22px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 160px;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.w-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.w-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--w-accent);
+}
+
+.w-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--w-accent);
+  box-shadow: 0 0 0 0 rgba(42, 89, 82, 0.4);
+  animation: pulse-ring 2.4s infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(42, 89, 82, 0.5); }
+  70% { transform: scale(1); box-shadow: 0 0 0 7px rgba(42, 89, 82, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(42, 89, 82, 0); }
+}
+
+.w-task-tag {
+  font-size: 12px;
+  color: var(--w-ink-sub);
+  font-weight: 500;
+}
+
+.w-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin: 6px 0 4px;
+}
+
+.w-time-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.w-timer {
+  font-size: 40px;
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  color: var(--w-ink-main);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.w-meta-line {
+  font-size: 12.5px;
+  color: var(--w-ink-sub);
+  margin-top: 6px;
+  font-weight: 400;
+}
+
+/* Zen Minimal İlerleme Çemberi / Taş Simgesi */
+.w-zen-art {
+  width: 58px;
+  height: 58px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zen-ring-svg {
+  transform: rotate(-90deg);
+  width: 58px;
+  height: 58px;
+}
+
+.zen-ring-bg {
+  stroke: var(--w-track);
+  stroke-width: 3.5;
+  fill: none;
+}
+
+.zen-ring-fill {
+  stroke: var(--w-accent);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  fill: none;
+  stroke-dasharray: 163;
+  stroke-dashoffset: 40;
+  transition: stroke-dashoffset 0.8s ease, stroke 0.4s ease;
+}
+
+.zen-stone-core {
+  position: absolute;
+  width: 24px;
+  height: 17px;
+  border-radius: 45% 55% 50% 50% / 50% 45% 55% 50%;
+  background: var(--w-ink-main);
+  opacity: 0.9;
+  box-shadow: inset 0 2px 3px rgba(255,255,255,0.18), 0 3px 6px rgba(0,0,0,0.12);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.w-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.w-btn {
+  background: var(--w-btn-bg);
+  color: var(--w-btn-text);
+  border: none;
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.w-btn:hover {
+  opacity: 0.92;
+  transform: scale(0.98);
+}
+
+.w-btn.secondary {
+  background: var(--w-btn-sec-bg);
+  color: var(--w-btn-sec-text);
+  font-weight: 500;
+}
+
+.w-btn.secondary:hover {
+  background: rgba(0,0,0,0.07);
+}
+
+/* Hairline Patina Progress Bar */
+.w-bottom-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  background: var(--w-track);
+}
+
+.w-bottom-fill {
+  height: 100%;
+  background: var(--w-accent);
+  width: 65%;
+  transition: width 0.5s ease;
+}
+
+/* ============================================================
+   SAF WIDGET 2: 4x1 ŞERİT (KOMPAKT LINEAR BAR)
+   ============================================================ */
+.widget-4x1 {
+  background: var(--w-surface);
+  border: 1px solid var(--w-border);
+  border-radius: 22px;
+  padding: 12px 18px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 66px;
+}
+
+.w-4x1-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.w-4x1-stone {
+  width: 18px;
+  height: 13px;
+  border-radius: 50% 50% 45% 45%;
+  background: var(--w-accent);
+  opacity: 0.9;
+}
+
+.w-4x1-time {
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--w-ink-main);
+  line-height: 1;
+}
+
+.w-4x1-label {
+  font-size: 11.5px;
+  color: var(--w-ink-sub);
+  margin-left: 2px;
+}
+
+/* ============================================================
+   SAF WIDGET 3: 2x2 KARE (PEBBLE FOCUS)
+   ============================================================ */
+.widget-2x2 {
+  background: var(--w-surface);
+  border: 1px solid var(--w-border);
+  border-radius: 26px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 148px;
+  height: 148px;
+}
+
+.w-2x2-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.w-2x2-time {
+  font-size: 25px;
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--w-ink-main);
+  line-height: 1;
+  margin: 4px 0 2px;
+}
+
+.w-2x2-sub {
+  font-size: 11px;
+  color: var(--w-ink-sub);
+}
+
+.w-2x2-btn {
+  width: 100%;
+  padding: 6px 0;
+  justify-content: center;
+  font-size: 11.5px;
+  border-radius: 999px;
+}
+
+/* ============================================================
+   SAF WIDGET 4: 4x2 DUVAR (PATİNA & HAFIZA MATRİSİ)
+   ============================================================ */
+.widget-wall {
+  background: var(--w-surface);
+  border: 1px solid var(--w-border);
+  border-radius: 26px;
+  padding: 18px 20px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 160px;
+}
+
+.wall-grid {
+  display: grid;
+  grid-template-columns: repeat(14, 1fr);
+  gap: 5px;
+  margin: 10px 0 6px;
+}
+
+.wall-cell {
+  aspect-ratio: 1;
+  border-radius: 3.5px;
+  background: var(--w-track);
+  transition: all 0.2s ease;
+}
+
+.wall-cell.l1 { background: rgba(42, 89, 82, 0.22); }
+.wall-cell.l2 { background: rgba(42, 89, 82, 0.45); }
+.wall-cell.l3 { background: rgba(42, 89, 82, 0.70); }
+.wall-cell.l4 { background: var(--w-accent); }
+.wall-cell.today { outline: 1.5px solid var(--w-ink-main); outline-offset: 1px; }
+
+.wall-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11.5px;
+  color: var(--w-ink-sub);
+}
+
+/* In-place interactive feedback toast */
+.toast-notice {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--w-ink-main);
+  color: var(--w-surface);
+  padding: 9px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+  transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.toast-notice.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="top-bar">
+    <div>
+      <h1>Kertik — Saf Zen Widget Mimarisi</h1>
+      <p class="subtitle">Sıfır görsel gürültü · Kristal netliğinde tipografi · Yerinde (In-Place) arka plan kontrolü</p>
+    </div>
+    <button class="theme-toggle-btn" id="themeToggle">
+      <span id="themeIcon">🌙</span> <span id="themeText">Koyu Mod</span>
+    </button>
+  </div>
+
+  <!-- State Selector Bar -->
+  <div class="state-controls">
+    <span class="state-label">DURUM:</span>
+    <button class="ctrl-btn active" data-state="running">Kronometre (Çalışıyor)</button>
+    <button class="ctrl-btn" data-state="pomodoro">Pomodoro (25 dk)</button>
+    <button class="ctrl-btn" data-state="break">Mola (5 dk)</button>
+    <button class="ctrl-btn" data-state="idle">Hazır (Boş / Beklemede)</button>
+  </div>
+
+  <!-- 1. ANA KONTROL WIDGET'I (4x2 MONOLİT) -->
+  <div class="section-title">
+    1. Monolit Odak Widget'ı (4×2)
+    <span class="badge">Ana Ekran Odak</span>
+  </div>
+  <p class="section-desc">
+    Gereksiz tırmık çizgileri veya dev amorf lekeler yok. Gözü doğrudan dinlendiren devasa tabular rakamlar, nefes alan canlı yeşim simgesi ve tek dokunuşla çalışan yerinde kontrol düğmeleri.
+  </p>
+
+  <div class="phone-grid">
+    <div class="phone-mock">
+      <div class="mock-label">
+        <span>4×2 Boyut (Android Launcher)</span>
+        <span id="stateNameLabel">Kronometre Aktif</span>
+      </div>
+
+      <!-- THE 4x2 WIDGET -->
+      <div class="widget-4x2" id="w4x2">
+        <div class="w-header">
+          <div class="w-badge">
+            <span class="w-pulse-dot" id="wPulse"></span>
+            <span id="wModeText">ÇALIŞIYOR · KRONOMETRE</span>
+          </div>
+          <div class="w-task-tag" id="wTaskTag">Derin Odak</div>
+        </div>
+
+        <div class="w-body">
+          <div class="w-time-wrap">
+            <div class="w-timer" id="wTimer">01:47:09</div>
+            <div class="w-meta-line" id="wMeta">Bugün 2 saat 14 dk · 3. seans</div>
+          </div>
+
+          <div class="w-zen-art">
+            <svg class="zen-ring-svg" viewBox="0 58 58">
+              <circle class="zen-ring-bg" cx="29" cy="29" r="26"></circle>
+              <circle class="zen-ring-fill" id="wRingFill" cx="29" cy="29" r="26"></circle>
+            </svg>
+            <div class="zen-stone-core" id="wStone"></div>
+          </div>
+        </div>
+
+        <div class="w-actions">
+          <button class="w-btn" id="wBtnPrimary" onclick="triggerAction('Mola Verildi')">
+            <span id="wBtnPrimaryIcon"></span>
+            <span id="wBtnPrimaryText">Mola</span>
+          </button>
+          <button class="w-btn secondary" id="wBtnSecondary" onclick="triggerAction('Seans Tamamlandı')">
+            <span id="wBtnSecondaryText">Bitir</span>
+          </button>
+        </div>
+
+        <div class="w-bottom-bar">
+          <div class="w-bottom-fill" id="wBottomFill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. KOMPAKT BOYUTLAR (4x1 & 2x2) -->
+  <div class="section-title">
+    2. Kompakt Formlar (4×1 Şerit & 2×2 Kare)
+    <span class="badge">Hızlı Erişim</span>
+  </div>
+  <p class="section-desc">
+    Farklı ekran düzenleri için sıfır sürtünmeli alternatifler. Uygulamayı asla öne getirmeden tek dokunuşla seansı arka planda yönetir.
+  </p>
+
+  <div class="phone-grid">
+    <!-- 4x1 Strip -->
+    <div class="phone-mock">
+      <div class="mock-label">
+        <span>4×1 İnce Şerit (Lineer Sayaç)</span>
+      </div>
+
+      <div class="widget-4x1" id="w4x1">
+        <div class="w-4x1-left">
+          <div class="w-4x1-stone" id="w4x1Stone"></div>
+          <div>
+            <div class="w-4x1-time" id="w4x1Timer">01:47:09</div>
+          </div>
+          <span class="w-4x1-label" id="w4x1Label">Derin Odak</span>
+        </div>
+        <button class="w-btn" id="w4x1Btn" onclick="triggerAction('Mola Verildi')">Mola</button>
+      </div>
+    </div>
+
+    <!-- 2x2 Square -->
+    <div class="phone-mock">
+      <div class="mock-label">
+        <span>2×2 Kare (Zen Taş Odak)</span>
+      </div>
+
+      <div style="display: flex; gap: 20px; align-items: center;">
+        <div class="widget-2x2" id="w2x2">
+          <div class="w-2x2-top">
+            <span class="w-badge" style="font-size: 10px;">
+              <span class="w-pulse-dot" id="w2x2Pulse" style="width: 5px; height: 5px;"></span>
+              <span id="w2x2Mode">ODAK</span>
+            </span>
+            <div class="w-4x1-stone" id="w2x2Stone" style="width: 14px; height: 10px;"></div>
+          </div>
+          <div>
+            <div class="w-2x2-time" id="w2x2Timer">01:47</div>
+            <div class="w-2x2-sub" id="w2x2Sub">Bugün 2s 14d</div>
+          </div>
+          <button class="w-btn w-2x2-btn" id="w2x2Btn" onclick="triggerAction('Mola Verildi')">Mola</button>
+        </div>
+
+        <div style="flex: 1; font-size: 13.5px; color: var(--text-sub); line-height: 1.5;">
+          <b>Ultra Kompakt Kare:</b><br>
+          Küçük alanlarda bile harf aralığı ve rakam netliği bozulmaz. Parmakla tek dokunuşta tetiklenir.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. HAFIZA / PATİNA DUVARI WIDGET'I (4x2) -->
+  <div class="section-title">
+    3. Patina / Geçmiş Duvarı Widget'ı (4×2)
+    <span class="badge">Sakin Hafıza</span>
+  </div>
+  <p class="section-desc">
+    Son 28 günün çalışma emeği. Çamurlu taş yığınları yerine, mürekkep patinası (soğuktan sıcağa yoğunlaşan şeffaf is tonları) ile disiplinli ve ferah bir kayıt matrisi.
+  </p>
+
+  <div class="phone-grid">
+    <div class="phone-mock">
+      <div class="mock-label">
+        <span>4×2 Son 28 Günün Ritmi</span>
+        <span>74 saat toplam</span>
+      </div>
+
+      <div class="widget-wall">
+        <div class="w-header">
+          <div class="w-badge" style="color: var(--w-ink-sub);">
+            <span>SON 28 GÜNÜN İZİ</span>
+          </div>
+          <div class="w-task-tag">Ort. 2.6 sa / gün</div>
+        </div>
+
+        <div class="wall-grid" id="wallGrid">
+          <!-- 28 Cells generated via JS -->
+        </div>
+
+        <div class="wall-footer">
+          <span>28 gün önce</span>
+          <div style="display: flex; gap: 4px; align-items: center;">
+            <span style="font-size: 10px; color: var(--w-ink-faint);">Az</span>
+            <div class="wall-cell" style="width: 10px; height: 10px;"></div>
+            <div class="wall-cell l1" style="width: 10px; height: 10px;"></div>
+            <div class="wall-cell l2" style="width: 10px; height: 10px;"></div>
+            <div class="wall-cell l3" style="width: 10px; height: 10px;"></div>
+            <div class="wall-cell l4" style="width: 10px; height: 10px;"></div>
+            <span style="font-size: 10px; color: var(--w-ink-faint);">Çok</span>
+          </div>
+          <span>Bugün</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Interactive Toast Notice -->
+<div class="toast-notice" id="toast">
+  <span style="color: #6EABA1;">●</span>
+  <span id="toastMsg">Yerinde Eylem: Mola Verildi (Uygulama açılmadı)</span>
+</div>
+
+<script>
+const playIconSvg = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20"></polygon></svg>`;
+const pauseIconSvg = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1.5"></rect><rect x="14" y="4" width="4" height="16" rx="1.5"></rect></svg>`;
+
+// State manager
+const states = {
+  running: {
+    label: "Kronometre Aktif",
+    modeText: "ÇALIŞIYOR · KRONOMETRE",
+    timer: "01:47:09",
+    timerShort: "01:47",
+    meta: "Bugün 2 saat 14 dk · 3. seans",
+    taskTag: "Derin Odak",
+    accent: "#2A5952",
+    accentDark: "#6EABA1",
+    ringFill: 65,
+    btn1: "Mola",
+    btn1Icon: pauseIconSvg,
+    btn1Action: "Mola Verildi",
+    btn2: "Bitir",
+    btn2Action: "Seans Tamamlandı",
+    showPulse: true
+  },
+  pomodoro: {
+    label: "Pomodoro Aktif",
+    modeText: "POMODORO · GERİ SAYIM",
+    timer: "18:42",
+    timerShort: "18:42",
+    meta: "3 / 4 Pomodoro · 25 dk hedef",
+    taskTag: "Kitap / Yazım",
+    accent: "#BD532B",
+    accentDark: "#DE754E",
+    ringFill: 120,
+    btn1: "Mola",
+    btn1Icon: pauseIconSvg,
+    btn1Action: "Mola Başlatıldı",
+    btn2: "Bitir",
+    btn2Action: "Pomodoro İptal",
+    showPulse: true
+  },
+  break: {
+    label: "Mola Süresinde",
+    modeText: "DİNLENME · MOLA",
+    timer: "04:18",
+    timerShort: "04:18",
+    meta: "5 dk ferahlık molası",
+    taskTag: "Nefes Al",
+    accent: "#3E7C77",
+    accentDark: "#79B3AE",
+    ringFill: 30,
+    btn1: "Devam",
+    btn1Icon: playIconSvg,
+    btn1Action: "Odak Seansına Dönüldü",
+    btn2: "Bitir",
+    btn2Action: "Mola Tamamlandı",
+    showPulse: true
+  },
+  idle: {
+    label: "Hazır / Beklemede",
+    modeText: "HAZIR · SEANS YOK",
+    timer: "00:00",
+    timerShort: "00:00",
+    meta: "Bugün 2 saat 14 dk çalışma yapıldı",
+    taskTag: "Sakin Zihin",
+    accent: "#635F56",
+    accentDark: "#A19B90",
+    ringFill: 0,
+    btn1: "Başlat",
+    btn1Icon: playIconSvg,
+    btn1Action: "Yeni Seans Başlatıldı",
+    btn2: "Pomodoro",
+    btn2Action: "Pomodoro Başlatıldı",
+    showPulse: false
+  }
+};
+
+let currentState = 'running';
+
+function applyState(key) {
+  currentState = key;
+  const s = states[key];
+
+  document.getElementById('stateNameLabel').textContent = s.label;
+  document.getElementById('wModeText').textContent = s.modeText;
+  document.getElementById('wTimer').textContent = s.timer;
+  document.getElementById('wMeta').textContent = s.meta;
+  document.getElementById('wTaskTag').textContent = s.taskTag;
+
+  // 4x1
+  document.getElementById('w4x1Timer').textContent = s.timer;
+  document.getElementById('w4x1Label').textContent = s.taskTag;
+  document.getElementById('w4x1Btn').textContent = s.btn1;
+
+  // 2x2
+  document.getElementById('w2x2Timer').textContent = s.timerShort;
+  document.getElementById('w2x2Mode').textContent = key === 'idle' ? 'HAZIR' : (key === 'break' ? 'MOLA' : 'ODAK');
+  document.getElementById('w2x2Btn').textContent = s.btn1;
+  document.getElementById('w2x2Pulse').style.display = s.showPulse ? 'block' : 'none';
+
+  // Buttons
+  document.getElementById('wBtnPrimaryIcon').innerHTML = s.btn1Icon;
+  document.getElementById('wBtnPrimaryText').textContent = s.btn1;
+  document.getElementById('wBtnSecondaryText').textContent = s.btn2;
+
+  // Pulse
+  document.getElementById('wPulse').style.display = s.showPulse ? 'block' : 'none';
+
+  // Ring Fill
+  const offset = 163 - (s.ringFill / 180) * 163;
+  document.getElementById('wRingFill').style.strokeDashoffset = offset;
+  document.getElementById('wBottomFill').style.width = (s.ringFill / 180 * 100) + '%';
+}
+
+// Button controls
+document.querySelectorAll('.ctrl-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyState(btn.dataset.state);
+  });
+});
+
+// Theme toggle
+const themeBtn = document.getElementById('themeToggle');
+const themeIcon = document.getElementById('themeIcon');
+const themeText = document.getElementById('themeText');
+
+themeBtn.addEventListener('click', () => {
+  const isDark = document.documentElement.classList.toggle('dark');
+  themeIcon.textContent = isDark ? '☀️' : '🌙';
+  themeText.textContent = isDark ? 'Açık Mod' : 'Koyu Mod';
+});
+
+// Toast notification for in-place actions
+let toastTimeout;
+function triggerAction(actionName) {
+  const toast = document.getElementById('toast');
+  const msg = document.getElementById('toastMsg');
+  msg.textContent = `⚡ Yerinde Eylem: ${actionName} (Uygulama açılmadan güncellendi)`;
+  toast.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2400);
+
+  // If action is mola -> toggle to break state
+  if (actionName.includes('Mola')) {
+    applyState('break');
+    document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.toggle('active', b.dataset.state === 'break'));
+  } else if (actionName.includes('Seans') || actionName.includes('İptal') || actionName.includes('Tamamlandı')) {
+    applyState('idle');
+    document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.toggle('active', b.dataset.state === 'idle'));
+  } else if (actionName.includes('Başlatıldı') || actionName.includes('Dönüldü')) {
+    applyState('running');
+    document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.toggle('active', b.dataset.state === 'running'));
+  }
+}
+
+// Generate 28 Days Wall Grid
+const wallGrid = document.getElementById('wallGrid');
+const sampleDays = [
+  0, 1, 2, 3, 1, 0, 2, 4, 3, 2, 1, 4, 3, 2,
+  1, 2, 3, 4, 4, 2, 1, 0, 3, 4, 2, 3, 4, 3
+];
+
+sampleDays.forEach((lvl, idx) => {
+  const cell = document.createElement('div');
+  cell.className = 'wall-cell' + (lvl > 0 ? ` l${lvl}` : '') + (idx === 27 ? ' today' : '');
+  cell.title = `Gün ${idx + 1}: ${lvl * 45} dakika`;
+  wallGrid.appendChild(cell);
+});
+
+// Initialize
+applyState('running');
+</script>
+
+</body>
+</html>

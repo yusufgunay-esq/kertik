@@ -1,0 +1,18 @@
+- generic [ref=f6e3]:
+  - heading "Sahne laboratuvarı" [level=3] [ref=f6e4]
+  - generic [ref=f6e5]:
+    - 'button "kronometre: yolculuk" [ref=f6e6] [cursor=pointer]'
+    - 'button "pomodoro: havuz" [active] [ref=f6e7] [cursor=pointer]'
+  - generic [ref=f6e17]:
+    - generic [ref=f6e18]: "biten pomodoro: 4"
+    - slider [ref=f6e19]: "4"
+    - generic [ref=f6e20]: "şimdiki pomodoro: 60%"
+    - slider [ref=f6e21]: "60"
+    - generic [ref=f6e22]: "uzayan mola: 0 dk"
+    - slider [ref=f6e23]: "0"
+  - generic [ref=f6e11]: "tohum: 7"
+  - slider [ref=f6e12]: "7"
+  - generic [ref=f6e13]:
+    - button "koyu tema" [ref=f6e14] [cursor=pointer]
+    - button "kadran ve saat" [ref=f6e15] [cursor=pointer]
+  - generic [ref=f6e16]: "Ekranda döngü yok: her kare, süreden ve tohumdan türeyen tek bir durağan resim. Aynı süre ve tohum aynı resmi verir."

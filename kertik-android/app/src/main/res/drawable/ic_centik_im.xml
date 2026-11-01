@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ana ekrandaki çentik imi: bir kesik, bir iz, bir nokta.
+     Tek renk beyaz çizilir; kod tarafında setColorFilter ile boyanır
+     (vector tint'i kullanılmıyor, ikisi çakışır). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="58dp" android:height="14dp"
+    android:viewportWidth="58" android:viewportHeight="14">
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M1.1,2 L3.0,2 L3.0,12 L1.1,12 Z" />
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M12,6.4 L40,7.8 L40,9.0 L12,7.6 Z" />
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M48,8.4 m-3.1,0 a3.1,3.1 0 1,0 6.2,0 a3.1,3.1 0 1,0 -6.2,0 Z" />
+</vector>

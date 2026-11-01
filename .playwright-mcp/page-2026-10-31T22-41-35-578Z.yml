@@ -1,0 +1,22 @@
+- generic [ref=f12e3]:
+  - heading "Yazı masası, üçüncü sürüm" [level=3] [ref=f12e4]
+  - generic [ref=f12e5]:
+    - button "canlı" [ref=f12e6] [cursor=pointer]
+    - button "günü gez" [ref=f12e7] [cursor=pointer]
+  - generic [ref=f12e8]:
+    - generic [ref=f12e9]:
+      - 'button "kronometre: ensō" [ref=f12e10] [cursor=pointer]'
+      - 'button "pomodoro: tütsü" [ref=f12e11] [cursor=pointer]'
+    - generic [ref=f12e12]:
+      - button "başlat" [disabled] [ref=f12e13]
+      - button "mola" [ref=f12e14] [cursor=pointer]
+      - button "devam" [disabled] [ref=f12e15]
+      - button "bitir" [ref=f12e16] [cursor=pointer]
+    - generic [ref=f12e17]: "hız: 300× (1 gerçek saniye = 5 dk)"
+    - slider [ref=f12e18]: "300"
+  - generic [ref=f12e19]:
+    - 'button "ses: kapalı" [ref=f12e20] [cursor=pointer]'
+    - 'button "titreşim: açık" [ref=f12e21] [cursor=pointer]'
+    - button "koyu tema" [ref=f12e22] [cursor=pointer]
+  - generic [ref=f12e23]: başlat (fırça) ses titreşim 14 ms
+  - generic [ref=f12e24]: "Fırça: her kıl bir damlacık dizisi; kuruyan kıllar çizgi çizgi kopar (karekasure). Mürekkep kâğıt lifine emilir, kenarına yayılır. Sesler şimdilik sentez, gerçek kayıtla değişecek."

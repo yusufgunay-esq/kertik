@@ -1,0 +1,1 @@
+Şöyle bir bakınca ne kadar garip bir şey hissiyatı veriyor ama bir wow etkisi vermiyor. Fakat vermesi gerekli mi bilemiyorum tabii bunu. Hoş bir şey olabilir ama simülasyonda görmek lazım. Şu an ekran fotoğraflarından süper bir şekilde programa uygun mu anlayamıyorum ama gerçekten sanasal gözüküyor. Eline sağlık. Direnebilirsin istersen. 

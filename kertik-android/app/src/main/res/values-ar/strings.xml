@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ar — kertik-android/dil/ sözlüğünden üretildi, elle düzenleme -->
+<resources>
+    <string name="bildirim_kanal">جلسة جارية</string>
+    <string name="bildirim_kanal_aciklama">يعرض المؤقّت أثناء الجلسة. بلا صوت.</string>
+    <string name="bildirim_devam">متابعة</string>
+    <string name="bildirim_mola">استراحة</string>
+    <string name="bildirim_bitir">إنهاء</string>
+    <string name="widget_baslat">بدء</string>
+    <string name="widget_calisiyor">جارٍ</string>
+    <string name="widget_molada">في استراحة</string>
+    <string name="widget_duvar_aciklama">آخر 30 يومًا من عملك، بنظرة واحدة.</string>
+    <string name="widget_kontrol_aciklama">ابدأ الجلسة أو أوقفها مؤقتًا أو أنهها دون فتح التطبيق.</string>
+    <string name="resmi_kaydet">حفظ الصورة</string>
+    <string name="yedegi_kaydet">حفظ النسخة الاحتياطية</string>
+    <string name="widget_bos">لا توجد سجلات بعد</string>
+    <string name="widget_pomodoro">بومودورو</string>
+    <string name="widget_bugun">اليوم</string>
+    <string name="widget_gun_once">قبل %1$d يومًا</string>
+    <string name="widget_bugun_dk">اليوم · %1$d د</string>
+    <string name="widget_mola_alt">في استراحة · خذ نفسًا</string>
+    <string name="widget_basladin">بدأت في %1$s</string>
+    <string name="widget_centik">الشق %1$d</string>
+    <string name="widget_ilerleme">%1$d / %2$d د</string>
+    <string name="widget_duvar_baslik">الجدار</string>
+    <string name="widget_otuz_gun">30 يومًا</string>
+    <string name="widget_gunde_seans">%1$d يومًا نشطًا</string>
+    <string name="odak_modu_tetik">أثناء الجلسة</string>
+</resources>

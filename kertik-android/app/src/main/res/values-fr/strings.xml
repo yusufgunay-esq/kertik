@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- fr — kertik-android/dil/ sözlüğünden üretildi, elle düzenleme -->
+<resources>
+    <string name="bildirim_kanal">séance en cours</string>
+    <string name="bildirim_kanal_aciklama">affiche le minuteur pendant une séance. sans son.</string>
+    <string name="bildirim_devam">reprendre</string>
+    <string name="bildirim_mola">pause</string>
+    <string name="bildirim_bitir">terminer</string>
+    <string name="widget_baslat">démarrer</string>
+    <string name="widget_calisiyor">en cours</string>
+    <string name="widget_molada">en pause</string>
+    <string name="widget_duvar_aciklama">vos 30 derniers jours de travail, en un coup d\'œil.</string>
+    <string name="widget_kontrol_aciklama">démarrez, mettez en pause et terminez vos séances sans ouvrir l\'app.</string>
+    <string name="resmi_kaydet">enregistrer l\'image</string>
+    <string name="yedegi_kaydet">enregistrer la sauvegarde</string>
+    <string name="widget_bos">aucun enregistrement pour l’instant</string>
+    <string name="widget_pomodoro">pomodoro</string>
+    <string name="widget_bugun">aujourd\'hui</string>
+    <string name="widget_gun_once">il y a %1$d jours</string>
+    <string name="widget_bugun_dk">aujourd\'hui · %1$d min</string>
+    <string name="widget_mola_alt">en pause · respire</string>
+    <string name="widget_basladin">commencé à %1$s</string>
+    <string name="widget_centik">encoche %1$d</string>
+    <string name="widget_ilerleme">%1$d / %2$d min</string>
+    <string name="widget_duvar_baslik">mur</string>
+    <string name="widget_otuz_gun">30 jours</string>
+    <string name="widget_gunde_seans">%1$d jours actifs</string>
+    <string name="odak_modu_tetik">pendant une séance</string>
+</resources>

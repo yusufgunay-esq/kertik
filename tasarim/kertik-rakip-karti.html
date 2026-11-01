@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kertik — Rakip Kartı (Ağustos 2026)</title>
+<style>
+:root{
+  --bg:#0a0d14; --elev:#0f131c; --surf:#161b28; --hover:#1e2536;
+  --tx:#ffffff; --tx2:rgba(255,255,255,.72); --tx3:rgba(255,255,255,.45);
+  --acc:#c96f4a; --acc2:#e08a63;
+  --win:#10b981; --lose:#ef4444; --tie:#f59e0b;
+  --line:rgba(255,255,255,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--tx);
+  font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  padding:0 0 80px;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+header{border-bottom:1px solid var(--line);padding:44px 0 28px;margin-bottom:0}
+.eyebrow{color:var(--acc);font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600}
+h1{font-size:32px;font-weight:650;letter-spacing:-.02em;margin:10px 0 8px}
+header p{color:var(--tx3);font-size:13.5px}
+
+nav.tabs{display:flex;gap:6px;flex-wrap:wrap;padding:18px 0;position:sticky;top:0;background:var(--bg);z-index:20;border-bottom:1px solid var(--line)}
+.tab{
+  background:var(--surf);border:1px solid var(--line);color:var(--tx2);
+  padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;
+  transition:all .2s;font-family:inherit;
+}
+.tab:hover{background:var(--hover);color:var(--tx)}
+.tab.active{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+
+section{display:none;padding-top:34px;animation:fade .25s ease}
+section.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+h2{font-size:21px;font-weight:640;letter-spacing:-.01em;margin:36px 0 14px}
+h2:first-child{margin-top:0}
+h3{font-size:15.5px;font-weight:640;margin:22px 0 9px;color:var(--tx)}
+p{color:var(--tx2);margin-bottom:12px}
+.lead{font-size:16px;color:var(--tx2);border-left:2px solid var(--acc);padding-left:16px;margin-bottom:26px}
+
+table{width:100%;border-collapse:collapse;margin:14px 0 8px;font-size:13.5px}
+th,td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:var(--elev);color:var(--tx3);font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:600;position:sticky;top:59px}
+tbody tr:hover{background:var(--elev)}
+td.k{color:var(--tx);font-weight:560;width:190px}
+.kertik{color:var(--acc2);font-weight:600}
+.tag{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;letter-spacing:.02em}
+.t-win{background:rgba(16,185,129,.15);color:#34d399}
+.t-lose{background:rgba(239,68,68,.15);color:#f87171}
+.t-tie{background:rgba(245,158,11,.15);color:#fbbf24}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:16px 0}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:18px 20px;transition:all .2s}
+.card:hover{background:var(--hover);transform:translateY(-1px)}
+.card h4{font-size:14px;font-weight:640;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.card p{font-size:13.5px;margin:0}
+.card ul{margin:6px 0 0 16px}
+.dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}
+.d-win{background:var(--win)} .d-lose{background:var(--lose)} .d-tie{background:var(--tie)}
+
+ul,ol{color:var(--tx2);margin:8px 0 14px 20px}
+li{margin-bottom:7px}
+li strong{color:var(--tx)}
+
+.callout{background:var(--elev);border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:0 10px 10px 0;padding:16px 20px;margin:20px 0}
+.callout.warn{border-left-color:var(--tie)}
+.callout.bad{border-left-color:var(--lose)}
+.callout .lbl{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--acc);font-weight:700;margin-bottom:7px}
+.callout.warn .lbl{color:var(--tie)}
+.callout.bad .lbl{color:var(--lose)}
+.callout p:last-child{margin-bottom:0}
+
+.price{display:flex;align-items:baseline;gap:9px;margin:5px 0 3px}
+.price b{font-size:22px;font-weight:660;color:var(--tx)}
+.price span{font-size:12.5px;color:var(--tx3)}
+
+.meta{display:flex;gap:22px;flex-wrap:wrap;margin:14px 0 22px;padding:14px 18px;background:var(--elev);border-radius:10px;border:1px solid var(--line)}
+.meta div{font-size:12.5px}
+.meta .lbl{color:var(--tx3);display:block;font-size:11px;letter-spacing:.07em;text-transform:uppercase;margin-bottom:2px}
+
+.axis{background:var(--elev);border:1px solid var(--line);border-radius:12px;padding:26px;margin:18px 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:var(--tx2);white-space:pre;overflow-x:auto;line-height:1.75}
+
+a{color:var(--acc2)}
+footer{border-top:1px solid var(--line);margin-top:52px;padding-top:22px;font-size:12.5px;color:var(--tx3)}
+footer a{color:var(--tx3)}
+footer li{margin-bottom:4px;font-size:12.5px}
+@media(max-width:640px){h1{font-size:25px}td.k{width:auto}thead th{position:static}.axis{font-size:10.5px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Rakip Kartı</div>
+  <h1>Kertik — rekabet ve fiyat konumu</h1>
+  <p>16 Ağustos 2026 · Kaynak: açık web araştırması · Rakipler: Forest, Session, Flora, Focus To-Do, TickTick, Toggl Track, Structured</p>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-t="ozet">Ana Bulgu</button>
+  <button class="tab" data-t="matris">Karşılaştırma Matrisi</button>
+  <button class="tab" data-t="fiyat">Fiyat Manzarası</button>
+  <button class="tab" data-t="forest">Forest</button>
+  <button class="tab" data-t="ticktick">TickTick</button>
+  <button class="tab" data-t="structured">Structured</button>
+  <button class="tab" data-t="digerleri">Diğerleri</button>
+  <button class="tab" data-t="oneri">Kertik Kararı</button>
+</nav>
+
+<!-- ============ ÖZET ============ -->
+<section id="ozet" class="active">
+  <p class="lead">Kategorinin altındaki zemin, <code>16-para-kazanma.md</code> yazıldığından beri kaydı. O dosyadaki en güçlü argüman artık geçerli değil — ama yerine daha iyisi geldi.</p>
+
+  <div class="callout bad">
+    <div class="lbl">Dosyadaki hata — düzeltilmeli</div>
+    <p><code>16-para-kazanma.md</code>, "kategori lideri abonelik almıyor, Forest Android'de 1,99 dolar tek seferlik" diyor. <strong>Bu artık doğru değil.</strong> <strong>Aralık 2025'te</strong> Seekrtech, Forest'ı ücretsiz indirme + <em>Forest Plus</em> abonelik modeline geçirdi — ve bu geçiş <strong>tüm platformlarda</strong>, iOS dahil. <em>Forest Pro</em> tek seferlik satın alma yeni kullanıcılara kapatıldı; eski Pro sahipleri hakkını kalıcı olarak koruyor. Plus ~4,99 dolar/ay aralığında.</p>
+    <p style="margin-top:10px;color:var(--tx3);font-size:13px">Yani dosyandaki bilgi sadece eski değil — <strong>modelin kendisi değişmiş.</strong> 2014'ten beri ücretli satılan kategori lideri, sekiz ay önce aboneliğe geçti.</p>
+  </div>
+
+  <div class="callout">
+    <div class="lbl">Ama bu kötü haber değil — asıl fırsat bu</div>
+    <p>Kategorinin tamamı aboneliğe kaydı: Forest ~4,99 $/ay, Session ~4,99 $/ay, Focus Keeper 3,99 $/ay, TickTick 3,99 $/ay, Flora 1,99 $/ay. Kullanıcı tarafındaki tepki de kayıtlı: <em>"Sunduğu şey için abonelik çok pahalı, tek seferlik satın alma uygun olurdu."</em></p>
+    <p>Yani Kertik'in tek seferlik ücreti artık sadece bir fiyat kararı değil, <strong>konumlandırma silahı</strong>. Cümle kendiliğinden yazılıyor: <em>"Bir kere öde. Bir daha ödeme."</em></p>
+  </div>
+
+  <h2>Üç cümlelik özet</h2>
+  <ol>
+    <li><strong>Hacimde yarışılamaz.</strong> Forest 10M+ indirme, 4,5 puan ve kopyalanamaz bir gerçek-ağaç ortaklığına sahip. Tek kişilik bir proje bu tarafta kaybeder.</li>
+    <li><strong>Abonelik yorgunluğu gerçek ve taze.</strong> Kategoride tek seferlik ödeme neredeyse boşaldı — Nudge 6,99 $, Be Focused Pro 19,99 $ gibi birkaç örnek kaldı. Boş alan burası. Forest'ın geçişi <em>sekiz ay önce</em> oldu; kullanıcı hâlâ kızgın.</li>
+    <li><strong>Premium içgüdün doğru, fiyat çapan düşük.</strong> Structured aynı kategoride ömür boyu <strong>99,99 dolar</strong> istiyor. 2,99 $ hedeflemek, kendini ucuz raf ürünü ilan etmek demek.</li>
+  </ol>
+</section>
+
+<!-- ============ MATRİS ============ -->
+<section id="matris">
+  <p class="lead">Yeşil = Kertik kazanıyor · Sarı = başa baş · Kırmızı = rakip kazanıyor</p>
+
+  <h2>Özellik ve model karşılaştırması</h2>
+  <table>
+    <thead><tr><th>Boyut</th><th>Kertik</th><th>Forest</th><th>TickTick</th><th>Structured</th><th>Toggl</th><th></th></tr></thead>
+    <tbody>
+      <tr><td class="k">Ödeme modeli</td><td class="kertik">Tek seferlik</td><td>Abonelik (Plus)</td><td>Abonelik</td><td>Abonelik + ömürlük</td><td>Abonelik</td><td><span class="tag t-win">Kertik</span></td></tr>
+      <tr><td class="k">Sınırsız mola</td><td class="kertik">Var, çekirdek</td><td>Yok — mola bitince sayaç döner</td><td>Kısıtlı</td><td>—</td><td>Serbest</td><td><span class="tag t-win">Kertik</span></td></tr>
+      <tr><td class="k">Kaydı sonradan düzeltme</td><td class="kertik">Var, çekirdek</td><td>Yok</td><td>Yok</td><td>Kısmi</td><td>Var, en iyi hâliyle</td><td><span class="tag t-tie">Toggl ile başa baş</span></td></tr>
+      <tr><td class="k">"Yapamadım" durumu</td><td class="kertik">6 durumlu model + sebep</td><td>Yok</td><td>"Won't Do" var, ritüel yok</td><td>Yok</td><td>Yok</td><td><span class="tag t-win">Kertik</span></td></tr>
+      <tr><td class="k">İstatistik / analitik</td><td class="kertik">Ayna — ücretli</td><td>Focus Analytics — ücretli</td><td>Ücretli</td><td>Ücretli</td><td>Ücretli</td><td><span class="tag t-tie">Sektör normu</span></td></tr>
+      <tr><td class="k">Ana ekran widget'ı</td><td class="kertik">Yok — yapılacak</td><td>Var</td><td>Takvim widget'ı ücretli</td><td>Var, güçlü</td><td>Var</td><td><span class="tag t-lose">Eksik</span></td></tr>
+      <tr><td class="k">Bildirimde canlı sayaç</td><td class="kertik">Var (ham hâlde)</td><td>Var</td><td>Var</td><td>Var, Canlı Aktivite</td><td>Var</td><td><span class="tag t-tie">Başa baş</span></td></tr>
+      <tr><td class="k">Reklam</td><td class="kertik">Hiçbir katmanda yok</td><td>Ücretsizde var</td><td>Yok</td><td>Yok</td><td>Yok</td><td><span class="tag t-win">Kertik</span></td></tr>
+      <tr><td class="k">Ceza / baskı mekaniği</td><td class="kertik">Bilinçli yok</td><td>Ağaç ölür</td><td>Yok</td><td>Yok</td><td>Yok</td><td><span class="tag t-win">Kertik</span></td></tr>
+      <tr><td class="k">Seri / rozet / koleksiyon</td><td class="kertik">Bilinçli yok</td><td>Ağaç türü koleksiyonu</td><td>Var</td><td>Yok</td><td>Yok</td><td><span class="tag t-tie">Tercih meselesi</span></td></tr>
+      <tr><td class="k">Sosyal / arkadaş</td><td class="kertik">Yok</td><td>Birlikte ekme</td><td>Paylaşılan liste</td><td>Yok</td><td>Ekip</td><td><span class="tag t-lose">Rakip</span></td></tr>
+      <tr><td class="k">Bulut senkron</td><td class="kertik">Ücretsiz (Drive appData)</td><td>Hesapla ücretsiz</td><td>Ücretli katmanda ağır</td><td>Ücretli</td><td>Ücretli</td><td><span class="tag t-win">Kertik</span></td></tr>
+      <tr><td class="k">Veriyi dışa aktarma</td><td class="kertik">Ücretsiz, ilkesel</td><td>Kısıtlı</td><td>Ücretli</td><td>Ücretli</td><td>Ücretli</td><td><span class="tag t-win">Kertik</span></td></tr>
+      <tr><td class="k">Olgunluk / güven</td><td class="kertik">0 kullanıcı, 0 yorum</td><td>10M+ indirme, 4,5★</td><td>Milyonlar</td><td>Yıllardır, çok platform</td><td>Kurumsal</td><td><span class="tag t-lose">En zayıf yanımız</span></td></tr>
+      <tr><td class="k">Platform genişliği</td><td class="kertik">Sadece Android</td><td>iOS+Android+eklenti</td><td>Her yerde</td><td>iOS+Android+Mac</td><td>Her yerde</td><td><span class="tag t-lose">Rakip</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Nerede kazanırız, nerede kaybederiz</h2>
+  <div class="grid">
+    <div class="card">
+      <h4><span class="dot d-win"></span>Kazandığımız yer</h4>
+      <ul>
+        <li>Aboneliğe küsmüş, "bir kere ödeyeyim bitsin" diyen kullanıcı</li>
+        <li>Forest'ın ağaç ölmesi baskısını sevmeyen kullanıcı</li>
+        <li>Sınav/uzun çalışma — molası uzun sürenler</li>
+        <li>Kaydının doğru olmasını önemseyen kişi (Toggl kitlesi ama estetik isteyen)</li>
+        <li>Oyunlaştırmadan, seriden, rozetten bunalmış kişi</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4><span class="dot d-lose"></span>Kaybettiğimiz yer</h4>
+      <ul>
+        <li>Sosyal motivasyon isteyen — arkadaşıyla birlikte çalışan öğrenci</li>
+        <li>iPhone kullanıcısı (henüz yokuz)</li>
+        <li>"Bedavası varken neden ödeyeyim" diyen kitle — <em>ve bu kitleyi kovalamıyoruz</em></li>
+        <li>Bilinen markanın güvenini isteyen kişi — 0 yorumla başlıyoruz</li>
+        <li>Masaüstü/tarayıcı entegrasyonu arayan</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Boşluk haritası — güncellenmiş</h2>
+  <div class="axis">        Tek seferlik ödeme / abonelik yok
+                    ▲
+        Nudge ●     │     ◎ KERTİK
+      Be Focused ●  │       (burası boşaldı)
+                    │
+   ─────────────────┼─────────────────▶  Dürüst, düzeltilebilir kayıt
+                    │  ● Toggl
+        Forest ●    │
+       Session ●    │  ● TickTick    ● Structured
+      Focus To-Do ● │
+                    ▼
+              Abonelik
+</div>
+  <p>Eski haritada eksen "estetik" idi. Zemin kaydığı için eksen değişti: artık ayrım <strong>ödeme modeli</strong> üzerinden okunuyor. Sağ üst köşe — tek seferlik <em>ve</em> dürüst kayıt — gerçekten boş.</p>
+</section>
+
+<!-- ============ FİYAT ============ -->
+<section id="fiyat">
+  <p class="lead">Ağustos 2026 itibarıyla kategorideki gerçek rakamlar. Hepsi ABD fiyatı; hepsinin kaynağı sayfanın altında.</p>
+
+  <h2>Abonelik tarafı</h2>
+  <table>
+    <thead><tr><th>Uygulama</th><th>Aylık</th><th>Yıllık</th><th>Ne kilitli</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Forest Plus</td><td>~4,99 $</td><td>~59,88 $</td><td>Focus Analytics, özel tema, uygulama izin listesi, 3× coin</td></tr>
+      <tr><td class="k">Session</td><td>~4,99 $</td><td>~59,88 $</td><td>Tam analitik, senkron</td></tr>
+      <tr><td class="k">TickTick Premium</td><td>3,99 $</td><td>35,99 $</td><td><strong>Takvim widget'ı</strong>, istatistik, geçmiş, filtre</td></tr>
+      <tr><td class="k">Focus Keeper</td><td>3,99 $</td><td>47,88 $</td><td>Analitik, sınırsız ön ayar</td></tr>
+      <tr><td class="k">Flora</td><td>1,99 $</td><td>—</td><td>Kategorinin en ucuz aboneliği</td></tr>
+      <tr><td class="k">Structured Pro</td><td>2,99–4,99 $</td><td>29,99 $</td><td>Ömürlük seçeneği de var: <strong>99,99 $</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Tek seferlik tarafı — dar ve boş</h2>
+  <table>
+    <thead><tr><th>Uygulama</th><th>Fiyat</th><th>Not</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Nudge</td><td>6,99 $</td><td>Widget ve sessiz uyarı <em>ücretsiz</em> katmanda</td></tr>
+      <tr><td class="k">Be Focused Pro</td><td><strong>19,99 $</strong></td><td>App Store listesindeki güncel fiyat. İkincil kaynaklar 9,99 $ diyor — eski veya farklı SKU. Tek seferlik tarafın <strong>tavanı burası.</strong></td></tr>
+      <tr><td class="k">Forest</td><td>3,99 $</td><td>Tarihî iOS fiyatı. <strong>Aralık 2025'ten beri satılmıyor</strong> — tüm platformlarda abonelik.</td></tr>
+      <tr><td class="k">Structured (ömürlük)</td><td>99,99 $</td><td>2021'de 29,99 $ → 2022'de 64,99 $ → 2026'da 99,99 $</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <div class="lbl">Structured örneği neden önemli</div>
+    <p>Structured fiyatını beş yılda 29,99 $'dan 99,99 $'a çıkardı ve hâlâ satıyor. Aynı zamanda <strong>ülkeye göre satın alma gücüne endeksli fiyat</strong> uyguluyor — yani Türkiye'de aynı rakamı istemiyor. Bu tam olarak senin yapmak istediğin şeyin çalıştığının kanıtı: <em>yüksek çapa + yerel indirim</em>.</p>
+    <p>Uyarı: Structured olgun, çok platformlu, yıllardır satılan bir ürün. Kertik gün birinde 99 $ isteyemez. Ama 2,99 $ istemek de gereksiz.</p>
+  </div>
+
+  <h2>Karşılaştırma çizgisi</h2>
+  <p>Bir kullanıcının kafasında kurulacak hesap şu olmalı:</p>
+  <div class="grid">
+    <div class="card"><h4>Forest Plus, bir yıl</h4><div class="price"><b>~60 $</b><span>ve seneye tekrar</span></div></div>
+    <div class="card"><h4>TickTick, bir yıl</h4><div class="price"><b>36 $</b><span>ve seneye tekrar</span></div></div>
+    <div class="card"><h4>Kertik, ömür boyu</h4><div class="price"><b class="kertik">~7–10 $</b><span>bir kere</span></div></div>
+  </div>
+</section>
+
+<!-- ============ FOREST ============ -->
+<section id="forest">
+  <h2>Forest</h2>
+  <div class="meta">
+    <div><span class="lbl">Konum</span>Kategori lideri</div>
+    <div><span class="lbl">İndirme</span>10M+ (Play)</div>
+    <div><span class="lbl">Puan</span>4,5 ★</div>
+    <div><span class="lbl">Model</span>Ücretsiz + Plus aboneliği</div>
+    <div><span class="lbl">Değişim</span>Pro tek seferlik kapatıldı</div>
+  </div>
+
+  <h3>Ne değişti</h3>
+  <p>Android'de artık ücretsiz indiriliyor, ücretsiz katmanda reklam var. <strong>Forest Pro</strong> tek seferlik satın alma yeni kullanıcılara kapandı; yerine <strong>Forest Plus</strong> aboneliği geçti. Mevcut Pro sahipleri kalıcı olarak hakkını koruyor.</p>
+  <p>Plus'ın içinde: özel/mevsimlik ağaç türleri, tüm ses manzaraları, uygulama izin listesi, çoklu Time Guard, <strong>Focus Analytics + özel etiket</strong>, 3× coin, etkinliklerde VIP, hesap başına 5'e kadar gerçek ağaç.</p>
+  <p>Dikkat çekici: uygulama engelleme ve temel analitik ücretsiz katmanda duruyor. Yani Forest ücretsiz katmanı zayıflatarak değil, <em>koleksiyon ve kozmetik</em> üzerinden abonelik satıyor.</p>
+
+  <h3>Nerede kazanıyorlar</h3>
+  <ul>
+    <li><strong>Gerçek ağaç dikimi ortaklığı.</strong> Kopyalanamaz. Yarışma.</li>
+    <li><strong>Sosyal katman.</strong> Birlikte ekme, arkadaş baskısı — tek kişilik projeyle yapılmaz.</li>
+    <li><strong>Marka tanınırlığı.</strong> "Odak uygulaması" denince akla gelen ilk isim.</li>
+  </ul>
+
+  <h3>Nerede kazanırız</h3>
+  <ul>
+    <li><strong>Mola.</strong> Kök şikâyet. Mola bitince sayaç otomatik çalışmaya dönüyor → kayıt şişiyor. Kertik'in var oluş sebebi bu.</li>
+    <li><strong>Kayıt düzeltilemiyor.</strong> Yanlış kayıt sonsuza kadar yanlış kalıyor.</li>
+    <li><strong>Ceza mekaniği.</strong> Ağacın ölmesi bazı insanlarda gerçek kaygı yaratıyor. Kertik hiç suçlamıyor.</li>
+    <li><strong>Abonelik.</strong> Artık ayda ödüyorsun. Biz bir kere.</li>
+    <li><strong>Reklam.</strong> Ücretsiz Forest'ta reklam var. Kertik'in hiçbir katmanında yok.</li>
+  </ul>
+
+  <h3>Play Store yorum sayfasında aranacak cümleler</h3>
+  <p>Bunlar mağaza açıklamanın ham maddesi — kendi kelimelerini onlardan al:</p>
+  <ul>
+    <li>"Mola bitince neden sayaç devam ediyor"</li>
+    <li>"Abonelik olmuş, eskiden bir kere ödüyordum"</li>
+    <li>"Ağaç ölünce gerçekten kötü hissediyorum"</li>
+  </ul>
+</section>
+
+<!-- ============ TICKTICK ============ -->
+<section id="ticktick">
+  <h2>TickTick</h2>
+  <div class="meta">
+    <div><span class="lbl">Model</span>Abonelik</div>
+    <div><span class="lbl">Aylık</span>3,99 $</div>
+    <div><span class="lbl">Yıllık</span>35,99 $ (liste 49,99 $)</div>
+    <div><span class="lbl">Öğrenci</span>%25 indirim</div>
+  </div>
+
+  <h3>Bizim için tek önemli veri</h3>
+  <div class="callout">
+    <div class="lbl">Widget kanıtı</div>
+    <p>TickTick <strong>takvim widget'ını premium katmanda</strong> tutuyor. İstatistik, geçmiş kaydı ve ilerleme takibi de premium. Yani "widget ücretli olur mu" sorusunun sektör cevabı: <strong>evet, olur.</strong></p>
+  </div>
+
+  <h3>Ama dikkat — TickTick'in kaçırdığı şey bizim uyarımız</h3>
+  <p>TickTick'te <strong>"Won't Do"</strong> durumu <em>zaten var</em>. Yani "yapamadım" fikri bakir değil. Fark şurada: TickTick sebep sormuyor, kapasite içgörüsü vermiyor, etrafında ritüel yok. Kertik'in farkı durumun varlığı değil, <strong>etrafındaki nezaket</strong>. Mağaza açıklamasında "yapamadım durumu var" diye övünmek yanlış olur — TickTick kullanıcısı "bizde de var" der. Doğru cümle: <em>"Yapamadığın günü de kaydeder, sebebini sorar, sonra sana ne kadar kapasiten olduğunu gösterir."</em></p>
+
+  <h3>Neden bize rakip değil aslında</h3>
+  <p>Özellik yoğunluğu yüksek, öğrenme eğrisi var. "Annem bu ekranda kaybolur mu?" filtresinden geçemez. Farklı kitle.</p>
+</section>
+
+<!-- ============ STRUCTURED ============ -->
+<section id="structured">
+  <h2>Structured</h2>
+  <div class="meta">
+    <div><span class="lbl">Ömürlük</span>99,99 $ (ABD, 2026)</div>
+    <div><span class="lbl">Yıllık</span>29,99 $</div>
+    <div><span class="lbl">Aylık</span>2,99–4,99 $</div>
+    <div><span class="lbl">Fiyat politikası</span>Ülkeye göre satın alma gücü</div>
+  </div>
+
+  <p class="lead">Rakip değil — <strong>rol modeli</strong>. Senin "premium hissetsin" içgüdünün piyasadaki karşılığı bu.</p>
+
+  <h3>Fiyat yolculuğu</h3>
+  <ul>
+    <li><strong>2021 öncesi:</strong> ömürlük 29,99 $</li>
+    <li><strong>2022 sonrası:</strong> ömürlük 64,99 $</li>
+    <li><strong>2026 (Temmuz):</strong> ömürlük 99,99 $</li>
+  </ul>
+  <p>Beş yılda üç katına çıkardılar ve satmaya devam ediyorlar. Fiyat, ürünün olgunluğuyla birlikte yükseldi — <em>başlangıçta değil</em>.</p>
+
+  <h3>Kertik için üç ders</h3>
+  <ol>
+    <li><strong>Fiyat sonradan artırılabilir, ucuz başlayan marka algısı zor düzelir.</strong> Düşük başlayıp yükseltmek mevcut alıcıları kızdırır; makul başlayıp sabit kalmak temiz.</li>
+    <li><strong>Ülke bazlı satın alma gücü fiyatlaması işliyor.</strong> Küresel yüksek çapa + Türkiye'de belirgin düşük fiyat — dosyandaki plan doğru, sadece çapa düşük.</li>
+    <li><strong>Ömürlük seçeneği abonelikle birlikte yaşayabiliyor.</strong> Bir gün sunucu maliyeti doğarsa model hazır; bugün gerek yok.</li>
+  </ol>
+</section>
+
+<!-- ============ DİĞERLERİ ============ -->
+<section id="digerleri">
+  <h2>Kısa notlar</h2>
+
+  <div class="grid">
+    <div class="card">
+      <h4>Session</h4>
+      <p>~4,99 $/ay. Sakin, minimal, güzel. <strong>Konsept B'nin kanıtı: minimalizm satıyor.</strong> Ama abonelik. Estetik rakibimiz, model rakibimiz değil.</p>
+    </div>
+    <div class="card">
+      <h4>Flora</h4>
+      <p>1,99 $/ay — kategorinin en ucuz aboneliği. Para cezası mekaniği var; ton ilkemizle çelişiyor. Fiyat tabanını görmek için faydalı.</p>
+    </div>
+    <div class="card">
+      <h4>Focus To-Do</h4>
+      <p>Pomodoro + görev birleşimini zaten yapmış. Ücretsizde reklam var, arayüz kalabalık. Birleşim fikri yeni değil — farkımız birleşimin dürüstlüğünde.</p>
+    </div>
+    <div class="card">
+      <h4>Toggl Track</h4>
+      <p>Düzenlenebilir kayıt fikrinin en olgun hâli. Boşta kalma tespiti bizim onaylanmamış süre fikrimizin masaüstü atası. Ama soğuk, iş odaklı, sıfır estetik. En yakın akraba, en uzak ton.</p>
+    </div>
+    <div class="card">
+      <h4>Nudge</h4>
+      <p><strong>6,99 $ tek seferlik.</strong> Widget ve sessiz uyarıyı <em>ücretsiz</em> katmanda tutuyor. Fiyat çapamız için en yakın referans.</p>
+    </div>
+    <div class="card">
+      <h4>Be Focused Pro</h4>
+      <p><strong>19,99 $ tek seferlik</strong> (App Store'daki güncel liste fiyatı). Sade bir pomodoro sayacı bu parayı istiyor ve satıyor. Tek seferlik tarafın tavanı — 6,99 $'ın <em>iddialı</em> değil, <em>ölçülü</em> olduğunu gösteriyor.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ÖNERİ ============ -->
+<section id="oneri">
+  <p class="lead">Araştırmanın sonucu tek bir öneriye indi. Gerekçeleriyle.</p>
+
+  <h2>1. Fiyat: 6,99 $ tek seferlik</h2>
+  <p>2,99–3,99 $ yerine. Gerekçe:</p>
+  <ul>
+    <li>Nudge (6,99 $) ve Be Focused Pro (19,99 $) bu bandın çalıştığını gösteriyor — hatta 6,99 $ bandın <em>alt</em> ucunda kalıyor.</li>
+    <li>Forest Plus'ın <strong>bir yılının sekizde biri</strong>. Karşılaştırma cümlesi kendiliğinden çıkıyor.</li>
+    <li>3 dolar "ucuz uygulama" der; 7 dolar "düşünülmüş alet" der. Aradaki 4 dolar, algının tamamı.</li>
+    <li>Türkiye'de Play'in ülke fiyatlandırmasıyla belirgin düşük yerel rakam — Structured'ın yaptığı gibi.</li>
+  </ul>
+  <p><strong>Yapma:</strong> lansmanda indirim. İndirimle açılan uygulama bir daha tam fiyata dönemiyor.</p>
+
+  <h2>2. Ücretsiz / ücretli sınırını kaydır</h2>
+  <div class="callout bad">
+    <div class="lbl">Mevcut planın kırılma noktası</div>
+    <p><code>16-para-kazanma.md</code> hem <strong>widget'ı</strong> hem <strong>bildirimde canlı sayacı</strong> ücretli katmana koyuyor. Ama uygulamanın gerçek kullanımdaki en büyük sorunu "açıyorum, bir daha dönmüyorum". Yani <em>geri dönmeyi sağlayan her şey ücretli katmanda.</em> Ücretsiz sürüm, unutulmak üzere tasarlanmış olur — kimse değerini görmeden gider, kimse satın almaz.</p>
+  </div>
+
+  <table>
+    <thead><tr><th>Özellik</th><th>Eski plan</th><th>Öneri</th><th>Gerekçe</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Bildirimde canlı sayaç</td><td>Ücretli</td><td class="kertik">Ücretsiz</td><td>Görünmeyen sayaç = güvenilmez kayıt. Bu bir konfor değil, <strong>dürüstlük özelliği</strong>. Ürünün tek iddiası buna bağlı.</td></tr>
+      <tr><td class="k">Basit widget<br>(başlat/durdur + bugünün toplamı)</td><td>Ücretli</td><td class="kertik">Ücretsiz</td><td>Uygulamanın ana ekranda bir yüzü olmalı, yoksa unutuluyor. Nudge widget'ı ücretsiz tutuyor.</td></tr>
+      <tr><td class="k">Zengin widget<br>(desen, hafta görünümü, görev widget'ı)</td><td>—</td><td>Ücretli</td><td>Gerçek ek emek. TickTick takvim widget'ını ücretli tutuyor — emsal var.</td></tr>
+      <tr><td class="k">Ayna (istatistik)</td><td>Ücretli</td><td>Ücretli</td><td>Forest de Focus Analytics'i ücretli tutuyor. Sektör normu.</td></tr>
+      <tr><td class="k">Rahatsız Etmeyin</td><td>Ücretli</td><td>Ücretli</td><td>Native iş, meşru.</td></tr>
+      <tr><td class="k">Seans kartı paylaşımı</td><td>Ücretli</td><td>Ücretli</td><td>Meşru.</td></tr>
+      <tr><td class="k">Geçmiş kayıt / dışa aktarma / senkron</td><td>Ücretsiz</td><td>Ücretsiz</td><td>Tartışmaya kapalı. Doğru karar.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>3. Konumlandırma cümlesi</h2>
+  <p>Eski cümle iyiydi ama zemin kaydı. Güncellenmiş hâli:</p>
+  <div class="callout">
+    <div class="lbl">Mağaza açıklamasının ilk satırı</div>
+    <p style="font-size:17px;color:var(--tx)"><strong>Toggl'ın dürüstlüğü, Forest'ın estetiği, insanın nezaketi.<br>Bir kere öde, bir daha ödeme.</strong></p>
+  </div>
+
+  <h2>4. "Premium hissetsin" içgüdüsü — ayağa sıkmak mı?</h2>
+  <p><strong>Hayır.</strong> Tek kişilik bir proje için hacim yarışı zaten kayıp; niş + ücretli tek tutarlı strateji. Ama iki kelimeyi ayırmak lazım:</p>
+  <div class="grid">
+    <div class="card">
+      <h4><span class="dot d-win"></span>Premium = zanaat</h4>
+      <p>Reklam yok, karanlık desen yok, seri baskısı yok, her ay para istemiyor, tek bir vurgu rengi var, gereksiz ekran yok. <strong>Bu satılabilir ve senin ürünün zaten bu.</strong></p>
+    </div>
+    <div class="card">
+      <h4><span class="dot d-lose"></span>Statü = gösteriş</h4>
+      <p>Statü <em>görülmeyi</em> gerektirir: paylaşım, rozet, sosyal katman. Kertik'te bunların hiçbiri yok ve bilinçli olarak olmayacak. Bu yolu kovalarsan ürünün reddettiği şeyi inşa etmeye başlarsın.</p>
+    </div>
+  </div>
+  <p>Doğru his: <strong>iyi bir defter</strong>. Kimse görmez, sen bilirsin. Ve iyi defter karmaşık değildir — bu yüzden "premium" hedefi ile "annem kaybolur mu" filtresi <em>çelişmiyor</em>, aynı yere bakıyor. Sadelik burada lüks göstergesi.</p>
+
+  <h2>5. Sıralama değişmedi</h2>
+  <ol>
+    <li>Kullanmaya devam et, <code>13-bulgular.md</code>'yi doldur.</li>
+    <li>Tam ekran seans + basit widget + bildirim sayacı — bunlar <em>ücretsiz çekirdeğin</em> parçası, önce bunlar.</li>
+    <li>Sınavdan sonra (27 Eylül 2026) native ve Play süreci.</li>
+    <li>Ücretli katman en son. Kimsenin kullanmadığı uygulamaya fiyat koymak, cevabı olmayan soruya cevap yazmaktır.</li>
+  </ol>
+
+  <footer>
+    <strong>Kaynaklar</strong>
+    <ul>
+      <li><a href="https://forestapp.cc/">forestapp.cc</a> — Forest Plus / Pro model değişikliği, ücretsiz vs ücretli özellikler</li>
+      <li><a href="https://play.google.com/store/apps/details?id=cc.forestapp&hl=en_US">Forest — Google Play</a> — "ücretsiz + uygulama içi satın alma", 10M+ indirme, 4,5★</li>
+      <li><a href="https://toolradar.com/tools/forest/pricing">Toolradar — Forest fiyatlandırma 2026</a> — Android ücretsiz, iOS 3,99 $ tek seferlik</li>
+      <li><a href="https://www.nudge-timer.com/blog/free-vs-paid-focus-timer-apps">Nudge — Ücretsiz vs ücretli odak zamanlayıcıları</a> — Forest/Session ~4,99 $/ay, Flora 1,99 $/ay, Focus Keeper 3,99 $/ay, Nudge 6,99 $, Be Focused 9,99 $; hangi özellikler kilitli</li>
+      <li><a href="https://ellieplanner.com/productivity-copilot/ticktick-pricing">TickTick fiyatlandırma 2026</a> — 3,99 $/ay, 35,99 $/yıl, takvim widget'ı ve istatistik premium</li>
+      <li><a href="https://www.tiltaken.com/articles/structured-app-lifetime-price">TilTaken — Structured ömürlük fiyat geçmişi</a> — 29,99 $ → 64,99 $ → 99,99 $, bölgesel satın alma gücü fiyatlaması</li>
+      <li><a href="https://en.wikipedia.org/wiki/Forest_(application)">Wikipedia — Forest</a> — <strong>Aralık 2025:</strong> Seekrtech ücretsiz indirme + Forest Plus aboneliğine geçti; 2014'ten beri ücretli satılıyordu</li>
+      <li><a href="https://apps.apple.com/us/app/be-focused-pro-focus-timer/id953426154">App Store — Be Focused Pro</a> — 19,99 $ tek seferlik</li>
+      <li><a href="https://calmevo.com/forest-app-review/">Calmevo — Forest incelemesi 2026</a> (dikkat: bu kaynak hâlâ eski "Android 1,99 $ tek seferlik" bilgisini veriyor — birincil kaynakla çelişiyor)</li>
+    </ul>
+    <p style="margin-top:14px">Fiyatlar ABD dolarıdır ve değişebilir. Play Console'da yayın anındaki gerçek rakamlarla teyit edilmeli.</p>
+  </footer>
+</section>
+
+</div>
+<script>
+document.querySelectorAll('.tab').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active')});
+    document.querySelectorAll('section').forEach(function(x){x.classList.remove('active')});
+    b.classList.add('active');
+    document.getElementById(b.dataset.t).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kertik — Gerçek Kronometre (Dairesel Kadran & Ebru) ve Pomodoro Uyumu</title>
+<style>
+:root {
+  --bg: #F4F2EE;
+  --bg2: #EAE6DC;
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-border: #DCD5C5;
+  --ink: #16181B;
+  --ink2: #3E4148;
+  --muted: #727986;
+  --faint: #9EA6B4;
+  --line: #D2DCE6;
+  --track: #D2DCE6;
+  
+  /* PALET 1: UYUMLU İNDİGO & KOBALT (Lapis Lazuli Eşi) */
+  --acc-indigo: #25477B;
+  --cool-indigo: #4A827D;
+
+  /* PALET 2: ORİJİNAL KİREMİT / TERRACOTTA */
+  --acc-terra: #B05237;
+  --cool-terra: #3E7C77;
+
+  /* PALET 3: KEHRİBAR / ALTIN */
+  --acc-amber: #B87A28;
+  --cool-amber: #4A827D;
+
+  /* Aktif Seçili Palet */
+  --accent: var(--acc-indigo);
+  --cool: var(--cool-indigo);
+
+  --tas: #1E365C;
+  --tas-isik: #3D6BB0;
+  --altin: #D4AF37;
+  --shadow: rgba(20, 35, 60, 0.18);
+}
+
+:root.dark {
+  --bg: #111317;
+  --bg2: #181B22;
+  --surface: rgba(24, 26, 32, 0.85);
+  --surface-border: #2A2D36;
+  --ink: #F2EFE8;
+  --ink2: #C8C4B8;
+  --muted: #8E8A80;
+  --faint: #5C584E;
+  --line: #282B37;
+  --track: #282B37;
+
+  --acc-indigo: #D8AF54;
+  --cool-indigo: #79B3AE;
+
+  --acc-terra: #D0785B;
+  --cool-terra: #79B3AE;
+
+  --acc-amber: #E2B056;
+  --cool-amber: #79B3AE;
+
+  --accent: var(--acc-indigo);
+  --cool: var(--cool-indigo);
+
+  --tas: #E4E0D6;
+  --tas-isik: #FAF8F2;
+  --altin: #D8AF54;
+  --shadow: rgba(0, 0, 0, 0.75);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--bg2);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  font-size: 14.5px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding: 24px 20px 80px;
+  transition: background .4s cubic-bezier(0.4, 0, 0.2, 1), color .4s ease;
+}
+
+.wrap { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+
+/* Header */
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--surface-border);
+}
+.header-title h1 { font-size: 22px; font-weight: 400; letter-spacing: -.03em; margin: 0; }
+.header-title p { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+.btn-pill {
+  border: 1px solid var(--surface-border);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .2s;
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-pill:hover { border-color: var(--ink); transform: translateY(-1px); }
+.btn-pill.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(37, 71, 123, 0.12);
+  font-weight: 600;
+}
+:root.dark .btn-pill.active {
+  background: rgba(216, 175, 84, 0.14);
+}
+
+/* Master 2-Phone Showcase Grid */
+.showcase-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-bottom: 28px;
+}
+@media(max-width: 780px) { .showcase-grid { grid-template-columns: 1fr; } }
+
+.card-device {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 36px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 20px 48px var(--shadow);
+  backdrop-filter: blur(16px);
+}
+
+.device-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+.device-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(37, 71, 123, 0.12);
+  color: var(--accent);
+}
+:root.dark .device-badge { background: rgba(216, 175, 84, 0.16); }
+
+.phone-view {
+  width: 100%;
+  max-width: 330px;
+  height: 640px;
+  border-radius: 40px;
+  overflow: hidden;
+  position: relative;
+  background: var(--bg);
+  border: 1px solid var(--surface-border);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15), 0 16px 36px rgba(0,0,0,0.14);
+  cursor: pointer;
+  user-select: none;
+}
+
+.phone-view canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* UI Overlay for Stopwatch (Dairesel Kadran & Ebru) */
+.stopwatch-ui {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 34px 20px 60px;
+  pointer-events: none;
+  z-index: 10;
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.dialwrap {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  display: grid;
+  place-items: center;
+}
+.dialwrap svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.dcenter {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.dclock {
+  font-size: 42px;
+  font-weight: 250;
+  letter-spacing: -.04em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--ink);
+}
+.dcapt { font-size: 12px; letter-spacing: .02em; color: var(--muted); }
+.dnote { margin-top: 18px; font-size: 14.5px; color: var(--ink2); font-weight: 500; }
+.dsub { margin-top: 4px; font-size: 12.5px; color: var(--muted); }
+
+.ctrls {
+  margin-top: auto;
+  display: flex;
+  gap: 12px;
+}
+.ctrls span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 20px;
+  font-size: 13.5px;
+  color: var(--ink2);
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+}
+.ctrls span.acc {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* UI Overlay for Pomodoro */
+.pomodoro-ui {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 38px 20px 24px;
+  pointer-events: none;
+  z-index: 10;
+}
+.pomo-head { display: flex; flex-direction: column; align-items: center; }
+.pomo-tag {
+  font-size: 10.5px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--accent);
+}
+.pomo-title { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.pomo-clock {
+  font-size: 46px;
+  font-weight: 200;
+  letter-spacing: -.04em;
+  color: var(--ink);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  margin-top: 14%;
+}
+.pomo-foot {
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  padding: 4px 12px;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+}
+
+/* Master Control Dock */
+.control-dock {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 24px;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 32px var(--shadow);
+  margin-bottom: 24px;
+}
+.slider-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+.sim-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--line);
+  outline: none;
+  cursor: pointer;
+}
+.sim-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.dock-palette-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--surface-border);
+}
+.palette-selector {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-title">
+      <h1>Kertik — Gerçek Kronometre & Pomodoro Renk Uyumu Laboratuvarı</h1>
+      <p>Gerçek Ebru ve Dairesel Kadran motoru üzerinde farklı renk paletlerini Pomodoro taş havuzuyla yan yana test edin.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-pill" id="themeBtn" onclick="toggleTheme()">🌓 Açık / Koyu</button>
+      <button class="btn-pill" onclick="resetAll()">🔄 Sıfırla</button>
+    </div>
+  </header>
+
+  <!-- Showcase Stage -->
+  <div class="showcase-grid">
+
+    <!-- 1. SOL: GERÇEK KRONOMETRE (DAİRESEL KADRAN & EBRU AKIŞI) -->
+    <div class="card-device">
+      <div class="device-header">
+        <strong style="font-size:15px;">⏱️ Kronometre (Dairesel Kadran & Ebru)</strong>
+        <span class="device-badge" id="swBadge">Gerçek Ebru</span>
+      </div>
+      <div class="phone-view" id="phoneStopwatch">
+        <canvas id="cvEbru"></canvas>
+        <div class="stopwatch-ui">
+          <div class="eyebrow" id="swEye">ÇALIŞIYOR</div>
+          <div class="dialwrap">
+            <svg id="dial" viewBox="0 0 310 310"></svg>
+            <div class="dcenter">
+              <div class="dclock" id="swClock">00:47</div>
+              <div class="dcapt" id="swCapt">1. saat, 47. çentik</div>
+            </div>
+          </div>
+          <div class="dnote">tez — kaynak taraması</div>
+          <div class="dsub" id="swSub">bugün 85 dakika · 2 seans</div>
+          <div class="ctrls"><span>mola</span><span class="acc">bitir</span></div>
+        </div>
+      </div>
+      <div style="font-size:12.5px; color:var(--muted); margin-top:14px; text-align:center;">
+        <strong>Yapı:</strong> Merkezde dairesel konsantrik kadran + Arka planda yaşayan Ebru akış şeritleri.
+      </div>
+    </div>
+
+    <!-- 2. SAĞ: GERÇEK POMODORO (LAPIS LAZULI & KUM) -->
+    <div class="card-device">
+      <div class="device-header">
+        <strong style="font-size:15px;">⏳ Pomodoro (Kum & Lapis Lazuli)</strong>
+        <span class="device-badge">Zen Bahçesi</span>
+      </div>
+      <div class="phone-view" id="phonePomodoro">
+        <canvas id="cvPomo"></canvas>
+        <div class="pomodoro-ui">
+          <div class="pomo-head">
+            <span class="pomo-tag">POMODORO · 25 DK</span>
+            <span class="pomo-title">Felsefe Makalesi</span>
+          </div>
+
+          <div class="pomo-clock" id="pomoClock">25:00</div>
+
+          <div class="pomo-foot">Zen Kum Havuzu</div>
+        </div>
+      </div>
+      <div style="font-size:12.5px; color:var(--muted); margin-top:14px; text-align:center;">
+        <strong>Yapı:</strong> Gümüş Kuarz Kumu üzerinde Lapis Lazuli / Beyaz Ay Taşı ve Samon tırmığı.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Master Control Dock -->
+  <div class="control-dock">
+    <!-- Slider -->
+    <div class="slider-row">
+      <span>⏱️ Eşzamanlı Dakika İlerlemesi:</span>
+      <span id="sliderLabel" style="color:var(--accent); font-weight:700;">47. dakika</span>
+    </div>
+    <input type="range" min="0" max="180" value="47" class="sim-slider" id="progressSlider" oninput="onSliderChange(this.value)">
+
+    <!-- Palet Seçici -->
+    <div class="dock-palette-row">
+      <span style="font-size:13px; font-weight:600; color:var(--muted);">Kronometre Renk Paletini Dene:</span>
+      <div class="palette-selector">
+        <button class="btn-pill active" id="pal1" onclick="setPalette('indigo', this)">🔵 Çivit / İndigo Paleti (Lapis ile Uyumlu)</button>
+        <button class="btn-pill" id="pal2" onclick="setPalette('terra', this)">🟠 Eski Kiremit / Terracotta</button>
+        <button class="btn-pill" id="pal3" onclick="setPalette('amber', this)">🟡 Kehribar / Altın Paleti</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="afilli-cekirdek.js"></script>
+<script>
+/* ==========================================================================
+   EBRU & DAİRESEL KADRAN MOTORU (tasarim/akis-afilli.html ile BİREBİR)
+   ========================================================================== */
+const W = 330, H = 640;
+const K_EBRU = {
+  ilkDolum: 80, katOran: 3, kademeSayi: 5, dsep0: 1.7, bol: 1.5, dene0: 20000,
+  incelmeOran: .78, katki: .58, tonBuyume: .42, isikBuyume: .34, yikamaBuyume: .55,
+  maxl: 700, af: [2.6, 6, 13],
+  katman: [[.62, .80, .16, .11, 0], [.28, 1.35, .34, .24, 0], [.10, 2.30, .52, .40, 9]],
+  ton: 16, isik: .11, parca: 9, halo: [.46, .88], alt: .11
+};
+
+let currentMinute = 47;
+let currentPalette = "indigo";
+const seansData = { id: "af-live", dk: 180, molalar: [[52, 64], [121, 131]] };
+
+/* Ebru Hesap Önbelleği */
+let C_EBRU = null;
+function hesaplaEbru(se) {
+  if (C_EBRU) return C_EBRU;
+  const seed = hash32(se.id);
+  const KD = kademeler(K_EBRU);
+  const veri = []; let eskiler = [];
+  for (const kd of KD) {
+    const serit = kademeHesapla(seed, W, H, K_EBRU, kd.dsep, kd.dene, eskiler, kd.n * 977);
+    veri.push({ kd, serit, sira: agirlikSirasi(serit, W, seed + kd.n * 13) });
+    eskiler = eskiler.concat(serit);
+    if (kd.bitis > 4200) break;
+  }
+  C_EBRU = veri;
+  return veri;
+}
+
+function paletiEbru() {
+  const st = getComputedStyle(document.documentElement);
+  const acc = st.getPropertyValue("--accent").trim();
+  const cool = st.getPropertyValue("--cool").trim();
+  return { acc, cool, accH: hexHsl(acc), coolH: hexHsl(cool),
+          koyu: document.documentElement.classList.contains("dark") };
+}
+
+function renkEbru(P, q, silik, n) {
+  const hsl = P.accH;
+  if (!hsl) return silik ? P.cool : P.acc;
+  const k = q * 2 - 1;
+  const ton = K_EBRU.ton * (1 + K_EBRU.tonBuyume * n);
+  const isik = K_EBRU.isik * (1 + K_EBRU.isikBuyume * n);
+  const h = (hsl[0] + k * ton + 360) % 360;
+  let l = Math.min(.94, Math.max(.06, hsl[2] - k * isik)), s = hsl[1];
+  if (silik) { s *= .55; l = P.koyu ? l * .86 : l + (1 - l) * .34; }
+  return "hsl(" + h.toFixed(1) + "," + (s * 100).toFixed(1) + "%," + (l * 100).toFixed(1) + "%)";
+}
+
+function planEbru(se, dk) {
+  const veri = hesaplaEbru(se), out = [];
+  for (const v of veri) {
+    const d = doluluk(v.kd, dk); if (d <= 0) break;
+    out.push({ ...v, d, adet: Math.floor(v.serit.length * d) });
+    if (d < 1) break;
+  }
+  const ilk = out.length ? (out[0].adet || 1) : 1;
+  for (const v of out) {
+    v.alfaKat = v.kd.n === 0 ? 1 : Math.min(1, K_EBRU.katki * ilk / Math.max(1, v.adet * v.kd.incelme));
+  }
+  return out;
+}
+
+function seritCizEbru(g, P, v, i, se) {
+  const q = v.sira[i];
+  let pay = 0, kat = K_EBRU.katman[0];
+  for (const kk of K_EBRU.katman) { pay += kk[0]; kat = kk; if (q < pay) break; }
+  const dkSerit = v.kd.bas + (i / v.serit.length) * (v.kd.bitis - v.kd.bas);
+  let mola = false; for (const b of (se.molalar || [])) if (dkSerit >= b[0] && dkSerit < b[1]) mola = true;
+  const silik = mola;
+  const a = (P.koyu ? kat[2] : kat[3]) * (silik ? .42 : 1) * v.alfaKat;
+  const kal = kat[1] * v.kd.incelme * (silik ? .85 : 1);
+  const p = v.serit[i];
+  if (!p || p.length < 6) return;
+
+  if (kat[4] && !silik) {
+    g.strokeStyle = P.acc;
+    g.lineWidth = kat[4] * v.kd.incelme * (1 + K_EBRU.yikamaBuyume * v.kd.n);
+    g.globalAlpha = a * .13;
+    g.beginPath(); g.moveTo(p[0], p[1]);
+    for (let k = 2; k < p.length; k += 2) g.lineTo(p[k], p[k + 1]);
+    g.stroke();
+  }
+  g.strokeStyle = renkEbru(P, q, silik, v.kd.n);
+  g.globalAlpha = a;
+  firca(g, p, kal, hash32(se.id) + i, K_EBRU.parca);
+}
+
+let OFF_CV = null, OFF_G = null;
+function renderEbru(dk) {
+  const cv = document.getElementById("cvEbru");
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  if (cv.width !== W * dpr) { cv.width = W * dpr; cv.height = H * dpr; }
+  if (!OFF_CV) OFF_CV = document.createElement("canvas");
+  if (OFF_CV.width !== W * dpr) { OFF_CV.width = W * dpr; OFF_CV.height = H * dpr; OFF_G = OFF_CV.getContext("2d"); }
+
+  OFF_G.setTransform(1, 0, 0, 1, 0, 0);
+  OFF_G.clearRect(0, 0, OFF_CV.width, OFF_CV.height);
+  OFF_G.setTransform(dpr, 0, 0, dpr, 0, 0);
+  OFF_G.lineCap = "round"; OFF_G.lineJoin = "round";
+
+  const P = paletiEbru();
+  for (const v of planEbru(seansData, dk)) {
+    for (let i = 0; i < v.adet; i++) seritCizEbru(OFF_G, P, v, i, seansData);
+  }
+
+  const g = cv.getContext("2d");
+  const st = getComputedStyle(document.documentElement);
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.clearRect(0, 0, cv.width, cv.height);
+  g.fillStyle = st.getPropertyValue("--bg").trim();
+  g.fillRect(0, 0, cv.width, cv.height);
+  g.drawImage(OFF_CV, 0, 0);
+
+  // Kadran Çevresi Yumuşak Halo Açma
+  g.globalCompositeOperation = "destination-out";
+  const cx = (W / 2) * dpr, cy = 195 * dpr, rad = 110 * dpr;
+  const gr = g.createRadialGradient(cx, cy, rad * K_EBRU.halo[0], cx, cy, rad * K_EBRU.halo[1] * 1.55);
+  gr.addColorStop(0, "rgba(0,0,0,1)");
+  gr.addColorStop(.45, "rgba(0,0,0,.74)");
+  gr.addColorStop(.78, "rgba(0,0,0,.26)");
+  gr.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = gr;
+  g.fillRect(0, 0, cv.width, cv.height);
+  g.globalCompositeOperation = "source-over";
+}
+
+/* Dairesel Kadran Çizimi (SVG) */
+const NS = "http://www.w3.org/2000/svg";
+const mk = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+const CX = 155, CY = 155, R0 = 100, GAP = 15, GOSTER = 3;
+
+function renderKadran(dk) {
+  const svg = document.getElementById("dial");
+  svg.innerHTML = "";
+  const st = getComputedStyle(document.documentElement);
+  const acc = st.getPropertyValue("--accent").trim();
+  const trk = st.getPropertyValue("--track").trim();
+  const cool = st.getPropertyValue("--cool").trim();
+
+  const tur = m => {
+    for (const b of (seansData.molalar || [])) if (m >= b[0] && m < b[1]) return "mola";
+    return "is";
+  };
+
+  const toplam = Math.max(1, Math.ceil(dk / 60)), ilk = Math.max(0, toplam - GOSTER);
+  const g = mk("g", {}); svg.appendChild(g);
+  const arc = (r, a0, a1) => {
+    const p = a => [CX + r * Math.cos(a * Math.PI / 180), CY + r * Math.sin(a * Math.PI / 180)];
+    const [x0, y0] = p(a0), [x1, y1] = p(a1);
+    return `M ${x0.toFixed(2)} ${y0.toFixed(2)} A ${r} ${r} 0 ${Math.abs(a1 - a0) > 180 ? 1 : 0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
+  };
+  const yari = k => R0 + (k - ilk) * GAP, sol = k => k === ilk && ilk > 0 ? .35 : 1;
+
+  for (let k = ilk; k < toplam; k++) {
+    const f = k * 60, t = Math.min(dk, (k + 1) * 60);
+    if (t <= f) continue;
+    g.appendChild(mk("path", {
+      d: arc(yari(k), (f - k * 60) * 6 - 90, Math.max((t - k * 60) * 6 - 90, (f - k * 60) * 6 - 89.9)),
+      fill: "none", stroke: trk, "stroke-width": 1.2, "stroke-linecap": "round", opacity: .55 * sol(k)
+    }));
+  }
+
+  for (let m = ilk * 60; m < Math.floor(dk); m++) {
+    if (tur(m) === "mola") continue;
+    const k = Math.floor(m / 60), mm = m % 60;
+    let h = 6.0; if (mm === 0) h = 13; else if (mm % 15 === 0) h = 11; else if (mm % 5 === 0) h = 8.5;
+    const r = yari(k), a = (mm * 6 - 90) * Math.PI / 180;
+    g.appendChild(mk("line", {
+      x1: (CX + (r - h / 2) * Math.cos(a)).toFixed(2), y1: (CY + (r - h / 2) * Math.sin(a)).toFixed(2),
+      x2: (CX + (r + h / 2) * Math.cos(a)).toFixed(2), y2: (CY + (r + h / 2) * Math.sin(a)).toFixed(2),
+      stroke: acc, "stroke-width": 1.8, "stroke-linecap": "round", opacity: sol(k)
+    }));
+  }
+
+  for (const b of (seansData.molalar || [])) {
+    let a = Math.max(b[0], ilk * 60); const son = Math.min(b[1], dk);
+    while (a < son) {
+      const k = Math.floor(a / 60), e = Math.min(son, (k + 1) * 60);
+      if (e > a + .05) {
+        g.appendChild(mk("path", {
+          d: arc(yari(k), (a - k * 60) * 6 - 90, (e - k * 60) * 6 - 90),
+          fill: "none", stroke: cool, "stroke-width": 2.6, "stroke-linecap": "round", opacity: .5 * sol(k)
+        }));
+      }
+      a = e;
+    }
+  }
+}
+
+/* ==========================================================================
+   POMODORO MOTORU (LAPIS & KUM)
+   ========================================================================== */
+function renderPomodoro(ratio) {
+  const cv = document.getElementById("cvPomo");
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  if (cv.width !== W * dpr) { cv.width = W * dpr; cv.height = H * dpr; }
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const isDark = document.documentElement.classList.contains("dark");
+  const bg = isDark ? "#111317" : "#F4F2EE";
+  const sandLine = isDark ? "#282B37" : "#D2DCE6";
+  const shadow = isDark ? "rgba(0,0,0,0.85)" : "rgba(18, 32, 55, 0.24)";
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  const st = { x: W * 0.50, y: H * 0.65, r: W * 0.20, e: 0.88, angle: -0.15, seed: 101 };
+
+  // Samon Su Dalgaları
+  ctx.save();
+  ctx.lineCap = "round";
+  for (let ring = 1; ring <= 4; ring++) {
+    const rad = st.r * (1.18 + ring * 0.32);
+    ctx.beginPath();
+    for (let i = 0; i <= 36; i++) {
+      const a = (i / 36) * Math.PI * 2;
+      const rx = Math.cos(a) * rad;
+      const ry = Math.sin(a) * rad * st.e;
+      i ? ctx.lineTo(st.x + rx, st.y + ry) : ctx.moveTo(st.x + rx, st.y + ry);
+    }
+    ctx.strokeStyle = sandLine;
+    ctx.lineWidth = Math.max(0.8, 1.9 - ring * 0.3);
+    ctx.globalAlpha = Math.max(0.18, 0.65 - ring * 0.12);
+    ctx.stroke();
+  }
+
+  // Tırmık
+  const maxY = Math.min(H, 24 + (H - 24) * ratio);
+  for (let y = 24; y < maxY; y += 18) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    for (let x = 0; x <= W; x += 10) {
+      let dy = Math.sin(x * 0.015 + y * 0.03) * 1.5;
+      const d = Math.hypot(x - st.x, y - st.y);
+      if (d < st.r * 2.2) dy += (y > st.y ? 1 : -1) * (1 - d / (st.r * 2.2)) * 16;
+      ctx.lineTo(x, y + dy);
+    }
+    ctx.strokeStyle = sandLine;
+    ctx.lineWidth = 1.4;
+    ctx.globalAlpha = 0.55;
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Taş
+  ctx.save();
+  ctx.translate(st.x, st.y);
+  ctx.rotate(st.angle);
+
+  const gr = ctx.createRadialGradient(st.r * 0.15, st.r * 0.25, st.r * 0.2, st.r * 0.15, st.r * 0.25, st.r * 1.35);
+  gr.addColorStop(0, shadow); gr.addColorStop(0.7, shadow); gr.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = gr;
+  ctx.beginPath();
+  ctx.ellipse(st.r * 0.15, st.r * 0.25, st.r * 1.35, st.r * st.e * 1.35, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.scale(1, st.e);
+  const N = 32;
+  const pts = [];
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * Math.PI * 2;
+    const rr = st.r * (0.90 + fbm(Math.cos(a) * 2.2 + 2, Math.sin(a) * 2.2 + 6, st.seed) * 0.25);
+    pts.push([Math.cos(a) * rr, Math.sin(a) * rr]);
+  }
+
+  if (!isDark) {
+    ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fillStyle = "#1E365C";
+    ctx.fill();
+
+    ctx.save();
+    ctx.beginPath();
+    for (let i = 0; i <= Math.floor(N * 0.55); i++) i ? ctx.lineTo(pts[i][0] * 0.88, pts[i][1] * 0.88) : ctx.moveTo(pts[i][0] * 0.88, pts[i][1] * 0.88);
+    for (let i = Math.floor(N * 0.55); i >= 0; i--) ctx.lineTo(pts[i][0] * 0.25, pts[i][1] * 0.25);
+    ctx.closePath();
+    ctx.fillStyle = "#3D6BB0"; ctx.globalAlpha = 0.75;
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    const R_pyr = rng32(st.seed + 77);
+    ctx.fillStyle = "#D4AF37";
+    for (let i = 0; i < 16; i++) {
+      const px = (R_pyr() - 0.5) * st.r * 1.25, py = (R_pyr() - 0.5) * st.r * 1.25;
+      ctx.globalAlpha = 0.75 + R_pyr() * 0.25;
+      ctx.fillRect(px, py, 1.2, 1.2);
+    }
+    ctx.restore();
+  } else {
+    ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fillStyle = "#E4E0D6";
+    ctx.fill();
+
+    ctx.save();
+    ctx.beginPath();
+    for (let i = 0; i <= Math.floor(N * 0.55); i++) i ? ctx.lineTo(pts[i][0] * 0.88, pts[i][1] * 0.88) : ctx.moveTo(pts[i][0] * 0.88, pts[i][1] * 0.88);
+    for (let i = Math.floor(N * 0.55); i >= 0; i--) ctx.lineTo(pts[i][0] * 0.25, pts[i][1] * 0.25);
+    ctx.closePath();
+    ctx.fillStyle = "#FAF8F2"; ctx.globalAlpha = 0.85;
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+/* ==========================================================================
+   ETKİLEŞİMLER & GÜNCELLEME
+   ========================================================================== */
+function tazele() {
+  renderEbru(currentMinute);
+  renderKadran(currentMinute);
+  
+  const s = Math.floor(currentMinute / 60), d = Math.floor(currentMinute % 60);
+  document.getElementById("swClock").textContent = (s ? String(s).padStart(2, "0") + ":" : "") + String(d).padStart(2, "0");
+  document.getElementById("swCapt").textContent = (Math.floor(currentMinute / 60) + 1) + ". saat, " + (Math.floor(currentMinute) % 60) + ". çentik";
+
+  const mola = (seansData.molalar || []).some(b => currentMinute >= b[0] && currentMinute < b[1]);
+  document.getElementById("swEye").textContent = mola ? "MOLADA" : "ÇALIŞIYOR";
+  document.getElementById("swEye").style.color = mola ? "var(--cool)" : "var(--accent)";
+
+  const pomoProgress = Math.min(1.0, (currentMinute % 25) / 25 || 1.0);
+  renderPomodoro(pomoProgress);
+  const remSec = Math.round(25 * 60 * (1 - pomoProgress));
+  const pm = Math.floor(remSec / 60), ps = remSec % 60;
+  document.getElementById("pomoClock").textContent = `${pm < 10 ? '0'+pm : pm}:${ps < 10 ? '0'+ps : ps}`;
+
+  document.getElementById("sliderLabel").textContent = `${currentMinute}. dakika`;
+}
+
+function onSliderChange(val) {
+  currentMinute = +val;
+  tazele();
+}
+
+function setPalette(pal, btn) {
+  currentPalette = pal;
+  document.querySelectorAll('.palette-selector button').forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+
+  if (pal === "indigo") {
+    document.documentElement.style.setProperty("--accent", "var(--acc-indigo)");
+    document.documentElement.style.setProperty("--cool", "var(--cool-indigo)");
+  } else if (pal === "terra") {
+    document.documentElement.style.setProperty("--accent", "var(--acc-terra)");
+    document.documentElement.style.setProperty("--cool", "var(--cool-terra)");
+  } else if (pal === "amber") {
+    document.documentElement.style.setProperty("--accent", "var(--acc-amber)");
+    document.documentElement.style.setProperty("--cool", "var(--cool-amber)");
+  }
+  tazele();
+}
+
+function toggleTheme() {
+  document.documentElement.classList.toggle("dark");
+  tazele();
+}
+
+function resetAll() {
+  currentMinute = 47;
+  document.getElementById("progressSlider").value = 47;
+  setPalette("indigo", document.getElementById("pal1"));
+}
+
+window.addEventListener("resize", tazele);
+window.addEventListener("load", tazele);
+</script>
+</body>
+</html>

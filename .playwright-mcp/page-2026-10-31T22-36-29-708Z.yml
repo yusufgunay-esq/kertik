@@ -1,0 +1,22 @@
+- generic [ref=f11e3]:
+  - heading "Yazı masası, ikinci sürüm" [level=3] [ref=f11e4]
+  - generic [ref=f11e5]:
+    - button "canlı" [ref=f11e6] [cursor=pointer]
+    - button "günü gez" [ref=f11e7] [cursor=pointer]
+  - generic [ref=f11e8]:
+    - generic [ref=f11e9]:
+      - 'button "kronometre: ensō" [ref=f11e10] [cursor=pointer]'
+      - 'button "pomodoro: tütsü" [ref=f11e11] [cursor=pointer]'
+    - generic [ref=f11e12]:
+      - button "başlat" [ref=f11e13] [cursor=pointer]
+      - button "mola" [disabled] [ref=f11e14]
+      - button "devam" [disabled] [ref=f11e15]
+      - button "bitir" [disabled] [ref=f11e16]
+    - generic [ref=f11e17]: "hız: 60× (1 gerçek saniye = 1 dk)"
+    - slider [ref=f11e18]: "60"
+  - generic [ref=f11e19]:
+    - 'button "ses: kapalı" [ref=f11e20] [cursor=pointer]'
+    - 'button "titreşim: açık" [ref=f11e21] [cursor=pointer]'
+    - button "koyu tema" [ref=f11e22] [cursor=pointer]
+  - generic [ref=f11e23]: olaylar burada görünür
+  - generic [ref=f11e24]: Her olay için yazılan titreşim kalıbı Android'de gerçekten titrer, masaüstünde yalnız burada görünür. Sesler şimdilik sentez (gürültü ve süzgeç); gerçek kayıtla değişecek.

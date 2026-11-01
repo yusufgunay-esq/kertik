@@ -1,0 +1,33 @@
+/* Kertik — palet v3.1
+   sumi mürekkep · washi kâğıt · aizome çivit (canlı sanat) · ahşap+zincifre (kayıt) · shu mühür · kintsugi
+   v3 -> v3.1: çentik rampası ve köprü sıcak ahşaba geri döndü; mola zıt renk değil solgun. */
+
+:root{
+  /* Kâğıt & sumi */
+  --bg:#F5F1E6; --bg2:#EBE5D6; --ink:#1A1B1E; --ink2:#3C3E44; --muted:#6E6A61; --faint:#A09A8C; --line:#DCD5C4; --track:#DCD5C4;
+  /* Roller */
+  --accent:#B4432B; --sanat:#2C5473; --cool:#7A8791; --altin:#C9A227; --altin-p:#EBD48A;
+  /* Durum */
+  --ok:#4E6B4A; --warn:#9A7526; --danger:#9C3F33;
+  /* Ahşap & çentik */
+  --is1:#8E3F2B; --is2:#A9614A; --is3:#C08D75; --kopru:#8A6A4F; --mola1:#8E9AA3; --mola2:#B4BEC5;
+  /* Taş & kum */
+  --tas:#22374F; --tas-golge:#131E2B; --tas-isik:#5B87A8; --sand:#E3DDCE; --shadow:#CFC7B4;
+  /* Yüzeyler */
+  --fill:#1A1B1E; --onFill:#F5F1E6; --segsel:#FBF8F0; --knob:#FFFDF6;
+}
+
+:root.dark{
+  /* Kâğıt & sumi */
+  --bg:#131417; --bg2:#1B1D22; --ink:#EDE8DC; --ink2:#BAB4A7; --muted:#8F8A7E; --faint:#65605A; --line:#292B31; --track:#292B31;
+  /* Roller */
+  --accent:#D3785A; --sanat:#6E9BB5; --cool:#7E8B96; --altin:#DFBB63; --altin-p:#F2DDA0;
+  /* Durum */
+  --ok:#7C9B77; --warn:#C0994C; --danger:#D08A7E;
+  /* Ahşap & çentik */
+  --is1:#B45C40; --is2:#D0785B; --is3:#E3A88C; --kopru:#A98A6C; --mola1:#5E6A75; --mola2:#8A959E;
+  /* Taş & kum */
+  --tas:#E6E1D5; --tas-golge:#000000; --tas-isik:#FBF8F1; --sand:#2A2C31; --shadow:#08090B;
+  /* Yüzeyler */
+  --fill:#EDE8DC; --onFill:#131417; --segsel:#43454C; --knob:#F1ECE0;
+}

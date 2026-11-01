@@ -1,0 +1,1654 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kertik — Kum Havuzu: Çoklu Taş Birikimi & Hassas Kum Silinme Laboratuvarı</title>
+<style>
+:root{
+  --bg:#F5F2EA; --bg2:#EFEBE1; --ink:#16181B; --ink2:#3E4148;
+  --muted:#726E65; --faint:#9C978C; --line:#DCD5C6; --track:#DCD6C7;
+  --acc:#B05237; --cool:#3E7C77; --sand:#8C8577; --shadow:#CFC7B4;
+  --card-bg:rgba(255,255,255,0.65); --glass:rgba(239,235,225,0.75);
+}
+:root.dark{
+  --bg:#16171A; --bg2:#212227; --ink:#EDE9E0; --ink2:#BCB7AC;
+  --muted:#948F84; --faint:#6A665E; --line:#2E2F34; --track:#33343A;
+  --acc:#D0785B; --cool:#79B3AE; --sand:#A9B2BC; --shadow:#0C0E11;
+  --card-bg:rgba(28,29,33,0.65); --glass:rgba(33,34,39,0.75);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{
+  background:var(--bg2);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  transition:background .4s ease,color .4s ease;
+  padding:28px 18px 80px;
+}
+.wrap{max-width:1260px;margin:0 auto}
+
+/* Header */
+.header{margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px}
+.header-titles h1{font-size:28px;font-weight:300;letter-spacing:-.03em;margin:0}
+.header-titles p{color:var(--muted);font-size:14px;margin:5px 0 0;max-width:80ch}
+.header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.theme-btn{
+  border:1px solid var(--line);background:var(--bg);color:var(--ink2);
+  border-radius:999px;padding:7px 16px;font-size:13px;cursor:pointer;
+  font-family:inherit;transition:.2s;backdrop-filter:blur(8px);
+}
+.theme-btn:hover{border-color:var(--ink);color:var(--ink)}
+.theme-btn.active{border-color:var(--acc);color:var(--acc);background:rgba(176,82,55,.08)}
+
+/* Layout Grid */
+.main-stage{
+  display:grid;grid-template-columns:360px 1fr;gap:28px;align-items:start;
+}
+@media(max-width:960px){
+  .main-stage{grid-template-columns:1fr}
+}
+
+/* Phone Mockup */
+.phone-column{display:flex;flex-direction:column;align-items:center;gap:14px}
+.phone{
+  position:relative;width:348px;height:734px;border-radius:44px;overflow:hidden;
+  background:var(--bg);border:1px solid var(--line);
+  box-shadow:0 24px 64px rgba(0,0,0,.18);flex-shrink:0;
+  transition:transform .15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.phone.impact-shake{
+  animation:phoneShake .28s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+@keyframes phoneShake{
+  10%, 90% { transform: translate3d(0, -1.8px, 0); }
+  20%, 80% { transform: translate3d(0, 2.4px, 0); }
+  30%, 50%, 70% { transform: translate3d(0, -2.8px, 0); }
+  40%, 60% { transform: translate3d(0, 1.6px, 0); }
+}
+.phone canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hud{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  padding:44px 22px 28px;pointer-events:none;z-index:10;
+}
+.hud .badge{
+  font-size:11.5px;letter-spacing:.20em;text-transform:uppercase;font-weight:600;
+  color:var(--acc);margin-top:26%;transition:color .3s;
+}
+.hud .glyph{margin:10px 0 6px;line-height:0;opacity:.9}
+.hud .time{
+  font-size:50px;font-weight:200;letter-spacing:-.045em;font-variant-numeric:tabular-nums;
+  color:var(--ink);line-height:1;
+}
+.hud .subline{font-size:13.5px;color:var(--muted);margin-top:5px}
+.hud .started{font-size:12.5px;color:var(--faint);margin-top:auto;margin-bottom:16px}
+.hud .ctrls{display:flex;gap:10px;align-items:center;pointer-events:auto}
+.hud .btn-p1{
+  border-radius:999px;padding:11px 28px;font-size:15px;font-weight:600;
+  background:var(--ink);color:var(--bg);border:none;cursor:pointer;
+  transition:transform .15s, opacity .2s;box-shadow:0 4px 14px rgba(0,0,0,.15);
+}
+.hud .btn-p1:active{transform:scale(0.96)}
+.hud .btn-p2{
+  font-size:14.5px;padding:11px 8px;background:none;border:none;
+  color:var(--muted);cursor:pointer;transition:color .2s;
+}
+.hud .btn-p2:hover{color:var(--ink)}
+
+/* Control Cards Grid */
+.control-column{display:flex;flex-direction:column;gap:16px}
+.card{
+  background:var(--card-bg);border:1px solid var(--line);border-radius:18px;
+  padding:16px 18px;backdrop-filter:blur(12px);
+}
+.card h2{font-size:15px;font-weight:600;letter-spacing:-.01em;margin:0 0 8px;color:var(--ink)}
+.card p{font-size:13px;color:var(--muted);margin:0 0 10px;line-height:1.45}
+
+.btn-group{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+button.chip{
+  border:1px solid var(--line);background:var(--bg);color:var(--ink2);
+  border-radius:999px;padding:6px 14px;font-size:12.5px;font-family:inherit;
+  cursor:pointer;transition:.18s;display:flex;align-items:center;gap:5px;
+}
+button.chip:hover{border-color:var(--ink2);color:var(--ink)}
+button.chip.active{border-color:var(--acc);color:var(--acc);background:rgba(176,82,55,.08);font-weight:500}
+button.chip.wind{border-color:var(--cool);color:var(--cool)}
+button.chip.wind:hover{background:rgba(62,124,119,.12)}
+button.chip.action{border-color:var(--acc);color:var(--acc);font-weight:600}
+button.chip.action:hover{background:rgba(176,82,55,.12)}
+button.chip.multi{border-color:#5A6E85;color:#5A6E85;font-weight:600}
+button.chip.multi:hover{background:rgba(90,110,133,.12)}
+
+.range-row{margin-bottom:10px}
+.range-row label{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-bottom:3px}
+.range-row label b{color:var(--ink);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--acc)}
+
+.physics-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));gap:8px}
+.physics-stat{
+  background:var(--glass);border:1px solid var(--line);border-radius:12px;
+  padding:8px 10px;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;
+}
+.physics-stat b{color:var(--ink);display:block;font-size:13.5px;margin-bottom:2px}
+
+/* Explanations Side-by-Side */
+.details-section{margin-top:32px}
+.details-section h2{font-size:19px;font-weight:400;margin:0 0 12px}
+.details-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;
+}
+.detail-box{
+  background:var(--card-bg);border:1px solid var(--line);border-radius:14px;
+  padding:14px;backdrop-filter:blur(8px);
+}
+.detail-box h3{font-size:14px;font-weight:600;margin:0 0 4px;color:var(--acc)}
+.detail-box p{font-size:12.5px;color:var(--muted);margin:0;line-height:1.45}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="header">
+    <div class="header-titles">
+      <h1>Kertik — Kum Havuzu: Çoklu Taş Birikimi & Hassas Silinme Fiziği</h1>
+      <p>Yeni bir Pomodoro başladığında yeni bir taş düşer ve tırmık çizgileri tüm taşların etrafını sarmalayarak birleşir (*Karesansui Ishigumi*). Rüzgar estiğinde ise kanallar doğal kum birikmesiyle kademeli ve yumuşak biçimde silikleşir.</p>
+    </div>
+    <div class="header-actions">
+      <button class="theme-btn active" id="btnSes" onclick="sesAcKapa()">Ses: Açık</button>
+      <button class="theme-btn" id="btnHaptikTest" onclick="manuelHaptikTest()">Titreşimi Test Et</button>
+      <button class="theme-btn" id="btnTema" onclick="temaDegis()">Karanlık Mod</button>
+    </div>
+  </header>
+
+  <div class="main-stage">
+    <!-- Phone Screen -->
+    <div class="phone-column">
+      <div class="phone" id="phoneBox">
+        <canvas id="cvSand"></canvas>
+        <canvas id="cvStone"></canvas>
+        <canvas id="cvWind"></canvas>
+        <div class="hud">
+          <div class="badge" id="hudBadge">HAZIR</div>
+          <div class="glyph" id="hudGlyph">
+            <svg width="48" height="12" viewBox="0 0 48 12">
+              <line x1="2" y1="2" x2="2" y2="10" stroke="var(--acc)" stroke-width="1.8" stroke-linecap="round"/>
+              <line x1="10" y1="6" x2="36" y2="6" stroke="var(--acc)" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>
+              <circle cx="42" cy="6" r="2.8" fill="var(--acc)"/>
+            </svg>
+          </div>
+          <div class="time" id="hudTime">25:00</div>
+          <div class="subline" id="hudSub">Standart Taş · 25 dk</div>
+          <div class="started" id="hudStarted">Başla'ya basınca taş düşer</div>
+          <div class="ctrls">
+            <button class="btn-p1" id="hudP1" onclick="seansButon()">Başla</button>
+            <button class="btn-p2" id="hudP3" style="display:none;color:var(--acc);font-weight:600;" onclick="seansErkenBitir()">Pes Et (Kır)</button>
+            <button class="btn-p2" id="hudP2" onclick="seansSifirla()">Sıfırla</button>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--faint);text-align:center;">
+        Gerçek telefon görünümü · 348 × 734 Retina
+      </div>
+    </div>
+
+    <!-- Controls Column -->
+    <div class="control-column">
+      <!-- 1. ÇOKLU POMODORO & YENİ TAŞ DÜŞÜŞÜ -->
+      <div class="card" style="border-color:#5A6E85;">
+        <h2 style="color:#5A6E85;">🪨 Pomodoro Döngüsü (1 Seans = 1 Taş + Tam Ekran)</h2>
+        <p>Her Pomodoro başlatıldığında yeni bir taş düşer ve seans süresince tüm ekran tırmıkla dolar. Gün batımına kadar tüm taşlar ve çizgiler korunur. <b>4 Pomodoro'dan sonra rüzgar/ceza durur (Fudōshin Koruması).</b></p>
+        
+        <div class="btn-group">
+          <button class="chip action" onclick="kumBahcesiTeaser()">🎬 Zen Teaser (Açılış İpucu)</button>
+          <button class="chip multi" onclick="yeniPomodoroTasiEkle(25)">+ Yeni Pomodoro (25 dk Taş)</button>
+          <button class="chip multi" onclick="yeniPomodoroTasiEkle(50)">+ İri Kaya (50 dk)</button>
+          <button class="chip multi" onclick="yeniPomodoroTasiEkle(15)">+ Çakıl (15 dk)</button>
+          <button class="chip action" style="border-color:var(--acc);color:var(--acc);font-weight:600;" onclick="aktifTasiKirManuel()">💥 Vaat Bozuldu (Taşı Kır)</button>
+          <button class="chip" onclick="kirikVeSaglamKarsilastir()">⚖️ Kırık vs Sağlam Göster</button>
+          <button class="chip action" onclick="gunBatimiSifirla()">🌅 Gün Batımı (Bahçeyi Sıfırla)</button>
+        </div>
+
+        <div class="physics-grid">
+          <div class="physics-stat">
+            <b id="statToplamTas">1. Pomodoro</b>
+            Günün Seans Sayısı
+          </div>
+          <div class="physics-stat">
+            <b id="statFudoshin">3 Seans Kaldı</b>
+            Rüzgar Koruması (Fudōshin)
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. HASSAS SİLİNME & RÜZGAR PARAMETRELERİ -->
+      <div class="card" style="border-color:var(--cool);">
+        <h2 style="color:var(--cool);">🌪️ Mola Rüzgarı & Fırtına (İlk 3 Seans Geçerli)</h2>
+        <p>Mola aşıldığında rüzgar çizgileri silikleştirir. 4. Pomodoro tamamlandığında bahçe kalıcı dinginliğe ulaşır ve rüzgar kesilir:</p>
+        
+        <div class="btn-group">
+          <button class="chip wind" id="btnRuzgar1" onclick="ruzgarFirtinasiBaslat(1)">🌬️ 1. Rüzgar Dalgası (10 dk Mola)</button>
+          <button class="chip wind" id="btnRuzgar2" onclick="ruzgarFirtinasiBaslat(2)">🌪️ Şiddetli Fırtına (20 dk Mola)</button>
+          <button class="chip action" onclick="devamEtTazeTirmikCek()">✨ Devam Et (Yeni Taze Tırmık Aç)</button>
+        </div>
+
+        <div class="range-row">
+          <label>Kanal Kum Dolum Yumuşaklığı (Diffusion Rate) <b id="lblDolum">0.85</b></label>
+          <input type="range" id="rngDolum" min="0.3" max="1.5" step="0.05" value="0.85" oninput="paramGuncelle()">
+        </div>
+
+        <div class="range-row">
+          <label>Rüzgar Siperi Koruma Mesafesi (Wind Shield) <b id="lblSiper">2.8×</b></label>
+          <input type="range" id="rngSiper" min="1.2" max="4.5" step="0.1" value="2.8" oninput="paramGuncelle()">
+        </div>
+
+        <div class="physics-grid">
+          <div class="physics-stat">
+            <b id="statRuzgarDurum">Durgun Kum</b>
+            Atmosfer Durumu
+          </div>
+          <div class="physics-stat">
+            <b id="statEskiErozyon">%0 Silikleşme</b>
+            Eski Tırmık Aşınması
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. SEANS İLERLEMESİ & PALET -->
+      <div class="card">
+        <h2>Seans İlerlemesi & Wabi-Sabi Paletleri</h2>
+        <div class="range-row">
+          <label>Geçen Süre <b id="lblProg">0 / 25 dk</b></label>
+          <input type="range" id="rngProg" min="0" max="25" step="1" value="0" oninput="sureKaydir(this.value)">
+        </div>
+
+        <div class="btn-group" id="groupPal" style="margin-bottom:0">
+          <button class="chip active" onclick="paletSec('kum', this)">Kum</button>
+          <button class="chip" onclick="paletSec('kirec', this)">Kireç</button>
+          <button class="chip" onclick="paletSec('kul', this)">Kül</button>
+          <button class="chip" onclick="paletSec('gece', this)">Gece</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Philosophy Section -->
+  <section class="details-section">
+    <h2>Çoklu Taş Süperpozisyonu & Doğal Kum Fiziği (27-sanat-ayrisimi.md)</h2>
+    <div class="details-grid">
+      <div class="detail-box">
+        <h3>1. Ishigumi Taş Kompozisyonu</h3>
+        <p>Her yeni Pomodoro'da düşen taşlar rastgele üst üste binmez; Karesansui kurallarına göre minimum mesafe ve altın oran adaları oluşturur.</p>
+      </div>
+      <div class="detail-box">
+        <h3>2. Çoklu Potansiyel Alan Birleşimi (smin)</h3>
+        <p>Tırmık çizgileri tüm taşların mesafe alanlarını `smin` ile pürüzsüzce birleştirerek taşların arasından bir nehir gibi çakışmadan akar.</p>
+      </div>
+      <div class="detail-box">
+        <h3>3. Yumuşak Sigmoidal Silinme</h3>
+        <p>Rüzgar estiğinde çizgiler yapay kesikliğe uğramaz; kanal derinliği kumla dolar, kontrast pürüzsüz sigmoid eğrisiyle zemin tonuna karışır.</p>
+      </div>
+      <div class="detail-box">
+        <h3>4. Yeni Seans Taze Kazıma</h3>
+        <p>Yeni bir seans başladığında hem yeni düşen taşın hem de eski taşların etrafına çekilen tırmıklar %100 berrak ve keskin olarak çizilir.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ==========================================================================
+   MATEMATİK & RASTLANTISALLIK ÇEKİRDEĞİ
+   ========================================================================== */
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng32(sd){let a=sd>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function h2i(i,j,s){let n=Math.imul(i|0,374761393)^Math.imul(j|0,668265263)^Math.imul(s|0,362437);
+  n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967296}
+function vn(x,y,s){const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j;
+  const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);
+  const a=h2i(i,j,s),b=h2i(i+1,j,s),c=h2i(i,j+1,s),d=h2i(i+1,j+1,s);
+  return (a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v}
+const fbm=(x,y,s)=>vn(x,y,s)*.6+vn(x*2.07,y*2.07,s+7)*.27+vn(x*4.13,y*4.13,s+19)*.13;
+function smin(a,b,k){const h=Math.max(0,Math.min(1,.5+.5*(b-a)/k));return b*(1-h)+a*h-k*h*(1-h)}
+
+/* ==========================================================================
+   PALET SÖZLÜĞÜ (Wabi-Sabi Standartları)
+   ========================================================================== */
+const PALETLER={
+  kum:   {kagit:"#F5F2EA", cizgi:"#8C8577", tas:"#363531", tasIsik:"#54524C", golge:"#CFC7B4", metin:"#16181B", vurgu:"#B05237", krater:"rgba(140,133,119,0.38)", ruzgar:"rgba(140,133,119,0.18)"},
+  kirec: {kagit:"#F7F6F1", cizgi:"#9A9A93", tas:"#2C302F", tasIsik:"#484E4C", golge:"#DCDAD1", metin:"#1E2122", vurgu:"#4A6E68", krater:"rgba(154,154,147,0.38)", ruzgar:"rgba(154,154,147,0.18)"},
+  kul:   {kagit:"#EDEBE5", cizgi:"#807C74", tas:"#34322E", tasIsik:"#4F4D47", golge:"#D2CEC4", metin:"#212320", vurgu:"#7A5C3E", krater:"rgba(128,124,116,0.38)", ruzgar:"rgba(128,124,116,0.18)"},
+  gece:  {kagit:"#16171A", cizgi:"#A9B2BC", tas:"#D8DADB", tasIsik:"#F0F1F2", golge:"#0C0E11", metin:"#EDE9E0", vurgu:"#D0785B", krater:"rgba(169,178,188,0.32)", ruzgar:"rgba(169,178,188,0.16)", gece:1}
+};
+
+let AKTIF_PAL = "kum";
+let HIZ_CARPAN = 1.0;
+let SES_ACIK = true;
+
+/* İnce Ayar Parametreleri */
+let PARAM_DOLUM = 0.85;
+let PARAM_SIPER = 2.8;
+
+function paramGuncelle() {
+  PARAM_DOLUM = parseFloat(document.getElementById("rngDolum").value);
+  PARAM_SIPER = parseFloat(document.getElementById("rngSiper").value);
+  document.getElementById("lblDolum").textContent = PARAM_DOLUM.toFixed(2);
+  document.getElementById("lblSiper").textContent = PARAM_SIPER.toFixed(1) + "×";
+  cizKumZemini();
+  cizTumOturmusTaslar();
+}
+
+/* ==========================================================================
+   KÜTLEYE BAĞLI AKUSTİK & HAPTİK SÖZLÜĞÜ
+   ========================================================================== */
+const KUTLE_PROFILLERI = {
+  cakil: { ad: "Çakıl Taşı", dk: 15, freqBasla: 190, freqBitis: 80, decay: 0.085, gain: 0.35, filterFreq: 540, haptik: [8], tanecikAdet: 18, squash: 0.06, shake: false },
+  standart: { ad: "Standart Taş", dk: 25, freqBasla: 135, freqBitis: 45, decay: 0.140, gain: 0.48, filterFreq: 380, haptik: [14], tanecikAdet: 32, squash: 0.12, shake: false },
+  kaya: { ad: "İri Kaya", dk: 50, freqBasla: 85, freqBitis: 28, decay: 0.220, gain: 0.62, filterFreq: 260, haptik: [18, 20, 10], tanecikAdet: 46, squash: 0.18, shake: true },
+  granit: { ad: "Ağır Granit", dk: 90, freqBasla: 58, freqBitis: 18, decay: 0.320, gain: 0.78, filterFreq: 190, haptik: [26, 25, 14, 18, 6], tanecikAdet: 64, squash: 0.24, shake: true }
+};
+
+let AKTIF_KUTLE_ANAHTAR = "standart";
+
+/* ==========================================================================
+   KAYIPSIZ AKUSTİK SENTEZLEYİCİ (44.1 kHz 32-Bit Lossless PCM)
+   ========================================================================== */
+let audioCtx = null;
+function getAudioContext() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+function sesCalKutleDarbe(profil) {
+  if (!SES_ACIK) return;
+  try {
+    const ctx = getAudioContext();
+    const sr = ctx.sampleRate || 44100;
+    const dur = Math.max(0.24, profil.decay * 1.6);
+    const numSamples = Math.floor(sr * dur);
+    const buffer = ctx.createBuffer(1, numSamples, sr);
+    const data = buffer.getChannelData(0);
+
+    const f0 = profil.freqBasla;
+    const fEnd = profil.freqBitis;
+    const grit = profil.dk >= 50 ? 0.22 : 0.14;
+    const subGain = profil.dk >= 50 ? 0.45 : 0.15;
+
+    let phase = 0;
+    let b0 = 0;
+
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sr;
+      const trans = Math.exp(-t * 900) * (Math.random() * 2 - 1) * 0.55;
+      const freqT = fEnd + (f0 - fEnd) * Math.exp(-t * 38);
+      phase += (2 * Math.PI * freqT) / sr;
+      const body = Math.sin(phase) * Math.exp(-t / profil.decay);
+      const sub = Math.sin(phase * 0.5) * Math.exp(-t / (profil.decay * 1.35)) * subGain;
+
+      const white = (Math.random() * 2 - 1);
+      b0 = 0.82 * b0 + white * 0.18;
+      const sandGrit = b0 * Math.exp(-t * 45) * grit;
+
+      let s = (trans * 0.35 + body * 0.65 + sub * 0.45 + sandGrit * 0.40) * profil.gain * 1.8;
+      data[i] = Math.tanh(s);
+    }
+
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+function sesCalRuzgarFirtinasi(guc, sureSn) {
+  if (!SES_ACIK) return;
+  try {
+    const ctx = getAudioContext();
+    const sr = ctx.sampleRate || 44100;
+    const dur = Math.max(0.65, sureSn);
+    const numSamples = Math.floor(sr * dur);
+    const buffer = ctx.createBuffer(1, numSamples, sr);
+    const data = buffer.getChannelData(0);
+
+    let pink0 = 0, pink1 = 0, pink2 = 0;
+    const peakT = dur * 0.38;
+
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sr;
+      const white = Math.random() * 2 - 1;
+      pink0 = 0.9988 * pink0 + white * 0.055;
+      pink1 = 0.9933 * pink1 + white * 0.075;
+      pink2 = 0.9690 * pink2 + white * 0.153;
+      const windNoise = (pink0 + pink1 + pink2) * 0.28;
+
+      let env = (t < peakT) ? Math.pow(t / peakT, 1.4) : Math.exp(-(t - peakT) / (dur * 0.32));
+      const microGrains = (Math.random() > 0.92 ? (Math.random() * 2 - 1) * 0.12 : 0) * env;
+      const val = (windNoise * 0.85 + microGrains) * env * (guc > 1 ? 0.72 : 0.48);
+      data[i] = Math.tanh(val);
+    }
+
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    const now = ctx.currentTime;
+    filter.frequency.setValueAtTime(180, now);
+    filter.frequency.exponentialRampToValueAtTime(guc > 1 ? 820 : 480, now + peakT);
+    filter.frequency.exponentialRampToValueAtTime(140, now + dur);
+    filter.Q.setValueAtTime(1.5, now);
+
+    src.connect(filter);
+    filter.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+function haptikVurKutle(profil) {
+  if (navigator && navigator.vibrate) {
+    try { navigator.vibrate(profil.haptik); } catch(e) {}
+  }
+}
+
+function haptikRuzgarFirtinasi(seviye) {
+  if (navigator && navigator.vibrate) {
+    try {
+      if (seviye === 1) navigator.vibrate([10, 40, 14, 50, 8, 30, 4]);
+      else navigator.vibrate([18, 45, 24, 60, 16, 40, 10, 30, 4]);
+    } catch(e) {}
+  }
+}
+
+function manuelHaptikTest() {
+  const p = KUTLE_PROFILLERI[AKTIF_KUTLE_ANAHTAR];
+  haptikVurKutle(p);
+  sesCalKutleDarbe(p);
+}
+
+function sesCalTasKirilma() {
+  if (!SES_ACIK) return;
+  try {
+    const ctx = getAudioContext();
+    const sr = ctx.sampleRate || 44100;
+    const dur = 0.22;
+    const numSamples = Math.floor(sr * dur);
+    const buffer = ctx.createBuffer(1, numSamples, sr);
+    const data = buffer.getChannelData(0);
+
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sr;
+      // Keskin kaya kırılma/çatlama transient'ı
+      const snap = Math.exp(-t * 80) * (Math.random() * 2 - 1) * 0.75;
+      const crackle = Math.sin(2 * Math.PI * (1200 * Math.exp(-t * 40) + 180) * t) * Math.exp(-t * 22);
+      const grit = (Math.random() * 2 - 1) * Math.exp(-t * 35) * 0.35;
+      data[i] = Math.tanh((snap * 0.6 + crackle * 0.8 + grit * 0.4) * 1.5);
+    }
+
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(ctx.destination);
+    src.start();
+  } catch(e) {}
+}
+
+function haptikTasKirilma() {
+  if (navigator && navigator.vibrate) {
+    try { navigator.vibrate([18, 30, 24, 12]); } catch(e) {}
+  }
+}
+
+
+/* ==========================================================================
+   SİSTEM DURUMU VE TUVAL YAPILANDIRMASI
+   ========================================================================== */
+const cvSand = document.getElementById("cvSand");
+const cvStone = document.getElementById("cvStone");
+const cvWind = document.getElementById("cvWind");
+const gSand = cvSand.getContext("2d");
+const gStone = cvStone.getContext("2d");
+const gWind = cvWind.getContext("2d");
+const W = 348, H = 734;
+const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+[cvSand, cvStone, cvWind].forEach(c => {
+  c.width = W * dpr; c.height = H * dpr;
+  c.style.width = W + "px"; c.style.height = H + "px";
+});
+gSand.setTransform(dpr,0,0,dpr,0,0);
+gStone.setTransform(dpr,0,0,dpr,0,0);
+gWind.setTransform(dpr,0,0,dpr,0,0);
+
+let seansDurum = {
+  durum: "hazir",
+  hedefDk: 25,
+  gecenDk: 0,
+  kumulatifDk: 0,
+  seed: 42,
+  taslar: [],
+  parcaciklar: [],
+  kraterler: [],
+  bozulmaOlaylari: [],
+  erozyonDizisi: new Float32Array(Math.ceil(W / 4) * Math.ceil(H / 4)),
+  erozyonGW: Math.ceil(W / 4),
+  erozyonGH: Math.ceil(H / 4),
+  genelErozyon: 0.0
+};
+
+/* ==========================================================================
+   ORGANİK RASTGELE TAŞ YERLEŞİMİ (Poisson-Disc Random Rejection Sampling)
+   Her taş bahçenin herhangi bir noktasına rastgele düşer; asla çakışmaz!
+   ========================================================================== */
+function tasUretCoklu(seviyeDk, tasSirasi) {
+  const adet = seansDurum.taslar.length + 1;
+  // Yoğun günlerde taşlar ferahlığı korumak için zarifçe kompaklaşır (27-sanat-ayrisimi.md §5d)
+  const olcek = adet <= 5 ? 1.0 : Math.pow(5.0 / adet, 0.28);
+  const base_r = W * (0.045 + Math.sqrt(seviyeDk / 60) * 0.050);
+  const r = Math.max(W * 0.026, base_r * olcek);
+
+  let deneme = 0;
+  let secilenX = W * (0.20 + Math.random() * 0.60);
+  let secilenY = H * (0.22 + Math.random() * 0.56);
+  const idealAyrım = W * 0.16;
+
+  while (deneme < 1200) {
+    deneme++;
+    const tampon = deneme > 600 ? (r * 0.35) : (deneme > 250 ? idealAyrım * 0.45 : idealAyrım);
+
+    const testX = W * (0.15 + Math.random() * 0.70);
+    const testY = H * (0.18 + Math.random() * 0.64);
+
+    let cakisma = false;
+    for (const t of seansDurum.taslar) {
+      const d = Math.hypot(t.cx - testX, t.cy - testY);
+      if (d < (t.r + r + tampon)) {
+        cakisma = true;
+        break;
+      }
+    }
+
+    if (!cakisma) {
+      secilenX = testX;
+      secilenY = testY;
+      break;
+    }
+  }
+
+  const aci = Math.random() * Math.PI * 2;
+  const e = 0.72 + Math.random() * 0.42;
+  const tohum = Math.floor(Math.random() * 999999);
+
+  return { cx: secilenX, cy: secilenY, r, aci, e, tohum, seviyeDk, oturdu: false };
+}
+
+/* ==========================================================================
+   GERÇEK KUM EROZYONU VE SİLİKLEŞME HESABI
+   ========================================================================== */
+function erozyonOraniNokta(x, y, cizgiDakika) {
+  if (seansDurum.bozulmaOlaylari.length > 0) {
+    const sonOlay = seansDurum.bozulmaOlaylari[seansDurum.bozulmaOlaylari.length - 1];
+    if (cizgiDakika > sonOlay.dakika) return 0.0;
+  }
+
+  let tasKoruma = 0.0;
+  for (const t of seansDurum.taslar) {
+    if (!t.oturdu) continue;
+    const dx = x - t.cx;
+    const dy = y - t.cy;
+    const dist = Math.hypot(dx, dy);
+    
+    if (dist < t.r * 1.05) return 0.0;
+    if (dx > 0 && dx < t.r * PARAM_SIPER && Math.abs(dy) < t.r * 1.35) {
+      const korumaFaktor = (1 - (dx / (t.r * PARAM_SIPER))) * (1 - Math.abs(dy) / (t.r * 1.35));
+      tasKoruma = Math.max(tasKoruma, korumaFaktor * 0.88);
+    }
+  }
+
+  const gw = seansDurum.erozyonGW, gh = seansDurum.erozyonGH;
+  const ix = Math.max(0, Math.min(gw - 1, Math.floor(x / 4)));
+  const iy = Math.max(0, Math.min(gh - 1, Math.floor(y / 4)));
+  const lokalErozyon = seansDurum.erozyonDizisi[iy * gw + ix] || seansDurum.genelErozyon;
+
+  return Math.max(0, Math.min(1.0, lokalErozyon * (1.0 - tasKoruma)));
+}
+
+/* ==========================================================================
+   KUM BAHÇESİ ÇİZİMİ (Orijinal Tekil Tırmık Cephesi & Kalıcı Çizgi Birikimi)
+   ========================================================================== */
+function cizKumZemini() {
+  const C = PALETLER[AKTIF_PAL];
+  gSand.fillStyle = C.kagit;
+  gSand.fillRect(0, 0, W, H);
+
+  // Doğal zemin dokusu
+  gSand.save();
+  gSand.globalAlpha = C.gece ? 0.045 : 0.038;
+  gSand.fillStyle = C.golge;
+  const Rz = rng32(seansDurum.seed + 99);
+  for (let i = 0; i < (W * H) / 750; i++) {
+    gSand.fillRect(Rz() * W, Rz() * H, 1.2, 1.2);
+  }
+  gSand.restore();
+
+  // 1. Kraterler
+  for (const k of seansDurum.kraterler) {
+    const kraterErozyon = erozyonOraniNokta(k.x, k.y, 0);
+    gSand.save();
+    gSand.strokeStyle = C.krater;
+    gSand.lineWidth = Math.max(0.4, 1.3 * (1 - kraterErozyon * 0.8));
+    gSand.globalAlpha = Math.max(0.1, 1 - kraterErozyon * 0.7);
+    gSand.beginPath();
+    for (let i = 0; i <= 36; i++) {
+      const a = (i / 36) * Math.PI * 2;
+      const rr = k.r * (1.18 + fbm(Math.cos(a) * 2, Math.sin(a) * 2, k.tohum) * 0.22);
+      const px = k.x + Math.cos(a) * rr;
+      const py = k.y + Math.sin(a) * rr * k.e;
+      i ? gSand.lineTo(px, py) : gSand.moveTo(px, py);
+    }
+    gSand.stroke();
+    gSand.restore();
+  }
+
+  // 2. TÜM OTURMUŞ TAŞLAR ZEMİNE YERLEŞTİRİLİR (Tırmıktan önce çizilir)
+  cizTumOturmusTaslar();
+
+  // 3. Tekil Doğal Tırmık Cephesi (Orijinal kum-bahcesi.html formülü)
+  const ARA = 11.0;
+  const ST = 3.2;
+  const gw = Math.ceil(W / ST) + 1;
+  const gh = Math.ceil(H / ST) + 1;
+  const G = new Float32Array(gw * gh);
+  const S = seansDurum.seed;
+  const R = rng32(S);
+  const cepheEg = (R() - 0.5) * 0.34;
+  const YUM = ARA * 1.15;
+
+  function alanF(x, y) {
+    // Açık kumda: yavaşça kıvrılan koşut tekil cephe
+    let f = y - H * 0.04 + cepheEg * (x - W * 0.5) + (fbm(x / (W * 0.85), y / (W * 1.7), S + 3) - 0.5) * ARA * 0.95;
+    for (const t of seansDurum.taslar) {
+      if (!t.oturdu) continue;
+      const dx = (x - t.cx) * Math.cos(t.aci) + (y - t.cy) * Math.sin(t.aci);
+      const dy = (-(x - t.cx) * Math.sin(t.aci) + (y - t.cy) * Math.cos(t.aci)) / t.e;
+      f = smin(f, Math.hypot(dx, dy) - t.r, YUM);
+    }
+    return f;
+  }
+
+  for (let j = 0; j < gh; j++) {
+    for (let i = 0; i < gw; i++) {
+      G[j * gw + i] = alanF(i * ST, j * ST);
+    }
+  }
+
+  // Kalıcı Çizgi Birikimi: Önceki tüm seansların toplam dakikası korunur
+  const toplamDk = seansDurum.kumulatifDk + seansDurum.gecenDk;
+  const DKL = 2.5; // Her 2.5 dakikada 1 tırmık çizgisi
+  const toplamCizgi = Math.max(1, Math.min(56, Math.floor(toplamDk / DKL) + 1));
+
+  // 4. TIRMIK ÇİZGİLERİ (KUMDAN BAŞLAYIP TAŞLARIN ÜZERİNDEN GEÇEREK AKAR)
+  for (let n = 0; n < toplamCizgi; n++) {
+    const seviye = n * ARA;
+    const pts = konturCikar(G, gw, gh, ST, seviye);
+    if (!pts.length) continue;
+
+    const cizgiDakika = n * DKL;
+    const tazeMi = seansDurum.bozulmaOlaylari.length > 0 && (cizgiDakika > seansDurum.bozulmaOlaylari[seansDurum.bozulmaOlaylari.length - 1].dakika);
+
+    cizErozyonluTirmikSegmentleri(pts, S, cizgiDakika, tazeMi);
+  }
+
+  // Rüzgarın oluşturduğu mikro kum dalgacıkları
+  if (seansDurum.genelErozyon > 0.15) {
+    cizRuzgarKumDalgaciklari();
+  }
+}
+
+function noktaTasUzerindeMi(x, y) {
+  for (const t of seansDurum.taslar) {
+    if (!t.oturdu) continue;
+    const dx = (x - t.cx) * Math.cos(t.aci) + (y - t.cy) * Math.sin(t.aci);
+    const dy = (-(x - t.cx) * Math.sin(t.aci) + (y - t.cy) * Math.cos(t.aci)) / t.e;
+    if (Math.hypot(dx, dy) <= t.r * 1.02) return t;
+  }
+  return null;
+}
+
+function cizErozyonluTirmikSegmentleri(pts, S, cizgiDakika, tazeMi) {
+  const C = PALETLER[AKTIF_PAL];
+
+  for (const seg of pts) {
+    const [a, b] = seg;
+    const mx = (a[0] + b[0]) * 0.5;
+    const my = (a[1] + b[1]) * 0.5;
+    const er = tazeMi ? 0.0 : erozyonOraniNokta(mx, my, cizgiDakika);
+    const tasVurgusu = noktaTasUzerindeMi(mx, my);
+
+    if (er >= 0.94 && !tasVurgusu) continue;
+
+    // Hassas ve yumuşak silinme parametreleri
+    const genislik = tazeMi ? 1.05 : (1.0 + er * 2.2 * PARAM_DOLUM);
+    const golgeAlfa = tazeMi ? (C.gece ? 0.42 : 0.48) : Math.max(0, (C.gece ? 0.35 : 0.42) * (1.0 - er * 0.90));
+    const cizgiAlfa = tazeMi ? (C.gece ? 0.85 : 0.88) : Math.max(0.04, (C.gece ? 0.65 : 0.72) * (1.0 - er * 0.85));
+
+    const j1 = (vn(a[0] * 0.08, a[1] * 0.08, S + 7) - 0.5) * (tazeMi ? 0.9 : 1.1 + er * 1.8);
+    const j2 = (vn(b[0] * 0.08, b[1] * 0.08, S + 7) - 0.5) * (tazeMi ? 0.9 : 1.1 + er * 1.8);
+
+    // Kazıma Alt Gölgesi (Taşın üzerinde değilken)
+    if (golgeAlfa > 0.02 && !tasVurgusu) {
+      gSand.save();
+      gSand.beginPath();
+      gSand.strokeStyle = C.golge;
+      gSand.lineWidth = genislik * (tazeMi ? 2.2 : 1.8);
+      gSand.globalAlpha = golgeAlfa;
+      gSand.moveTo(a[0] + j1, a[1] + j1 * 0.5 + (tazeMi ? 1.2 : 1.1 * (1 - er)));
+      gSand.lineTo(b[0] + j2, b[1] + j2 * 0.5 + (tazeMi ? 1.2 : 1.1 * (1 - er)));
+      gSand.stroke();
+      gSand.restore();
+    }
+
+    // Ana Tırmık Yolu (Kumda normal renk, taşın üstünden geçerken mineral tebeşir/kabartma rengi!)
+    gSand.save();
+    gSand.beginPath();
+    if (tasVurgusu) {
+      gSand.strokeStyle = C.gece ? "rgba(22, 23, 26, 0.85)" : (tazeMi ? C.vurgu : C.tasIsik);
+      gSand.lineWidth = genislik * 1.25;
+      gSand.globalAlpha = tazeMi ? 0.95 : 0.75;
+    } else {
+      gSand.strokeStyle = tazeMi ? C.vurgu : C.cizgi;
+      gSand.lineWidth = genislik;
+      gSand.globalAlpha = cizgiAlfa;
+    }
+
+    gSand.moveTo(a[0] + j1, a[1] + j1 * 0.5);
+    gSand.lineTo(b[0] + j2, b[1] + j2 * 0.5);
+    gSand.stroke();
+    gSand.restore();
+  }
+}
+
+function cizRuzgarKumDalgaciklari() {
+  const C = PALETLER[AKTIF_PAL];
+  const S = seansDurum.seed + 104;
+  gSand.save();
+  gSand.strokeStyle = C.cizgi;
+  gSand.lineWidth = 0.65;
+
+  const dalgaAdet = Math.floor(seansDurum.genelErozyon * 14);
+  for (let k = 0; k < dalgaAdet; k++) {
+    const y0 = H * (0.12 + (k / dalgaAdet) * 0.80);
+    gSand.beginPath();
+    let ciziyor = false;
+
+    for (let x = 10; x < W - 10; x += 12) {
+      const er = erozyonOraniNokta(x, y0, 0);
+      if (er > 0.45) {
+        const yOfs = Math.sin(x * 0.06 + k) * 2.2 + fbm(x / 40, y0 / 40, S) * 3.5;
+        if (!ciziyor) { gSand.moveTo(x, y0 + yOfs); ciziyor = true; }
+        else gSand.lineTo(x, y0 + yOfs);
+      } else {
+        ciziyor = false;
+      }
+    }
+    gSand.globalAlpha = 0.16 * seansDurum.genelErozyon;
+    gSand.stroke();
+  }
+  gSand.restore();
+}
+
+function konturCikar(G, gw, gh, ST, c) {
+  const seg = [];
+  const ara = (a, b) => (Math.abs(b - a) < 1e-9 ? 0.5 : (c - a) / (b - a));
+  for (let j = 0; j < gh - 1; j++) {
+    for (let i = 0; i < gw - 1; i++) {
+      const a = G[j * gw + i], b = G[j * gw + i + 1], d = G[(j + 1) * gw + i + 1], e = G[(j + 1) * gw + i];
+      let k = 0;
+      if (a < c) k |= 1; if (b < c) k |= 2; if (d < c) k |= 4; if (e < c) k |= 8;
+      if (k === 0 || k === 15) continue;
+      const x = i * ST, y = j * ST;
+      const U = () => [x + ST * ara(a, b), y];
+      const Rr = () => [x + ST, y + ST * ara(b, d)];
+      const D = () => [x + ST * ara(e, d), y + ST];
+      const L = () => [x, y + ST * ara(a, e)];
+      let p = null;
+      switch (k) {
+        case 1: case 14: p = [L(), U()]; break;
+        case 2: case 13: p = [U(), Rr()]; break;
+        case 3: case 12: p = [L(), Rr()]; break;
+        case 4: case 11: p = [Rr(), D()]; break;
+        case 6: case 9: p = [U(), D()]; break;
+        case 7: case 8: p = [L(), D()]; break;
+        case 5: p = [L(), U()]; seg.push([Rr(), D()]); break;
+        case 10: p = [U(), Rr()]; seg.push([L(), D()]); break;
+      }
+      if (p) seg.push(p);
+    }
+  }
+  return seg;
+}
+
+/* ==========================================================================
+   TAŞ GEOMETRİSİ VE ÇİZİMİ
+   ========================================================================== */
+function cizTekTas(ctx, t, yOfs, scaleX, scaleY, alfa) {
+  const C = PALETLER[AKTIF_PAL];
+  ctx.save();
+  ctx.translate(t.cx, t.cy + yOfs);
+  ctx.rotate(t.aci);
+  ctx.scale(scaleX, scaleY * t.e);
+  ctx.globalAlpha = alfa;
+
+  const N = 24;
+  const pts = [];
+  for (let i = 0; i < N; i++) {
+    const a = (i / N) * Math.PI * 2;
+    const w = t.r * (0.86 + fbm(Math.cos(a) * 2.1 + 3, Math.sin(a) * 2.1 + 7, t.tohum) * 0.32);
+    pts.push([Math.cos(a) * w, Math.sin(a) * w]);
+  }
+
+  if (t.kirik) {
+    cizKirikTasGovdesi(ctx, pts, t, C, N);
+  } else {
+    ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fillStyle = C.tas;
+    ctx.fill();
+
+    ctx.beginPath();
+    const k = Math.floor(N * 0.48);
+    for (let i = 0; i <= k; i++) {
+      const p = pts[i % N];
+      i ? ctx.lineTo(p[0] * 0.88, p[1] * 0.88) : ctx.moveTo(p[0] * 0.88, p[1] * 0.88);
+    }
+    ctx.lineTo(pts[k][0] * 0.25, pts[k][1] * 0.25);
+    ctx.lineTo(pts[0][0] * 0.25, pts[0][1] * 0.25);
+    ctx.closePath();
+    ctx.fillStyle = C.tasIsik;
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function cizKirikTasGovdesi(ctx, pts, t, C, N) {
+  const iStart = (t.catlakBasla != null ? t.catlakBasla : 2) % N;
+  const iEnd = (iStart + Math.floor(N * 0.5)) % N;
+  const p1 = pts[iStart];
+  const p2 = pts[iEnd];
+  const dx = p2[0] - p1[0];
+  const dy = p2[1] - p1[1];
+  const dist = Math.hypot(dx, dy) || 1;
+  const nx = -dy / dist;
+  const ny = dx / dist;
+
+  const crackPts = [p1];
+  const steps = 6;
+  const seed = (t.tohum || 42);
+  for (let s = 1; s < steps; s++) {
+    const ratio = s / steps;
+    const bx = p1[0] * (1 - ratio) + p2[0] * ratio;
+    const by = p1[1] * (1 - ratio) + p2[1] * ratio;
+    const jitter = (fbm(s * 1.8 + 2, s * 1.8 + 5, seed % 73) - 0.5) * (t.r * 0.22);
+    crackPts.push([bx + nx * jitter, by + ny * jitter]);
+  }
+  crackPts.push(p2);
+
+  const gap = t.catlakGap != null ? t.catlakGap : Math.max(2.2, t.r * 0.10);
+
+  // Parça A (üst/sol yarım): iEnd -> ... -> iStart + crackPts
+  const polyA = [];
+  let curr = iEnd;
+  while (true) {
+    polyA.push(pts[curr]);
+    if (curr === iStart) break;
+    curr = (curr + 1) % N;
+  }
+  for (let i = 1; i < crackPts.length - 1; i++) polyA.push(crackPts[i]);
+
+  // Parça B (alt/sağ yarım): iStart -> ... -> iEnd + ters crackPts
+  const polyB = [];
+  curr = iStart;
+  while (true) {
+    polyB.push(pts[curr]);
+    if (curr === iEnd) break;
+    curr = (curr + 1) % N;
+  }
+  for (let i = crackPts.length - 2; i >= 1; i--) polyB.push(crackPts[i]);
+
+  // 1. Kırık fay hattı mineral gölgesi
+  ctx.save();
+  ctx.beginPath();
+  crackPts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+  ctx.strokeStyle = C.gece ? "rgba(0,0,0,0.85)" : "rgba(22,24,27,0.72)";
+  ctx.lineWidth = gap * 1.6;
+  ctx.lineCap = "round";
+  ctx.stroke();
+  ctx.restore();
+
+  // 2. Parça A çizimi (hafif zıt öteleme)
+  ctx.save();
+  ctx.translate(-nx * gap * 0.55, -ny * gap * 0.55);
+  ctx.beginPath();
+  polyA.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+  ctx.closePath();
+  ctx.fillStyle = C.tas;
+  ctx.fill();
+
+  // Parça A ışık yüzeyi
+  ctx.beginPath();
+  const kA = Math.floor(polyA.length * 0.45);
+  for (let i = 0; i <= kA; i++) {
+    const p = polyA[i % polyA.length];
+    i ? ctx.lineTo(p[0] * 0.88, p[1] * 0.88) : ctx.moveTo(p[0] * 0.88, p[1] * 0.88);
+  }
+  ctx.lineTo(polyA[kA][0] * 0.30, polyA[kA][1] * 0.30);
+  ctx.lineTo(polyA[0][0] * 0.30, polyA[0][0] * 0.30);
+  ctx.closePath();
+  ctx.fillStyle = C.tasIsik;
+  ctx.fill();
+  ctx.restore();
+
+  // 3. Parça B çizimi
+  ctx.save();
+  ctx.translate(nx * gap * 0.55, ny * gap * 0.55);
+  ctx.beginPath();
+  polyB.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+  ctx.closePath();
+  ctx.fillStyle = C.tas;
+  ctx.fill();
+  ctx.restore();
+
+  // 4. Kumdaki minik taş kıymıkları (wabi-sabi mikro detayları)
+  ctx.save();
+  ctx.fillStyle = C.tas;
+  ctx.fillRect(p1[0] + nx * gap * 1.3, p1[1] + ny * gap * 1.3, 1.4, 1.4);
+  ctx.fillRect(p2[0] - nx * gap * 1.3, p2[1] - ny * gap * 1.3, 1.2, 1.2);
+  ctx.restore();
+}
+
+
+function cizTasGolgesi(ctx, t, yukseklik, alfa) {
+  const C = PALETLER[AKTIF_PAL];
+  ctx.save();
+  ctx.translate(t.cx, t.cy);
+  ctx.rotate(t.aci);
+  
+  const rX = t.r * (1.02 + yukseklik * 0.85);
+  const rY = t.r * t.e * (1.0 + yukseklik * 0.85);
+  
+  ctx.globalAlpha = alfa;
+  ctx.fillStyle = C.golge;
+  ctx.beginPath();
+  ctx.ellipse(t.r * 0.12, t.r * 0.18, rX, rY, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+/* ==========================================================================
+   TAŞ DÜŞÜŞÜ ANİMASYONU
+   ========================================================================== */
+let animasyonId = null;
+
+function tasDusurAnimasyonu(t, tamamlandiCb) {
+  cancelAnimationFrame(animasyonId);
+  const profil = KUTLE_PROFILLERI[AKTIF_KUTLE_ANAHTAR];
+  const baslangicT = performance.now();
+  const SURE_DUSUS = 520 / HIZ_CARPAN;
+  const SURE_SQUASH = 140 / HIZ_CARPAN;
+  const SURE_SETTLE = 180 / HIZ_CARPAN;
+  const TOPLAM_SURE = SURE_DUSUS + SURE_SQUASH + SURE_SETTLE;
+
+  let darbeOldu = false;
+
+  function kare() {
+    const simdi = performance.now();
+    const dt = simdi - baslangicT;
+    const pGenel = Math.min(1, dt / TOPLAM_SURE);
+
+    gStone.clearRect(0, 0, W, H);
+
+    if (dt < SURE_DUSUS) {
+      const p = dt / SURE_DUSUS;
+      const e = Math.pow(p, 2.2);
+      const yuk = 1 - e;
+      const yOfs = -yuk * H * 0.45;
+      const stretchY = 1 + yuk * 0.08;
+      const stretchX = 1 - yuk * 0.04;
+
+      const golgeAlfa = 0.10 + e * 0.55;
+      cizTasGolgesi(gStone, t, yuk, golgeAlfa);
+      cizTekTas(gStone, t, yOfs, stretchX, stretchY, 1);
+
+    } else if (dt < SURE_DUSUS + SURE_SQUASH) {
+      if (!darbeOldu) {
+        darbeOldu = true;
+        sesCalKutleDarbe(profil);
+        haptikVurKutle(profil);
+        kumParcaciklariFirlat(t, profil.tanecikAdet);
+        seansDurum.kraterler.push({ x: t.cx, y: t.cy, r: t.r, e: t.e, tohum: t.tohum });
+        cizKumZemini();
+
+        if (profil.shake) {
+          const pb = document.getElementById("phoneBox");
+          pb.classList.remove("impact-shake");
+          void pb.offsetWidth;
+          pb.classList.add("impact-shake");
+        }
+      }
+
+      const p = (dt - SURE_DUSUS) / SURE_SQUASH;
+      const squashGenlik = Math.sin(p * Math.PI) * profil.squash;
+      const squashX = 1 + squashGenlik;
+      const squashY = 1 - squashGenlik * 0.85;
+
+      cizTasGolgesi(gStone, t, 0, 0.65);
+      cizTekTas(gStone, t, squashGenlik * 4.0, squashX, squashY, 1);
+
+    } else {
+      const p = (dt - SURE_DUSUS - SURE_SQUASH) / SURE_SETTLE;
+      const settleOfs = Math.sin(p * Math.PI) * -1.8 * (1 - p);
+
+      cizTasGolgesi(gStone, t, 0, 0.60);
+      cizTekTas(gStone, t, settleOfs, 1, 1, 1);
+    }
+
+    guncelleVeCizParcaciklar(gStone);
+
+    if (pGenel < 1) {
+      animasyonId = requestAnimationFrame(kare);
+    } else {
+      t.oturdu = true;
+      gStone.clearRect(0, 0, W, H);
+      cizKumZemini();
+      cizTumOturmusTaslar();
+      if (tamamlandiCb) tamamlandiCb();
+    }
+  }
+
+  animasyonId = requestAnimationFrame(kare);
+}
+
+function tasKirilAnimasyonu(t, tamamlandiCb) {
+  cancelAnimationFrame(animasyonId);
+  t.kirik = true;
+  t.catlakGap = 0.2;
+  const baslangicT = performance.now();
+  const SURE_KIRILMA = 260 / HIZ_CARPAN;
+  const GAP_FINAL = Math.max(2.5, t.r * 0.12);
+
+  sesCalTasKirilma();
+  haptikTasKirilma();
+  if (DARBE_SARSINTISI) {
+    const pb = document.getElementById("phoneBox");
+    if (pb) {
+      pb.classList.remove("impact-shake");
+      void pb.offsetWidth;
+      pb.classList.add("impact-shake");
+    }
+  }
+
+  function kare() {
+    const dt = performance.now() - baslangicT;
+    const p = Math.min(1, dt / SURE_KIRILMA);
+    const ease = 1 - Math.pow(1 - p, 3);
+    t.catlakGap = 0.2 + ease * (GAP_FINAL - 0.2);
+
+    gStone.clearRect(0, 0, W, H);
+    cizKumZemini();
+    cizTumOturmusTaslar();
+
+    if (p < 1) {
+      animasyonId = requestAnimationFrame(kare);
+    } else {
+      t.catlakGap = GAP_FINAL;
+      gStone.clearRect(0, 0, W, H);
+      cizKumZemini();
+      cizTumOturmusTaslar();
+      if (tamamlandiCb) tamamlandiCb();
+    }
+  }
+
+  animasyonId = requestAnimationFrame(kare);
+}
+
+/* ==========================================================================
+   ÇOKLU TAŞ EKLEME (Yeni Pomodoro Başladığında)
+   ========================================================================== */
+function yeniPomodoroTasiEkle(dk) {
+  // Bahçedeki önceki tüm taşları hemen kalıcı olarak oturt
+  seansDurum.taslar.forEach(t => t.oturdu = true);
+  gStone.clearRect(0, 0, W, H);
+
+  let anahtar = "standart";
+  if (dk <= 15) anahtar = "cakil";
+  else if (dk <= 35) anahtar = "standart";
+  else if (dk <= 65) anahtar = "kaya";
+  else anahtar = "granit";
+
+  AKTIF_KUTLE_ANAHTAR = anahtar;
+  const profil = KUTLE_PROFILLERI[anahtar];
+
+  const yeniSira = seansDurum.taslar.length;
+  const yeniTas = tasUretCoklu(dk, yeniSira);
+  seansDurum.taslar.push(yeniTas);
+
+  // Günün toplam dakikası ve önceki çizgilerin kalıcı olarak korunması
+  seansDurum.kumulatifDk += (seansDurum.gecenDk > 0 ? seansDurum.gecenDk : 12);
+  const seansNo = seansDurum.taslar.length;
+  seansDurum.hedefDk = dk;
+  seansDurum.gecenDk = 0;
+
+  const kalan = Math.max(0, 4 - seansNo);
+  document.getElementById("statToplamTas").textContent = seansNo + ". Pomodoro";
+  document.getElementById("statFudoshin").textContent = kalan === 0 ? "🛡️ Fudōshin (Rüzgar Durdu)" : kalan + " Seans Kaldı";
+  document.getElementById("hudBadge").textContent = "ÇALIŞIYOR";
+  document.getElementById("hudBadge").style.color = "var(--acc)";
+  document.getElementById("hudP1").textContent = "Mola";
+  const p3 = document.getElementById("hudP3");
+  if (p3) p3.style.display = "inline-block";
+  document.getElementById("hudTime").textContent = dk + ":00";
+  document.getElementById("hudSub").textContent = profil.ad + " · " + dk + " dk (Seans " + seansNo + ")";
+  document.getElementById("rngProg").max = dk;
+  document.getElementById("rngProg").value = 0;
+  document.getElementById("lblProg").textContent = "0 / " + dk + " dk";
+
+  cizKumZemini();
+  cizTumOturmusTaslar();
+  tasDusurAnimasyonu(yeniTas, () => {});
+}
+
+function gunBatimiSifirla() {
+  seansSifirla();
+  document.getElementById("statRuzgarDurum").textContent = "🌅 Gün Batımı: Bahçe Düzlendi (Yeni Gün)";
+}
+
+/* ==========================================================================
+   RÜZGAR FIRTINASI VE SİLİKLEŞME (4 Pomodorodan Sonra Fudōshin Koruması)
+   ========================================================================== */
+let ruzgarAnimId = null;
+
+function ruzgarFirtinasiBaslat(seviye) {
+  // 4 Pomodoro tamamlandıktan sonra rüzgar bir daha çıkmaz (Fudōshin İlkesi)
+  if (seansDurum.taslar.length >= 4) {
+    document.getElementById("statRuzgarDurum").textContent = "🛡️ 4 Pomodoro: Fudōshin (Rüzgar Durdu)";
+    sesCalRuzgarFirtinasi(0.2, 0.4);
+    return;
+  }
+
+  cancelAnimationFrame(ruzgarAnimId);
+  const C = PALETLER[AKTIF_PAL];
+  const guc = seviye === 1 ? 1.0 : 2.0;
+  const SURE_TOPLAM = (seviye === 1 ? 850 : 1200) / HIZ_CARPAN;
+  const sureSn = SURE_TOPLAM / 1000;
+
+  if (seansDurum.gecenDk < 5) {
+    seansDurum.gecenDk = 10;
+    document.getElementById("rngProg").value = 10;
+    document.getElementById("lblProg").textContent = "10 / " + seansDurum.hedefDk + " dk";
+    document.getElementById("hudTime").textContent = (seansDurum.hedefDk - 10) + ":00";
+  }
+
+  const erozyonKatsayisi = seviye === 1 ? 0.75 : 0.95;
+  seansDurum.bozulmaOlaylari.push({
+    dakika: seansDurum.gecenDk,
+    erozyon: erozyonKatsayisi
+  });
+
+  sesCalRuzgarFirtinasi(guc, sureSn);
+  haptikRuzgarFirtinasi(seviye);
+
+  const baslangicGenelErozyon = seansDurum.genelErozyon;
+  const hedefGenelErozyon = Math.min(1.0, baslangicGenelErozyon + (seviye === 1 ? 0.55 : 0.88));
+
+  document.getElementById("statRuzgarDurum").textContent = seviye === 1 ? "1. Rüzgar Süpürüyor..." : "Şiddetli Fırtına...";
+
+  const adetParcacik = seviye === 1 ? 95 : 160;
+  const tozlar = [];
+  for (let i = 0; i < adetParcacik; i++) {
+    tozlar.push({
+      x: -50 - Math.random() * 180,
+      y: Math.random() * H,
+      vx: (4.5 + Math.random() * 8.5) * (seviye === 1 ? 1.0 : 1.35) * HIZ_CARPAN,
+      vy: (Math.random() - 0.46) * 2.8,
+      uzunluk: 4 + Math.random() * 18,
+      kalinlik: 0.8 + Math.random() * 1.6,
+      alfa: 0.25 + Math.random() * 0.55
+    });
+  }
+
+  const havaSeritleri = [];
+  for (let i = 0; i < 14; i++) {
+    havaSeritleri.push({
+      yBasla: Math.random() * H,
+      hiz: (5.5 + Math.random() * 6.5) * HIZ_CARPAN,
+      genlik: 12 + Math.random() * 24,
+      frekans: 0.015 + Math.random() * 0.02,
+      uzunluk: 60 + Math.random() * 110,
+      alfa: 0.15 + Math.random() * 0.25,
+      kalinlik: 1.2 + Math.random() * 2.2
+    });
+  }
+
+  const t0 = performance.now();
+
+  function animasyonAdimi() {
+    const simdi = performance.now();
+    const dt = simdi - t0;
+    const p = Math.min(1.0, dt / SURE_TOPLAM);
+
+    const dalgaX = -80 + (W + 200) * Math.pow(p, 0.85);
+
+    const gw = seansDurum.erozyonGW, gh = seansDurum.erozyonGH;
+    for (let j = 0; j < gh; j++) {
+      const y = j * 4;
+      const lokalDalgaX = dalgaX + Math.sin(y * 0.025) * 35;
+      for (let i = 0; i < gw; i++) {
+        const x = i * 4;
+        if (x < lokalDalgaX) {
+          const mesafe = (lokalDalgaX - x);
+          const ilerlemeOran = Math.min(1.0, mesafe / 120);
+          const hedefHucresel = baslangicGenelErozyon + (hedefGenelErozyon - baslangicGenelErozyon) * ilerlemeOran;
+          seansDurum.erozyonDizisi[j * gw + i] = Math.max(seansDurum.erozyonDizisi[j * gw + i], hedefHucresel);
+        }
+      }
+    }
+
+    seansDurum.genelErozyon = baslangicGenelErozyon + (hedefGenelErozyon - baslangicGenelErozyon) * p;
+    document.getElementById("statEskiErozyon").textContent = Math.round(seansDurum.genelErozyon * 100) + "% Silikleşme";
+
+    cizKumZemini();
+    cizTumOturmusTaslar();
+
+    gWind.clearRect(0, 0, W, H);
+
+    gWind.save();
+    gWind.strokeStyle = C.cizgi;
+    gWind.lineCap = "round";
+    for (const s of havaSeritleri) {
+      const headX = (dt * s.hiz * 0.08) % (W + 200) - 50;
+      gWind.lineWidth = s.kalinlik;
+      gWind.globalAlpha = s.alfa * Math.sin(p * Math.PI) * 0.8;
+      gWind.beginPath();
+      for (let lx = 0; lx < s.uzunluk; lx += 6) {
+        const px = headX - lx;
+        if (px < -20 || px > W + 20) continue;
+        const py = s.yBasla + Math.sin(px * s.frekans) * s.genlik;
+        lx === 0 ? gWind.moveTo(px, py) : gWind.lineTo(px, py);
+      }
+      gWind.stroke();
+    }
+    gWind.restore();
+
+    gWind.save();
+    gWind.fillStyle = C.cizgi;
+    for (const t of tozlar) {
+      t.x += t.vx;
+      t.y += t.vy;
+      t.vy += (Math.random() - 0.48) * 0.4;
+
+      if (t.x > -20 && t.x < W + 30 && t.y > 0 && t.y < H) {
+        gWind.globalAlpha = t.alfa * Math.sin(p * Math.PI);
+        gWind.fillRect(t.x, t.y, t.uzunluk, t.kalinlik);
+      }
+    }
+    gWind.restore();
+
+    if (p < 1.0) {
+      ruzgarAnimId = requestAnimationFrame(animasyonAdimi);
+    } else {
+      gWind.clearRect(0, 0, W, H);
+      cizKumZemini();
+      cizTumOturmusTaslar();
+      document.getElementById("statRuzgarDurum").textContent = seviye === 1 ? "Dağılmış Kum (Seijaku)" : "Bozulmuş Çöl (Durgun)";
+    }
+  }
+
+  ruzgarAnimId = requestAnimationFrame(animasyonAdimi);
+}
+
+let devamAnimId = null;
+
+function devamEtTazeTirmikCek() {
+  cancelAnimationFrame(devamAnimId);
+  seansDurum.durum = "calisiyor";
+  document.getElementById("hudBadge").textContent = "ÇALIŞIYOR";
+  document.getElementById("hudBadge").style.color = "var(--acc)";
+  document.getElementById("hudP1").textContent = "Mola";
+  document.getElementById("statRuzgarDurum").textContent = "Taze Tırmık Açılıyor";
+
+  haptikVurKutle({ haptik: [12] });
+
+  const baslangicDk = seansDurum.gecenDk;
+  const hedefSonDk = Math.min(seansDurum.hedefDk, baslangicDk + 12);
+  const t0 = performance.now();
+  const SURE_AKIS = 1400 / HIZ_CARPAN;
+
+  function tazeTirmikAdimi() {
+    const dt = performance.now() - t0;
+    const p = Math.min(1.0, dt / SURE_AKIS);
+    const guncelDk = baslangicDk + (hedefSonDk - baslangicDk) * p;
+
+    seansDurum.gecenDk = guncelDk;
+    document.getElementById("rngProg").value = Math.round(guncelDk);
+    document.getElementById("lblProg").textContent = Math.round(guncelDk) + " / " + seansDurum.hedefDk + " dk";
+    
+    const kalan = Math.max(0, seansDurum.hedefDk - guncelDk);
+    const dak = Math.floor(kalan);
+    const san = Math.floor((kalan % 1) * 60);
+    document.getElementById("hudTime").textContent = String(dak).padStart(2,"0") + ":" + String(san).padStart(2,"0");
+
+    cizKumZemini();
+    cizTumOturmusTaslar();
+
+    if (p < 1.0) {
+      devamAnimId = requestAnimationFrame(tazeTirmikAdimi);
+    } else {
+      document.getElementById("statRuzgarDurum").textContent = "Taze Tırmık Tamamlandı (Dürüst Kayıt)";
+    }
+  }
+
+  devamAnimId = requestAnimationFrame(tazeTirmikAdimi);
+}
+
+/* ==========================================================================
+   PARTİKÜLLER VE TAŞ ÇİZİMİ
+   ========================================================================== */
+function kumParcaciklariFirlat(t, adet) {
+  const R = rng32(t.tohum + 77);
+  seansDurum.parcaciklar = [];
+
+  for (let i = 0; i < adet; i++) {
+    const a = R() * Math.PI * 2;
+    const hiz = (1.8 + R() * 3.6) * HIZ_CARPAN;
+    const rBasla = t.r * (0.95 + R() * 0.25);
+    
+    seansDurum.parcaciklar.push({
+      x: t.cx + Math.cos(a) * rBasla,
+      y: t.cy + Math.sin(a) * rBasla * t.e,
+      vx: Math.cos(a) * hiz,
+      vy: Math.sin(a) * hiz * t.e - (1.2 + R() * 1.6),
+      size: 1.1 + R() * 1.5,
+      alfa: 0.88,
+      omur: 24 + Math.floor(R() * 20)
+    });
+  }
+}
+
+function guncelleVeCizParcaciklar(ctx) {
+  const C = PALETLER[AKTIF_PAL];
+  ctx.fillStyle = C.tas;
+
+  for (let i = seansDurum.parcaciklar.length - 1; i >= 0; i--) {
+    const p = seansDurum.parcaciklar[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.14;
+    p.vx *= 0.94;
+    p.alfa -= 0.026;
+    p.omur--;
+
+    if (p.omur <= 0 || p.alfa <= 0) {
+      seansDurum.parcaciklar.splice(i, 1);
+      continue;
+    }
+
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, p.alfa);
+    ctx.fillRect(p.x, p.y, p.size, p.size);
+    ctx.restore();
+  }
+}
+
+function cizTumOturmusTaslar() {
+  for (const t of seansDurum.taslar) {
+    if (t.oturdu) {
+      cizTasGolgesi(gSand, t, 0, 0.58);
+      cizTekTas(gSand, t, 0, 1, 1, 1);
+    }
+  }
+}
+
+/* ==========================================================================
+   KULLANICI ARAYÜZÜ & ETKİLEŞİM
+   ========================================================================== */
+function seansBaslat() {
+  seansDurum.durum = "calisiyor";
+  seansDurum.gecenDk = 0;
+  seansDurum.taslar = [];
+  seansDurum.kraterler = [];
+  seansDurum.bozulmaOlaylari = [];
+  seansDurum.genelErozyon = 0.0;
+  seansDurum.erozyonDizisi.fill(0);
+
+  const profil = KUTLE_PROFILLERI[AKTIF_KUTLE_ANAHTAR];
+  const t = tasUretCoklu(profil.dk, 0);
+  seansDurum.taslar.push(t);
+
+  document.getElementById("statToplamTas").textContent = "1 Taş Bahçede";
+  document.getElementById("statToplamDk").textContent = profil.dk + " dk Toplam";
+  document.getElementById("hudBadge").textContent = "ÇALIŞIYOR";
+  document.getElementById("hudBadge").style.color = "var(--acc)";
+  document.getElementById("hudP1").textContent = "Mola";
+  const p3 = document.getElementById("hudP3");
+  if (p3) p3.style.display = "inline-block";
+  document.getElementById("hudStarted").textContent = profil.ad + " kuma oturdu · " + profil.dk + " dk (Vaat)";
+  document.getElementById("statRuzgarDurum").textContent = "Durgun Kum";
+  document.getElementById("statEskiErozyon").textContent = "%0 Silikleşme";
+
+  cizKumZemini();
+  tasDusurAnimasyonu(t, () => {});
+}
+
+function seansButon() {
+  if (seansDurum.durum === "hazir" || seansDurum.durum === "bitti") {
+    seansBaslat();
+  } else if (seansDurum.durum === "calisiyor") {
+    seansDurum.durum = "molada";
+    document.getElementById("hudBadge").textContent = "MOLADA";
+    document.getElementById("hudBadge").style.color = "var(--cool)";
+    document.getElementById("hudP1").textContent = "Devam";
+    const p3 = document.getElementById("hudP3");
+    if (p3) p3.style.display = "inline-block";
+  } else if (seansDurum.durum === "molada") {
+    devamEtTazeTirmikCek();
+    const p3 = document.getElementById("hudP3");
+    if (p3) p3.style.display = "inline-block";
+  }
+}
+
+function seansErkenBitir() {
+  if (seansDurum.taslar.length === 0) return;
+  const aktifTas = seansDurum.taslar[seansDurum.taslar.length - 1];
+  if (!aktifTas) return;
+
+  seansDurum.durum = "bitti";
+  document.getElementById("hudBadge").textContent = "VAAT BOZULDU";
+  document.getElementById("hudBadge").style.color = "var(--acc)";
+  document.getElementById("hudP1").textContent = "Yeni Seans";
+  const p3 = document.getElementById("hudP3");
+  if (p3) p3.style.display = "none";
+  document.getElementById("hudStarted").textContent = "Hedef tamamlanamadı · Taş çatladı (" + Math.round(seansDurum.gecenDk) + "/" + seansDurum.hedefDk + " dk)";
+
+  tasKirilAnimasyonu(aktifTas, () => {
+    document.getElementById("statRuzgarDurum").textContent = "💥 Taş Kırıldı: Yarım kalan vaat kumda mühürlendi.";
+  });
+}
+
+function aktifTasiKirManuel() {
+  if (seansDurum.taslar.length === 0) {
+    seansBaslat();
+    seansDurum.gecenDk = 18;
+    setTimeout(() => {
+      seansErkenBitir();
+    }, 450);
+    return;
+  }
+  seansErkenBitir();
+}
+
+function kirikVeSaglamKarsilastir() {
+  cancelAnimationFrame(animasyonId);
+  seansDurum.durum = "hazir";
+  seansDurum.gecenDk = 25;
+  seansDurum.kumulatifDk = 50;
+  seansDurum.kraterler = [];
+  seansDurum.bozulmaOlaylari = [];
+  seansDurum.genelErozyon = 0.0;
+  seansDurum.erozyonDizisi.fill(0);
+
+  const tasSaglam = {
+    cx: W * 0.32, cy: H * 0.45, r: W * 0.082, aci: 0.25, e: 0.85,
+    tohum: 12345, seviyeDk: 50, oturdu: true, kirik: false
+  };
+  const tasKirik = {
+    cx: W * 0.68, cy: H * 0.45, r: W * 0.082, aci: -0.32, e: 0.88,
+    tohum: 67890, seviyeDk: 50, oturdu: true, kirik: true, catlakGap: 3.2, catlakBasla: 3
+  };
+  seansDurum.taslar = [tasSaglam, tasKirik];
+
+  document.getElementById("hudBadge").textContent = "KARŞILAŞTIRMA";
+  document.getElementById("hudBadge").style.color = "var(--ink)";
+  document.getElementById("hudTime").textContent = "50:00";
+  document.getElementById("hudSub").textContent = "Sol: Sağlam (Tamamlandı) · Sağ: Kırık (Pes Edildi)";
+  document.getElementById("hudStarted").textContent = "Dürüst Kayıt: İki Taşın Karşılaştırması";
+  document.getElementById("hudP1").textContent = "Başla";
+  const p3 = document.getElementById("hudP3");
+  if (p3) p3.style.display = "none";
+  document.getElementById("statToplamTas").textContent = "2 Taş (1 Sağlam / 1 Kırık)";
+  document.getElementById("statRuzgarDurum").textContent = "⚖️ Karşılaştırma: Tam vaat vs Kırık vaat";
+
+  cizKumZemini();
+  cizTumOturmusTaslar();
+}
+
+function seansSifirla() {
+  seansDurum.durum = "hazir";
+  seansDurum.gecenDk = 0;
+  seansDurum.kumulatifDk = 0;
+  seansDurum.taslar = [];
+  seansDurum.kraterler = [];
+  seansDurum.bozulmaOlaylari = [];
+  seansDurum.genelErozyon = 0.0;
+  seansDurum.erozyonDizisi.fill(0);
+  seansDurum.seed = Math.floor(Math.random() * 99999);
+
+  const profil = KUTLE_PROFILLERI[AKTIF_KUTLE_ANAHTAR];
+  document.getElementById("hudBadge").textContent = "HAZIR";
+  document.getElementById("hudBadge").style.color = "var(--acc)";
+  document.getElementById("hudTime").textContent = profil.dk + ":00";
+  document.getElementById("hudSub").textContent = profil.ad + " · " + profil.dk + " dk";
+  document.getElementById("hudP1").textContent = "Başla";
+  const p3 = document.getElementById("hudP3");
+  if (p3) p3.style.display = "none";
+  document.getElementById("hudStarted").textContent = "Başla'ya basınca taş düşer";
+  document.getElementById("rngProg").value = 0;
+  document.getElementById("lblProg").textContent = "0 / " + profil.dk + " dk";
+  document.getElementById("statToplamTas").textContent = "0 Taş";
+  document.getElementById("statToplamDk").textContent = "0 dk";
+
+  gStone.clearRect(0, 0, W, H);
+  gWind.clearRect(0, 0, W, H);
+  cizKumZemini();
+}
+
+function sureKaydir(val) {
+  seansDurum.gecenDk = parseFloat(val);
+  document.getElementById("lblProg").textContent = Math.round(val) + " / " + seansDurum.hedefDk + " dk";
+  const kalan = Math.max(0, seansDurum.hedefDk - seansDurum.gecenDk);
+  const dak = Math.floor(kalan);
+  const san = Math.floor((kalan % 1) * 60);
+  document.getElementById("hudTime").textContent = String(dak).padStart(2,"0") + ":" + String(san).padStart(2,"0");
+  
+  cizKumZemini();
+  cizTumOturmusTaslar();
+}
+
+function paletSec(ad, el) {
+  AKTIF_PAL = ad;
+  document.querySelectorAll("#groupPal button").forEach(b => b.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById("phoneBox").style.background = PALETLER[ad].kagit;
+  cizKumZemini();
+  cizTumOturmusTaslar();
+}
+
+function temaDegis() {
+  const isDark = document.documentElement.classList.toggle("dark");
+  document.getElementById("btnTema").textContent = isDark ? "Aydınlık Mod" : "Karanlık Mod";
+  paletSec(isDark ? "gece" : "kum", document.querySelector("#groupPal button"));
+}
+
+function sesAcKapa() {
+  SES_ACIK = !SES_ACIK;
+  const btn = document.getElementById("btnSes");
+  btn.textContent = SES_ACIK ? "Ses: Açık" : "Ses: Kapalı";
+  btn.classList.toggle("active", SES_ACIK);
+}
+
+/* ==========================================================================
+   KUM BAHÇESİ TEASER (Açılış İpucu & Tanıtım)
+   ========================================================================== */
+let teaserAnimId = null;
+
+function kumBahcesiTeaser() {
+  cancelAnimationFrame(teaserAnimId);
+  seansDurum.durum = "hazir";
+  seansDurum.gecenDk = 0;
+  seansDurum.kumulatifDk = 0;
+  seansDurum.kraterler = [];
+  seansDurum.bozulmaOlaylari = [];
+  seansDurum.genelErozyon = 0.0;
+  seansDurum.erozyonDizisi.fill(0);
+
+  // Teaser için merkezî estetik Zen Taşı
+  const teaserTas = {
+    cx: W * 0.50, cy: H * 0.44, r: W * 0.072, aci: 0.35, e: 0.88,
+    tohum: 77712, seviyeDk: 25, oturdu: true
+  };
+  seansDurum.taslar = [teaserTas];
+
+  document.getElementById("hudBadge").textContent = "ZEN İPUCU";
+  document.getElementById("hudBadge").style.color = "var(--acc)";
+  document.getElementById("hudTime").textContent = "25:00";
+  document.getElementById("hudSub").textContent = "Kum Bahçesi · Karesansui";
+  document.getElementById("hudStarted").textContent = "Karesansui Zen Bahçesi İpucu";
+  document.getElementById("statToplamTas").textContent = "Teaser Modu";
+  document.getElementById("statFudoshin").textContent = "Başla'ya basınca seans başlar";
+
+  const t0 = performance.now();
+  const SURE_TEASER = 2600; // 2.6 saniyede zarifçe açılır
+
+  function kare() {
+    const dt = performance.now() - t0;
+    const p = Math.min(1.0, dt / SURE_TEASER);
+    const ease = 1 - Math.pow(1 - p, 2.2);
+
+    seansDurum.gecenDk = ease * 25;
+    document.getElementById("rngProg").value = seansDurum.gecenDk;
+    document.getElementById("lblProg").textContent = Math.round(seansDurum.gecenDk) + " / 25 dk";
+
+    cizKumZemini();
+    cizTumOturmusTaslar();
+
+    if (p < 1.0) {
+      teaserAnimId = requestAnimationFrame(kare);
+    } else {
+      document.getElementById("hudBadge").textContent = "HAZIR";
+    }
+  }
+
+  gStone.clearRect(0, 0, W, H);
+  gWind.clearRect(0, 0, W, H);
+  teaserAnimId = requestAnimationFrame(kare);
+}
+
+/* İlk Yükleme */
+paramGuncelle();
+cizKumZemini();
+setTimeout(() => {
+  kumBahcesiTeaser();
+}, 350);
+</script>
+</body>
+</html>

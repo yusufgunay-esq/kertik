@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Damla — Kertik sanat denemesi</title>
+<style>
+:root{
+  --bg:#16171A; --bg2:#212227; --ink:#EDE9E0; --ink2:#BCB7AC;
+  --muted:#948F84; --faint:#6A665E; --line:#2E2F34; --track:#33343A;
+  --accent:#D0785B; --cool:#79B3AE;
+}
+:root.light{
+  --bg:#F5F2EA; --bg2:#EFEBE1; --ink:#16181B; --ink2:#3E4148;
+  --muted:#726E65; --faint:#9C978C; --line:#DCD5C6; --track:#DCD6C7;
+  --accent:#B05237; --cool:#3E7C77;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg2);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  transition:background .55s cubic-bezier(.4,0,.2,1),color .55s}
+.wrap{max-width:1040px;margin:0 auto;padding:48px 24px 90px}
+h1{font-size:34px;font-weight:400;letter-spacing:-.032em;margin:0}
+.sub{color:var(--muted);font-size:15px;margin-top:6px;max-width:60ch}
+h2{font-size:23px;font-weight:400;letter-spacing:-.02em;margin:52px 0 4px}
+.note{color:var(--muted);font-size:15px;margin:0 0 22px;max-width:64ch}
+.note b{color:var(--ink2);font-weight:500}
+.lab{display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start;margin-top:26px}
+.phone{position:relative;width:330px;height:715px;border-radius:44px;overflow:hidden;
+  background:var(--bg);border:1px solid var(--line);flex-shrink:0;
+  box-shadow:0 24px 70px rgba(0,0,0,.34)}
+.phone canvas{position:absolute;inset:0;width:100%;height:100%}
+.ui{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  padding:34px 22px 78px;pointer-events:none}
+.eyebrow{font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);
+  font-weight:500;height:17px;margin-bottom:26px}
+.dialwrap{position:relative;width:236px;height:236px;display:grid;place-items:center}
+.dialwrap svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.dcenter{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;gap:9px}
+#clock{font-size:44px;font-weight:250;letter-spacing:-.04em;font-variant-numeric:tabular-nums;
+  line-height:1;color:var(--ink)}
+#capt{font-size:13px;letter-spacing:.02em;color:var(--muted)}
+#note{margin-top:26px;font-size:17px;color:var(--ink2)}
+#sub{margin-top:10px;font-size:15px;color:var(--muted)}
+.ctrls{margin-top:auto;display:flex;gap:12px}
+.ctrls span{border:1px solid var(--line);border-radius:999px;padding:13px 26px;font-size:16px;
+  color:var(--ink2);background:transparent}
+.ctrls span.acc{border-color:var(--accent);color:var(--accent)}
+.navbar{position:absolute;left:0;right:0;bottom:0;height:56px;border-top:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-around;font-size:14.5px;color:var(--muted)}
+.navbar b{color:var(--ink);font-weight:600}
+.panel{flex:1;min-width:280px}
+.panel h3{font-size:15px;font-weight:500;color:var(--muted);margin:0 0 12px}
+.rowc{margin-bottom:24px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.val{font-variant-numeric:tabular-nums;color:var(--ink);font-size:15px;margin-top:6px}
+.chips{display:flex;gap:9px;flex-wrap:wrap}
+.chips button{border:1px solid var(--line);background:none;color:var(--muted);border-radius:999px;
+  padding:10px 16px;font-size:15px;font-family:inherit;cursor:pointer;transition:.25s}
+.chips button:hover{color:var(--ink2)}
+.chips button.on{border-color:var(--accent);color:var(--accent)}
+.hint{font-size:14.5px;color:var(--faint);margin-top:12px;max-width:44ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Kum bahçesi</h1>
+<div class="sub">Ekran <b>ilk saniyeden itibaren doludur</b> — taranmış kum. Zaman geçtikçe eklenen şey nesne değil, <b>bozulma</b>: düşen taş, tırmık izlerini kendi etrafından dolanmaya zorlar.</div>
+
+<div class="lab">
+  <div class="phone">
+    <canvas id="cv"></canvas>
+    <div class="ui">
+      <div class="eyebrow" id="eye">ÇALIŞIYOR</div>
+      <div class="dialwrap">
+        <svg id="dial" viewBox="0 0 310 310"></svg>
+        <div class="dcenter">
+          <div id="clock">00:00</div>
+          <div id="capt"></div>
+        </div>
+      </div>
+      <div id="note">tez — kaynak taraması</div>
+      <div id="sub"></div>
+      <div class="ctrls"><span>mola</span><span class="acc">bitir</span></div>
+    </div>
+    <div class="navbar"><b>sayaç</b><span>bugün</span><span>işler</span><span>ayarlar</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="rowc">
+      <h3>seansın kaçıncı dakikası</h3>
+      <input type="range" id="dk" min="0" max="4020" value="47">
+      <div class="val" id="dkv"></div>
+    </div>
+    <div class="rowc">
+      <h3>hazır seanslar</h3>
+      <div class="chips" id="pre"></div>
+    </div>
+    <div class="rowc">
+      <h3>taş boyu</h3>
+      <div class="chips" id="dens"></div>
+      <div class="hint">Uygulamada bu ayar olmayacak; nereye kadar gidilebileceğini
+      görmek için duruyor.</div>
+    </div>
+    <div class="rowc">
+      <h3>tırmık sıklığı</h3>
+      <div class="chips" id="tar"></div>
+
+    </div>
+    <div class="rowc">
+    <div class="rowc">
+      <h3>tema</h3>
+      <div class="chips"><button id="th">kâğıt</button></div>
+    </div>
+    <div class="rowc">
+      <h3>&nbsp;</h3>
+      <div class="chips"><button id="play">damladan başlat</button></div>
+    </div>
+  </div>
+</div>
+
+<h2>Ne değişti</h2>
+<p class="note">
+<b>Eski yaklaşım:</b> her dakika ekrana yeni akış çizgileri ekleniyordu. Sabit bir tuval
+sınırlı sayıda çizgi alabildiği için 120. dakikada doluyordu; katman sistemi bunu
+erteledi ama 33 bağımsız çizgi alanı üst üste binince ortaya ebru değil <i>moiré gürültüsü</i>
+çıktı.<br><br>
+<b>Yeni yaklaşım:</b> gerçek ebrunun kendi fiziği. Tek atom var — <b>damla</b>. Bir damla
+düştüğünde teknedeki her şey dışa doğru itilir (alan koruyan dönüşüm:
+<code>P′ = C + (P−C)·√(1 + r²/|P−C|²)</code>). Damlalar bitmez, dolayısıyla ekran bitmez.
+Eski damlalar yok olmaz; incelip kıvrılarak kenara doğru sıkışır — <b>sabi/patina zaten
+malzemenin içinde</b>, ayrıca eklenmiyor.<br><br>
+<b>Dürüst kayıt:</b> 20. dakikadaki damla 40. saatte hâlâ orada, ama artık bir kılcal
+damar hâlinde. Süreyi taklit etmiyoruz, biriktiriyoruz. Molada düşen damlalar serin
+tonda olduğu için seansın hangi bölümünde mola verildiği resimden okunuyor
+(<code>20-sanat-geri-bildirim.md</code> madde 3.1).
+</p>
+
+<script src="kum-cekirdek.js"></script>
+<script>
+const W=330,H=715;
+const TEMA={
+ koyu:{kum:"#6E6656",tas:"#101114",tasK:"#1E3A38",kenarIsik:"#403B33",golge:"rgba(0,0,0,.65)",alfa:.85},
+ acik:{kum:"#BFB6A6",tas:"#575046",tasK:"#3E7C77",kenarIsik:"#8E877B",golge:"rgba(90,80,64,.40)",alfa:.95}
+};
+let K={W,H,kenar:46,ust:96,alt:128,sapma:30,tas:30,
+  A:5.0,US:2.75,tavan:40,
+  bosX:W/2,bosY:262,bosR:158,bosOran:1.18,
+  aralik:6.5,adim:3.0,tasma:120,dalga:4.0,maxKenar:2.6,noktaTavan:1400};
+
+const SEANSLAR=[
+  {ad:"25 dakika",       id:"kb-25",  dk:25,   molalar:[]},
+  {ad:"47 dakika",       id:"kb-47",  dk:47,   molalar:[]},
+  {ad:"1s20 · mola",     id:"kb-92",  dk:92,   molalar:[[52,64]]},
+  {ad:"2 saat 45",       id:"kb-165", dk:165,  molalar:[[58,70],[121,131]]},
+  {ad:"12 saat",         id:"kb-720", dk:720,  molalar:[[180,225],[430,460]]},
+  {ad:"67 saat (stres)", id:"kb-67s", dk:4020, molalar:[[180,225],[1230,1290],[2500,2565],[3400,3460]]},
+];
+let SEC=1, T=47, oynat=null;
+
+function ciz(dk, se, ek){
+  const cv=document.getElementById("cv"), g=cv.getContext("2d");
+  const dpr=Math.min(2,devicePixelRatio||1);
+  if(cv.width!==W*dpr){cv.width=W*dpr;cv.height=H*dpr}
+  g.setTransform(dpr,0,0,dpr,0,0);
+  const koyu=!document.documentElement.classList.contains("light");
+  const P=TEMA[koyu?"koyu":"acik"];
+  const bg=getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
+  g.fillStyle=bg; g.fillRect(0,0,W,H);
+  const B=bahce(se,dk,K);
+  g.lineCap="round"; g.lineJoin="round";
+  g.strokeStyle=P.kum; g.lineWidth=1.0; g.globalAlpha=P.alfa;
+  for(const L of B.kum){ g.beginPath(); g.moveTo(L.x[0],L.y[0]);
+    for(let i=1;i<L.x.length;i++) g.lineTo(L.x[i],L.y[i]); g.stroke() }
+  g.globalAlpha=1;
+  for(const t of B.taslar){
+    const s=t.sil;
+    g.beginPath(); g.moveTo(s.x[0],s.y[0]);
+    for(let i=1;i<s.x.length;i++) g.lineTo(s.x[i],s.y[i]);
+    g.closePath();
+    g.save(); g.shadowColor=P.golge; g.shadowBlur=10; g.shadowOffsetY=3;
+    g.fillStyle=t.t.mola?P.tasK:P.tas; g.fill(); g.restore();
+    g.save(); g.clip();
+    g.strokeStyle=P.kenarIsik; g.lineWidth=1.6; g.globalAlpha=.9;
+    g.beginPath(); g.moveTo(s.x[0],s.y[0]);
+    for(let i=1;i<s.x.length;i++) g.lineTo(s.x[i],s.y[i]);
+    g.closePath(); g.stroke(); g.restore(); g.globalAlpha=1;
+  }
+  if(ek) ek(g);
+}
+</script>
+<script>
+/* ---------- kadran ---------- */
+const NS="http://www.w3.org/2000/svg";
+const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e};
+const CX=155,CY=155,R0=118,GAP=17, GOSTER=3;   // en fazla son 3 tur okunur kalır
+function kadran(dk,se){
+  const svg=document.getElementById("dial"); svg.innerHTML="";
+  const st=getComputedStyle(document.documentElement);
+  const acc=st.getPropertyValue("--accent").trim(), trk=st.getPropertyValue("--track").trim(),
+        cool=st.getPropertyValue("--cool").trim();
+  const tur=m=>{for(const b of(se.molalar||[]))if(m>=b[0]&&m<b[1])return"mola";return"is"};
+  const toplamTur=Math.max(1,Math.ceil(dk/60));
+  // 67 turda çentikler okunmaz hâle geliyordu: sadece son GOSTER tur çiziliyor,
+  // en eskisi soluk. Ölçek sabit kalıyor → çentik hep aynı büyüklükte.
+  const ilk=Math.max(0,toplamTur-GOSTER);
+  const g=mk("g",{}); svg.appendChild(g);
+  const arc=(r,a0,a1)=>{const p=a=>[CX+r*Math.cos(a*Math.PI/180),CY+r*Math.sin(a*Math.PI/180)];
+    const[x0,y0]=p(a0),[x1,y1]=p(a1);
+    return `M ${x0.toFixed(2)} ${y0.toFixed(2)} A ${r} ${r} 0 ${Math.abs(a1-a0)>180?1:0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`};
+  const yari=k=>R0+(k-ilk)*GAP;
+  const solgun=k=> k===ilk && ilk>0 ? .35 : 1;
+  for(let k=ilk;k<toplamTur;k++){
+    const f=k*60,t=Math.min(dk,(k+1)*60); if(t<=f)continue;
+    g.appendChild(mk("path",{d:arc(yari(k),(f-k*60)*6-90,Math.max((t-k*60)*6-90,(f-k*60)*6-89.9)),
+      fill:"none",stroke:trk,"stroke-width":1.2,"stroke-linecap":"round",opacity:.55*solgun(k)}));
+  }
+  for(let m2=ilk*60;m2<Math.floor(dk);m2++){
+    if(tur(m2)==="mola")continue;
+    const k=Math.floor(m2/60),mm=m2%60;
+    let h=6.5; if(mm===0)h=14; else if(mm%15===0)h=12; else if(mm%5===0)h=9;
+    const r=yari(k),a=(mm*6-90)*Math.PI/180;
+    g.appendChild(mk("line",{x1:(CX+(r-h/2)*Math.cos(a)).toFixed(2),y1:(CY+(r-h/2)*Math.sin(a)).toFixed(2),
+      x2:(CX+(r+h/2)*Math.cos(a)).toFixed(2),y2:(CY+(r+h/2)*Math.sin(a)).toFixed(2),
+      stroke:acc,"stroke-width":1.8,"stroke-linecap":"round",opacity:solgun(k)}));
+  }
+  for(const b of(se.molalar||[])){
+    let a=Math.max(b[0],ilk*60); const son=Math.min(b[1],dk);
+    while(a<son){const k=Math.floor(a/60),e=Math.min(son,(k+1)*60);
+      if(e>a+.05)g.appendChild(mk("path",{d:arc(yari(k),(a-k*60)*6-90,(e-k*60)*6-90),
+        fill:"none",stroke:cool,"stroke-width":2.6,"stroke-linecap":"round",opacity:.5*solgun(k)}));
+      a=e}
+  }
+  // kaç tur gizlendiyse: içeride sessiz bir sayı
+  if(ilk>0){
+    const t=mk("text",{x:CX,y:CY+96,"text-anchor":"middle","font-size":10.5,
+      fill:st.getPropertyValue("--faint").trim(),"letter-spacing":".14em"});
+    t.textContent="+"+ilk+" SAAT"; g.appendChild(t);
+  }
+}
+
+/* ---------- durum ---------- */
+function tazele(){
+  const se=SEANSLAR[SEC];
+  ciz(T,se); kadran(T,se);
+  const s=Math.floor(T/60), d=Math.floor(T%60);
+  document.getElementById("clock").textContent=
+    (s?String(s).padStart(2,"0")+":":"")+String(d).padStart(2,"0")+(s?"":":00");
+  document.getElementById("capt").textContent=(Math.floor(T/60)+1)+". saat, "+(Math.floor(T)%60)+". çentik";
+  const mola=(se.molalar||[]).some(b=>T>=b[0]&&T<b[1]);
+  document.getElementById("eye").textContent=mola?"MOLADA":"ÇALIŞIYOR";
+  document.getElementById("eye").style.color=mola?"var(--cool)":"var(--accent)";
+  document.getElementById("sub").textContent="bugün "+(Math.floor(T)+38)+" dakika · 2 seans";
+  document.getElementById("dkv").textContent=Math.floor(T)+". dakika";
+  const dkEl=document.getElementById("dk");
+  dkEl.max=se.dk; dkEl.value=Math.floor(T);
+}
+
+const pre=document.getElementById("pre");
+SEANSLAR.forEach((s,i)=>{const b=document.createElement("button");b.textContent=s.ad;
+  b.onclick=()=>{SEC=i;T=Math.min(T,s.dk);
+    [...pre.children].forEach((q,k)=>q.classList.toggle("on",k===i));tazele()};
+  pre.appendChild(b)});
+pre.children[1].classList.add("on");
+
+const dens=document.getElementById("dens");
+[["küçük",22],["dengeli",30],["iri",40]].forEach(([ad,v])=>{
+  const b=document.createElement("button");b.textContent=ad;
+  if(v===K.tas)b.classList.add("on");
+  b.onclick=()=>{K.tas=v;[...dens.children].forEach(q=>q.classList.remove("on"));b.classList.add("on");tazele()};
+  dens.appendChild(b)});
+
+const tarEl=document.getElementById("tar");
+[["seyrek",9],["dengeli",6.5],["sık",5]].forEach(([ad,v])=>{
+  const b=document.createElement("button");b.textContent=ad;
+  if(v===K.aralik)b.classList.add("on");
+  b.onclick=()=>{K.aralik=v;[...tarEl.children].forEach(q=>q.classList.remove("on"));b.classList.add("on");tazele()};
+  tarEl.appendChild(b)});
+
+document.getElementById("dk").oninput=e=>{clearInterval(oynat);T=+e.target.value;tazele()};
+document.getElementById("th").onclick=()=>{
+  const l=document.documentElement.classList.toggle("light");
+  document.getElementById("th").textContent=l?"gece":"kâğıt"; tazele()};
+
+/* ---------- taşın düşüşü: biten, tek seferlik ---------- */
+let af=null;
+function tasDusur(bitince){
+  cancelAnimationFrame(af); clearInterval(oynat);
+  const se=SEANSLAR[SEC];
+  const t0=performance.now(), DUSUS=520, OTURMA=380;
+  const koyu=!document.documentElement.classList.contains("light");
+  const P=TEMA[koyu?"koyu":"acik"];
+  const ilk=taslar(se,0.001,K)[0];
+  T=0; tazele();
+  const dpr=Math.min(2,devicePixelRatio||1);
+  function kare(t){
+    const dt=t-t0;
+    ciz(0,se,g=>{
+      g.setTransform(dpr,0,0,dpr,0,0);
+      if(!ilk) return;
+      const r=K.tas*0.8;
+      if(dt<DUSUS){
+        const p=dt/DUSUS, e=p*p;
+        const y=-30+(ilk.cy+30)*e;
+        g.save(); g.shadowColor=P.golge; g.shadowBlur=8; g.shadowOffsetY=3;
+        g.fillStyle=P.tas; g.beginPath();
+        g.ellipse(ilk.cx,y,r*.85,r*.72,0,0,Math.PI*2); g.fill(); g.restore();
+      } else {
+        const p=Math.min(1,(dt-DUSUS)/OTURMA);
+        g.save(); g.shadowColor=P.golge; g.shadowBlur=8+p*4; g.shadowOffsetY=3;
+        g.fillStyle=P.tas; g.beginPath();
+        g.ellipse(ilk.cx,ilk.cy,r*(.85+p*.2),r*(.72+p*.14),0,0,Math.PI*2); g.fill(); g.restore();
+        // kumun savrulması: tek seferlik, sönen halka
+        g.strokeStyle=P.kum; g.lineWidth=1.2; g.globalAlpha=Math.max(0,(1-p)*.7);
+        g.beginPath(); g.ellipse(ilk.cx,ilk.cy,r+6+p*46,(r+6+p*46)*.72,0,0,Math.PI*2); g.stroke();
+        g.globalAlpha=1;
+      }
+    });
+    if(dt<DUSUS+OTURMA) af=requestAnimationFrame(kare); else bitince();
+  }
+  af=requestAnimationFrame(kare);
+}
+document.getElementById("play").onclick=()=>{
+  const se=SEANSLAR[SEC];
+  tasDusur(()=>{ oynat=setInterval(()=>{T+=se.dk/130; if(T>=se.dk){T=se.dk;clearInterval(oynat)} tazele()},34) });
+};
+
+document.getElementById("dk").max=SEANSLAR[SEC].dk;
+tazele();
+</script>
+</body>
+</html>

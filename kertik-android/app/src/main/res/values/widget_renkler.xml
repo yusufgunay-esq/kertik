@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- gündüz (index.html :root — palet v3.1) -->
+    <color name="w_kagit">#F5F1E6</color>
+    <color name="w_murekkep">#1A1B1E</color>
+    <color name="w_soluk">#6E6A61</color>
+    <color name="w_cizgi">#DCD5C4</color>
+    <color name="w_vurgu">#B4432B</color>
+    <color name="w_serin">#7A8791</color>
+    <color name="w_dolgu">#1A1B1E</color>
+    <color name="w_dolgu_yazi">#F5F1E6</color>
+    <color name="w_kopru">#8A6A4F</color>
+    <color name="w_mola1">#8E9AA3</color>
+    <color name="w_mola2">#B4BEC5</color>
+    <color name="w_tas">#22374F</color>
+    <color name="w_tas_isik">#72F5F1E6</color>
+    <!-- yeni motor (WidgetSanat.kt): taş gölgesi, kabartı gölgesi, tane dokusu -->
+    <color name="w_golge">#3D3226</color>
+
+    <!-- gece (index.html :root.dark — palet v3.1) -->
+    <color name="w_kagit_gece">#131417</color>
+    <color name="w_murekkep_gece">#EDE8DC</color>
+    <color name="w_soluk_gece">#8F8A7E</color>
+    <color name="w_cizgi_gece">#292B31</color>
+    <color name="w_vurgu_gece">#D3785A</color>
+    <color name="w_serin_gece">#7E8B96</color>
+    <color name="w_dolgu_gece">#EDE8DC</color>
+    <color name="w_dolgu_yazi_gece">#131417</color>
+    <color name="w_kopru_gece">#A98A6C</color>
+    <color name="w_mola1_gece">#5E6A75</color>
+    <color name="w_mola2_gece">#8A959E</color>
+    <color name="w_tas_gece">#E6E1D5</color>
+    <color name="w_tas_isik_gece">#66131417</color>
+    <color name="w_golge_gece">#000000</color>
+</resources>

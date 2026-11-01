@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kertik Sanat Laboratuvarı — Kintsugi & Kum Havuzu</title>
+  <style>
+    :root {
+      --bg-app: #0f1115;
+      --bg-card: rgba(26, 29, 36, 0.85);
+      --bg-card-hover: rgba(36, 40, 50, 0.95);
+      --border-card: rgba(255, 255, 255, 0.08);
+      --text-main: #f0f2f5;
+      --text-muted: #8a919e;
+      --gold-core: #e5b358;
+      --gold-glow: rgba(243, 195, 107, 0.4);
+      --gold-deep: #996e25;
+      --sand-bg: #1c1a17;
+      --sand-line: #3a352c;
+      --sand-highlight: #5a5345;
+      --stone-base: #2e323b;
+      --stone-spec: #606775;
+      --stone-shadow: rgba(0, 0, 0, 0.6);
+      --accent-blue: #4d82f3;
+      --accent-mola: #4ea8de;
+      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      --font-mono: "SF Mono", Menlo, Consolas, monospace;
+    }
+
+    [data-theme="light"] {
+      --bg-app: #f4f3ef;
+      --bg-card: rgba(255, 255, 255, 0.9);
+      --bg-card-hover: #ffffff;
+      --border-card: rgba(0, 0, 0, 0.07);
+      --text-main: #1d1e20;
+      --text-muted: #6e737d;
+      --gold-core: #b8860b;
+      --gold-glow: rgba(184, 134, 11, 0.25);
+      --gold-deep: #7a5800;
+      --sand-bg: #eae5d9;
+      --sand-line: #cfc7b6;
+      --sand-highlight: #f8f6f0;
+      --stone-base: #5a5f69;
+      --stone-spec: #9ca3af;
+      --stone-shadow: rgba(0, 0, 0, 0.18);
+      --accent-blue: #2563eb;
+      --accent-mola: #0284c7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: var(--bg-app);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      gap: 1.5rem;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-card);
+    }
+
+    .title-group h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .title-group p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .tag-wabi {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.2rem 0.5rem;
+      background: rgba(229, 179, 88, 0.15);
+      color: var(--gold-core);
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border-card);
+      background: var(--bg-card);
+      color: var(--text-main);
+      padding: 0.55rem 1rem;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+
+    .btn:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: var(--gold-core);
+      color: #0f1115;
+      font-weight: 600;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: #f0c26e;
+    }
+
+    .btn-active {
+      border-color: var(--gold-core) !important;
+      background: rgba(229, 179, 88, 0.18) !important;
+      color: var(--gold-core) !important;
+    }
+
+    .view-switcher {
+      display: flex;
+      background: var(--bg-card);
+      padding: 0.25rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-card);
+      gap: 0.25rem;
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background: var(--bg-card-hover);
+      color: var(--text-main);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .lab-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 16px;
+      padding: 1.25rem;
+      backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .canvas-container {
+      width: 100%;
+      height: 480px;
+      background: var(--bg-app);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .controls-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      background: rgba(0, 0, 0, 0.15);
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-card);
+    }
+
+    .control-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .control-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .control-value {
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .slider {
+      flex: 1;
+      accent-color: var(--gold-core);
+      cursor: pointer;
+      height: 6px;
+    }
+
+    .preset-buttons {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .preset-btn {
+      padding: 0.38rem 0.7rem;
+      font-size: 0.78rem;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-card);
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .preset-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--text-main);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .preset-btn:active {
+      transform: scale(0.96);
+    }
+
+    .info-box {
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.02);
+      border-left: 3px solid var(--gold-core);
+      padding: 0.6rem 0.8rem;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .info-box strong {
+      color: var(--text-main);
+    }
+
+    @media (max-width: 900px) {
+      .lab-grid {
+        grid-template-columns: 1fr;
+      }
+      .canvas-container {
+        height: 380px;
+      }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+
+  <header>
+    <div class="title-group">
+      <h1>Kertik Sanat Laboratuvarı <span class="tag-wabi">Wabi-Sabi Algoritmik Sanat</span></h1>
+      <p>Kronometre için <strong>Kintsugi Altın Damarı</strong> · Pomodoro için <strong>Zen Takımadası & Kum Girişimi</strong></p>
+    </div>
+
+    <div class="header-actions">
+      <div class="view-switcher">
+        <button class="tab-btn active" id="tabBoth" onclick="setViewMode('both')">İkili Görünüm</button>
+        <button class="tab-btn" id="tabKintsugi" onclick="setViewMode('kintsugi')">Kintsugi (Kronometre)</button>
+        <button class="tab-btn" id="tabSand" onclick="setViewMode('sand')">Kum Havuzu (Pomodoro)</button>
+      </div>
+
+      <button class="btn" id="themeBtn" onclick="toggleTheme()">🌓 Aydınlık Mod</button>
+      <button class="btn btn-primary" id="rngBtn" onclick="randomizeAll()">🎲 Yeni Tohum (RNG)</button>
+    </div>
+  </header>
+
+  <main class="lab-grid" id="mainGrid">
+
+    <!-- KART 1: KRONOMETRE - KINTSUGI ALTIN DAMARI -->
+    <article class="card" id="cardKintsugi">
+      <div class="card-header">
+        <div>
+          <div class="card-title">
+            <span>⚡ Kronometre: Kintsugi Altın Damarları</span>
+          </div>
+          <div class="card-subtitle">Açık uçlu zamanın organik çatlak büyümesi ve altın sızıntısı</div>
+        </div>
+        <div id="kintsugiStats" class="control-value" style="color: var(--gold-core);">00:45:00</div>
+      </div>
+
+      <div class="canvas-container">
+        <canvas id="kintsugiCanvas"></canvas>
+      </div>
+
+      <div class="controls-panel">
+        <div class="control-row">
+          <span class="control-label">Geçen Süre (Kronometre)</span>
+          <input type="range" id="kintsugiSlider" class="slider" min="1" max="4020" value="45" oninput="updateKintsugiTime(this.value)" />
+          <span id="kintsugiMinutesDisplay" class="control-value">45 dk</span>
+        </div>
+
+        <div class="preset-buttons">
+          <button class="preset-btn" id="btnK15" onclick="setKintsugiPreset(15)">15 dk (Mikro Çatlak)</button>
+          <button class="preset-btn" id="btnK60" onclick="setKintsugiPreset(60)">1 Saat (Ana Gövde)</button>
+          <button class="preset-btn" id="btnK180" onclick="setKintsugiPreset(180)">3 Saat (Kılcal Ağ)</button>
+          <button class="preset-btn" id="btnK600" onclick="setKintsugiPreset(600)">10 Saat (Yoğun Damar)</button>
+          <button class="preset-btn" id="btnK4020" onclick="setKintsugiPreset(4020)">67 Saat (Asırlık Porselen)</button>
+          <button class="preset-btn" id="molaKintsugiBtn" onclick="toggleKintsugiMola()">☕ Mola / Sessizlik İzi</button>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>Nasıl Çalışır?</strong> Zaman aktıkça ana kırık hattından Fibonacci açılı altın kılcallar ayrılır (Differential fracture branching). Asla moiré gürültüsüne dönüşmez; 67 saatlik aşırı oturumlarda bile antika bir Japon seramiğinin asil çatlak haritasını korur.
+      </div>
+    </article>
+
+    <!-- KART 2: POMODORO - ZEN TAKIMADASI & KUM HAVUZU -->
+    <article class="card" id="cardSand">
+      <div class="card-header">
+        <div>
+          <div class="card-title">
+            <span>🪨 Pomodoro: Zen Takımadası & Kum Girişimi</span>
+          </div>
+          <div class="card-subtitle">Tamamlanan seansların taş kütlesi ve dalga kırılma alanı</div>
+        </div>
+        <div id="pomodoroStats" class="control-value" style="color: var(--accent-blue);">4 Taş · 100 dk</div>
+      </div>
+
+      <div class="canvas-container">
+        <canvas id="sandCanvas"></canvas>
+      </div>
+
+      <div class="controls-panel">
+        <div class="control-row">
+          <span class="control-label">Pomodoro Sayısı</span>
+          <input type="range" id="stoneSlider" class="slider" min="1" max="8" value="4" oninput="updateStoneCount(this.value)" />
+          <span id="stoneCountDisplay" class="control-value">4 Taş</span>
+        </div>
+
+        <div class="preset-buttons">
+          <button class="preset-btn" id="btnDropStone" onclick="triggerStoneDrop()">✨ Yeni Taş Düşür (Animasyon)</button>
+          <button class="preset-btn" id="btnS1" onclick="setStonePreset(1)">1 Taş (25 dk)</button>
+          <button class="preset-btn" id="btnS4" onclick="setStonePreset(4)">4 Taş (Dengeli Gün)</button>
+          <button class="preset-btn" id="btnS8" onclick="setStonePreset(8)">8 Taş (Usta Oturumu)</button>
+          <button class="preset-btn" id="windBtn" onclick="triggerWindMola()">🍃 Mola Rüzgarı</button>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <strong>Nasıl Çalışır?</strong> Her pomodoro tamamlandığında havadan organik bir nehir taşı düşer. Taşların çevresindeki tırmık çizgileri birbirinin içinden geçerken <em>dalga girişimi (wave interference)</em> oluşturur; böylece tekdüzelik kırılır ve gün sonunda eşsiz bir Zen bahçesi doğar.
+      </div>
+    </article>
+
+  </main>
+
+  <script>
+    var seed = Math.floor(Math.random() * 1000000);
+
+    function rng(seedVal) {
+      var s = seedVal;
+      return function() {
+        s |= 0;
+        s = s + 0x6D2B79F5 | 0;
+        var t = Math.imul(s ^ s >>> 15, 1 | s);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    function pseudoNoise(x, y, s) {
+      var n = Math.sin(x * 12.9898 + y * 78.233 + s) * 43758.5453;
+      return n - Math.floor(n);
+    }
+
+    // 1. KINTSUGI KODU
+    var kintsugiCanvas = document.getElementById('kintsugiCanvas');
+    var kCtx = kintsugiCanvas.getContext('2d');
+    var kintsugiMinutes = 45;
+    var kintsugiMolaActive = false;
+
+    function KintsugiBranch(x, y, angle, length, depth, birthMinute) {
+      this.x = x;
+      this.y = y;
+      this.angle = angle;
+      this.length = length;
+      this.depth = depth;
+      this.birthMinute = birthMinute;
+      this.children = [];
+      this.points = [{ x: x, y: y, minute: birthMinute }];
+    }
+
+    var kintsugiRoot = null;
+
+    function buildKintsugiTree(w, h, currentSeed) {
+      var rand = rng(currentSeed);
+      var startX = w * (0.35 + rand() * 0.3);
+      var startY = h * (0.35 + rand() * 0.3);
+
+      kintsugiRoot = new KintsugiBranch(startX, startY, rand() * Math.PI * 2, 8, 0, 0);
+
+      function grow(branch, maxMins) {
+        var cx = branch.x;
+        var cy = branch.y;
+        var curAngle = branch.angle;
+        var maxSteps = Math.min(220, Math.floor(maxMins * 1.5 / (branch.depth + 1)));
+
+        for (var i = 0; i < maxSteps; i++) {
+          var stepMinute = branch.birthMinute + i * 2;
+          if (stepMinute > maxMins) break;
+
+          var noiseVal = (rand() - 0.5) * 0.38;
+          curAngle += noiseVal;
+          var stepDist = 3.5 + rand() * 3.0;
+          cx += Math.cos(curAngle) * stepDist;
+          cy += Math.sin(curAngle) * stepDist;
+
+          if (cx < 20 || cx > w - 20) curAngle = Math.PI - curAngle;
+          if (cy < 20 || cy > h - 20) curAngle = -curAngle;
+
+          branch.points.push({ x: cx, y: cy, minute: stepMinute });
+
+          if (branch.depth < 4 && rand() < 0.08 && stepMinute < maxMins) {
+            var branchAngle = curAngle + (rand() > 0.5 ? 1 : -1) * (0.6 + rand() * 0.8);
+            var child = new KintsugiBranch(cx, cy, branchAngle, stepDist, branch.depth + 1, stepMinute);
+            branch.children.push(child);
+            grow(child, maxMins);
+          }
+        }
+      }
+
+      grow(kintsugiRoot, 4020);
+    }
+
+    function renderKintsugi() {
+      if (!kintsugiCanvas || !kintsugiCanvas.parentElement) return;
+      var dpr = window.devicePixelRatio || 1;
+      var rect = kintsugiCanvas.parentElement.getBoundingClientRect();
+      var logicalW = rect.width || 400;
+      var logicalH = rect.height || 480;
+
+      kintsugiCanvas.width = logicalW * dpr;
+      kintsugiCanvas.height = logicalH * dpr;
+      kCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      var isLight = document.body.getAttribute('data-theme') === 'light';
+
+      kCtx.fillStyle = isLight ? '#f4f0e6' : '#14161b';
+      kCtx.fillRect(0, 0, logicalW, logicalH);
+
+      kCtx.fillStyle = isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.015)';
+      for (var i = 0; i < 400; i++) {
+        var rx = pseudoNoise(i, 1.2, seed) * logicalW;
+        var ry = pseudoNoise(i, 4.8, seed) * logicalH;
+        kCtx.fillRect(rx, ry, 1.5, 1.5);
+      }
+
+      if (!kintsugiRoot) buildKintsugiTree(logicalW, logicalH, seed);
+
+      function drawBranch(branch, currentMaxMin) {
+        if (branch.birthMinute > currentMaxMin) return;
+
+        var visiblePoints = branch.points.filter(function(p) { return p.minute <= currentMaxMin; });
+        if (visiblePoints.length < 2) return;
+
+        var baseThickness = Math.max(0.7, (3.2 - branch.depth * 0.7));
+
+        kCtx.beginPath();
+        kCtx.moveTo(visiblePoints[0].x, visiblePoints[0].y);
+        for (var j = 1; j < visiblePoints.length; j++) {
+          kCtx.lineTo(visiblePoints[j].x, visiblePoints[j].y);
+        }
+        kCtx.strokeStyle = isLight ? 'rgba(40, 30, 20, 0.45)' : 'rgba(0, 0, 0, 0.75)';
+        kCtx.lineWidth = baseThickness + 1.8;
+        kCtx.lineCap = 'round';
+        kCtx.lineJoin = 'round';
+        kCtx.stroke();
+
+        kCtx.beginPath();
+        kCtx.moveTo(visiblePoints[0].x, visiblePoints[0].y);
+        for (var j = 1; j < visiblePoints.length; j++) {
+          kCtx.lineTo(visiblePoints[j].x, visiblePoints[j].y);
+        }
+        kCtx.strokeStyle = isLight ? 'rgba(218, 165, 32, 0.25)' : 'rgba(243, 195, 107, 0.22)';
+        kCtx.lineWidth = baseThickness + 4.5;
+        kCtx.stroke();
+
+        kCtx.beginPath();
+        kCtx.moveTo(visiblePoints[0].x, visiblePoints[0].y);
+        for (var j = 1; j < visiblePoints.length; j++) {
+          kCtx.lineTo(visiblePoints[j].x, visiblePoints[j].y);
+        }
+        kCtx.strokeStyle = isLight ? '#b8860b' : '#f5c563';
+        kCtx.lineWidth = baseThickness;
+        kCtx.stroke();
+
+        for (var j = 0; j < visiblePoints.length; j += 4) {
+          var pt = visiblePoints[j];
+          kCtx.fillStyle = isLight ? '#8a6508' : '#ffe89e';
+          kCtx.beginPath();
+          kCtx.arc(pt.x, pt.y, baseThickness * 0.75, 0, Math.PI * 2);
+          kCtx.fill();
+        }
+
+        branch.children.forEach(function(child) { drawBranch(child, currentMaxMin); });
+      }
+
+      drawBranch(kintsugiRoot, kintsugiMinutes);
+
+      if (kintsugiMolaActive) {
+        kCtx.fillStyle = isLight ? 'rgba(2, 132, 199, 0.08)' : 'rgba(78, 168, 222, 0.08)';
+        kCtx.fillRect(0, 0, logicalW, logicalH);
+        kCtx.fillStyle = isLight ? '#0284c7' : '#4ea8de';
+        kCtx.font = '500 12px sans-serif';
+        kCtx.fillText('☕ Mola Verildi — Çatlak Dinleniyor', 16, 28);
+      }
+    }
+
+    function updateKintsugiTime(val) {
+      kintsugiMinutes = parseInt(val, 10);
+      var hours = Math.floor(kintsugiMinutes / 60);
+      var mins = kintsugiMinutes % 60;
+      var timeStr = hours > 0 ? (hours + 's ' + mins + 'dk') : (mins + ' dk');
+      document.getElementById('kintsugiMinutesDisplay').innerText = timeStr;
+      var hh = String(hours).padStart(2, '0');
+      var mm = String(mins).padStart(2, '0');
+      document.getElementById('kintsugiStats').innerText = hh + ':' + mm + ':00';
+      renderKintsugi();
+    }
+
+    function setKintsugiPreset(mins) {
+      document.getElementById('kintsugiSlider').value = mins;
+      updateKintsugiTime(mins);
+    }
+
+    function toggleKintsugiMola() {
+      kintsugiMolaActive = !kintsugiMolaActive;
+      var btn = document.getElementById('molaKintsugiBtn');
+      if (kintsugiMolaActive) {
+        btn.classList.add('btn-active');
+        btn.innerText = '☕ Mola Devrede';
+      } else {
+        btn.classList.remove('btn-active');
+        btn.innerText = '☕ Mola / Sessizlik İzi';
+      }
+      renderKintsugi();
+    }
+
+    // 2. ZEN KUM HAVUZU
+    var sandCanvas = document.getElementById('sandCanvas');
+    var sCtx = sandCanvas.getContext('2d');
+    var stoneCount = 4;
+    var stones = [];
+    var windOffset = 0;
+    var dropAnimationProgress = 1.0;
+
+    function generateStones(count, w, h, currentSeed) {
+      var rand = rng(currentSeed + 999);
+      var newStones = [];
+      var centerSafeW = w * 0.7;
+      var centerSafeH = h * 0.7;
+      var startX = w * 0.15;
+      var startY = h * 0.15;
+
+      for (var i = 0; i < count; i++) {
+        var posX = startX + rand() * centerSafeW;
+        var posY = startY + rand() * centerSafeH;
+        var baseRadius = 22 + Math.sqrt(25 * (i + 1)) * 3.2;
+        var numPoints = 8 + Math.floor(rand() * 4);
+        var polygon = [];
+        for (var p = 0; p < numPoints; p++) {
+          var angle = (p / numPoints) * Math.PI * 2;
+          var dist = baseRadius * (0.82 + rand() * 0.36);
+          polygon.push({
+            x: Math.cos(angle) * dist,
+            y: Math.sin(angle) * dist
+          });
+        }
+        newStones.push({
+          x: posX,
+          y: posY,
+          radius: baseRadius,
+          polygon: polygon
+        });
+      }
+      return newStones;
+    }
+
+    function renderSand() {
+      if (!sandCanvas || !sandCanvas.parentElement) return;
+      var dpr = window.devicePixelRatio || 1;
+      var rect = sandCanvas.parentElement.getBoundingClientRect();
+      var logicalW = rect.width || 400;
+      var logicalH = rect.height || 480;
+
+      sandCanvas.width = logicalW * dpr;
+      sandCanvas.height = logicalH * dpr;
+      sCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      var isLight = document.body.getAttribute('data-theme') === 'light';
+
+      sCtx.fillStyle = isLight ? '#ebe6db' : '#171614';
+      sCtx.fillRect(0, 0, logicalW, logicalH);
+
+      sCtx.fillStyle = isLight ? 'rgba(0,0,0,0.035)' : 'rgba(255,255,255,0.025)';
+      for (var i = 0; i < 500; i++) {
+        var rx = pseudoNoise(i, 3.1, seed + 50) * logicalW;
+        var ry = pseudoNoise(i, 7.7, seed + 50) * logicalH;
+        sCtx.fillRect(rx, ry, 1.2, 1.2);
+      }
+
+      if (stones.length !== stoneCount) {
+        stones = generateStones(stoneCount, logicalW, logicalH, seed);
+      }
+
+      var ringSpacing = 14;
+      var maxRings = 16;
+      sCtx.lineWidth = 1.3;
+
+      for (var r = 1; r <= maxRings; r++) {
+        var radius = r * ringSpacing;
+
+        stones.forEach(function(stone, sIdx) {
+          sCtx.beginPath();
+          var stepAngle = 0.08;
+          var first = true;
+
+          for (var a = 0; a <= Math.PI * 2 + stepAngle; a += stepAngle) {
+            var px = stone.x + Math.cos(a) * radius;
+            var py = stone.y + Math.sin(a) * radius;
+
+            if (windOffset > 0) {
+              px += Math.sin(py * 0.05) * windOffset;
+            }
+
+            var insideOther = false;
+            stones.forEach(function(other, oIdx) {
+              if (sIdx !== oIdx) {
+                var distToOther = Math.hypot(px - other.x, py - other.y);
+                if (distToOther < other.radius + 4) {
+                  insideOther = true;
+                }
+              }
+            });
+
+            if (!insideOther) {
+              if (first) {
+                sCtx.moveTo(px, py);
+                first = false;
+              } else {
+                sCtx.lineTo(px, py);
+              }
+            } else {
+              first = true;
+            }
+          }
+
+          var alphaFade = Math.max(0.12, 1.0 - (r / maxRings) * 0.75);
+          sCtx.strokeStyle = isLight 
+            ? ('rgba(180, 170, 150, ' + (alphaFade * 0.65) + ')')
+            : ('rgba(90, 80, 65, ' + (alphaFade * 0.7) + ')');
+          sCtx.stroke();
+        });
+      }
+
+      stones.forEach(function(stone, idx) {
+        var currentScale = 1.0;
+        var shadowBlur = 12;
+        var offsetY = 0;
+
+        if (idx === stones.length - 1 && dropAnimationProgress < 1.0) {
+          offsetY = - (1.0 - dropAnimationProgress) * 120;
+          currentScale = 0.6 + dropAnimationProgress * 0.4;
+          shadowBlur = 4 + dropAnimationProgress * 8;
+        }
+
+        sCtx.save();
+        sCtx.translate(stone.x, stone.y + offsetY);
+        sCtx.scale(currentScale, currentScale);
+
+        sCtx.save();
+        sCtx.shadowColor = isLight ? 'rgba(50, 40, 30, 0.25)' : 'rgba(0, 0, 0, 0.7)';
+        sCtx.shadowBlur = shadowBlur;
+        sCtx.shadowOffsetX = 3;
+        sCtx.shadowOffsetY = 6;
+        sCtx.beginPath();
+        sCtx.moveTo(stone.polygon[0].x, stone.polygon[0].y);
+        for (var k = 1; k < stone.polygon.length; k++) {
+          sCtx.lineTo(stone.polygon[k].x, stone.polygon[k].y);
+        }
+        sCtx.closePath();
+        sCtx.fillStyle = isLight ? '#737882' : '#23262d';
+        sCtx.fill();
+        sCtx.restore();
+
+        sCtx.beginPath();
+        sCtx.moveTo(stone.polygon[0].x, stone.polygon[0].y);
+        for (var k = 1; k < stone.polygon.length; k++) {
+          sCtx.lineTo(stone.polygon[k].x, stone.polygon[k].y);
+        }
+        sCtx.closePath();
+        
+        var grad = sCtx.createLinearGradient(-stone.radius, -stone.radius, stone.radius, stone.radius);
+        if (isLight) {
+          grad.addColorStop(0, '#8e95a3');
+          grad.addColorStop(0.7, '#585e6b');
+          grad.addColorStop(1, '#3b404a');
+        } else {
+          grad.addColorStop(0, '#4b5261');
+          grad.addColorStop(0.7, '#242730');
+          grad.addColorStop(1, '#171920');
+        }
+        sCtx.fillStyle = grad;
+        sCtx.fill();
+
+        sCtx.strokeStyle = isLight ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)';
+        sCtx.lineWidth = 1.2;
+        sCtx.stroke();
+
+        sCtx.restore();
+      });
+    }
+
+    function updateStoneCount(val) {
+      stoneCount = parseInt(val, 10);
+      document.getElementById('stoneCountDisplay').innerText = stoneCount + ' Taş';
+      document.getElementById('pomodoroStats').innerText = stoneCount + ' Taş · ' + (stoneCount * 25) + ' dk';
+      stones = generateStones(stoneCount, sandCanvas.parentElement.clientWidth, sandCanvas.parentElement.clientHeight, seed);
+      renderSand();
+    }
+
+    function setStonePreset(count) {
+      document.getElementById('stoneSlider').value = count;
+      updateStoneCount(count);
+    }
+
+    function triggerStoneDrop() {
+      dropAnimationProgress = 0.0;
+      var startTime = performance.now();
+      var duration = 650;
+
+      function animateDrop(now) {
+        var elapsed = now - startTime;
+        var p = Math.min(1.0, elapsed / duration);
+        dropAnimationProgress = 1 - Math.pow(1 - p, 3);
+
+        renderSand();
+
+        if (elapsed < duration) {
+          requestAnimationFrame(animateDrop);
+        } else {
+          dropAnimationProgress = 1.0;
+          renderSand();
+        }
+      }
+      requestAnimationFrame(animateDrop);
+    }
+
+    function triggerWindMola() {
+      var step = 0;
+      var btn = document.getElementById('windBtn');
+      btn.classList.add('btn-active');
+      btn.innerText = '🍃 Rüzgar Esiyor...';
+
+      var interval = setInterval(function() {
+        step++;
+        windOffset = Math.sin(step * 0.3) * 6;
+        renderSand();
+
+        if (step > 25) {
+          clearInterval(interval);
+          windOffset = 4;
+          btn.classList.remove('btn-active');
+          btn.innerText = '🍃 Mola Rüzgarı';
+          renderSand();
+        }
+      }, 30);
+    }
+
+    function setViewMode(mode) {
+      var grid = document.getElementById('mainGrid');
+      var cardK = document.getElementById('cardKintsugi');
+      var cardS = document.getElementById('cardSand');
+      var tabBoth = document.getElementById('tabBoth');
+      var tabKintsugi = document.getElementById('tabKintsugi');
+      var tabSand = document.getElementById('tabSand');
+
+      [tabBoth, tabKintsugi, tabSand].forEach(function(b) { b.classList.remove('active'); });
+
+      if (mode === 'both') {
+        grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(420px, 1fr))';
+        cardK.style.display = 'flex';
+        cardS.style.display = 'flex';
+        tabBoth.classList.add('active');
+      } else if (mode === 'kintsugi') {
+        grid.style.gridTemplateColumns = '1fr';
+        cardK.style.display = 'flex';
+        cardS.style.display = 'none';
+        tabKintsugi.classList.add('active');
+      } else if (mode === 'sand') {
+        grid.style.gridTemplateColumns = '1fr';
+        cardK.style.display = 'none';
+        cardS.style.display = 'flex';
+        tabSand.classList.add('active');
+      }
+
+      setTimeout(function() {
+        renderKintsugi();
+        renderSand();
+      }, 50);
+    }
+
+    function toggleTheme() {
+      var current = document.body.getAttribute('data-theme');
+      var next = current === 'light' ? 'dark' : 'light';
+      document.body.setAttribute('data-theme', next);
+      document.getElementById('themeBtn').innerText = next === 'light' ? '🌙 Karanlık Mod' : '🌓 Aydınlık Mod';
+      renderKintsugi();
+      renderSand();
+    }
+
+    function randomizeAll() {
+      seed = Math.floor(Math.random() * 1000000);
+      kintsugiRoot = null;
+      stones = [];
+      renderKintsugi();
+      renderSand();
+    }
+
+    // Başlangıç Yüklemesi
+    window.addEventListener('DOMContentLoaded', function() {
+      renderKintsugi();
+      renderSand();
+    });
+
+    window.addEventListener('resize', function() {
+      renderKintsugi();
+      renderSand();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="KertikTema" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/kagit</item>
+        <item name="android:statusBarColor">@color/kagit</item>
+        <item name="android:navigationBarColor">@color/kagit</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <!-- Açılış anındaki geçici ekran: sistemin kendi rastgele geçişi yerine
+         bilinçli tasarlanmış bir kare. Gündüz zemini + gündüz işareti. -->
+    <style name="Theme.Kertik.Baslangic" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/kagit</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="postSplashScreenTheme">@style/KertikTema</item>
+    </style>
+</resources>

@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kum Bahçesi — Kertik arka plan sanatı</title>
+<style>
+:root{
+  --bg:#F6F3EC; --bg2:#F0EDE4; --ink:#1A1C1F; --ink2:#43464B;
+  --muted:#77736A; --faint:#A29D92; --line:#DFD9CB; --acc:#3F6B66;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.top{max-width:1200px;margin:0 auto;padding:44px 22px 0}
+h1{font-size:32px;font-weight:400;letter-spacing:-.03em;margin:0}
+.sub{color:var(--muted);font-size:15px;margin-top:7px;max-width:64ch}
+.sub b{color:var(--ink2);font-weight:500}
+.shell{max-width:1200px;margin:0 auto;padding:26px 22px 90px;
+  display:grid;grid-template-columns:minmax(0,1fr) 292px;gap:32px;align-items:start}
+@media (max-width:900px){ .shell{grid-template-columns:1fr} }
+
+.stage{display:flex;flex-direction:column;align-items:center;gap:15px}
+.phone{position:relative;border-radius:32px;overflow:hidden;line-height:0;
+  box-shadow:0 16px 46px rgba(60,52,38,.13)}
+.phone canvas{display:block;width:min(348px,84vw);height:auto}
+.hud{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  pointer-events:none;padding:44px 24px 32px;line-height:1.5}
+.hud .ey{font-size:11px;letter-spacing:.17em;text-transform:uppercase;margin-top:40%}
+.hud .gl{margin:18px 0 13px;line-height:0}
+.hud .t{font-size:53px;font-weight:200;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.hud .n{font-size:13px;margin-top:2px}
+.hud .b{font-size:12.5px;margin-top:auto;margin-bottom:20px}
+.hud .btns{display:flex;gap:13px;align-items:center;margin-bottom:4px}
+.hud .p1{border-radius:999px;padding:11px 30px;font-size:15px;font-weight:600}
+.hud .p2{font-size:15px;padding:11px 6px}
+.cap{font-size:13px;color:var(--muted);text-align:center}
+
+.side{border:1px solid var(--line);border-radius:18px;background:var(--bg2);padding:18px 16px 20px}
+.sec{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+  margin:20px 0 10px;padding-top:16px;border-top:1px solid var(--line)}
+.sec:first-child{margin-top:0;padding-top:0;border-top:none}
+.row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.seedval{flex:1;font-variant-numeric:tabular-nums;font-size:19px;letter-spacing:-.02em}
+button{border:1px solid var(--line);background:var(--bg);color:var(--ink2);
+  border-radius:10px;padding:8px 12px;font-size:14px;font-family:inherit;cursor:pointer;transition:.18s}
+button:hover{border-color:var(--ink2);color:var(--ink)}
+button.acc{border-color:var(--acc);color:var(--acc)}
+button.on{border-color:var(--acc);color:var(--acc);background:rgba(63,107,102,.08)}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+input[type=number]{border:1px solid var(--line);background:var(--bg);color:var(--ink);
+  border-radius:10px;padding:8px 10px;font-size:14px;font-family:inherit;width:100%}
+.ctl{margin-bottom:13px}
+.ctl label{display:flex;justify-content:space-between;font-size:13.5px;color:var(--muted);margin-bottom:5px}
+.ctl label b{color:var(--ink2);font-weight:500;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.pill{display:flex;flex-wrap:wrap;gap:6px}
+.pill button{padding:7px 12px;font-size:13px;border-radius:999px}
+.hint{font-size:12.5px;color:var(--faint);line-height:1.45;margin-top:9px}
+.stat{font-size:12.5px;color:var(--faint);font-variant-numeric:tabular-nums;margin-top:10px}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <h1>Kum Bahçesi</h1>
+  <div class="sub">Önceki denemenin hatası şuydu: hazır bir görsel yavaşça <b>açılıyordu</b> —
+  ağır bağlantıda inen fotoğraf gibi. Burada hiçbir şey açılmıyor.
+  <b>Her tırmık geçişi o dakika çiziliyor ve bir daha değişmiyor.</b>
+  Mola tırmıklanmamış bir bant bırakıyor. Boş kalan kum eksiklik değil — bahçenin yarısı zaten boşluktur.</div>
+</div>
+
+<div class="shell">
+  <div class="stage">
+    <div class="phone" id="phone">
+      <canvas id="cv" width="348" height="734"></canvas>
+      <div class="hud" id="hud">
+        <div class="ey" id="hEy">ÇALIŞIYOR</div>
+        <div class="gl" id="hGl"></div>
+        <div class="t" id="hT">01:47</div>
+        <div class="n" id="hN">2. saat, 47. çentik</div>
+        <div class="b" id="hB">19:37'de başladın</div>
+        <div class="btns"><div class="p1" id="hP1">Mola</div><div class="p2" id="hP2">Bitir</div></div>
+      </div>
+    </div>
+    <div class="cap" id="cap"></div>
+  </div>
+
+  <div class="side">
+    <div class="sec">Tohum</div>
+    <div class="row">
+      <div class="seedval" id="seedVal">1</div>
+      <button onclick="adim(-1)">‹</button><button onclick="adim(1)">›</button>
+      <button onclick="rast()">rastgele</button>
+    </div>
+    <div class="row"><input type="number" id="seedIn" value="1" min="0">
+      <button class="acc" onclick="git()">git</button></div>
+
+    <div class="sec">Seans</div>
+    <div class="pill" id="seanslar"></div>
+    <div class="ctl" style="margin-top:14px">
+      <label>geçen süre <b id="vProg">100%</b></label>
+      <input type="range" id="prog" min="2" max="100" step="1" value="100">
+    </div>
+    <div class="row"><button class="acc" style="flex:1" onclick="oynat()" id="bOyn">seansı izle</button></div>
+    <div class="stat" id="stat"></div>
+
+    <div class="sec">Tırmık</div>
+    <div class="ctl"><label>aralık <b id="vAra">11.0</b></label>
+      <input type="range" id="ara" min="6" max="20" step=".5" value="11"></div>
+    <div class="ctl"><label>bir çizgi kaç dakika <b id="vDkl">3</b></label>
+      <input type="range" id="dkl" min="1" max="8" step="1" value="3"></div>
+    <div class="ctl"><label>el titremesi <b id="vTit">1.00</b></label>
+      <input type="range" id="tit" min="0" max="2.5" step=".05" value="1"></div>
+    <div class="ctl"><label>çizgi kalınlığı <b id="vKal">1.00</b></label>
+      <input type="range" id="kal" min=".4" max="2" step=".05" value="1"></div>
+
+    <div class="sec">Taş</div>
+    <div class="hint" style="margin:0 0 12px">Taş sayısı ayar değil, <b>kayıt</b>:
+      her tamamlanan saat bir taş koyuyor. Aşağıdaki yalnız deneme içindir.</div>
+    <div class="ctl"><label>fazladan taş <b id="vTasEk">0</b></label>
+      <input type="range" id="tasEk" min="0" max="4" step="1" value="0"></div>
+    <div class="ctl"><label>yumuşama <b id="vYum">1.00</b></label>
+      <input type="range" id="yum" min=".2" max="2.5" step=".05" value="1"></div>
+
+    <div class="sec">Kâğıt</div>
+    <div class="pill" id="paletler"></div>
+    <div class="hint">Bahçe ferah kalmalı. Aralığı daraltmak deseni zenginleştirmiyor,
+      sadece kalabalıklaştırıyor — <code>ma</code> burada malzemenin kendisi.</div>
+
+    <div class="sec">İşlem</div>
+    <div class="grid3">
+      <button onclick="ciz()">yenile</button>
+      <button onclick="sifirla()">sıfırla</button>
+      <button class="acc" onclick="indir()">png</button>
+    </div>
+    <div class="stat" id="sure"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   KUM BAHÇESİ — karesansui
+   Alan: taşlara olan uzaklıklar ile tırmık cephesinin YUMUŞAK ENKÜÇÜĞÜ.
+   Bu tek satır, kuru bahçenin bütün görüntüsünü verir: açık kumda
+   koşut çizgiler, taşların çevresinde halkalar, ikisinin arasında
+   yumuşak bir geçiş.
+   Zaman: her çizgi bir dakika kümesidir ve çizildiği an kalıcıdır.
+   ============================================================ */
+
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng32(sd){let a=sd>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function h2i(i,j,s){let n=Math.imul(i|0,374761393)^Math.imul(j|0,668265263)^Math.imul(s|0,362437);
+  n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967296}
+function vn(x,y,s){const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j;
+  const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);
+  const a=h2i(i,j,s),b=h2i(i+1,j,s),c=h2i(i,j+1,s),d=h2i(i+1,j+1,s);
+  return (a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v}
+const fbm=(x,y,s)=>vn(x,y,s)*.6+vn(x*2.07,y*2.07,s+7)*.27+vn(x*4.13,y*4.13,s+19)*.13;
+/* yumuşak enküçük — kuru bahçenin sırrı */
+function smin(a,b,k){ const h=Math.max(0,Math.min(1,.5+.5*(b-a)/k)); return b*(1-h)+a*h-k*h*(1-h) }
+
+const PALET={
+  "kum":     {kagit:"#F3EFE5", cizgi:"#8C8577", tas:"#3A3A36", golge:"#CFC7B4", metin:"#22252A", vurgu:"#A85A3C"},
+  "kireç":   {kagit:"#F7F6F1", cizgi:"#9A9A93", tas:"#2E3130", golge:"#DCDAD1", metin:"#1E2122", vurgu:"#4A6E68"},
+  "kül":     {kagit:"#EDEBE5", cizgi:"#807C74", tas:"#33322E", golge:"#D2CEC4", metin:"#212320", vurgu:"#7A5C3E"},
+  /* gece: kum koyu, iz açık. Çizgi rengi belirgin olmalı — ilk denemede
+     .42 opaklıkta neredeyse görünmüyordu. */
+  "gece":    {kagit:"#15171A", cizgi:"#A9B2BC", tas:"#D8DADB", golge:"#0C0E11", metin:"#EDE9E0", vurgu:"#8FB6AF", gece:1}
+};
+let PAL="kum";
+
+const SEANSLAR={
+  "25 dk":       {id:"kb-25", dk:25,  molalar:[],                sayilmayan:0},
+  "52 · 1 mola": {id:"kb-52", dk:64,  molalar:[[52,64]],         sayilmayan:0},
+  "1s 47 · 2":   {id:"kb-107",dk:107, molalar:[[41,49],[78,84]], sayilmayan:0},
+  "uzun mola":   {id:"kb-90", dk:90,  molalar:[[34,58]],         sayilmayan:0},
+  "3s 05":       {id:"kb-185",dk:185, molalar:[[58,71],[126,138]],sayilmayan:24}
+};
+let SEANS="1s 47 · 2";
+
+let P={ seed:1, ara:11, dkl:3, tit:1, kal:1, tasEk:0, yum:1, prog:1 };
+const VARSAY=JSON.parse(JSON.stringify(P));
+
+/* ============================================================
+   GEOMETRİ — çizim işinden ayrı tutuluyor ki node'da doğrulanabilsin
+   ============================================================ */
+function bahceGeometri(se,o){
+  const W=o.W, H=o.H, S=hash32(se.id+"|"+o.seed);
+  const R=rng32(S);
+  const ARA=o.ara, DKL=o.dkl, YUM=Math.max(.05,o.yum)*ARA*1.15;
+
+  /* --- taşlar: HER TAMAMLANAN SAAT BİR TAŞ.
+     Taş sayısı süsleme değil kayıt: 25 dakikalık bir bahçede tek taş var,
+     üç saatlik bahçede dört. Konumlar tohumdan; sıra sabit, yalnız kaç
+     tanesinin konduğu zamana bağlı. --- */
+  const gecenDk=se.dk*o.prog;
+  const havuz=[];
+  let deneme=0;
+  while(havuz.length<6 && deneme++<600){
+    const x=W*(.16+R()*.68), y=H*(.14+R()*.72), r=W*(.030+R()*R()*.070);
+    let ok=true;
+    for(const t of havuz) if(Math.hypot(t.x-x,t.y-y)<(t.r+r)+W*.19) ok=false;
+    if(ok) havuz.push({x,y,r,a:R()*Math.PI,e:.72+R()*.5});
+  }
+  const kacTas=Math.max(1,Math.min(havuz.length,1+Math.floor(gecenDk/60)+(o.tasEk||0)));
+  const taslar=havuz.slice(0,kacTas);
+
+  /* --- alan --- */
+  const cepheEg=(R()-.5)*.34;                 /* tırmık cephesinin hafif eğimi */
+  function F(x,y){
+    /* açık kumda: yavaşça kıvrılan koşut cephe */
+    /* Sapma genliği yüksek olunca çizgiler bazı yerlerde sıkışıp ahşap damarı
+       gibi kalabalıklaşıyordu. Bahçenin ferah kalması aralığın düzenliliğine
+       bağlı — sapma yalnız ölü düzlüğü kıracak kadar. */
+    let f=y-H*.04+cepheEg*(x-W*.5)+ (fbm(x/(W*.85),y/(W*1.7),S+3)-.5)*ARA*.95;
+    for(const t of taslar){
+      const dx=(x-t.x)*Math.cos(t.a)+(y-t.y)*Math.sin(t.a);
+      const dy=(-(x-t.x)*Math.sin(t.a)+(y-t.y)*Math.cos(t.a))/t.e;
+      f=smin(f, Math.hypot(dx,dy)-t.r, YUM);
+    }
+    return f;
+  }
+
+  /* --- ızgara, alan bir kez hesaplanıyor; bütün seviyeler aynı ızgaradan --- */
+  const ST=3.2;
+  const gw=Math.ceil(W/ST)+1, gh=Math.ceil(H/ST)+1;
+  const G=new Float32Array(gw*gh);
+  for(let j=0;j<gh;j++) for(let i=0;i<gw;i++) G[j*gw+i]=F(i*ST,j*ST);
+
+  /* --- hangi çizgi hangi dakikada, ve o dakika ne oluyordu --- */
+  const molaMi=m=>{ for(const b of (se.molalar||[])) if(m>=b[0]&&m<b[1]) return true; return false };
+  const gecen=se.dk*o.prog;
+  const kuruBas=se.dk-(se.sayilmayan||0);
+
+  const cizgiler=[];
+  const N=Math.ceil(gecen/DKL)+1;
+  for(let n=0;n<N;n++){
+    const dk=n*DKL;
+    if(dk>gecen) break;
+    if(molaMi(dk)) continue;                 /* MOLA: tırmık geçmiyor, kum düz kalıyor */
+    const seviye=n*ARA;
+    const pts=konturCikar(G,gw,gh,ST,seviye);
+    if(!pts.length) continue;
+    cizgiler.push({ dk, seviye, parcalar:pts,
+      kuru: dk>=kuruBas,                     /* sayılmayan süre: kesik tırmık */
+      saat: (dk%60)<DKL });                  /* saat başı: biraz daha derin iz */
+  }
+  return {taslar,cizgiler,gecen,W,H,S};
+}
+
+/* --- yürüyen kareler: seviye eğrisini parça parça çıkar --- */
+function konturCikar(G,gw,gh,ST,c){
+  const seg=[];
+  const ara=(a,b)=>{ const d=b-a; return Math.abs(d)<1e-9?.5:(c-a)/d };
+  for(let j=0;j<gh-1;j++){
+    for(let i=0;i<gw-1;i++){
+      const a=G[j*gw+i], b=G[j*gw+i+1], d=G[(j+1)*gw+i+1], e=G[(j+1)*gw+i];
+      let k=0; if(a<c)k|=1; if(b<c)k|=2; if(d<c)k|=4; if(e<c)k|=8;
+      if(k===0||k===15) continue;
+      const x=i*ST, y=j*ST;
+      const U=()=>[x+ST*ara(a,b), y];
+      const Rr=()=>[x+ST,        y+ST*ara(b,d)];
+      const D=()=>[x+ST*ara(e,d),y+ST];
+      const L=()=>[x,            y+ST*ara(a,e)];
+      let p=null;
+      switch(k){
+        case 1: case 14: p=[L(),U()]; break;
+        case 2: case 13: p=[U(),Rr()]; break;
+        case 3: case 12: p=[L(),Rr()]; break;
+        case 4: case 11: p=[Rr(),D()]; break;
+        case 6: case 9:  p=[U(),D()]; break;
+        case 7: case 8:  p=[L(),D()]; break;
+        case 5:  p=[L(),U()]; seg.push([Rr(),D()]); break;
+        case 10: p=[U(),Rr()]; seg.push([L(),D()]); break;
+      }
+      if(p) seg.push(p);
+    }
+  }
+  return seg;
+}
+
+/* ============================================================
+   ÇİZ
+   ============================================================ */
+function ciz(){
+  const t0=performance.now();
+  const cv=document.getElementById("cv"), g=cv.getContext("2d");
+  const W=cv.width, H=cv.height, C=PALET[PAL];
+  const se=SEANSLAR[SEANS];
+  const geo=bahceGeometri(se,{W,H,seed:P.seed,ara:P.ara,dkl:P.dkl,tasEk:P.tasEk,yum:P.yum,prog:P.prog,mod:P.mod});
+
+  g.clearRect(0,0,W,H);
+  g.fillStyle=C.kagit; g.fillRect(0,0,W,H);
+
+  /* kumun kendi çok hafif alacası — doku değil, sadece ölü düzlüğü kırar */
+  g.save(); g.globalAlpha=C.gece?.05:.045; g.fillStyle=C.golge;
+  const Rz=rng32(geo.S+91);
+  for(let i=0;i<W*H/900;i++){
+    const x=Rz()*W, y=Rz()*H;
+    g.fillRect(x,y,1.1,1.1);
+  }
+  g.restore();
+
+  /* --- tırmık izleri --- */
+  const jit=P.tit;
+  for(const c of geo.cizgiler){
+    const yeni=geo.gecen-c.dk;                      /* kaç dakika önce çizildi */
+    const taze=Math.max(0,1-yeni/26);               /* son çizgiler biraz daha belirgin */
+    const kal=(c.saat?1.35:1)*P.kal*(C.gece?1.05:1);
+    const op =(C.gece?.42:.50)+(c.saat?.16:0)+taze*.20;
+
+    /* iz gölgesi — kumun kabarttığı kenar */
+    g.strokeStyle=C.golge; g.lineWidth=kal*2.1; g.globalAlpha=op*.55; g.lineCap="round";
+    yol(g,c,jit,geo.S,1.15);
+    /* izin kendisi */
+    g.strokeStyle=C.cizgi; g.lineWidth=kal; g.globalAlpha=op;
+    if(c.kuru){ g.setLineDash([2.6*kal,3.4*kal]) } else { g.setLineDash([]) }
+    yol(g,c,jit,geo.S,0);
+    g.setLineDash([]);
+  }
+  g.globalAlpha=1;
+
+  /* --- taşlar --- */
+  for(const t of geo.taslar){
+    g.save(); g.translate(t.x,t.y); g.rotate(t.a); g.scale(1,t.e);
+    /* taşın altındaki gölge */
+    g.beginPath(); g.arc(t.r*.10,t.r*.16,t.r*1.02,0,7); g.fillStyle=C.golge; g.globalAlpha=.55; g.fill();
+    /* taş — düzensiz kenarlı */
+    const Rt=rng32(hash32("t"+t.x.toFixed(1)+t.y.toFixed(1)+geo.S));
+    g.beginPath();
+    const N=17;
+    for(let i=0;i<=N;i++){
+      const a=i/N*Math.PI*2, rr=t.r*(.86+fbm(Math.cos(a)*1.5+3,Math.sin(a)*1.5+3,geo.S+5)*.34);
+      const px=Math.cos(a)*rr, py=Math.sin(a)*rr;
+      i?g.lineTo(px,py):g.moveTo(px,py);
+    }
+    g.closePath(); g.globalAlpha=1; g.fillStyle=C.tas; g.fill();
+    g.restore();
+  }
+
+  /* --- arayüz renkleri --- */
+  document.getElementById("phone").style.background=C.kagit;
+  const gecenDk=Math.round(se.dk*P.prog);
+  const molaGec=(se.molalar||[]).reduce((a,b)=>a+Math.max(0,Math.min(b[1],gecenDk)-b[0]),0);
+  const net=Math.max(0,gecenDk-molaGec);
+  const suruyor=!(se.molalar||[]).some(b=>gecenDk>=b[0]&&gecenDk<b[1]);
+  const h=document.getElementById("hud");
+  h.querySelector("#hEy").textContent=suruyor?"ÇALIŞIYOR":"MOLADA";
+  h.querySelector("#hEy").style.color=suruyor?C.vurgu:C.cizgi;
+  h.querySelector("#hT").textContent=String(Math.floor(net/60)).padStart(2,"0")+":"+String(net%60).padStart(2,"0");
+  h.querySelector("#hT").style.color=C.metin;
+  h.querySelector("#hN").textContent=(Math.floor(net/60)+1)+". saat, "+(net%60)+". çentik";
+  h.querySelector("#hN").style.color=C.cizgi;
+  h.querySelector("#hB").textContent="19:37'de başladın";
+  h.querySelector("#hB").style.color=C.cizgi;
+  h.querySelector("#hP1").style.background=C.metin;
+  h.querySelector("#hP1").style.color=C.kagit;
+  h.querySelector("#hP1").textContent=suruyor?"Mola":"Devam";
+  h.querySelector("#hP2").style.color=C.cizgi;
+  h.querySelector("#hGl").innerHTML=
+    '<svg width="52" height="13" viewBox="0 0 58 14">'+
+    '<line x1="2" y1="2" x2="2" y2="12" stroke="'+C.vurgu+'" stroke-width="1.8" stroke-linecap="round"/>'+
+    '<line x1="12" y1="7" x2="40" y2="8.4" stroke="'+C.vurgu+'" stroke-width="1.3" stroke-linecap="round" opacity=".8"/>'+
+    '<circle cx="48" cy="8.4" r="3.1" fill="'+C.vurgu+'"/></svg>';
+
+  document.getElementById("cap").textContent=
+    SEANS+" · tohum "+P.seed+" · "+geo.cizgiler.length+" tırmık izi · "+geo.taslar.length+" taş · "+gecenDk+" dakika";
+  document.getElementById("stat").textContent=
+    "toplam "+se.dk+" dk · mola "+(se.molalar||[]).reduce((a,b)=>a+b[1]-b[0],0)+" dk"+
+    (se.sayilmayan?" · sayılmayan "+se.sayilmayan+" dk":"");
+  document.getElementById("sure").textContent=Math.round(performance.now()-t0)+" ms";
+}
+
+/* el titremesiyle bir kontur parçasını çiz */
+function yol(g,c,jit,S,ofs){
+  g.beginPath();
+  const A=jit*1.15;
+  for(const p of c.parcalar){
+    const [a,b]=p;
+    const j1=(vn(a[0]*.09,a[1]*.09,S+c.dk)-.5)*A;
+    const j2=(vn(b[0]*.09,b[1]*.09,S+c.dk)-.5)*A;
+    g.moveTo(a[0]+j1,a[1]+j1*.6+ofs);
+    g.lineTo(b[0]+j2,b[1]+j2*.6+ofs);
+  }
+  g.stroke();
+}
+
+/* ============================================================
+   Arayüz
+   ============================================================ */
+const bagla=(id,k,f)=>{ const el=document.getElementById(id);
+  el.addEventListener("input",()=>{ P[k]=parseFloat(el.value);
+    const v=document.getElementById("v"+id[0].toUpperCase()+id.slice(1));
+    if(v) v.textContent=f?f(P[k]):P[k].toFixed(2); ciz() }) };
+bagla("ara","ara",x=>x.toFixed(1));
+bagla("dkl","dkl",x=>x.toFixed(0));
+bagla("tit","tit");
+bagla("kal","kal");
+bagla("tasEk","tasEk",x=>x.toFixed(0));
+bagla("yum","yum");
+document.getElementById("prog").addEventListener("input",e=>{
+  P.prog=parseFloat(e.target.value)/100;
+  document.getElementById("vProg").textContent=Math.round(P.prog*100)+"%"; ciz() });
+
+function tohumYaz(){ document.getElementById("seedVal").textContent=P.seed;
+  document.getElementById("seedIn").value=P.seed }
+function adim(n){ P.seed=Math.max(0,P.seed+n); tohumYaz(); ciz() }
+function rast(){ P.seed=Math.floor(Math.random()*99999); tohumYaz(); ciz() }
+function git(){ P.seed=Math.max(0,parseInt(document.getElementById("seedIn").value)||0); tohumYaz(); ciz() }
+function sifirla(){ Object.assign(P,JSON.parse(JSON.stringify(VARSAY)));
+  ["ara","dkl","tit","kal","tasEk","yum"].forEach(k=>{ const el=document.getElementById(k);
+    el.value=P[k]; el.dispatchEvent(new Event("input")) });
+  document.getElementById("prog").value=100; P.prog=1;
+  document.getElementById("vProg").textContent="100%"; tohumYaz(); ciz() }
+function indir(){ const a=document.createElement("a");
+  a.download="kum-bahcesi-"+P.seed+".png";
+  a.href=document.getElementById("cv").toDataURL("image/png"); a.click() }
+
+/* seansı izle — çizgilerin gerçekten TEK TEK doğduğunu göstermek için.
+   Uygulamada bu bir oynatma değil: her çizgi kendi dakikasında bir kez belirir. */
+let oyn=null;
+function oynat(){
+  if(oyn){ clearInterval(oyn); oyn=null; document.getElementById("bOyn").textContent="seansı izle"; return }
+  document.getElementById("bOyn").textContent="durdur";
+  let v=2; const el=document.getElementById("prog");
+  oyn=setInterval(()=>{ v+=1.4; if(v>=100){ v=100; clearInterval(oyn); oyn=null;
+      document.getElementById("bOyn").textContent="seansı izle" }
+    el.value=v; el.dispatchEvent(new Event("input")) },70);
+}
+
+const sB=document.getElementById("seanslar");
+Object.keys(SEANSLAR).forEach(k=>{ const b=document.createElement("button");
+  b.textContent=k; b.dataset.k=k; b.className=k===SEANS?"on":"";
+  b.onclick=()=>{ SEANS=k; [...sB.children].forEach(x=>x.classList.toggle("on",x.dataset.k===k)); ciz() };
+  sB.appendChild(b) });
+const pB=document.getElementById("paletler");
+Object.keys(PALET).forEach(k=>{ const b=document.createElement("button");
+  b.textContent=k; b.dataset.k=k; b.className=k===PAL?"on":"";
+  b.onclick=()=>{ PAL=k; [...pB.children].forEach(x=>x.classList.toggle("on",x.dataset.k===k)); ciz() };
+  pB.appendChild(b) });
+
+tohumYaz(); ciz();
+</script>
+</body>
+</html>

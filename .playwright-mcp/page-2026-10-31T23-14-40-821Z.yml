@@ -1,0 +1,30 @@
+- generic [active] [ref=f25e1]:
+  - generic [ref=f25e2]:
+    - generic [ref=f25e3]:
+      - generic [ref=f25e4]:
+        - generic:
+          - button "kronometre"
+          - button "pomodoro"
+      - generic [ref=f25e5]:
+        - generic [ref=f25e6]:
+          - generic [ref=f25e7]:
+            - generic [ref=f25e8]: çalışıyor
+            - button "Masaüstü Odak Modu" [ref=f25e9] [cursor=pointer]
+          - generic [ref=f25e12]:
+            - generic:
+              - generic: 10:32
+              - generic: 14 / 25 çentik
+        - generic [ref=f25e13]:
+          - button "bugünkü işler ›" [ref=f25e15] [cursor=pointer]:
+            - generic [ref=f25e16]: bugünkü işler
+            - generic [ref=f25e17]: ›
+          - generic [ref=f25e18]: 2:00'de başladın
+          - generic: çalıştıkça bir şeyler oluyor
+          - button "bitir" [ref=f25e20] [cursor=pointer]
+          - textbox "aklına bir şey gelirse yaz…" [ref=f25e23]
+    - navigation:
+      - button "sayaç"
+      - button "görevler"
+      - button "kayıt"
+      - button "ayarlar"
+  - button "gezintiyi göster" [ref=f25e24] [cursor=pointer]

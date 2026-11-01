@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kırağı</title>
+<style>
+:root{
+  --bg:#F5F2EA; --bg2:#EFEBE1; --ink:#16181B; --muted:#726E65; --line:#DCD5C6;
+  --acc:#B05237; --cool:#3E7C77; --ekran:#F5F2EA; --ekranInk:#16181B; --buz:#7C93A8;
+}
+html.gece{ --bg:#0C0D10; --bg2:#141519; --ink:#EDE9E0; --muted:#8E8A80; --line:#26272C;
+  --acc:#D0785B; --cool:#79B3AE; --ekran:#0E1013; --ekranInk:#EDE9E0; --buz:#9FC0D6 }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding:44px 30px 90px;transition:background .4s,color .4s}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-weight:300;font-size:40px;letter-spacing:-.7px;margin:0 0 10px}
+h2{font-weight:400;font-size:23px;margin:58px 0 4px}
+p{color:var(--muted);max-width:74ch;margin:9px 0}
+p.k{color:var(--ink)}
+b{font-weight:600;color:var(--ink)}
+i{color:var(--ink);font-style:italic}
+.gecebtn{position:fixed;top:18px;right:20px;border:1px solid var(--line);background:var(--bg2);
+  color:var(--muted);border-radius:999px;padding:7px 16px;font:inherit;font-size:14px;cursor:pointer;z-index:9}
+.satir{display:flex;gap:20px;flex-wrap:wrap;margin-top:26px;align-items:flex-start}
+.tel{width:250px}
+.cam{width:250px;height:516px;border-radius:30px;overflow:hidden;background:var(--ekran);
+  border:1px solid var(--line);position:relative}
+.cam canvas{position:absolute;inset:0}
+.cam .ust{position:absolute;top:18px;left:0;right:0;text-align:center;font-size:9.5px;
+  letter-spacing:.19em;color:var(--acc)}
+.cam .sayi{position:absolute;left:0;right:0;top:224px;text-align:center;
+  font-weight:200;font-size:44px;letter-spacing:-.02em;color:var(--ekranInk)}
+.cam .alt2{position:absolute;left:0;right:0;top:276px;text-align:center;font-size:10.5px;color:var(--muted)}
+.cam .nav{position:absolute;bottom:0;left:0;right:0;height:42px;display:flex;
+  align-items:center;justify-content:space-around;font-size:9.5px;color:var(--muted);opacity:.20}
+.tel .ad{margin-top:12px;font-size:13px;font-weight:600}
+.tel .no{font-size:12.5px;color:var(--muted);line-height:1.45}
+.buyuk{background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:18px;
+  display:inline-block;margin-top:24px}
+.buyuk canvas{display:block;border-radius:10px}
+ul{color:var(--muted);max-width:76ch;font-size:14.5px;padding-left:20px}
+li{margin:9px 0}
+li b{color:var(--ink)}
+.uyari{border-left:2px solid var(--acc);padding:2px 0 2px 16px;margin:24px 0;max-width:76ch}
+.uyari p{color:var(--ink)}
+</style></head><body>
+<button class="gecebtn" onclick="document.documentElement.classList.toggle('gece');ciz()">gece</button>
+<div class="wrap">
+
+<h1>Kırağı</h1>
+<p class="k">Bu, akışın daha afillisi değil. Başka bir dünya.</p>
+<p>Neden ısrar etmiyorum: akış alanı bir <b>sis</b>tir. Sisi koyulaştırabilirsin,
+renklendirebilirsin, ışık verebilirsin — sis kalır. Bir görüntü olması için <b>konusu</b>
+olması lazım, ve akışın konusu yok. Onu afilli yapmak, çerçeveyi güzelleştirip
+içine resim koymamak.</p>
+
+<p class="k">Kırağının konusu şu: <b>camın soğuduğu yer donar. Senin olduğun yer sıcak kalır.</b></p>
+
+<div class="buyuk"><canvas id="c_buyuk"></canvas></div>
+
+<h2>Nasıl çalışıyor</h2>
+<ul>
+  <li><b>Kırağı kenarlardan başlar.</b> Ekranın çerçevesi camın soğuk yeridir; kristaller
+    oradan içeri doğru büyür. Ortası — sayının durduğu yer — en son donan yerdir.
+    Rakamın okunur kalması bir kural değil, resmin konusu.</li>
+  <li><b>Her dakika kristal bir adım ilerler.</b> Yeni bir uç açılır, eskisi asla değişmez.
+    Buz geri gitmez.</li>
+  <li><b>Mola verdiğinde büyüme durur.</b> Duran büyüme kristalde iz bırakır: bütün uçlarda
+    aynı anda bir <b>bant</b>. Molalarını saymana gerek yok, bantları görüyorsun.</li>
+  <li><b>Uzun seans camı kapatır.</b> Altı saat sonra açık kalan tek yer, ortadaki avuç içi
+    kadar berrak leke. Süre ölçülmüyor, <b>görülüyor</b>.</li>
+</ul>
+
+<h2>Telefonda</h2>
+<div class="satir" id="s_ana"></div>
+
+<h2>Aynı 118 dakika, üç ayrı gün</h2>
+<div class="satir" id="s_gun"></div>
+
+<h2>Neden bu, ağaç değil</h2>
+<p>Dallanan her şey Forest'a benzeme riski taşır. Ayrım tek cümlede:
+<b>buzun sağlığı yoktur.</b> Kuruyamaz, ölemez, seni suçlayamaz. Bir kristal ne kadar
+büyürse büyüsün ahlaki bir şey söylemez — sadece o gün cam ne kadar soğuk kaldığını söyler.
+Ve sabah erir. Yarının camı temizdir; hiçbir şey birikmez, hiçbir şey kaybedilmez.</p>
+
+<div class="uyari">
+<p><b>Israrcı olduğum tek nokta:</b> arka planın bir <b>konusu</b> olmalı.
+Kırağıyı beğenmeyebilirsin, o zaman başkasını ararım — ama "mevcut deseni daha afilli yap"
+yönünde direnirim, çünkü orada aranan şey yok. Sisin daha iyisi daha yoğun sis.</p>
+</div>
+
+</div>
+<script>
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng32(a){a=a>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const molaMi=(v,m)=>{for(const b of (v.molalar||[]))if(m>=b[0]&&m<b[1])return true;return false};
+
+/* ============================================================
+   KIRAĞI
+   Kenarlardan içeri büyüyen kristal. Her dakika bir adım.
+   Kristalde açı serbest değil: 30°'nin katları + küçük sapma.
+   Dallanma ±60°. Ölçek: uç inceldikçe ölür.
+   ============================================================ */
+function kiragi(v, W, H, cx, cy, clearR, o){
+  o=o||{};
+  const R=rng32(hash32("k"+v.id));
+  const KIRP=Math.PI/6, kirpAci=a=>Math.round(a/KIRP)*KIRP;
+  const ADIM=o.adim||4.6;
+
+  const seg=[], dugum=[];
+  let uc=[];
+
+  function tohumEkle(){
+    const t=R(), kenar=Math.floor(R()*4);
+    let x,y,d;
+    if(kenar===0){ x=t*W; y=-3;  d=Math.PI/2 }
+    else if(kenar===1){ x=t*W; y=H+3; d=-Math.PI/2 }
+    else if(kenar===2){ x=-3;  y=t*H; d=0 }
+    else { x=W+3; y=t*H; d=Math.PI }
+    d=kirpAci(d+(R()-.5)*2.5);
+    uc.push({x,y,d,w:1.25+R()*.5,gen:0,yas:0,omur:17+R()*15,yon:R()<.5?1:-1,canli:true});
+  }
+  for(let i=0;i<(o.tohum0||4);i++) tohumEkle();
+
+  const dk=Math.max(1,Math.round(v.dk));
+  const pTohum=o.pTohum||.55;
+
+  for(let m=0;m<dk;m++){
+    if(molaMi(v,m)){
+      if(!molaMi(v,m-1)) for(const u of uc) if(u.canli&&u.gen===0) dugum.push({x:u.x,y:u.y,d:u.d,w:u.w});
+      continue;
+    }
+    if(R()<pTohum && uc.length<3000) tohumEkle();
+
+    const n=uc.length;
+    for(let i=0;i<n;i++){
+      const u=uc[i];
+      if(!u.canli) continue;
+      const d=u.d+(R()-.5)*(u.gen?.04:.055);
+      const L=ADIM*(u.gen?.52:1)*(.84+R()*.32);
+      const nx=u.x+Math.cos(d)*L, ny=u.y+Math.sin(d)*L;
+      if(Math.hypot(nx-cx,ny-cy)<clearR){ u.canli=false; continue }
+      if(nx<-20||nx>W+20||ny<-20||ny>H+20){ u.canli=false; continue }
+      seg.push([u.x,u.y,nx,ny,u.w,u.gen]);
+      u.x=nx;u.y=ny;u.d=d;u.yas++;
+      u.w*= u.gen? .90 : .984;
+      if(u.yas>u.omur||u.w<.16){ u.canli=false; continue }
+
+      /* frond: ana damar boyunca sık, KISA yan diken */
+      if(uc.length<3000){
+        if(u.gen===0 && R()<.78){
+          u.yon=-u.yon;
+          const cift=R()<.34;
+          for(const yy of (cift?[1,-1]:[u.yon])){
+            const dd=kirpAci(u.d+yy*Math.PI/3)+(R()-.5)*.12;
+            uc.push({x:u.x,y:u.y,d:dd,w:u.w*(.44+R()*.14),gen:1,yas:0,omur:2+R()*4,canli:true});
+          }
+        } else if(u.gen===1 && R()<.20){
+          const dd=kirpAci(u.d+(R()<.5?1:-1)*Math.PI/3)+(R()-.5)*.12;
+          uc.push({x:u.x,y:u.y,d:dd,w:u.w*.52,gen:2,yas:0,omur:2+R()*4,canli:true});
+        }
+      }
+    }
+    if(uc.length>2600) uc=uc.filter(u=>u.canli);
+  }
+  return {seg,dugum};
+}
+
+function cizKiragi(g,v,o){
+  const W=o.W,H=o.H,cx=o.cx,cy=o.cy,clearR=o.clearR;
+  const {seg,dugum}=kiragi(v,W,H,cx,cy,clearR,o);
+  const buz=o.renk||css("--buz");
+  g.lineCap="round";g.strokeStyle=buz;
+  /* değer aralığı: kalın gövde koyu, ince kılcal neredeyse görünmez */
+  const yumusa=(x,y)=>{
+    const d=Math.hypot(x-cx,y-cy);
+    if(d<clearR) return 0;
+    if(d>clearR*2.0) return 1;
+    const t=(d-clearR)/(clearR*1.0);
+    return t*t*(3-2*t);
+  };
+  for(const s of seg){
+    const w=s[4];
+    const f=yumusa((s[0]+s[2])/2,(s[1]+s[3])/2);
+    if(f<=0) continue;
+    g.globalAlpha=Math.min(.9,(o.alfa||1)*(.10+w*.42)*f);
+    g.lineWidth=w;
+    g.beginPath();g.moveTo(s[0],s[1]);g.lineTo(s[2],s[3]);g.stroke();
+  }
+  /* mola bandı: duran büyümenin izi */
+  for(const d of dugum){
+    const p=d.d+Math.PI/2, L=1.6+d.w*2.1;
+    g.globalAlpha=Math.min(.85,(o.alfa||1)*(.16+d.w*.40));
+    g.lineWidth=d.w*.85;
+    g.beginPath();
+    g.moveTo(d.x-Math.cos(p)*L,d.y-Math.sin(p)*L);
+    g.lineTo(d.x+Math.cos(p)*L,d.y+Math.sin(p)*L);
+    g.stroke();
+  }
+  g.globalAlpha=1;
+}
+
+function hhmm(dk){const s=Math.floor(dk/60),d=dk%60;
+  return s?s+":"+String(d).padStart(2,"0"):"0:"+String(d).padStart(2,"0")}
+
+function telefon(hedef,v,ad,not,alt2){
+  const t=document.createElement("div");t.className="tel";
+  const c=document.createElement("div");c.className="cam";
+  const cv=document.createElement("canvas");c.appendChild(cv);
+  const e=document.createElement("div");e.className="ust";e.textContent="ÇALIŞIYOR";c.appendChild(e);
+  const s=document.createElement("div");s.className="sayi";s.textContent=hhmm(v.dk);c.appendChild(s);
+  const a2=document.createElement("div");a2.className="alt2";a2.textContent=alt2||"";c.appendChild(a2);
+  const n=document.createElement("div");n.className="nav";
+  n.innerHTML="<span>SAYAÇ</span><span>KAYIT</span><span>GÖREV</span><span>AYAR</span>";c.appendChild(n);
+  t.appendChild(c);
+  const ad2=document.createElement("div");ad2.className="ad";ad2.textContent=ad;t.appendChild(ad2);
+  const p=document.createElement("div");p.className="no";p.textContent=not;t.appendChild(p);
+  hedef.appendChild(t);
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=250*dpr;cv.height=516*dpr;cv.style.width="250px";cv.style.height="516px";
+  const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);
+  cizKiragi(g,v,{W:250,H:516,cx:125,cy:244,clearR:78,tohum0:3,pTohum:.92,adim:4.2});
+}
+
+const A25 ={id:"k25", dk:25, molalar:[]};
+const A107={id:"k107",dk:107,molalar:[[41,49],[78,84]]};
+const A362={id:"k362",dk:362,molalar:[[55,68],[121,133],[190,205],[248,259],[310,322]]};
+
+function ciz(){
+  /* büyük panel */
+  const cv=document.getElementById("c_buyuk");
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  const W=1080,H=420;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+"px";cv.style.height=H+"px";
+  const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);
+  g.fillStyle=css("--ekran");g.fillRect(0,0,W,H);
+  cizKiragi(g,{id:"buyuk",dk:210,molalar:[[64,78],[140,152]]},
+    {W,H,cx:W/2,cy:H/2,clearR:96,tohum0:8,pTohum:1,adim:5.0});
+  g.fillStyle=css("--ekranInk");g.font="200 62px ui-sans-serif";g.textAlign="center";
+  g.fillText("3:30",W/2,H/2+20);
+  g.fillStyle=css("--muted");g.font="12px ui-sans-serif";
+  g.fillText("4. saat, 30. çentik",W/2,H/2+46);
+
+  const S=document.getElementById("s_ana");S.innerHTML="";
+  telefon(S,A25,"25 dakika · kesintisiz",
+    "Kenarlarda ilk kristaller. Cam daha yeni soğumaya başlamış.","1. saat, 25. çentik");
+  telefon(S,A107,"1 saat 47 dakika · 2 mola",
+    "İki bant görülüyor: büyümenin durduğu iki an. Kristal onların ötesinde daha ince devam etmiş.","2. saat, 47. çentik");
+  telefon(S,A362,"6 saat 02 dakika · 5 mola",
+    "Cam kapanmış. Açık kalan tek yer ortadaki berrak leke — orada oturuyorsun.","7. saat, 2. çentik");
+
+  const G=document.getElementById("s_gun");G.innerHTML="";
+  telefon(G,{id:"y1",dk:118,molalar:[]},"hiç durmadan",
+    "Kesintisiz kristal: uçlar uzun, dallanma seyrek.","");
+  telefon(G,{id:"y2",dk:118,molalar:[[52,64]]},"tek uzun mola",
+    "Ortada tek bir bant. Ondan sonrası daha ince — soğuk kesilip yeniden başlamış gibi.","");
+  telefon(G,{id:"y3",dk:118,molalar:[[14,19],[31,44],[57,62],[70,88],[96,101]]},"dağınık gün",
+    "Beş bant, sık dallanma. En karmaşık desen bu — ceza değil, o günün havası.","");
+}
+ciz();
+</script></body></html>

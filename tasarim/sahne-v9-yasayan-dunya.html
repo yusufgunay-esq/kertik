@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Kertik V9 — Yaşayan Huzurlu Dünyalar (Balıkçı Gölü & Okyanus Seferi)</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0c0d10; color: #efe7da; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 18px; }
+  h1 { font-weight: 500; font-size: 14.5px; letter-spacing: 0.1em; margin: 0 0 14px; color: #dfbe73; text-transform: uppercase; }
+  .grid { display: grid; grid-template-columns: repeat(3, 390px); gap: 20px; }
+  .card { position: relative; width: 390px; height: 844px; border-radius: 38px; overflow: hidden; box-shadow: 0 28px 70px rgba(0,0,0,0.75); border: 1px solid rgba(255,255,255,0.12); }
+  .card canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ui { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+  .eyebrow { position: absolute; top: 121px; width: 100%; text-align: center; font-size: 13px; letter-spacing: 0.15em; text-transform: lowercase; font-weight: 600; }
+  .dcenter { position: absolute; top: 282px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; }
+  .clock { font-family: Georgia, "Times New Roman", serif; font-size: 58px; font-weight: 400; letter-spacing: -0.02em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .capt { font-size: 13.5px; margin-top: 8px; opacity: 0.82; letter-spacing: 0.02em; }
+  .tside { position: absolute; top: 530px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; }
+  .gorev { font-size: 14.5px; font-weight: 500; margin-bottom: 6px; }
+  .subline { font-size: 13px; opacity: 0.78; margin-bottom: 24px; }
+  .btns { display: flex; gap: 18px; align-items: center; margin-bottom: 28px; }
+  .btn-main { padding: 12px 36px; border-radius: 99px; font-size: 15px; font-weight: 600; border: 1.5px solid; backdrop-filter: blur(6px); }
+  .btn-sec { font-size: 15px; opacity: 0.82; padding: 8px 12px; font-weight: 500; }
+  .note { font-size: 13px; opacity: 0.55; border-bottom: 1px dotted; padding-bottom: 5px; width: 210px; text-align: center; }
+  .nav { position: absolute; bottom: 0; left: 0; right: 0; height: 54px; display: flex; justify-content: space-around; align-items: center; font-size: 12.5px; padding: 0 24px; border-top: 1px solid rgba(255,255,255,0.08); }
+</style>
+</head>
+<body>
+<h1>KERTİK V9: 1) KRONOMETRE (HUZURLU GÖL, BALIKÇI & CANLI EKOSİSTEM) · 2) POMODORO (YELKENLİ, YUNUSLAR & FENER ADALARI) · 3) GECE GÖLÜ & MOLA</h1>
+<div class="grid" id="grid"></div>
+<script>
+const TAM = Math.PI * 2;
+const cl = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+const hs = (a, b, c) => { const x = Math.sin(a * 12.9898 + b * 78.233 + c * 37.719) * 43758.5453; return x - Math.floor(x); };
+const hexRgb = c => { const m = /^#([0-9a-f]{6})$/i.exec((c || "").trim()); return m ? [parseInt(m[1].slice(0, 2), 16), parseInt(m[1].slice(2, 4), 16), parseInt(m[1].slice(4, 6), 16)] : [128, 128, 128]; };
+const rgba = (c, a) => { const m = hexRgb(c); return "rgba(" + m[0] + "," + m[1] + "," + m[2] + "," + cl(a, 0, 1).toFixed(3) + ")"; };
+
+function dunyaPalet(koyu, mod) {
+  if (koyu) {
+    return {
+      koyu: true,
+      skyTop: "#0A0E17", skyMid: "#131B2B", skyBot: "#222B3D",
+      sun: "#F6EFE0", sunHalo: "#D9B86C",
+      hills: ["#1C2434", "#151D2B", "#0F1520"],
+      waterTop: "#162233", waterMid: "#0E1724", waterBot: "#080D15",
+      ink: "#F2ECE1", ink2: "#AEB6C2", acc: "#E58B78", gold: "#E6C068",
+      boat: "#1A1412", sail: "#F2E8D5",
+      btnBg: "rgba(18, 25, 38, 0.75)"
+    };
+  }
+  if (mod === "p") {
+    return {
+      koyu: false,
+      skyTop: "#F5F2EA", skyMid: "#E9E5D8", skyBot: "#D4DDD6",
+      sun: "#FFFFFF", sunHalo: "#E6C67E",
+      hills: ["#A9BBB6", "#7D9692", "#4F6B69"],
+      waterTop: "#4B6E7A", waterMid: "#2A4754", waterBot: "#162A34",
+      ink: "#182429", ink2: "#485A60", acc: "#8E2A35", gold: "#DFB860",
+      boat: "#542228", sail: "#FBF9F4",
+      btnBg: "rgba(26, 48, 58, 0.65)"
+    };
+  }
+  // Kronometre Gündüz: Sıcak Altın/Şafak Gölü (Alto / Journey / Kyoto Şafak)
+  return {
+    koyu: false,
+    skyTop: "#F6F1E7", skyMid: "#EFE2CE", skyBot: "#E4C6A8",
+    sun: "#FFFDF8", sunHalo: "#E5AB5E",
+    hills: ["#CFA88E", "#A67C68", "#6E4B42"],
+    waterTop: "#5B535A", waterMid: "#36333D", waterBot: "#1E1D26",
+    ink: "#261A15", ink2: "#5E463C", acc: "#8E2430", gold: "#F0C36D",
+    boat: "#2B1B17", sail: "#F8F1E5",
+    btnBg: "rgba(38, 34, 44, 0.65)"
+  };
+}
+
+// Pürüzsüz, kadifemsi dağ/tepe eğrisi (keskin çirkin sarkıtlar olmadan!)
+function tepeY(x, taban, genlik, frekans, faz) {
+  return taban
+    - Math.sin(x * frekans + faz) * genlik * 0.55
+    - Math.cos(x * frekans * 2.1 - faz * 1.4) * genlik * 0.28
+    - Math.sin(x * frekans * 0.45 + faz * 0.6) * genlik * 0.35;
+}
+
+// Kıyıdaki zarif çam ağacı silüeti
+function camAgaciCiz(g, x, y, boy, renk) {
+  g.fillStyle = renk;
+  g.fillRect(x - 0.8, y - boy * 0.3, 1.6, boy * 0.35);
+  for (let i = 0; i < 4; i++) {
+    const u = i / 4;
+    const katY = y - boy * (0.22 + u * 0.65);
+    const gen = boy * (0.42 - u * 0.08);
+    const yuk = boy * 0.28;
+    g.beginPath();
+    g.moveTo(x - gen, katY);
+    g.quadraticCurveTo(x, katY - yuk * 0.3, x, katY - yuk);
+    g.quadraticCurveTo(x, katY - yuk * 0.3, x + gen, katY);
+    g.closePath();
+    g.fill();
+  }
+}
+
+function gokyuzuVeDaglarCiz(g, W, H, p, sd, zaman, panX, ufukY) {
+  // 1. Gökyüzü
+  const skyG = g.createLinearGradient(0, 0, 0, ufukY);
+  skyG.addColorStop(0, p.skyTop);
+  skyG.addColorStop(0.6, p.skyMid);
+  skyG.addColorStop(1, p.skyBot);
+  g.fillStyle = skyG;
+  g.fillRect(0, 0, W, ufukY + 2);
+
+  // 2. Gece modunda yıldızlar ve Kayan Yıldız (Shooting Star)
+  if (p.koyu) {
+    for (let i = 0; i < 80; i++) {
+      const sx = ((hs(i, 1, sd) * W * 2 - panX * 0.04) % W + W) % W;
+      const sy = hs(i, 2, sd) * (ufukY * 0.85);
+      const a = 0.2 + 0.7 * Math.abs(Math.sin(zaman * 0.001 + i));
+      g.fillStyle = rgba(p.sun, a * (1 - sy / ufukY));
+      g.beginPath(); g.arc(sx, sy, 0.5 + hs(i, 3, sd) * 1.0, 0, TAM); g.fill();
+    }
+    // Kayan yıldız (arada bir gökyüzünden geçen zarif iz)
+    const stG = g.createLinearGradient(65, 78, 128, 108);
+    stG.addColorStop(0, "rgba(255,255,255,0)");
+    stG.addColorStop(1, "rgba(255,250,235,0.85)");
+    g.strokeStyle = stG;
+    g.lineWidth = 1.2;
+    g.beginPath(); g.moveTo(65, 78); g.lineTo(128, 108); g.stroke();
+    g.fillStyle = "#FFF";
+    g.beginPath(); g.arc(128, 108, 1.5, 0, TAM); g.fill();
+  }
+
+  // 3. Güneş / Dolunay (Sayacın sağ üstünde, yazıya asla değmeyen sakin yörünge)
+  const sunX = W * 0.77 - panX * 0.02;
+  const sunY = 178;
+  const sunR = 32;
+  const haloG = g.createRadialGradient(sunX, sunY, sunR * 0.4, sunX, sunY, sunR * 4.2);
+  haloG.addColorStop(0, rgba(p.sunHalo, p.koyu ? 0.25 : 0.35));
+  haloG.addColorStop(0.5, rgba(p.sunHalo, p.koyu ? 0.07 : 0.12));
+  haloG.addColorStop(1, rgba(p.sunHalo, 0));
+  g.fillStyle = haloG;
+  g.beginPath(); g.arc(sunX, sunY, sunR * 4.2, 0, TAM); g.fill();
+
+  g.fillStyle = rgba(p.sun, 0.94);
+  g.beginPath(); g.arc(sunX, sunY, sunR, 0, TAM); g.fill();
+
+  // 4. Gökyüzünde bağımsız süzülen Kuş Sürüsü ve Rüzgar Şeritleri
+  for (let w = 0; w < 2; w++) {
+    const wy = 98 + w * 135;
+    const wx0 = ((w * 190 + zaman * 0.025 - panX * 0.2) % (W + 240)) - 120;
+    g.strokeStyle = rgba(p.sun, p.koyu ? 0.13 : 0.38);
+    g.lineWidth = 1.1;
+    g.beginPath();
+    for (let s = 0; s <= 36; s++) {
+      const u = s / 36;
+      const x = wx0 + u * 140;
+      const y = wy + Math.sin(u * TAM + w) * 6;
+      s ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+  }
+
+  const kusX = ((W * 0.22 + zaman * 0.015 - panX * 0.12) % (W + 100)) - 30;
+  const kusY = 192;
+  g.strokeStyle = rgba(p.ink, p.koyu ? 0.55 : 0.45);
+  g.lineWidth = 1.1;
+  for (let b = 0; b < 5; b++) {
+    const bx = kusX + b * 13, by = kusY + Math.abs(b - 2) * 5;
+    const kanat = Math.sin(zaman * 0.008 + b) * 2.8, sz = 4.0 - b * 0.3;
+    g.beginPath();
+    g.moveTo(bx - sz, by + kanat);
+    g.quadraticCurveTo(bx - sz * 0.4, by - 2, bx, by);
+    g.quadraticCurveTo(bx + sz * 0.4, by - 2, bx + sz, by + kanat);
+    g.stroke();
+  }
+
+  // 5. Pürüzsüz, Kadifemsi Sisli Dağ Katmanları (3 katman, ortada vadi gibi alçalarak sayacı ferah bırakır)
+  for (let k = 0; k < 3; k++) {
+    const spd = [0.12, 0.28, 0.52][k];
+    const off = panX * spd + k * 140 + sd * 9;
+    const taban = [ufukY - 22, ufukY - 10, ufukY + 2][k];
+    const gen = [28, 22, 16][k];
+    const fr = [0.007, 0.010, 0.014][k];
+
+    const yD = x => {
+      // Ortada hafif vadi çukuru, yanlarda yüksek burun
+      const kenarYukselis = Math.pow((x - W * 0.5) / (W * 0.5), 2) * 18;
+      return tepeY(x + off, taban - kenarYukselis, gen, fr, k * 2.1);
+    };
+
+    const dGrad = g.createLinearGradient(0, taban - gen - 20, 0, ufukY + 4);
+    dGrad.addColorStop(0, p.hills[k]);
+    dGrad.addColorStop(1, k === 2 ? p.hills[2] : mixRenkAlfa(p.skyBot, 0.35));
+    g.fillStyle = p.hills[k];
+    g.beginPath();
+    g.moveTo(0, ufukY + 2);
+    for (let x = 0; x <= W; x += 4) g.lineTo(x, yD(x));
+    g.lineTo(W, ufukY + 2);
+    g.closePath();
+    g.fill();
+
+    // Katmanlar arası yumuşak atmosferik sis
+    if (k < 2) {
+      const sisG = g.createLinearGradient(0, taban - 14, 0, ufukY + 2);
+      sisG.addColorStop(0, rgba(p.skyBot, 0));
+      sisG.addColorStop(1, rgba(p.skyBot, 0.42));
+      g.fillStyle = sisG;
+      g.fillRect(0, taban - 14, W, 30);
+    }
+  }
+}
+
+function mixRenkAlfa(hex, a) { return rgba(hex, a); }
+
+/* ============================================================================
+   KRONOMETRE: HUZURLU GÖL, BALIKÇI KAYIĞI, BALIK YAKALAMA, BALIKÇIL KUŞU & FENERLER
+   ============================================================================ */
+function balikciGoluCiz(g, W, H, p, v, sd, panX, zaman, surukleniyor) {
+  const ufukY = 432;
+  gokyuzuVeDaglarCiz(g, W, H, p, sd, zaman, panX, ufukY);
+
+  const dk = v.bos ? 0 : v.dk;
+  const SP = 6;
+  const kamX = panX;
+
+  // 1. DURGUN GÖL AYNASI (y: 432..844)
+  const lakeG = g.createLinearGradient(0, ufukY, 0, H);
+  lakeG.addColorStop(0, p.waterTop);
+  lakeG.addColorStop(0.38, p.waterMid);
+  lakeG.addColorStop(1, p.waterBot);
+  g.fillStyle = lakeG;
+  g.fillRect(0, ufukY, W, H - ufukY);
+
+  // Güneş/Ayın Suda İpeksi Yansıma Yolu
+  const sunX = W * 0.77 - panX * 0.02;
+  for (let i = 0; i < 38; i++) {
+    const u = i / 38;
+    const wy = ufukY + 4 + Math.pow(u, 1.5) * 340;
+    const sp = 10 + u * 70;
+    const wx = sunX + Math.sin(i * 2.1 + zaman * 0.003) * sp * 0.35;
+    const wLen = 5 + hs(i, 2, sd) * sp * 0.65;
+    g.strokeStyle = rgba(p.sunHalo, (1 - u * 0.78) * (p.koyu ? 0.42 : 0.48));
+    g.lineWidth = 0.9 + u * 1.2;
+    g.lineCap = "round";
+    g.beginPath();
+    g.moveTo(wx - wLen * 0.5, wy);
+    g.lineTo(wx + wLen * 0.5, wy);
+    g.stroke();
+  }
+
+  // 2. SOL KIYI BURNU, ÇAM AĞAÇLARI, SÖĞÜT/SAZLIKLAR VE BALIKÇIL KUŞU (Heron)
+  const kiyiX = 78 - kamX * 0.25;
+  if (kiyiX > -60 && kiyiX < W + 60) {
+    // Kıyı kara parçası
+    g.fillStyle = p.hills[2];
+    g.beginPath();
+    g.moveTo(0, ufukY - 4);
+    g.quadraticCurveTo(kiyiX * 0.6, ufukY - 8, kiyiX, ufukY + 4);
+    g.lineTo(0, ufukY + 8);
+    g.closePath();
+    g.fill();
+
+    // Kıyıdaki çam ağaçları
+    camAgaciCiz(g, kiyiX - 52, ufukY - 3, 28, p.hills[2]);
+    camAgaciCiz(g, kiyiX - 34, ufukY - 1, 20, p.hills[2]);
+
+    // Kıyı kayası üzerinde tek ayak üstünde duran zarif Balıkçıl Kuşu (Heron/Crane)
+    const hx = kiyiX + 8, hy = ufukY + 5;
+    g.fillStyle = p.hills[2];
+    g.beginPath(); g.ellipse(hx, hy + 2, 7, 2.5, 0, 0, TAM); g.fill(); // kaya
+    g.strokeStyle = p.koyu ? "#D8E0E8" : "#261A15";
+    g.fillStyle = p.koyu ? "#D8E0E8" : "#261A15";
+    g.lineWidth = 1.0;
+    // Bacak
+    g.beginPath(); g.moveTo(hx, hy); g.lineTo(hx, hy - 6); g.stroke();
+    // Gövde ve S-boyun
+    g.beginPath(); g.ellipse(hx - 1, hy - 8, 4.2, 2.2, -0.2, 0, TAM); g.fill();
+    g.beginPath();
+    g.moveTo(hx + 2, hy - 9);
+    g.quadraticCurveTo(hx + 5, hy - 14, hx + 2.5, hy - 17);
+    g.lineTo(hx + 7, hy - 16.5); // uzun gaga
+    g.stroke();
+  }
+
+  // 3. SUYUN ÜZERİNDE YÜZEN SU FENERLERİ (Çalışılan her 30 dakikayı temsil eden sıcak yüzen fenerler!)
+  const fenerSayisi = Math.min(8, Math.floor(dk / 25));
+  for (let f = 0; f < fenerSayisi; f++) {
+    const fx = ((58 + f * 62 - kamX * 0.6) % (W + 40) + W + 40) % (W + 40) - 20;
+    const fy = ufukY + 58 + (f % 3) * 16 + Math.sin(zaman * 0.003 + f) * 1.5;
+
+    // Suda altın ışık halesi
+    const fGrad = g.createRadialGradient(fx, fy - 2, 1, fx, fy, 14);
+    fGrad.addColorStop(0, "rgba(255, 220, 130, 0.85)");
+    fGrad.addColorStop(1, "rgba(255, 190, 90, 0)");
+    g.fillStyle = fGrad;
+    g.beginPath(); g.arc(fx, fy - 2, 14, 0, TAM); g.fill();
+
+    // Fener kaidesi ve kağıt gövdesi
+    g.fillStyle = "#FFF4D2";
+    g.fillRect(fx - 2.5, fy - 5, 5, 4.5);
+    g.fillStyle = p.boat;
+    g.fillRect(fx - 3.8, fy - 0.5, 7.6, 1.4);
+  }
+
+  // 4. BALIKÇI KAYIĞI (SAMPAN), BALIKÇI VE BALIK YAKALAMA ANI!
+  const kayikX = W * 0.44 + Math.sin(zaman * 0.0015) * 8 - kamX * 0.4;
+  const kayikY = ufukY + 34 + Math.cos(zaman * 0.0025) * 1.5;
+
+  g.save();
+  g.translate(kayikX, kayikY);
+
+  // Kayığın altındaki su halkaları ve yansıması
+  g.strokeStyle = rgba(p.sun, 0.22);
+  g.lineWidth = 0.8;
+  g.beginPath(); g.ellipse(0, 4, 34, 4.5, 0, 0, TAM); g.stroke();
+  g.beginPath(); g.ellipse(0, 4, 46, 6.5, 0, 0, TAM); g.stroke();
+
+  // Ahşap Sampan Kayık Gövdesi (Kavisli geleneksel burun ve kıç)
+  g.fillStyle = p.boat;
+  g.beginPath();
+  g.moveTo(-28, -2);
+  g.quadraticCurveTo(-18, 5, 0, 5);
+  g.quadraticCurveTo(20, 5, 30, -4); // kalkık burun
+  g.lineTo(24, -1);
+  g.lineTo(-23, -1);
+  g.closePath();
+  g.fill();
+
+  // Kayığın burnunda asılı sıcak balıkçı feneri!
+  const lambaX = 27, lambaY = -8;
+  g.strokeStyle = p.boat;
+  g.lineWidth = 1.1;
+  g.beginPath(); g.moveTo(24, -2); g.lineTo(28, -11); g.lineTo(lambaX, lambaY); g.stroke();
+
+  const lHalo = g.createRadialGradient(lambaX, lambaY, 1, lambaX, lambaY, 18);
+  lHalo.addColorStop(0, "#FFFBE6");
+  lHalo.addColorStop(0.35, "rgba(255, 200, 95, 0.75)");
+  lHalo.addColorStop(1, "rgba(255, 180, 70, 0)");
+  g.fillStyle = lHalo;
+  g.beginPath(); g.arc(lambaX, lambaY, 18, 0, TAM); g.fill();
+  g.fillStyle = "#FFF5CC";
+  g.beginPath(); g.arc(lambaX, lambaY, 2.2, 0, TAM); g.fill();
+
+  // Suda fenerin altın yansıması
+  g.fillStyle = "rgba(255, 205, 100, 0.35)";
+  g.fillRect(lambaX - 3, 6, 6, 1.5);
+  g.fillRect(lambaX - 2, 10, 4, 1.2);
+
+  if (v.onBreak) {
+    // MOLADA: Balıkçı oltasını içeri almış, kayıkta şapkasını eğip huzurla dinleniyor, küçük çay demliği tütüyor!
+    g.fillStyle = p.boat;
+    // Oturan balıkçı silüeti
+    g.beginPath();
+    g.moveTo(-10, -1); g.quadraticCurveTo(-8, -12, -2, -12); g.quadraticCurveTo(3, -12, 4, -1);
+    g.closePath();
+    g.fill();
+    // Hasır şapka (Kasa) — dinlenirken hafif öne eğik
+    g.beginPath();
+    g.moveTo(-11, -11); g.lineTo(-2, -16); g.lineTo(7, -10);
+    g.closePath();
+    g.fill();
+    // Kayık ortasında tüten sıcak çay buharı
+    g.strokeStyle = rgba(p.sun, 0.42);
+    g.lineWidth = 1.0;
+    g.beginPath();
+    g.moveTo(10, -3);
+    g.bezierCurveTo(8, -12, 14, -18, 10, -26);
+    g.stroke();
+  } else {
+    // ÇALIŞIRKEN: Balıkçı oltasını atmış ve balık yakalıyor!
+    g.fillStyle = p.boat;
+    // Balıkçı gövdesi
+    g.beginPath();
+    g.moveTo(-8, -1); g.lineTo(-5, -15); g.lineTo(1, -15); g.lineTo(3, -1);
+    g.closePath();
+    g.fill();
+    // Koni hasır şapka (Asian conical hat)
+    g.beginPath();
+    g.moveTo(-11, -15); g.lineTo(-2, -20.5); g.lineTo(7, -15);
+    g.closePath();
+    g.fill();
+    g.strokeStyle = rgba(p.gold, 0.55);
+    g.lineWidth = 0.7;
+    g.stroke();
+
+    // Bambu Olta Kamışı (balık yakalandığında hafif yay gibi esner!)
+    const balikVar = v.balikYakaliyor !== false;
+    const kamisUcuX = 38, kamisUcuY = balikVar ? -18 : -24;
+    g.strokeStyle = p.koyu ? "#D6B87C" : "#3A251D";
+    g.lineWidth = 1.2;
+    g.beginPath();
+    g.moveTo(1, -10);
+    g.quadraticCurveTo(18, -24, kamisUcuX, kamisUcuY);
+    g.stroke();
+
+    // Olta İpi (suya inen kılcal misina)
+    const suNoktaX = 56, suNoktaY = 7;
+    g.strokeStyle = rgba(p.sun, 0.55);
+    g.lineWidth = 0.65;
+    g.beginPath();
+    g.moveTo(kamisUcuX, kamisUcuY);
+    g.quadraticCurveTo(48, -4, suNoktaX, suNoktaY);
+    g.stroke();
+
+    // Suda Şamandıra Halkaları ve Yakalanıp Sudan Sıçrayan Gümüş-Altın Balık!
+    g.strokeStyle = rgba(p.sun, 0.65);
+    g.lineWidth = 0.9;
+    g.beginPath(); g.ellipse(suNoktaX, suNoktaY, 9, 2.4, 0, 0, TAM); g.stroke();
+    g.strokeStyle = rgba(p.sun, 0.32);
+    g.beginPath(); g.ellipse(suNoktaX, suNoktaY, 17, 4.2, 0, 0, TAM); g.stroke();
+
+    if (balikVar) {
+      // Sudan yay çizerek sıçrayan parıltılı balık + su damlacıkları!
+      const bx = suNoktaX - 3, by = suNoktaY - 7;
+      g.save();
+      g.translate(bx, by);
+      g.rotate(-0.55);
+      g.fillStyle = p.gold;
+      g.beginPath();
+      g.moveTo(-6, 0);
+      g.quadraticCurveTo(0, -3.5, 6, 0);
+      g.quadraticCurveTo(0, 3.5, -6, 0);
+      g.fill();
+      // Balık kuyruğu
+      g.beginPath();
+      g.moveTo(-5, 0); g.lineTo(-9, -3); g.lineTo(-8, 0); g.lineTo(-9, 3); g.closePath();
+      g.fill();
+      g.restore();
+
+      // Sıçrayan su damlaları
+      g.fillStyle = rgba(p.sun, 0.85);
+      [[-8, -11], [5, -13], [9, -8], [-4, -15]].forEach(([dx, dy]) => {
+        g.beginPath(); g.arc(suNoktaX + dx, suNoktaY + dy, 1.1, 0, TAM); g.fill();
+      });
+    }
+  }
+  g.restore();
+
+  // 5. SUYUN ALTINDA YÜZEN BAĞIMSIZ BALIK SÜRÜSÜ VE GECE ATEŞBÖCEKLERİ
+  for (let f = 0; f < 5; f++) {
+    const fx = ((90 + f * 55 + zaman * 0.02) % (W - 60)) + 30;
+    const fy = ufukY + 95 + f * 34;
+    g.fillStyle = rgba(p.sun, p.koyu ? 0.14 : 0.16);
+    g.beginPath();
+    g.ellipse(fx, fy, 4.5, 1.6, 0.1, 0, TAM);
+    g.fill();
+  }
+
+  if (p.koyu) {
+    // Gece gölünde sazlıklar ve su üstünde uçuşan sıcak Ateşböcekleri (Fireflies)
+    for (let a = 0; a < 14; a++) {
+      const ax = hs(a, 1, sd + 5) * W;
+      const ay = ufukY - 25 + hs(a, 2, sd + 5) * 180;
+      const rHalo = g.createRadialGradient(ax, ay, 0.5, ax, ay, 7);
+      rHalo.addColorStop(0, "rgba(255, 230, 120, 0.9)");
+      rHalo.addColorStop(1, "rgba(255, 210, 90, 0)");
+      g.fillStyle = rHalo;
+      g.beginPath(); g.arc(ax, ay, 7, 0, TAM); g.fill();
+    }
+  }
+
+  // Ön planda sol ve sağ alt köşede rüzgarda eğilen ince sazlıklar (Reeds)
+  [22, 34, 44, W - 24, W - 38].forEach((rx, i) => {
+    const ry = H - 54;
+    const boy = 65 + (i % 3) * 22;
+    const eg = 8 + Math.sin(zaman * 0.003 + i) * 3;
+    g.strokeStyle = rgba(p.koyu ? "#05080E" : "#14131A", 0.55);
+    g.lineWidth = 1.4;
+    g.beginPath();
+    g.moveTo(rx, ry);
+    g.quadraticCurveTo(rx + eg * 0.5, ry - boy * 0.5, rx + eg, ry - boy);
+    g.stroke();
+  });
+}
+
+/* ============================================================================
+   POMODORO: OKYANUS SEFERİ, YELKENLİ, YUNUSLAR VE FENER TAKIMADASI
+   ============================================================================ */
+function okyanusSeferiCiz(g, W, H, p, v, sd, zaman) {
+  const ufukY = 432;
+  gokyuzuVeDaglarCiz(g, W, H, p, sd, zaman, 0, ufukY);
+
+  const f = v.bos ? 0 : cl(v.f, 0, 1);
+  const tamamlananSayi = v.tamamlananPomolar || 3;
+
+  // 1. UFUKTAKİ DENİZ FENERİ ADALARI (Uzun kahverengi koniler YOK — sıcak dairesel fener halesi ve suda yansıma!)
+  const adalar = [
+    { x: 54, sc: 0.74 },
+    { x: 126, sc: 0.82 },
+    { x: 204, sc: 0.76 },
+    { x: 334, sc: 1.05 } // Hedef ada
+  ];
+
+  adalar.forEach((ada, idx) => {
+    const hedefMi = (idx === 3);
+    const yandiMi = hedefMi ? (f >= 1) : (idx < tamamlananSayi);
+    g.save();
+    g.translate(ada.x, ufukY + 2);
+    g.scale(ada.sc, ada.sc);
+
+    // Yumuşak ada silüeti
+    g.fillStyle = p.hills[2];
+    g.beginPath();
+    g.moveTo(-34, 2);
+    g.quadraticCurveTo(-14, -22, 4, -22);
+    g.quadraticCurveTo(20, -22, 32, 2);
+    g.closePath();
+    g.fill();
+
+    // Deniz feneri kulesi
+    g.fillStyle = "#FBF9F4";
+    g.beginPath();
+    g.moveTo(-3.2, -18); g.lineTo(-2.0, -42); g.lineTo(2.0, -42); g.lineTo(3.2, -18);
+    g.closePath();
+    g.fill();
+    g.fillStyle = p.acc;
+    g.fillRect(-2.6, -33, 5.2, 4.5);
+    g.beginPath(); g.moveTo(-3.2, -42); g.lineTo(0, -47); g.lineTo(3.2, -42); g.closePath(); g.fill();
+
+    // Tamamlanan Pomodoro fenerinin sıcak altın yıldız halesi (yazıya asla taşmaz!)
+    if (yandiMi) {
+      const fHalo = g.createRadialGradient(0, -43, 1, 0, -43, 22);
+      fHalo.addColorStop(0, "#FFFDF6");
+      fHalo.addColorStop(0.35, "rgba(255, 210, 105, 0.85)");
+      fHalo.addColorStop(1, "rgba(255, 200, 90, 0)");
+      g.fillStyle = fHalo;
+      g.beginPath(); g.arc(0, -43, 22, 0, TAM); g.fill();
+
+      // Yatay zarif fener parıltı çizgisi
+      g.strokeStyle = "rgba(255, 245, 210, 0.8)";
+      g.lineWidth = 1.0;
+      g.beginPath(); g.moveTo(-14, -43); g.lineTo(14, -43); g.stroke();
+    }
+    g.restore();
+  });
+
+  // 2. OKYANUS VE DALGALAR
+  const seaG = g.createLinearGradient(0, ufukY, 0, H);
+  seaG.addColorStop(0, p.waterTop);
+  seaG.addColorStop(0.45, p.waterMid);
+  seaG.addColorStop(1, p.waterBot);
+  g.fillStyle = seaG;
+  g.fillRect(0, ufukY, W, H - ufukY);
+
+  // Tamamlanan fenerlerin suda altın yansıma sütunları
+  adalar.forEach((ada, idx) => {
+    if (idx < tamamlananSayi) {
+      for (let r = 0; r < 6; r++) {
+        g.fillStyle = rgba(p.gold, 0.35 - r * 0.05);
+        g.fillRect(ada.x - 4 + r * 0.4, ufukY + 5 + r * 4, 8 - r * 0.8, 1.6);
+      }
+    }
+  });
+
+  // Dalga sırtları
+  for (let d = 0; d < 6; d++) {
+    const dy = ufukY + 18 + d * 46;
+    g.strokeStyle = rgba("#E8F0EC", 0.22 - d * 0.03);
+    g.lineWidth = 1.0;
+    g.beginPath();
+    for (let x = 0; x <= W; x += 8) {
+      const y = dy + Math.sin(x * 0.025 + d * 1.4 + zaman * 0.002) * (2.2 + d * 0.7);
+      x ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+  }
+
+  // 3. YELKENLİ TEKNE VE YANINDA SIÇRAYAN YUNUSLAR (Dolphins)!
+  const basX = 66, bitX = 292;
+  const tekneX = lerp(basX, bitX, f);
+  const tekneY = ufukY + 36;
+
+  // Teknenin dümen suyu (Wake)
+  const izG = g.createLinearGradient(basX, tekneY, tekneX, tekneY);
+  izG.addColorStop(0, "rgba(255,255,255,0)");
+  izG.addColorStop(1, "rgba(255,255,255,0.5)");
+  g.strokeStyle = izG;
+  g.lineWidth = 1.6;
+  g.beginPath();
+  g.moveTo(basX, tekneY + 2);
+  g.quadraticCurveTo((basX + tekneX) / 2, tekneY + 7, tekneX - 12, tekneY + 2);
+  g.stroke();
+
+  // Teknenin önünde suyun dışına yay çizerek sıçrayan zarif Yunus (Dolphin)!
+  const yunusX = tekneX + 34, yunusY = tekneY - 5;
+  g.save();
+  g.translate(yunusX, yunusY);
+  g.rotate(0.25);
+  g.fillStyle = "#203844";
+  g.beginPath();
+  g.moveTo(-11, 4);
+  g.quadraticCurveTo(-2, -6, 10, 2); // sırt kavisi
+  g.quadraticCurveTo(2, -1, -11, 4);
+  g.fill();
+  // Sırt yüzgeci
+  g.beginPath(); g.moveTo(-2, -1); g.lineTo(-5, -5); g.lineTo(1, -1); g.fill();
+  g.restore();
+  // Yunusun su sıçratma halkası
+  g.strokeStyle = "rgba(255,255,255,0.45)";
+  g.lineWidth = 0.8;
+  g.beginPath(); g.ellipse(yunusX - 9, tekneY + 2, 7, 1.8, 0, 0, TAM); g.stroke();
+
+  // Yelkenli Tekne
+  g.save();
+  g.translate(tekneX, tekneY);
+  g.fillStyle = p.boat;
+  g.beginPath();
+  g.moveTo(-18, -1); g.lineTo(20, -1); g.lineTo(13, 5); g.lineTo(-13, 5);
+  g.closePath();
+  g.fill();
+
+  g.fillStyle = p.sail;
+  g.beginPath();
+  g.moveTo(-1, -3); g.lineTo(-1, -44); g.quadraticCurveTo(15, -22, 13, -3);
+  g.closePath();
+  g.fill();
+
+  g.fillStyle = p.acc;
+  g.beginPath();
+  g.moveTo(-3, -4); g.lineTo(-1, -38); g.quadraticCurveTo(-15, -18, -14, -4);
+  g.closePath();
+  g.fill();
+  g.restore();
+}
+
+const sahneler = [
+  {
+    mod: "k", koyu: false, sd: 14, pan: 0, surukleniyor: false,
+    durum: "çalışıyor · balıkçı gölü", saat: "2:15:40", alt: "3. saat, 15. çentik · balık yakalandı",
+    gorev: "Borçlar Hukuku ›", bas: "13:00'te başladın · 5 su feneri bırakıldı",
+    v: { bos: false, dk: 135, ero: 0, onBreak: false, balikYakaliyor: true }
+  },
+  {
+    mod: "p", koyu: false, sd: 24, pan: 0, surukleniyor: false,
+    durum: "çalışıyor · 4. sefer", saat: "06:42", alt: "19 / 25 çentik · fener adasına",
+    gorev: "Medeni Usul ›", bas: "bugün 3 fener yakıldı (75dk)",
+    v: { bos: false, f: 0.74, ero: 0, onBreak: false, tamamlananPomolar: 3 }
+  },
+  {
+    mod: "k", koyu: true, sd: 88, pan: 0, surukleniyor: false,
+    durum: "molada · gece gölü", saat: "1:42:10", alt: "çalışma 102dk'da donduruldu",
+    gorev: "Roma Hukuku ›", bas: "balıkçı dinleniyor · 6 dakikadır moladasın",
+    v: { bos: false, dk: 102, ero: 0.15, onBreak: true, balikYakaliyor: false }
+  }
+];
+
+const grid = document.getElementById("grid");
+sahneler.forEach(s => {
+  const p = dunyaPalet(s.koyu, s.mod);
+  const card = document.createElement("div");
+  card.className = "card";
+  card.style.color = p.ink;
+  const cv = document.createElement("canvas");
+  cv.width = 390 * 2; cv.height = 844 * 2;
+  const g = cv.getContext("2d");
+  g.scale(2, 2);
+
+  if (s.mod === "k") balikciGoluCiz(g, 390, 844, p, s.v, s.sd, s.pan, 2400, s.surukleniyor);
+  else okyanusSeferiCiz(g, 390, 844, p, s.v, s.sd, 2400);
+
+  const botTextColor = "#F4EFE6";
+  const botSubColor = "rgba(244,239,230,0.76)";
+
+  card.appendChild(cv);
+  const ui = document.createElement("div");
+  ui.className = "ui";
+  ui.innerHTML = `
+    <div class="eyebrow" style="color:${p.acc}">${s.durum}</div>
+    <div class="dcenter">
+      <div class="clock" style="color:${p.ink}">${s.saat}</div>
+      <div class="capt" style="color:${p.ink2}">${s.alt}</div>
+    </div>
+    <div class="tside">
+      <div class="gorev" style="color:${botTextColor}">${s.gorev}</div>
+      <div class="subline" style="color:${botSubColor}">${s.bas}</div>
+      <div class="btns">
+        <div class="btn-main" style="background:${p.btnBg};border-color:${p.gold};color:${botTextColor}">${s.v.onBreak ? 'devam et' : 'mola'}</div>
+        <div class="btn-sec" style="color:${botTextColor}">bitir</div>
+      </div>
+      <div class="note" style="color:${botSubColor};border-color:${botSubColor}">aklına bir şey gelirse yaz…</div>
+    </div>
+    <div class="nav" style="color:${botSubColor}">
+      <b style="color:${botTextColor}">sayaç</b><span>işler</span><span>kayıt</span><span>ayarlar</span>
+    </div>
+  `;
+  card.appendChild(ui);
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>

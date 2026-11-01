@@ -1,0 +1,8 @@
+- [x] Şu anda pomodoro kum havuzu uygulamada gözükmüyor sanat dizaynında ki o kum havuzu modu.
+- [x] Pomodoro duvar kısmında taş şeklinde gözüküyor ama çalışılan log kısmına tıklandığında yine kertik kısmı gözüküyor fakat bu kısım sadece kronometre modunda gözükmesi lazım çünkü pomodoro taşlarla ifade ediliyor.
+- [x] Higlightladığım bu çizgi buglı teaserda; en son bu çizgiyi yükleniyor bütün çizgilerden sonra.
+![Screenshot_20260820-103639.png](../Downloads/Screenshot_20260820-103639.png)
+- [x] Pomodoro başlarken taş kırık bir şekilde başlıyor galiba böyle olmaması lazım mola uzarsa taş kırılması lazım.
+- [x] Bu diyeceğim şey uygulamada görmedim gerçi ama simülasyon dosyasında gördüğüm için eklemek istedim pomodoro bitince ses çalıyor böyle olmaması lazım titreşim olabilir belki sadece.
+- [x] Simülasyon dosyası güncel değil, o güncellenir ise güzel olabilir çünkü uygulamayı telefona ya da sanal telefona yüklesem bile zamanı hızlandırma yapamadığım için ölçemiyor bazı şeyleri simülasyon dosyası güzel oluyor bu konuda.
+- [x] Pomodoro modunda yeni taş atılınca o güne kadarki tırmık çizgileri yok oluyordu (`kumCizgiler` yalnız SON seansa bakıyor, önceki desen `hayalet`e düşüyordu) ve yeni geçiş aynı `c` değerleriyle baştan çiziliyordu — ikinci pomodoro sıfırdan başlamış gibi hissettiriyordu. Artık tırmık BİRİKİMLİ: eski çizgiler yerinde kalıyor, her yeni pomodoro van der Corput fazıyla onların arasına daha ince bir geçiş işliyor (kademe 0→4). Bir pomodoro = bahçenin bir tam geçişi; 25 dk ile 50 dk aynı sayıda çizgi bırakıyor, sürenin karşılığı taşın iriliği. Uzayan mola rüzgarı hâlâ birikimi aşındırıp siliyor.

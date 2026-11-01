@@ -1,0 +1,1 @@
+saçmalamaaaaa ya bunu kesin reddediyoru, böyle sadece havalı bir kronometre olur kimsenin ilgisine çeken cazibeli albenisi olan bir şey olmaz.

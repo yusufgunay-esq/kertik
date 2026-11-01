@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Palet Kararı — tek değişken</title>
+<style>
+:root{
+  --bg:#F5F2EA; --bg2:#EFEBE1; --ink:#16181B; --muted:#726E65; --line:#DCD5C6;
+}
+html.gece{ --bg:#16171A; --bg2:#212227; --ink:#EDE9E0; --muted:#948F84; --line:#2E2F34 }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding:38px 30px 70px;transition:background .35s,color .35s}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-weight:300;font-size:36px;letter-spacing:-.5px;margin:0 0 6px}
+h2{font-weight:400;font-size:22px;margin:52px 0 6px}
+p.lead{color:var(--muted);margin:0 0 4px;max-width:74ch}
+b{font-weight:600}
+.gecebtn{position:fixed;top:18px;right:20px;border:1px solid var(--line);background:var(--bg2);
+  color:var(--muted);border-radius:999px;padding:7px 16px;font:inherit;font-size:14px;cursor:pointer}
+.grid{display:flex;gap:16px;flex-wrap:wrap;margin-top:22px}
+.kart{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:20px 16px 16px;
+  width:212px;display:flex;flex-direction:column;align-items:center}
+.kart.sec{border-color:currentColor}
+.kart svg{display:block;margin:0 auto}
+.ad{margin-top:14px;font-size:15px;font-weight:600;text-align:center}
+.not{margin-top:5px;font-size:12.5px;line-height:1.45;color:var(--muted);text-align:center}
+.swatch{display:flex;gap:0;margin-top:12px;border-radius:6px;overflow:hidden;width:120px;height:14px}
+.swatch i{flex:1}
+.rozet{display:inline-block;font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+  border:1px solid currentColor;border-radius:999px;padding:2px 9px;margin-top:10px}
+.uzak{display:flex;gap:14px;flex-wrap:wrap;margin-top:20px}
+.uzak .k{background:var(--bg2);border:1px solid var(--line);border-radius:14px;
+  width:150px;height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.uzak .k span{font-size:12px;color:var(--muted);margin-top:8px}
+ul{max-width:78ch;color:var(--muted);font-size:14.5px}
+li{margin:6px 0}
+li b{color:var(--ink)}
+</style></head><body>
+<button class="gecebtn" onclick="document.documentElement.classList.toggle('gece');ciz()">gece</button>
+<div class="wrap">
+
+<h1>Palet kararı</h1>
+<p class="lead">Aynı seans (1s 47 dk, 2 mola), <b>aynı geometri</b>, aynı kod — bugün telefonda çalışan
+<code>cizCubuk</code>'un birebir kendisi. Değişen tek şey <code>--accent</code>.
+Amaç: "şeytani / dungeon" tepkisinin çizgiden mi renkten mi geldiğini kesin ayırmak.</p>
+
+<div class="grid" id="grid"></div>
+
+<h2>Uzaktan bak</h2>
+<p class="lead">Gözünü kıs. Hangisi <b>sakin</b>? Widget ölçeğinde göreceğin şey bu.</p>
+<div class="uzak" id="uzak"></div>
+
+<h2>Saatin rengi — is mürekkebinin içinde</h2>
+<p class="lead">"Aynı seans, dört ayrı saatte" fikri renk cümbüşü olmak zorunda değil.
+Mürekkep sabit kalır, yalnız <b>ısısı</b> kayar: sabah serin gri, akşam ılık kahve.
+Rastgele değil — kayıt. Yan yana görünür, tek başına fark edilmez.</p>
+<div class="uzak" id="saat"></div>
+
+<h2>Neden bu</h2>
+<ul>
+  <li><b>Ayrım korunuyor.</b> Mola tonu zaten petrol/çamı (<code>--cool</code>). Çalışma rengi de
+    petrol/arduvaz yapılırsa ikisi birbirine girer. Mürekkep <b>nötr</b> olduğu için mola tek renkli
+    şey olarak kalır — molayı ölçmeden görürsün.</li>
+  <li><b>İstenen his bu.</b> "Kütüğe kazınmış, Asyavari, rahatlatıcı" cümlesinin karşılığı sumi
+    mürekkebi. Terracotta'nın karşılığı ise ateş.</li>
+  <li><b>Terracotta ölmüyor.</b> Canlı çentik, "başlat" düğmesi, o anki dakika — küçük ve sıcak
+    kalıyor. Ana çizim rengi olmaktan çıkıyor, o kadar. Bir sayfada tek kıvılcım.</li>
+  <li><b>Maliyet iki satır.</b> <code>index.html :root</code> + <code>widget_renkler.xml</code>.
+    Hiçbir çizim testi kırılmıyor.</li>
+</ul>
+
+</div>
+<script>
+/* ---- uygulamadan birebir ---- */
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng32(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const NS="http://www.w3.org/2000/svg";
+const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e};
+
+const V={id:"lab-107",dk:107,molalar:[[41,49],[78,84]],sayilmayan:0};
+const boyu=mm=> mm===0?1.02 : mm%15===0?.86 : mm%5===0?.72 : .54;
+
+function iskelet(v,o){
+  const dk=Math.max(1,Math.round(v.dk));
+  const kolon=Math.max(1,Math.ceil(dk/60));
+  const satir=kolon>1?60:dk;
+  const W=kolon*(o.sw+o.gap)-o.gap, H=o.top*2+Math.max(1,satir-1)*o.rp;
+  const R=rng32(hash32(v.id)); const j=[];
+  for(let i=0;i<dk*5+80;i++) j.push(R());
+  const tur=m=>{for(const b of (v.molalar||[])) if(m>=b[0]&&m<b[1]) return "mola"; return "is"};
+  return {dk,kolon,satir,W,H,j,tur};
+}
+/* cizA — bugünkü çubuk. Tek değişken: acc */
+function cizCubuk(svg,v,o,P){
+  const I=iskelet(v,o);
+  svg.setAttribute("viewBox",`-8 0 ${(I.W+10).toFixed(1)} ${I.H.toFixed(1)}`);
+  svg.setAttribute("width",(I.W+10).toFixed(1));
+  svg.setAttribute("height",I.H.toFixed(1));
+  svg.innerHTML="";
+  const g=mk("g",{}); svg.appendChild(g);
+  const acc=P.acc, cool=P.cool, ink=P.ink, line=P.line;
+  const colX=k=>k*(o.sw+o.gap), yOf=m=>o.top+(m%60)*o.rp;
+  for(let k=0;k<I.kolon;k++){
+    const son=Math.min(60,I.dk-k*60);
+    g.appendChild(mk("line",{x1:colX(k),y1:o.top-2.5,x2:colX(k),y2:yOf(son-1)+2.5,
+      stroke:line,"stroke-width":1.1,"stroke-linecap":"round"}));
+  }
+  for(const b of (v.molalar||[])){
+    let a=b[0];
+    while(a<Math.min(b[1],I.dk)){
+      const k=Math.floor(a/60), son=Math.min(b[1],I.dk,(k+1)*60);
+      if(son>a) g.appendChild(mk("line",{x1:colX(k)-4,y1:yOf(a)-o.rp*.4,x2:colX(k)-4,y2:yOf(son-1)+o.rp*.4,
+        stroke:cool,"stroke-width":Math.max(1.6,o.sw*.08),"stroke-linecap":"round",opacity:.45}));
+      a=son;
+    }
+  }
+  for(let m=0;m<I.dk;m++){
+    if(I.tur(m)!=="is") continue;
+    const k=Math.floor(m/60), mm=m%60;
+    const r1=I.j[m*5], r2=I.j[m*5+1], r3=I.j[m*5+2];
+    const L=o.sw*boyu(mm)*(1+(r1-.5)*.09);
+    const x0=colX(k), y0=yOf(m)+(r2-.5)*.7, y1=y0+(r3-.5)*1.5;
+    const kal=mm===0?2.0:(mm%5===0?1.7:1.35+(r1-.5)*.35);
+    g.appendChild(mk("line",{x1:x0+.6,y1:y0+1.1,x2:x0+L*.92,y2:y1+1.1,
+      stroke:ink,"stroke-width":.8,"stroke-linecap":"round",opacity:.10}));
+    g.appendChild(mk("line",{x1:x0,y1:y0,x2:x0+L,y2:y1,stroke:acc,
+      "stroke-width":kal,"stroke-linecap":"round",opacity:mm===0?1:.74+r3*.22}));
+  }
+}
+
+/* ---- paletler: gündüz / gece accent + cool ---- */
+const PALET=[
+ {ad:"Mevcut · terracotta", g:{acc:"#B05237",cool:"#3E7C77"}, k:{acc:"#D0785B",cool:"#79B3AE"},
+  not:"Bugün telefonda olan. Sıcak, ısrarcı — geniş alanda kor gibi okunuyor."},
+ {ad:"İs mürekkebi", g:{acc:"#23272B",cool:"#3E7C77"}, k:{acc:"#DCD8CF",cool:"#79B3AE"},
+  not:"Kaligrafi. Kütüğe kazınmış çetele. Mola tek renkli şey olduğu için ölçmeden görünür.", sec:true},
+ {ad:"Arduvaz · petrol", g:{acc:"#42585F",cool:"#3E7C77"}, k:{acc:"#8FA6AC",cool:"#79B3AE"},
+  not:"Dingin, mineral. Ama mola tonuna komşu — iki bilgi birbirine yaklaşıyor."},
+ {ad:"Çini · indigo", g:{acc:"#2E4B78",cool:"#3E7C77"}, k:{acc:"#8FA8CE",cool:"#79B3AE"},
+  not:"Mavi-beyaz porselen. Zarif ama serin; kâğıt zeminde biraz 'kurumsal'."},
+ {ad:"Bister · sepya", g:{acc:"#6B5334",cool:"#3E7C77"}, k:{acc:"#BFA47C",cool:"#79B3AE"},
+  not:"Eski defter, deri. Sıcak ama ateş değil. Terracotta'nın sakin akrabası."}
+];
+
+function pal(p){ return document.documentElement.classList.contains("gece")
+  ? {acc:p.k.acc,cool:p.k.cool,ink:"#EDE9E0",line:"#2E2F34"}
+  : {acc:p.g.acc,cool:p.g.cool,ink:"#16181B",line:"#DCD5C6"} }
+
+function ciz(){
+  const G=document.getElementById("grid"); G.innerHTML="";
+  PALET.forEach(p=>{
+    const P=pal(p);
+    const d=document.createElement("div"); d.className="kart"+(p.sec?" sec":"");
+    if(p.sec) d.style.color=P.acc;
+    const svg=document.createElementNS(NS,"svg"); d.appendChild(svg);
+    cizCubuk(svg,V,{sw:30,gap:26,rp:5.0,top:10},P);
+    const ad=document.createElement("div"); ad.className="ad"; ad.textContent=p.ad; d.appendChild(ad);
+    if(p.sec){const r=document.createElement("div");r.className="rozet";r.textContent="önerim";d.appendChild(r)}
+    const sw=document.createElement("div"); sw.className="swatch";
+    sw.innerHTML=`<i style="background:${P.acc}"></i><i style="background:${P.cool}"></i>`;
+    d.appendChild(sw);
+    const n=document.createElement("div"); n.className="not"; n.textContent=p.not; d.appendChild(n);
+    G.appendChild(d);
+  });
+
+  const U=document.getElementById("uzak"); U.innerHTML="";
+  PALET.forEach(p=>{
+    const P=pal(p);
+    const k=document.createElement("div"); k.className="k";
+    const svg=document.createElementNS(NS,"svg"); k.appendChild(svg);
+    cizCubuk(svg,V,{sw:16,gap:14,rp:2.1,top:6},P);
+    const s=document.createElement("span"); s.textContent=p.ad.split(" · ")[0]; k.appendChild(s);
+    U.appendChild(k);
+  });
+
+  /* saatin rengi — is mürekkebinin ısısı */
+  const S=document.getElementById("saat"); S.innerHTML="";
+  const gece=document.documentElement.classList.contains("gece");
+  [[7,"07:00 · sabah"],[13,"13:00 · öğle"],[19,"19:00 · akşam"],[23,"23:00 · gece"]].forEach(([h,ad])=>{
+    /* 05:00 en serin, 19:00 en ılık. Ton dönmüyor — iki mürekkep arasında karışım. */
+    const t=(Math.cos((h-19)/24*Math.PI*2)+1)/2;        /* 0 serin … 1 ılık */
+    const A=gece?[0xD3,0xD8,0xDC]:[0x1D,0x24,0x2B];    /* serin is */
+    const B=gece?[0xE4,0xD9,0xCB]:[0x2E,0x25,0x1D];    /* ılık is  */
+    const acc="rgb("+A.map((c,i)=>Math.round(c+(B[i]-c)*t)).join(",")+")";
+    const P={acc,cool:gece?"#79B3AE":"#3E7C77",ink:gece?"#EDE9E0":"#16181B",line:gece?"#2E2F34":"#DCD5C6"};
+    const k=document.createElement("div"); k.className="k";
+    const svg=document.createElementNS(NS,"svg"); k.appendChild(svg);
+    cizCubuk(svg,V,{sw:18,gap:16,rp:2.3,top:6},P);
+    const s=document.createElement("span"); s.textContent=ad; k.appendChild(s);
+    S.appendChild(k);
+  });
+}
+ciz();
+</script></body></html>

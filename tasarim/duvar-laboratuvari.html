@@ -1,0 +1,588 @@
+﻿<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kertik — Kum Bahçesi ve Duvar Taş Zanaatı Laboratuvarı</title>
+<style>
+:root {
+  --bg: #F5F2EA;
+  --bg2: #EAE6DC;
+  --card: #FDFCFA;
+  --card-border: rgba(0, 0, 0, 0.08);
+  --ink: #16181B;
+  --ink2: #3E4148;
+  --muted: #7A756B;
+  --faint: #A8A398;
+  --line: #DFD9CC;
+  --accent: #B05237;
+  --accent-glow: rgba(176, 82, 55, 0.15);
+  --cool: #3E7C77;
+  --mola1: #3E7C77;
+  --mola2: #2A5A56;
+  --kopru: #C28B62;
+  --sand-rake: rgba(122, 117, 107, 0.35);
+  --sand-shadow: rgba(0, 0, 0, 0.14);
+  --tas: #2B2C2E;
+  --tas-specular: rgba(255, 255, 255, 0.28);
+  --pad: 24px;
+}
+
+:root.dark {
+  --bg: #141518;
+  --bg2: #1C1E23;
+  --card: #1F2128;
+  --card-border: rgba(255, 255, 255, 0.09);
+  --ink: #EDE9E0;
+  --ink2: #BCB7AC;
+  --muted: #948F84;
+  --faint: #5E5B54;
+  --line: #2B2D35;
+  --accent: #D0785B;
+  --accent-glow: rgba(208, 120, 91, 0.25);
+  --cool: #79B3AE;
+  --mola1: #79B3AE;
+  --mola2: #52807C;
+  --kopru: #D09367;
+  --sand-rake: rgba(169, 178, 188, 0.28);
+  --sand-shadow: rgba(0, 0, 0, 0.45);
+  --tas: #DCE0E6;
+  --tas-specular: rgba(255, 255, 255, 0.45);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background .4s ease, color .4s ease;
+}
+
+#paper { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .45; }
+.wrap { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 48px var(--pad) 120px; }
+
+header { margin-bottom: 34px; }
+h1 { font-size: 32px; font-weight: 500; letter-spacing: -.03em; margin: 0 0 8px; }
+.lead { font-size: 16px; color: var(--muted); max-width: 72ch; line-height: 1.55; }
+
+.pillbtn {
+  position: fixed; top: 16px; right: 16px; z-index: 10;
+  background: var(--card); border: 1px solid var(--card-border); color: var(--ink);
+  padding: 9px 18px; border-radius: 999px; font-size: 14px; font-weight: 500;
+  cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: .2s ease;
+}
+.pillbtn:hover { transform: translateY(-1px); }
+
+.notice {
+  background: var(--card); border: 1px solid var(--card-border);
+  padding: 18px 22px; border-radius: 18px; font-size: 15px; color: var(--ink); margin-bottom: 44px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.02); line-height: 1.6;
+}
+.notice b { color: var(--accent); }
+
+/* --- KONSEPT KARTLARI --- */
+.concept-section { margin-bottom: 58px; }
+.concept-title {
+  font-size: 21px; font-weight: 500; letter-spacing: -.015em; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;
+}
+.badge {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+  padding: 3px 9px; border-radius: 999px; background: var(--bg2); color: var(--muted); font-weight: 600;
+}
+.badge.zen { background: rgba(62, 124, 119, 0.15); color: var(--cool); }
+.badge.wood { background: rgba(176, 82, 55, 0.15); color: var(--accent); }
+.concept-desc { font-size: 14.5px; color: var(--muted); margin: 0 0 18px; max-width: 72ch; }
+
+.apple-monolith {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 28px 24px 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  transition: background .4s ease, border-color .4s ease;
+}
+
+/* 1. KISIM: KUM BAHÇESİ (CANLI SEANS) -> DUVAR (ARŞİV) KÖPRÜSÜ */
+.zen-bridge-grid {
+  display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: center;
+}
+@media (max-width: 800px) { .zen-bridge-grid { grid-template-columns: 1fr; } }
+
+.zen-active-preview {
+  background: var(--bg2); border-radius: 20px; padding: 18px; display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.zen-active-preview h4 { margin: 0; font-size: 14px; font-weight: 600; color: var(--ink2); text-transform: uppercase; letter-spacing: .08em; }
+.zen-mini-canvas {
+  width: 100%; height: 220px; border-radius: 14px; background: var(--bg);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.04); overflow: hidden; position: relative;
+}
+
+.zen-archive-preview {
+  display: flex; flex-direction: column; gap: 16px;
+}
+.zen-archive-preview h4 { margin: 0; font-size: 14px; font-weight: 600; color: var(--ink2); text-transform: uppercase; letter-spacing: .08em; }
+
+/* 2. KISIM: DUVAR TAŞLARI RAF DÜZENİ */
+.stone-wall-shelf {
+  display: flex; gap: 10px; overflow-x: auto; padding: 16px 4px 20px;
+  align-items: flex-end; scrollbar-width: thin; scrollbar-color: var(--line) transparent;
+}
+.stone-wall-shelf::-webkit-scrollbar { height: 5px; }
+.stone-wall-shelf::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
+
+.stone-day {
+  flex: 0 0 44px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  position: relative; cursor: pointer; transition: transform .2s ease;
+}
+.stone-day:hover { transform: translateY(-3px); }
+.stone-plot {
+  height: 52px; width: 100%; display: flex; align-items: flex-end; justify-content: center; position: relative;
+}
+/* Kum tırmığı zemin izi */
+.stone-plot::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 1px;
+  background: var(--sand-rake); opacity: .55;
+}
+.stone-day-num {
+  font-size: 11px; font-variant-numeric: tabular-nums; color: var(--faint); font-weight: 500;
+}
+.stone-day.today .stone-day-num { color: var(--accent); font-weight: 700; }
+.stone-day.today::after {
+  content: ""; position: absolute; bottom: -6px; width: 4px; height: 4px;
+  border-radius: 50%; background: var(--accent);
+}
+.stone-empty-rake {
+  width: 16px; height: 2px; border-radius: 999px; background: var(--sand-rake); opacity: .3; margin-bottom: 4px;
+}
+
+/* ÇİFTLİ DUVAR GÖRSELİ (KRONOMETRE + POMODORO YAN YANA / ÜST ÜSTE) */
+.dual-zen-card {
+  display: flex; flex-direction: column; gap: 24px;
+}
+.dual-track-header {
+  display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: var(--muted); font-weight: 500;
+}
+
+</style>
+</head>
+<body>
+<canvas id="paper"></canvas>
+<button class="pillbtn" id="themeToggle">🌓 Gece / Gündüz</button>
+
+<div class="wrap">
+  <header>
+    <h1>Kertik — Kum Bahçesi ve Duvar Taş Zanaatı</h1>
+    <p class="lead">Pomodoro modülünün ana sanatı olan <b>Kum Bahçesi (Karesansui)</b> ile arşivdeki <b>Taş Duvarı</b>'nın tek bir organik estetik dil altında birleştirilmesi.</p>
+  </header>
+
+  <div class="notice">
+    <b>Zen Felsefesi ve Bütünlük:</b><br>
+    • <b>Kronometre:</b> Canlı seans = Ebru mürekkebi → Arşiv = Orijinal ahşap kertik çubuğu (100% korundu).<br>
+    • <b>Pomodoro:</b> Canlı seans = Kum Bahçesi (tırmık ve taş dalgalanması) → Arşiv = Kum yatağında dinlenen nehir taşları.
+  </div>
+
+  <!-- BÖLÜM 1: CANLI KUM BAHÇESİ VE DUVAR TAŞININ ORTAK DİLİ -->
+  <section class="concept-section">
+    <div class="concept-title">
+      <span>1. Kum Bahçesi & Taş Duvarı Entegrasyonu</span>
+      <span class="badge zen">Karesansui Zanaatı</span>
+    </div>
+    <p class="concept-desc">Seans sürerken ekranda beliren taş ile seans bitince Duvar'a eklenen taş birebir aynı malzemeden üretilir: Yumuşak kum gölgesi, ışık alan doğal çakıl kavisi ve tırmık halkaları.</p>
+    
+    <div class="apple-monolith">
+      <div class="zen-bridge-grid">
+        <div class="zen-active-preview">
+          <h4>Canlı Seans (Kum Bahçesi)</h4>
+          <canvas id="zenActiveCanvas" class="zen-mini-canvas" width="280" height="220"></canvas>
+          <span style="font-size:12px; color:var(--muted)">Tırmık izleri & Kum Dalgalanması</span>
+        </div>
+
+        <div class="zen-archive-preview">
+          <h4>Duvar Arşivi (Kum Taşları Rafı)</h4>
+          <p style="font-size:14px; color:var(--muted); margin:0">Tamamlanan her Pomodoro, Duvar'daki o günün kum çizgisi üzerine konan bir nehir taşıdır:</p>
+          <div class="stone-wall-shelf" id="zenWallDemo"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BÖLÜM 2: TAM 30 GÜNLÜK ÇİFT DUVAR (AHŞAP ÇUBUK + KUM TAŞLARI) -->
+  <section class="concept-section">
+    <div class="concept-title">
+      <span>2. Nihai 30 Günlük Zaman Duvarı (Çift Mod)</span>
+      <span class="badge wood">Orijinal Çubuk</span>
+      <span class="badge zen">Yeni Zen Taşları</span>
+    </div>
+    <p class="concept-desc">Eğer kullanıcı hem Kronometre hem Pomodoro kullandıysa; tek bir asil ve monolitik kartta, iki farklı malzeme (Ahşap & Taş) aynı 30 günlük eksende zarafetle akar:</p>
+    
+    <div class="apple-monolith">
+      <div class="dual-zen-card">
+        <!-- Ahşap Hat -->
+        <div>
+          <div class="dual-track-header">
+            <span>ODAK ÇUBUKLARI (KRONOMETRE)</span>
+            <span>Ahşap Zanaatı</span>
+          </div>
+          <div class="stone-wall-shelf" id="shelfWood"></div>
+        </div>
+
+        <!-- Taş Hat -->
+        <div>
+          <div class="dual-track-header">
+            <span>SEANS TAŞLARI (POMODORO)</span>
+            <span>Kum Bahçesi Zanaatı</span>
+          </div>
+          <div class="stone-wall-shelf" id="shelfStone"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* Kâğıt Dokusu */
+function paper() {
+  const c = document.getElementById("paper"), x = c.getContext("2d");
+  const w = c.width = innerWidth, h = c.height = innerHeight;
+  const dark = document.documentElement.classList.contains("dark");
+  x.clearRect(0, 0, w, h);
+  const img = x.createImageData(w, h), d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const v = Math.random();
+    d[i] = d[i+1] = d[i+2] = dark ? 255 : 0;
+    d[i+3] = v < .5 ? 0 : (dark ? 4 + v * 6 : 6 + v * 8);
+  }
+  x.putImageData(img, 0, 0);
+}
+paper();
+window.onresize = paper;
+
+/* Tohumlu Rastgelelik & Matematik */
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng32(sd){let a=sd>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function h2i(i,j,s){let n=Math.imul(i|0,374761393)^Math.imul(j|0,668265263)^Math.imul(s|0,362437);
+  n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967296}
+function vn(x,y,s){const i=Math.floor(x),j=Math.floor(y),fx=x-i,fy=y-j;
+  const u=fx*fx*(3-2*fx),v=fy*fy*(3-2*fy);
+  const a=h2i(i,j,s),b=h2i(i+1,j,s),c=h2i(i,j+1,s),d=h2i(i+1,j+1,s);
+  return (a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v}
+const fbm=(x,y,s)=>vn(x,y,s)*.6+vn(x*2.07,y*2.07,s+7)*.27+vn(x*4.13,y*4.13,s+19)*.13;
+const NS = "http://www.w3.org/2000/svg";
+const mk = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* --- 1. ORİJİNAL ÇUBUK ÇİZİM MOTORU (BİREBİR AYNI) --- */
+function tonu(mm) {
+  const c = mm === 0 ? [176,82,55] : mm % 5 === 0 ? [55,58,64] : [22,24,27];
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+function firca(x1, y1, x2, y2, w1, w2, seed, N) {
+  const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+  const nx = -dy / L, ny = dx / L;
+  const R = rng32(seed || 1);
+  const sol = [], sag = [];
+  N = N || 5;
+  for (let i = 0; i <= N; i++) {
+    const t = i / N, x = x1 + dx * t, y = y1 + dy * t;
+    const w = (w1 + (w2 - w1) * t) * (1 + (R() - .5) * .2);
+    sol.push([x + nx * w, y + ny * w]);
+    sag.push([x - nx * w * .2, y - ny * w * .2]);
+  }
+  let d = `M${sol[0][0].toFixed(2)},${sol[0][1].toFixed(2)}`;
+  for (let i = 1; i < sol.length; i++) d += `L${sol[i][0].toFixed(2)},${sol[i][1].toFixed(2)}`;
+  for (let i = sag.length - 1; i >= 0; i--) d += `L${sag[i][0].toFixed(2)},${sag[i][1].toFixed(2)}`;
+  return d + "Z";
+}
+function cizCubuk(svg, v, o) {
+  o = o || {};
+  const RP = o.rp || 1.3, SW = o.sw || 9, GAP = o.gap || 4, TOP = o.top || 2;
+  const KAL = SW * .62;
+  svg.innerHTML = "";
+  const dk = Math.max(1, Math.round(v.dk));
+  const kolon = Math.max(1, Math.ceil(dk / 60));
+  const satir = kolon > 1 ? 60 : dk;
+  const W = kolon * (SW + GAP) - GAP, H = TOP * 2 + Math.max(1, satir - 1) * RP;
+  svg.setAttribute("viewBox", `-4 0 ${(W + 8).toFixed(1)} ${H.toFixed(1)}`);
+  svg.setAttribute("width", (W + 8).toFixed(1));
+  svg.setAttribute("height", H.toFixed(1));
+
+  const ink = css("--ink"), kop = css("--kopru");
+  const id = v.id || "x";
+  const R = rng32(hash32(id));
+  const j = []; for (let i = 0; i < dk * 4 + 40; i++) j.push(R());
+  const g = mk("g", {}); svg.appendChild(g);
+  const colX = k => k * (SW + GAP);
+  const yOf = m => TOP + (m % 60) * RP;
+
+  for (let k = 0; k < kolon; k++) {
+    const son = Math.min(60, dk - k * 60);
+    const y0 = TOP - 2, y1 = yOf(son - 1) + 2, x = colX(k);
+    const kg = mk("g", {});
+    const Rk = rng32(hash32(id + "k" + k));
+    let sol = "M" + x.toFixed(2) + "," + y0.toFixed(2); const sag = [];
+    const N = Math.max(4, Math.round((y1 - y0) / 9));
+    for (let i = 0; i <= N; i++) {
+      const t = i / N, yy = y0 + (y1 - y0) * t;
+      sol += "L" + (x + (Rk() - .5) * .8).toFixed(2) + "," + yy.toFixed(2);
+      sag.push([x + KAL + (Rk() - .5) * .8, yy]);
+    }
+    for (let i = sag.length - 1; i >= 0; i--) sol += "L" + sag[i][0].toFixed(2) + "," + sag[i][1].toFixed(2);
+    kg.appendChild(mk("path", { d: sol + "Z", fill: kop, opacity: .22 }));
+    kg.appendChild(mk("line", { x1: x, y1: y0, x2: x, y2: y1, stroke: ink, "stroke-width": .9, opacity: .35 }));
+    kg.appendChild(mk("line", { x1: x + KAL, y1: y0, x2: x + KAL, y2: y1, stroke: ink, "stroke-width": .7, opacity: .2 }));
+    g.appendChild(kg);
+  }
+
+  for (let m = 0; m < dk; m++) {
+    const k = Math.floor(m / 60), mm = m % 60;
+    const r1 = j[m * 4], r2 = j[m * 4 + 1], r3 = j[m * 4 + 2], r4 = j[m * 4 + 3];
+    const derin = KAL * (mm === 0 ? .94 : mm % 15 === 0 ? .80 : mm % 5 === 0 ? .66 : .48) * (1 + (r1 - .5) * .30);
+    const x = colX(k), y = yOf(m) + (r2 - .5) * RP * .34;
+    const kal = RP * (mm === 0 ? .62 : mm % 5 === 0 ? .50 : .38) * (1 + (r3 - .5) * .34);
+    const egim = (r4 - .5) * RP * .5;
+
+    const ng = mk("g", {});
+    ng.appendChild(mk("path", {
+      d: `M${x.toFixed(2)},${(y + kal * .5).toFixed(2)}` +
+         `L${(x + derin).toFixed(2)},${(y + egim + kal * .16).toFixed(2)}` +
+         `L${(x + derin).toFixed(2)},${(y + egim - kal * .16).toFixed(2)}` +
+         `L${x.toFixed(2)},${(y - kal * .5).toFixed(2)}Z`,
+      fill: tonu(mm), opacity: (mm === 0 ? .95 : .72 + r3 * .2).toFixed(3) }));
+    ng.appendChild(mk("path", {
+      d: firca(x, y - kal * .5, x + derin * .94, y + egim - kal * .14, kal * .30, kal * .10, 0, 5),
+      fill: css("--bg"), opacity: .42 }));
+    g.appendChild(ng);
+  }
+}
+
+/* --- 2. YENİ NESİL ZEN TAŞI ÇİZİM MOTORU (KUM BAHÇESİ İLE TAM UYUMLU) --- */
+function cizZenTasi(svg, seanslar, seed) {
+  svg.innerHTML = "";
+  const n = seanslar.length;
+  if (!n) return;
+  const H = 48, W = Math.max(34, n * 18 + 6);
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.setAttribute("width", W);
+  svg.setAttribute("height", H);
+
+  const R = rng32(hash32("zen_" + seed));
+  const g = mk("g", {}); svg.appendChild(g);
+
+  let curX = 6;
+  seanslar.forEach((dk, idx) => {
+    const r = Math.min(13, Math.max(7, Math.round(Math.sqrt(dk / 25) * 8.5)));
+    const cx = curX + r;
+    const cy = H - r - 4;
+    curX += r * 1.85 + 2;
+
+    const seedT = hash32(seed + "_t_" + idx);
+    const Rt = rng32(seedT);
+    const rot = (Rt() - .5) * .4;
+    const el = .74 + Rt() * .22;
+
+    // Kum dalgalanma halesi (mikro tırmık teması)
+    g.appendChild(mk("ellipse", {
+      cx: cx.toFixed(1), cy: (H - 3).toFixed(1),
+      rx: (r * 1.5).toFixed(1), ry: (r * .35).toFixed(1),
+      fill: "none", stroke: css("--sand-rake"), "stroke-width": .7, opacity: .45
+    }));
+
+    // Zemin difüz gölgesi
+    g.appendChild(mk("ellipse", {
+      cx: (cx + r * .08).toFixed(1), cy: (H - 3.5).toFixed(1),
+      rx: (r * 1.15).toFixed(1), ry: (r * .28).toFixed(1),
+      fill: css("--sand-shadow"), opacity: .8
+    }));
+
+    // Organik taş formu (FBM gürültüsüyle doğal nehir çakılı)
+    const N = 14;
+    let d = "";
+    for (let i = 0; i <= N; i++) {
+      const a = rot + i / N * Math.PI * 2;
+      const rad = r * (.88 + fbm(Math.cos(a) * 1.8 + idx, Math.sin(a) * 1.8 + idx, seedT % 89) * .24);
+      const px = cx + Math.cos(a) * rad;
+      const py = cy + Math.sin(a) * rad * el;
+      d += (i ? "L" : "M") + px.toFixed(2) + "," + py.toFixed(2) + " ";
+    }
+    d += "Z";
+    g.appendChild(mk("path", { d, fill: css("--tas") }));
+
+    // Işık parıltısı (specular highlight)
+    g.appendChild(mk("ellipse", {
+      cx: (cx - r * .22).toFixed(1), cy: (cy - r * .24).toFixed(1),
+      rx: (r * .35).toFixed(1), ry: (r * .18).toFixed(1),
+      fill: css("--tas-specular"), transform: `rotate(-15 ${cx} ${cy})`
+    }));
+  });
+}
+
+/* --- 3. CANLI MİNİ KUM BAHÇESİ ÇİZİMİ --- */
+function drawMiniZenActive() {
+  const cv = document.getElementById("zenActiveCanvas");
+  if (!cv) return;
+  const ctx = cv.getContext("2d");
+  const w = cv.width, h = cv.height;
+  ctx.clearRect(0, 0, w, h);
+
+  // Tırmık çizgileri
+  ctx.strokeStyle = css("--sand-rake");
+  ctx.lineWidth = 1.2;
+  for (let y = 14; y < h; y += 13) {
+    ctx.beginPath();
+    for (let x = 0; x < w; x += 6) {
+      const dy = Math.sin(x * .04 + y * .02) * 2;
+      if (x === 0) ctx.moveTo(x, y + dy);
+      else ctx.lineTo(x, y + dy);
+    }
+    ctx.stroke();
+  }
+
+  // Merkezde 2 adet ana seans taşı
+  const stones = [{ x: 95, y: 115, r: 24 }, { x: 175, y: 125, r: 18 }];
+  stones.forEach(s => {
+    // Taş çevresi tırmık halkaları
+    for (let ring = 1; ring <= 3; ring++) {
+      ctx.beginPath();
+      ctx.arc(s.x, s.y + 2, s.r + ring * 8, 0, Math.PI * 2);
+      ctx.strokeStyle = css("--sand-rake");
+      ctx.lineWidth = 0.9;
+      ctx.stroke();
+    }
+    // Gölge
+    ctx.beginPath();
+    ctx.ellipse(s.x + 2, s.y + s.r * .75, s.r * 1.1, s.r * .32, 0, 0, Math.PI * 2);
+    ctx.fillStyle = css("--sand-shadow");
+    ctx.fill();
+
+    // Taş
+    ctx.beginPath();
+    ctx.ellipse(s.x, s.y, s.r, s.r * .82, -0.15, 0, Math.PI * 2);
+    ctx.fillStyle = css("--tas");
+    ctx.fill();
+
+    // Specular
+    ctx.beginPath();
+    ctx.ellipse(s.x - s.r * .25, s.y - s.r * .25, s.r * .35, s.r * .18, -0.2, 0, Math.PI * 2);
+    ctx.fillStyle = css("--tas-specular");
+    ctx.fill();
+  });
+}
+
+/* Örnek 30 Günlük Veri */
+const MOCK_30 = [];
+for (let i = 29; i >= 0; i--) {
+  const d = new Date(Date.now() - i * 864e5);
+  const dk = (i % 3 === 0 && i !== 0) ? 0 : [25, 45, 60, 90, 140, 50, 30][i % 7];
+  const pomos = (i % 4 === 0 && i !== 0) ? [] : [25, 50, 25, 25].slice(0, (i % 3) + 1);
+  MOCK_30.push({ i, dayNum: d.getDate(), dk, pomos, isToday: i === 0, patina: (1 - (i / 29) * 0.52).toFixed(2) });
+}
+
+/* DUVARLARI OLUŞTUR */
+function renderAllShelves() {
+  drawMiniZenActive();
+
+  // 1. Kısım Demo Duvarı
+  const demoShelf = document.getElementById("zenWallDemo");
+  demoShelf.innerHTML = "";
+  MOCK_30.slice(20).forEach(d => {
+    const dayDiv = document.createElement("div");
+    dayDiv.className = "stone-day" + (d.isToday ? " today" : "");
+    dayDiv.style.opacity = d.patina;
+
+    const plot = document.createElement("div");
+    plot.className = "stone-plot";
+    if (d.pomos.length) {
+      const svg = document.createElementNS(NS, "svg");
+      cizZenTasi(svg, d.pomos, "d_" + d.i);
+      plot.appendChild(svg);
+    } else {
+      const rake = document.createElement("div");
+      rake.className = "stone-empty-rake";
+      plot.appendChild(rake);
+    }
+
+    const num = document.createElement("div");
+    num.className = "stone-day-num";
+    num.textContent = d.dayNum;
+
+    dayDiv.appendChild(plot);
+    dayDiv.appendChild(num);
+    demoShelf.appendChild(dayDiv);
+  });
+
+  // 2. Kısım Çift Duvar (Ahşap)
+  const woodShelf = document.getElementById("shelfWood");
+  woodShelf.innerHTML = "";
+  MOCK_30.forEach(d => {
+    const dayDiv = document.createElement("div");
+    dayDiv.className = "stone-day" + (d.isToday ? " today" : "");
+    dayDiv.style.opacity = d.patina;
+
+    const plot = document.createElement("div");
+    plot.className = "stone-plot";
+    plot.style.height = "76px";
+    if (d.dk > 0) {
+      const svg = document.createElementNS(NS, "svg");
+      cizCubuk(svg, { id: "w_" + d.i, dk: d.dk }, { rp: 1.1, sw: 9, gap: 4, top: 2 });
+      plot.appendChild(svg);
+    } else {
+      const rake = document.createElement("div");
+      rake.className = "stone-empty-rake";
+      plot.appendChild(rake);
+    }
+
+    const num = document.createElement("div");
+    num.className = "stone-day-num";
+    num.textContent = d.dayNum;
+
+    dayDiv.appendChild(plot);
+    dayDiv.appendChild(num);
+    woodShelf.appendChild(dayDiv);
+  });
+
+  // 2. Kısım Çift Duvar (Taş)
+  const stoneShelf = document.getElementById("shelfStone");
+  stoneShelf.innerHTML = "";
+  MOCK_30.forEach(d => {
+    const dayDiv = document.createElement("div");
+    dayDiv.className = "stone-day" + (d.isToday ? " today" : "");
+    dayDiv.style.opacity = d.patina;
+
+    const plot = document.createElement("div");
+    plot.className = "stone-plot";
+    if (d.pomos.length) {
+      const svg = document.createElementNS(NS, "svg");
+      cizZenTasi(svg, d.pomos, "s_" + d.i);
+      plot.appendChild(svg);
+    } else {
+      const rake = document.createElement("div");
+      rake.className = "stone-empty-rake";
+      plot.appendChild(rake);
+    }
+
+    const num = document.createElement("div");
+    num.className = "stone-day-num";
+    num.textContent = d.dayNum;
+
+    dayDiv.appendChild(plot);
+    dayDiv.appendChild(num);
+    stoneShelf.appendChild(dayDiv);
+  });
+}
+
+renderAllShelves();
+
+/* Tema Değiştirici */
+document.getElementById("themeToggle").onclick = () => {
+  document.documentElement.classList.toggle("dark");
+  paper();
+  renderAllShelves();
+};
+</script>
+</body>
+</html>

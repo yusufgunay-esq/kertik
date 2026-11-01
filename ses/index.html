@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Kertik — Wabi-Sabi Maddi Ses & Akustik Laboratuvarı</title>
+<style>
+:root {
+  --bg: #0a0b0d;
+  --card-bg: rgba(22, 24, 28, 0.85);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --ink: #f5f6f8;
+  --ink-dim: #9aa1ad;
+  --wood: #c68b59;
+  --wood-glow: rgba(198, 139, 89, 0.2);
+  --stone: #8e95a0;
+  --accent-light: #faedcd;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, sans-serif;
+  --mono: "SF Mono", "Fira Code", monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  min-height: 100vh;
+  padding: 2.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(198, 139, 89, 0.12) 0%, transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(142, 125, 190, 0.06) 0%, transparent 45%);
+  -webkit-font-smoothing: antialiased;
+}
+
+header {
+  text-align: center;
+  max-width: 780px;
+  margin-bottom: 2.5rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--wood);
+  background: rgba(198, 139, 89, 0.14);
+  border: 1px solid rgba(198, 139, 89, 0.3);
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.6rem;
+}
+
+p.subtitle {
+  color: var(--ink-dim);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.main-layout {
+  width: 100%;
+  max-width: 1140px;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* Interactive Flow Simulator */
+.flow-container {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 22px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.flow-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.flow-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
+.step-btn {
+  flex: 1;
+  min-width: 160px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  padding: 1rem;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+  color: var(--ink);
+}
+
+.step-btn:hover {
+  background: rgba(198, 139, 89, 0.15);
+  border-color: rgba(198, 139, 89, 0.4);
+  transform: translateY(-2px);
+}
+
+.step-btn:active {
+  transform: scale(0.98);
+}
+
+.step-num {
+  font-size: 0.75rem;
+  font-family: var(--mono);
+  color: var(--wood);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.step-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.step-meta {
+  font-size: 0.75rem;
+  color: var(--ink-dim);
+}
+
+/* Side-by-Side Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 1.25rem;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-radius: 22px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.card.highlight {
+  border-color: rgba(198, 139, 89, 0.45);
+  background: linear-gradient(180deg, rgba(198, 139, 89, 0.1) 0%, rgba(22, 24, 28, 0.9) 100%);
+  box-shadow: 0 0 35px rgba(198, 139, 89, 0.12);
+}
+
+.tag-label {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--wood);
+  color: #0a0b0d;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+}
+
+.card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding-right: 3.5rem;
+}
+
+.sound-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.sound-meta {
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+  font-family: var(--mono);
+}
+
+.sound-desc {
+  font-size: 0.88rem;
+  color: var(--ink-dim);
+  line-height: 1.5;
+}
+
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.btn-play {
+  background: var(--wood);
+  color: #0a0b0d;
+  border: none;
+  padding: 0.85rem 1.2rem;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+
+.btn-play:hover {
+  background: var(--accent-light);
+  transform: scale(1.01);
+}
+
+.btn-play:active {
+  transform: scale(0.98);
+}
+
+.wav-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  color: var(--ink-dim);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.btn-haptic {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.65rem 1rem;
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+.btn-haptic:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+.btn-combo {
+  background: linear-gradient(135deg, rgba(198, 139, 89, 0.25) 0%, rgba(198, 139, 89, 0.1) 100%);
+  color: var(--accent-light);
+  border: 1px solid rgba(198, 139, 89, 0.4);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+.btn-combo:hover {
+  background: rgba(198, 139, 89, 0.35);
+  border-color: rgba(198, 139, 89, 0.6);
+}
+
+.candidate-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ink-dim);
+  display: inline-block;
+  margin-bottom: 0.25rem;
+}
+.candidate-badge.rec {
+  background: var(--wood);
+  color: #0a0b0d;
+}
+
+/* Visualizer Canvas Bar */
+.visualizer-container {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+canvas#visualizer {
+  width: 100%;
+  height: 65px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.now-playing-label {
+  font-size: 0.85rem;
+  color: var(--ink-dim);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.now-playing-label span.active-name {
+  color: var(--wood);
+  font-weight: 600;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Wabi-Sabi Anayasası §6.5 — Maddi Ses Laboratuvarı</div>
+  <h1>Kertik Bütünsel Maddi Ses Sistemi</h1>
+  <p class="subtitle">Müzikal çan ve melodiler yerine; bıçağın ahşaba ilk kertiği, taşın kuma oturması ve sandık kapağının tok kapanışını içeren sıfır tiz fiziksel malzeme sesleri.</p>
+</header>
+
+<div class="main-layout">
+
+  <!-- Live Visualizer -->
+  <div class="visualizer-container">
+    <canvas id="visualizer"></canvas>
+    <div class="now-playing-label">
+      <span>Şu an dinlenen:</span>
+      <span class="active-name" id="playingName">Bir etkileşime tıklayıp dinleyin</span>
+    </div>
+  </div>
+
+  <!-- Interactive Full Flow Simulator -->
+  <div class="flow-container">
+    <div class="flow-title">
+      <span>⏱️</span>
+      <span>Canlı Seans Akış Simülatörü (Sırayla Tıklayın)</span>
+    </div>
+    <div class="flow-steps">
+      <button class="step-btn" onclick="playMaterial('baslat')">
+        <span class="step-num">1. Adım</span>
+        <span class="step-name">▶ Başlat</span>
+        <span class="step-meta">Ahşap Kertik (90ms)</span>
+      </button>
+      <button class="step-btn" onclick="playMaterial('mola')">
+        <span class="step-num">2. Adım</span>
+        <span class="step-name">☕ Mola</span>
+        <span class="step-meta">Kum Sönümlenmesi (110ms)</span>
+      </button>
+      <button class="step-btn" onclick="playMaterial('devam')">
+        <span class="step-num">3. Adım</span>
+        <span class="step-name">🔄 Devam</span>
+        <span class="step-meta">Hafif Ahşap Temas (70ms)</span>
+      </button>
+      <button class="step-btn" onclick="playMaterial('pomodoro')">
+        <span class="step-num">4. Adım</span>
+        <span class="step-name">🎯 Pomodoro Bitiş</span>
+        <span class="step-meta">Avuç İçi Nehir Taşı (200ms)</span>
+      </button>
+      <button class="step-btn" onclick="playMaterial('bitir')">
+        <span class="step-num">5. Adım</span>
+        <span class="step-name">🏁 Bitir</span>
+        <span class="step-meta">Sandık Kapağı / Mühür (180ms)</span>
+      </button>
+  <!-- SEANS BAŞLATMA ÖZEL LABORATUVARI -->
+  <div class="flow-container" style="border-color: rgba(198, 139, 89, 0.45); background: linear-gradient(180deg, rgba(198, 139, 89, 0.08) 0%, var(--card-bg) 100%);">
+    <div class="flow-title">
+      <span>🎯</span> Seans Başlatma — 3 Aday Akustik &amp; Haptik Karşılaştırma Laboratuvarı
+    </div>
+    <p style="color: var(--ink-dim); font-size: 0.92rem; line-height: 1.6;">
+      Kertik'in ilk adımındaki kararlılık ve odak mührü için tasarlanan 3 farklı fiziksel model. Aşağıdaki kartlardan sesleri, donanım titreşimlerini ve her ikisinin senkron birleşimini canlı deneyimleyebilirsiniz.
+    </p>
+
+    <div class="grid" style="margin-top: 0.5rem;">
+      <!-- ADAY A -->
+      <div class="card highlight" style="border-color: rgba(198, 139, 89, 0.7); box-shadow: 0 0 40px rgba(198, 139, 89, 0.18);">
+        <span class="tag-label">Aday A</span>
+        <div class="card-header">
+          <span class="candidate-badge rec">⭐ Önerilen Model</span>
+          <div class="sound-title">Kuru Ceviz Kütüğüne İlk Kertik</div>
+          <div class="sound-meta">118 Hz Gövde · 186 Hz Rezonans · 95ms</div>
+        </div>
+        <p class="sound-desc">
+          Bıçağın kuru ceviz kütüğüne keskin ve kararlı ilk kertiği. 0-8ms filtrelenmiş lif ayrışması transienti ve tok ahşap kütle rezonansı. Sıfır elektronik tiz veya yapay süpürme.
+        </p>
+        <div class="card-actions">
+          <button class="btn-play" onclick="playBaslatCevizKertik()">
+            <span>▶ Sesi Dinle (Web Audio)</span>
+          </button>
+          <button class="btn-haptic" onclick="testHaptic([12])">
+            <span>📳 Titreşimi Test Et (12ms @ %75)</span>
+          </button>
+          <button class="btn-combo" onclick="playBaslatCombo('ceviz')">
+            <span>▶ + 📳 Bütünleşik Başlatma</span>
+          </button>
+          <a class="wav-link" href="maddi_1_baslat_ceviz_kertik.wav" target="_blank" download>
+            💾 maddi_1_baslat_ceviz_kertik.wav indir
+          </a>
+        </div>
+      </div>
+
+      <!-- ADAY B -->
+      <div class="card">
+        <span class="tag-label">Aday B</span>
+        <div class="card-header">
+          <span class="candidate-badge">Mineral Ağırlık</span>
+          <div class="sound-title">Nehir Taşının Ahşap Kaideye Oturması</div>
+          <div class="sound-meta">78 Hz Sub-Bass · 135 Hz Kaide · 110ms</div>
+        </div>
+        <p class="sound-desc">
+          Pürüzsüz ağır bir bazalt nehir taşının çalışma masasına tok bir şekilde oturması. Sıfır tiz çıtırtı, sadece derin ve tok kütlesel oturma.
+        </p>
+        <div class="card-actions">
+          <button class="btn-play" onclick="playBaslatTasKaide()">
+            <span>▶ Sesi Dinle (Web Audio)</span>
+          </button>
+          <button class="btn-haptic" onclick="testHaptic([16])">
+            <span>📳 Titreşimi Test Et (16ms @ %85)</span>
+          </button>
+          <button class="btn-combo" onclick="playBaslatCombo('tas')">
+            <span>▶ + 📳 Bütünleşik Başlatma</span>
+          </button>
+          <a class="wav-link" href="maddi_1_baslat_tas_kaide.wav" target="_blank" download>
+            💾 maddi_1_baslat_tas_kaide.wav indir
+          </a>
+        </div>
+      </div>
+
+      <!-- ADAY C -->
+      <div class="card">
+        <span class="tag-label">Aday C</span>
+        <div class="card-header">
+          <span class="candidate-badge">Zen Mekanik</span>
+          <div class="sound-title">Mekanik Zen Tetikleyicisi (Mandal)</div>
+          <div class="sound-meta">145 Hz + 102 Hz · Çift Temas · 95ms</div>
+        </div>
+        <p class="sound-desc">
+          Eski bir Japon ahşap sandığının gizli mekanik kilidinin yerine oturması. Leica deklanşörünü andıran çift mikro-tık mekanik hassasiyeti.
+        </p>
+        <div class="card-actions">
+          <button class="btn-play" onclick="playBaslatZenMandal()">
+            <span>▶ Sesi Dinle (Web Audio)</span>
+          </button>
+          <button class="btn-haptic" onclick="testHaptic([8, 14, 12])">
+            <span>📳 Titreşimi Test Et (Çift Tık)</span>
+          </button>
+          <button class="btn-combo" onclick="playBaslatCombo('mandal')">
+            <span>▶ + 📳 Bütünleşik Başlatma</span>
+          </button>
+          <a class="wav-link" href="maddi_1_baslat_zen_mandal.wav" target="_blank" download>
+            💾 maddi_1_baslat_zen_mandal.wav indir
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 style="font-size: 1.3rem; font-weight: 600; margin-top: 1rem; letter-spacing: -0.02em;">Tüm 7 Temel Maddi Etkileşim Sesi (Genel Katalog)</h2>
+
+  <!-- Cards Grid -->
+  <div class="grid">
+
+    <!-- 1. BAŞLAT -->
+    <div class="card highlight">
+      <span class="tag-label">1. Başlat</span>
+      <div class="card-header">
+        <div class="sound-title">Ahşap Kertik Darbesi</div>
+        <div class="sound-meta">90-165 Hz · Tok Ahşap · 90ms</div>
+      </div>
+      <p class="sound-desc">
+        Bıçağın kuru ahşaba ilk kertiği. Çok kısa, tok ve net başlangıç hissi. Kesinlikle tiz içermez.
+      </p>
+      <div class="card-actions">
+        <button class="btn-play" onclick="playMaterial('baslat')">
+          <span>▶ Canlı Dinle (Web Audio)</span>
+        </button>
+        <a class="wav-link" href="maddi_1_baslat_ahsap_kertik.wav" target="_blank" download>
+          💾 maddi_1_baslat_ahsap_kertik.wav indir
+        </a>
+      </div>
+    </div>
+
+    <!-- 2. MOLA -->
+    <div class="card highlight">
+      <span class="tag-label">2. Mola</span>
+      <div class="card-header">
+        <div class="sound-title">Kum & Kütle Sönümlenmesi</div>
+        <div class="sound-meta">65-110 Hz · Yumuşak Kum · 110ms</div>
+      </div>
+      <p class="sound-desc">
+        Bıçağın kalkması veya bir taşın kum havuzuna sakince konması. Yumuşak sönümlenen nefes alma hissi.
+      </p>
+      <div class="card-actions">
+        <button class="btn-play" onclick="playMaterial('mola')">
+          <span>▶ Canlı Dinle (Web Audio)</span>
+        </button>
+        <a class="wav-link" href="maddi_2_mola_kum_kalkis.wav" target="_blank" download>
+          💾 maddi_2_mola_kum_kalkis.wav indir
+        </a>
+      </div>
+    </div>
+
+    <!-- 3. DEVAM -->
+    <div class="card highlight">
+      <span class="tag-label">3. Devam</span>
+      <div class="card-header">
+        <div class="sound-title">Hafif Ahşap Temas</div>
+        <div class="sound-meta">110-170 Hz · Mikro Kertme · 70ms</div>
+      </div>
+      <p class="sound-desc">
+        Yeniden çalışmaya dönüşte hafif bir ahşap dokunuşu. Başlat'tan daha hafif ve kısa.
+      </p>
+      <div class="card-actions">
+        <button class="btn-play" onclick="playMaterial('devam')">
+          <span>▶ Canlı Dinle (Web Audio)</span>
+        </button>
+        <a class="wav-link" href="maddi_3_devam_ahsap_temas.wav" target="_blank" download>
+          💾 maddi_3_devam_ahsap_temas.wav indir
+        </a>
+      </div>
+    </div>
+
+    <!-- 4. POMODORO BİTİŞ -->
+    <div class="card highlight">
+      <span class="tag-label">4. Pomodoro Bitiş</span>
+      <div class="card-header">
+        <div class="sound-title">Avuç İçi Tok Nehir Taşı</div>
+        <div class="sound-meta">80-145 Hz · Derin Kütle · 200ms</div>
+      </div>
+      <p class="sound-desc">
+        Avuç içine yuvarlak pürüzsüz nehir taşının tok bir şekilde oturması (ana vuruş + 45ms mikro yerleşme). Sıfır çan, derin göğüs kütlesi.
+      </p>
+      <div class="card-actions">
+        <button class="btn-play" onclick="playMaterial('pomodoro')">
+          <span>▶ Canlı Dinle (Web Audio)</span>
+        </button>
+        <a class="wav-link" href="maddi_4_pomodoro_avuc_tasi.wav" target="_blank" download>
+          💾 maddi_4_pomodoro_avuc_tasi.wav indir
+        </a>
+      </div>
+    </div>
+
+    <!-- 5. BİTİR -->
+    <div class="card highlight">
+      <span class="tag-label">5. Bitir</span>
+      <div class="card-header">
+        <div class="sound-title">Sandık Kapağı / Kapanış Mührü</div>
+        <div class="sound-meta">70-125 Hz · Çift Vuruş · 180ms</div>
+      </div>
+      <p class="sound-desc">
+        Taşın duvara oturması / ahşap sandık kapağının tok kapanışı. İlk hafif temas ve ardından gelen ana kütle kilit sesi.
+      </p>
+      <div class="card-actions">
+        <button class="btn-play" onclick="playMaterial('bitir')">
+          <span>▶ Canlı Dinle (Web Audio)</span>
+        </button>
+        <a class="wav-link" href="maddi_5_bitir_sandik_kapagi.wav" target="_blank" download>
+          💾 maddi_5_bitir_sandik_kapagi.wav indir
+        </a>
+      </div>
+    </div>
+
+    <!-- 6. KIRIK TAŞ -->
+    <div class="card highlight">
+      <span class="tag-label">6. Kırık Taş</span>
+      <div class="card-header">
+        <div class="sound-title">Kumda Tok Mineral Fay Hattı</div>
+        <div class="sound-meta">45-85 Hz · Derin Kütle · 240ms</div>
+      </div>
+      <p class="sound-desc">
+        Vaat bozulduğunda taşın kum havuzunda derin bir fay hattından ikiye ayrılması. Sıfır cırtlak tiz, tok ve mineral bir kum ayrılması.
+      </p>
+      <div class="card-actions">
+        <button class="btn-play" onclick="playMaterial('tas_kirilma')">
+          <span>▶ Canlı Dinle (Web Audio)</span>
+        </button>
+        <a class="wav-link" href="maddi_6_tas_kirilma_derin.wav" target="_blank" download>
+          💾 maddi_6_tas_kirilma_derin.wav indir
+        </a>
+      </div>
+    </div>
+
+    <!-- 7. KUM BAHÇESİ RÜZGARI -->
+    <div class="card highlight">
+      <span class="tag-label">7. Kum Rüzgarı</span>
+      <div class="card-header">
+        <div class="sound-title">Kuru Kumun Sessiz Nefesi</div>
+        <div class="sound-meta">40-180 Hz · Yumuşak Esinti · 320ms</div>
+      </div>
+      <p class="sound-desc">
+        Uzun molalarda kumu yalayıp geçen esinti. YouTube 'whoosh' / süpürme efekti YOKTUR; kuru kum taneciklerinin dinlendirici, organik nefesi.
+      </p>
+      <div class="card-actions">
+        <button class="btn-play" onclick="playMaterial('ruzgar')">
+          <span>▶ Canlı Dinle (Web Audio)</span>
+        </button>
+        <a class="wav-link" href="maddi_7_kum_ruzgari_nefes.wav" target="_blank" download>
+          💾 maddi_7_kum_ruzgari_nefes.wav indir
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+let audioCtx = null;
+let analyser = null;
+let animId = null;
+
+function getAudioContext() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.connect(audioCtx.destination);
+    setupVisualizer();
+  }
+  if (audioCtx.state === "suspended") {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function setupVisualizer() {
+  const canvas = document.getElementById("visualizer");
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  
+  function resize() {
+    canvas.width = canvas.clientWidth * dpr;
+    canvas.height = canvas.clientHeight * dpr;
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+
+  function draw() {
+    animId = requestAnimationFrame(draw);
+    analyser.getByteFrequencyData(dataArray);
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const barWidth = (canvas.width / bufferLength) * 2.2;
+    let x = 0;
+
+    for (let i = 0; i < bufferLength; i++) {
+      const barHeight = (dataArray[i] / 255) * canvas.height * 0.85;
+
+      const grad = ctx.createLinearGradient(0, canvas.height, 0, 0);
+      grad.addColorStop(0, "rgba(198, 139, 89, 0.2)");
+      grad.addColorStop(1, "rgba(250, 237, 205, 0.95)");
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(x, canvas.height - barHeight, barWidth - 1, barHeight);
+
+      x += barWidth;
+    }
+  }
+  draw();
+}
+
+function applyAudioWindow(data, sr) {
+  const len = data.length;
+  const inSamples = Math.min(len, Math.floor(sr * 0.0015));
+  const outSamples = Math.min(len, Math.floor(sr * 0.004));
+
+  for (let i = 0; i < inSamples; i++) {
+    data[i] *= 0.5 * (1.0 - Math.cos((Math.PI * i) / inSamples));
+  }
+  for (let i = 0; i < outSamples; i++) {
+    const idx = len - 1 - i;
+    data[idx] *= 0.5 * (1.0 - Math.cos((Math.PI * i) / outSamples));
+  }
+}
+
+function playBuffer(buffer, label) {
+  const ctx = getAudioContext();
+  applyAudioWindow(buffer.getChannelData(0), ctx.sampleRate || 48000);
+  const src = ctx.createBufferSource();
+  src.buffer = buffer;
+  src.connect(analyser);
+  src.start();
+  document.getElementById("playingName").textContent = label;
+}
+
+function applyJSLowpass(data, sr, cutoff = 280.0) {
+  const omega = 2.0 * Math.PI * cutoff / sr;
+  const sn = Math.sin(omega);
+  const cs = Math.cos(omega);
+  const alpha = sn / (2.0 * 0.707);
+  const b0 = (1.0 - cs) / 2.0, b1 = 1.0 - cs, b2 = (1.0 - cs) / 2.0;
+  const a0 = 1.0 + alpha, a1 = -2.0 * cs, a2 = 1.0 - alpha;
+  const b0_n = b0 / a0, b1_n = b1 / a0, b2_n = b2 / a0, a1_n = a1 / a0, a2_n = a2 / a0;
+  
+  const out = new Float32Array(data.length);
+  let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+  for (let i = 0; i < data.length; i++) {
+    const x0 = data[i];
+    const y0 = b0_n * x0 + b1_n * x1 + b2_n * x2 - a1_n * y1 - a2_n * y2;
+    x2 = x1; x1 = x0; y2 = y1; y1 = y0;
+    out[i] = y0;
+  }
+  return out;
+}
+
+function testHaptic(pat) {
+  try {
+    if (navigator.vibrate) {
+      navigator.vibrate(pat);
+    }
+  } catch (e) {}
+}
+
+function playBaslatCevizKertik() {
+  const ctx = getAudioContext();
+  const sr = ctx.sampleRate || 48000;
+  const dur = 0.095;
+  const numSamples = Math.floor(sr * dur);
+  const buf = ctx.createBuffer(1, numSamples, sr);
+  const data = buf.getChannelData(0);
+  const raw = new Float32Array(numSamples);
+  let bNoise = 0.0;
+
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / sr;
+    // 1. Mikro Lif Transient (0-10ms)
+    const w = Math.random() * 2.0 - 1.0;
+    bNoise = 0.75 * bNoise + 0.25 * w;
+    const grainTrans = bNoise * Math.exp(-t * 450.0) * 0.45;
+
+    // 2. Gövde Modal Rezonansları (118 Hz + 186 Hz + 265 Hz)
+    const attack1 = 1.0 - Math.exp(-t * 600.0);
+    const mode1 = Math.sin(2.0 * Math.PI * 118.0 * t) * Math.exp(-t / 0.028) * attack1 * 1.25;
+
+    const attack2 = 1.0 - Math.exp(-t * 500.0);
+    const mode2 = Math.sin(2.0 * Math.PI * 186.0 * t) * Math.exp(-t / 0.019) * attack2 * 0.35;
+
+    const mode3 = Math.sin(2.0 * Math.PI * 265.0 * t) * Math.exp(-t / 0.012) * attack1 * 0.15;
+
+    raw[i] = grainTrans + mode1 + mode2 + mode3;
+  }
+  const lp = applyJSLowpass(applyJSLowpass(raw, sr, 320.0), sr, 320.0);
+  for (let i = 0; i < numSamples; i++) data[i] = Math.tanh(lp[i] * 1.55);
+  playBuffer(buf, "Aday A: Kuru Ceviz Kütüğüne İlk Kertik (95ms)");
+}
+
+function playBaslatTasKaide() {
+  const ctx = getAudioContext();
+  const sr = ctx.sampleRate || 48000;
+  const dur = 0.110;
+  const numSamples = Math.floor(sr * dur);
+  const buf = ctx.createBuffer(1, numSamples, sr);
+  const data = buf.getChannelData(0);
+  const raw = new Float32Array(numSamples);
+
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / sr;
+    const attack = 1.0 - Math.exp(-t * 400.0);
+    const fDrop = 78.0 + 35.0 * Math.exp(-t * 45.0);
+    const subBody = Math.sin(2.0 * Math.PI * fDrop * t) * Math.exp(-t / 0.045) * attack * 1.35;
+    const woodBase = Math.sin(2.0 * Math.PI * 135.0 * t) * Math.exp(-t / 0.025) * attack * 0.30;
+    raw[i] = subBody + woodBase;
+  }
+  const lp = applyJSLowpass(applyJSLowpass(raw, sr, 240.0), sr, 240.0);
+  for (let i = 0; i < numSamples; i++) data[i] = Math.tanh(lp[i] * 1.45);
+  playBuffer(buf, "Aday B: Nehir Taşının Ahşap Kaideye Oturması (110ms)");
+}
+
+function playBaslatZenMandal() {
+  const ctx = getAudioContext();
+  const sr = ctx.sampleRate || 48000;
+  const dur = 0.095;
+  const numSamples = Math.floor(sr * dur);
+  const buf = ctx.createBuffer(1, numSamples, sr);
+  const data = buf.getChannelData(0);
+  const raw = new Float32Array(numSamples);
+
+  for (let i = 0; i < numSamples; i++) {
+    const t = i / sr;
+    const a1 = 1.0 - Math.exp(-t * 500.0);
+    const s1 = Math.sin(2.0 * Math.PI * 145.0 * t) * Math.exp(-t / 0.016) * a1 * 0.65;
+    let s2 = 0.0;
+    if (t >= 0.018) {
+      const t2 = t - 0.018;
+      const a2 = 1.0 - Math.exp(-t2 * 450.0);
+      s2 = Math.sin(2.0 * Math.PI * 102.0 * t2) * Math.exp(-t2 / 0.032) * a2 * 1.20;
+    }
+    raw[i] = s1 + s2;
+  }
+  const lp = applyJSLowpass(applyJSLowpass(raw, sr, 300.0), sr, 300.0);
+  for (let i = 0; i < numSamples; i++) data[i] = Math.tanh(lp[i] * 1.50);
+  playBuffer(buf, "Aday C: Mekanik Zen Tetikleyicisi (95ms)");
+}
+
+function playBaslatCombo(type) {
+  if (type === "ceviz") {
+    testHaptic([12]);
+    playBaslatCevizKertik();
+  } else if (type === "tas") {
+    testHaptic([16]);
+    playBaslatTasKaide();
+  } else if (type === "mandal") {
+    testHaptic([8, 14, 12]);
+    playBaslatZenMandal();
+  }
+}
+
+function playMaterial(type) {
+  const ctx = getAudioContext();
+  const sr = ctx.sampleRate || 48000;
+
+  if (type === "baslat") {
+    playBaslatCevizKertik();
+  }
+  else if (type === "mola") {
+    const dur = 0.14;
+    const numSamples = Math.floor(sr * dur);
+    const buf = ctx.createBuffer(1, numSamples, sr);
+    const data = buf.getChannelData(0);
+    const raw = new Float32Array(numSamples);
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sr;
+      const attack = 1.0 - Math.exp(-t * 180.0);
+      const freq = 65.0 + 45.0 * Math.exp(-t * 35.0);
+      raw[i] = Math.sin(2 * Math.PI * freq * t) * Math.exp(-t / 0.065) * attack * 1.1;
+    }
+    const lp = applyJSLowpass(applyJSLowpass(raw, sr, 240.0), sr, 240.0);
+    for (let i = 0; i < numSamples; i++) data[i] = Math.tanh(lp[i] * 1.3);
+    playBuffer(buf, "2. Mola: Kum Sönümlenmesi (110ms)");
+  }
+  else if (type === "devam") {
+    const dur = 0.09;
+    const numSamples = Math.floor(sr * dur);
+    const buf = ctx.createBuffer(1, numSamples, sr);
+    const data = buf.getChannelData(0);
+    const raw = new Float32Array(numSamples);
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sr;
+      const attack = 1.0 - Math.exp(-t * 400.0);
+      const freq = 110.0 + 60.0 * Math.exp(-t * 60.0);
+      raw[i] = Math.sin(2 * Math.PI * freq * t) * Math.exp(-t / 0.025) * attack * 1.1;
+    }
+    const lp = applyJSLowpass(applyJSLowpass(raw, sr, 350.0), sr, 350.0);
+    for (let i = 0; i < numSamples; i++) data[i] = Math.tanh(lp[i] * 1.4);
+    playBuffer(buf, "3. Devam: Hafif Ahşap Temas (70ms)");
+  }
+  else if (type === "pomodoro") {
+    const dur = 0.26;
+    const numSamples = Math.floor(sr * dur);
+    const buf = ctx.createBuffer(1, numSamples, sr);
+    const data = buf.getChannelData(0);
+    const raw = new Float32Array(numSamples);
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sr;
+      const a1 = 1.0 - Math.exp(-t * 220.0);
+      const f1 = 80.0 + 65.0 * Math.exp(-t * 35.0);
+      let s = Math.sin(2 * Math.PI * f1 * t) * Math.exp(-t / 0.075) * a1 * 1.2;
+      if (t >= 0.045) {
+        const t2 = t - 0.045;
+        const a2 = 1.0 - Math.exp(-t2 * 280.0);
+        const f2 = 110.0 + 40.0 * Math.exp(-t2 * 40.0);
+        s += Math.sin(2 * Math.PI * f2 * t2) * Math.exp(-t2 / 0.055) * a2 * 0.75;
+      }
+      raw[i] = s;
+    }
+    const lp = applyJSLowpass(applyJSLowpass(raw, sr, 220.0), sr, 220.0);
+    for (let i = 0; i < numSamples; i++) data[i] = Math.tanh(lp[i] * 1.5);
+    playBuffer(buf, "4. Pomodoro Bitiş: Avuç İçi Tok Nehir Taşı (200ms)");
+  }
+  else if (type === "bitir") {
+    const dur = 0.28;
+    const numSamples = Math.floor(sr * dur);
+    const buf = ctx.createBuffer(1, numSamples, sr);
+    const data = buf.getChannelData(0);
+    const raw = new Float32Array(numSamples);
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sr;
+      const a1 = 1.0 - Math.exp(-t * 300.0);
+      let s = Math.sin(2 * Math.PI * 140.0 * t) * Math.exp(-t / 0.030) * a1 * 0.7;
+      if (t >= 0.038) {
+        const t2 = t - 0.038;
+        const a2 = 1.0 - Math.exp(-t2 * 180.0);
+        const f2 = 70.0 + 55.0 * Math.exp(-t2 * 30.0);
+        s += Math.sin(2 * Math.PI * f2 * t2) * Math.exp(-t2 / 0.090) * a2 * 1.4;
+      }
+      raw[i] = s;
+    }
+    const lp = applyJSLowpass(applyJSLowpass(raw, sr, 240.0), sr, 240.0);
+    for (let i = 0; i < numSamples; i++) data[i] = Math.tanh(lp[i] * 1.6);
+    playBuffer(buf, "5. Bitir: Sandık Kapağı / Mühür (180ms)");
+  }
+  else if (type === "tas_kirilma") {
+    const dur = 0.24;
+    const numSamples = Math.floor(sr * dur);
+    const buf = ctx.createBuffer(1, numSamples, sr);
+    const data = buf.getChannelData(0);
+    const raw = new Float32Array(numSamples);
+    let b0 = 0;
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sr;
+      const a1 = 1.0 - Math.exp(-t * 220.0);
+      const f1 = 45.0 + 40.0 * Math.exp(-t * 35.0);
+      const s1 = Math.sin(2 * Math.PI * f1 * t) * Math.exp(-t / 0.080) * a1 * 1.2;
+      const white = Math.random() * 2 - 1;
+      b0 = 0.88 * b0 + 0.12 * white;
+      const sand = b0 * Math.exp(-t / 0.090) * 0.35;
+      let s2 = 0;
+      if (t >= 0.035) {
+        const t2 = t - 0.035;
+        const a2 = 1.0 - Math.exp(-t2 * 250.0);
+        const f2 = 60.0 + 30.0 * Math.exp(-t2 * 40.0);
+        s2 = Math.sin(2 * Math.PI * f2 * t2) * Math.exp(-t2 / 0.060) * a2 * 0.70;
+      }
+      raw[i] = s1 + sand + s2;
+    }
+    const lp = applyJSLowpass(applyJSLowpass(raw, sr, 200.0), sr, 200.0);
+    for (let i = 0; i < numSamples; i++) data[i] = Math.tanh(lp[i] * 1.5);
+    playBuffer(buf, "6. Kırık Taş: Kumda Tok Fay Hattı (240ms)");
+  }
+  else if (type === "ruzgar") {
+    const dur = 0.32;
+    const numSamples = Math.floor(sr * dur);
+    const buf = ctx.createBuffer(1, numSamples, sr);
+    const data = buf.getChannelData(0);
+    const raw = new Float32Array(numSamples);
+    let b0 = 0, b1 = 0;
+    const tepe = dur * 0.38;
+    for (let i = 0; i < numSamples; i++) {
+      const t = i / sr, w = Math.random() * 2 - 1;
+      b0 = 0.94 * b0 + 0.06 * w;
+      b1 = 0.86 * b1 + 0.14 * w;
+      const grain = (b0 * 0.7 + b1 * 0.3);
+      const airWave = Math.sin(2 * Math.PI * 50.0 * t) * 0.15;
+      const env = t < tepe ? Math.sin((t / tepe) * (Math.PI / 2.0)) : Math.exp(-(t - tepe) / (dur * 0.28));
+      raw[i] = (grain + airWave) * env * 0.40;
+    }
+    const lp = applyJSLowpass(applyJSLowpass(raw, sr, 180.0), sr, 180.0);
+    for (let i = 0; i < numSamples; i++) data[i] = Math.tanh(lp[i] * 1.8);
+    playBuffer(buf, "7. Kum Rüzgarı: Sessiz Kum Nefesi (320ms)");
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kronometre Sanat Laboratuvarı — Kertik</title>
+<style>
+:root {
+  --bg: #16171A; --bg2: #212227; --bg3: #2A2B32; --ink: #EDE9E0; --ink2: #BCB7AC;
+  --muted: #948F84; --faint: #6A665E; --line: #2E2F34; --track: #33343A;
+  --accent: #D0785B; --cool: #79B3AE; --gold: #E5B25D;
+}
+:root.light {
+  --bg: #F5F2EA; --bg2: #EFEBE1; --bg3: #E5E0D4; --ink: #16181B; --ink2: #3E4148;
+  --muted: #726E65; --faint: #9C978C; --line: #DCD5C6; --track: #DCD6C7;
+  --accent: #B05237; --cool: #3E7C77; --gold: #C29336;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  margin: 0; background: var(--bg2); color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+  font-size: 16px; line-height: 1.55; padding: 40px 24px 100px;
+  transition: background .4s ease, color .4s ease;
+}
+.wrap { max-width: 1240px; margin: 0 auto; }
+.top-bar {
+  display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;
+  margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--line);
+}
+.title-group h1 { font-size: 32px; font-weight: 350; letter-spacing: -0.03em; margin: 0 0 6px; }
+.title-group p { color: var(--muted); font-size: 15px; margin: 0; max-width: 68ch; }
+.theme-btn {
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink2);
+  border-radius: 999px; padding: 8px 18px; font: inherit; font-size: 14px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px; transition: all .2s;
+}
+.theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+.stage { display: grid; grid-template-columns: 340px 1fr; gap: 40px; align-items: start; margin-top: 24px; }
+@media (max-width: 920px) { .stage { grid-template-columns: 1fr; } }
+.phone-col { display: flex; flex-direction: column; align-items: center; }
+.phone {
+  position: relative; width: 330px; height: 700px; border-radius: 44px; overflow: hidden;
+  background: var(--bg); border: 1px solid var(--line); box-shadow: 0 24px 70px rgba(0,0,0,0.34);
+  flex-shrink: 0; transition: background .4s;
+}
+.phone canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.phone-ui {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center;
+  padding: 34px 22px 24px; pointer-events: none; z-index: 10;
+}
+.p-eyebrow {
+  font-size: 11.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent);
+  font-weight: 500; height: 17px; margin-bottom: 26px; transition: color .3s;
+}
+.p-eyebrow.mola { color: var(--cool); }
+.p-dialwrap { position: relative; width: 236px; height: 236px; display: grid; place-items: center; }
+.p-dialwrap svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.p-dcenter { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.p-clock {
+  font-size: 44px; font-weight: 250; letter-spacing: -0.04em; font-variant-numeric: tabular-nums;
+  line-height: 1; color: var(--ink);
+}
+.p-capt { font-size: 13px; letter-spacing: 0.02em; color: var(--muted); }
+.p-task { margin-top: 26px; font-size: 17px; font-weight: 450; color: var(--ink2); }
+.p-sub { margin-top: 8px; font-size: 14.5px; color: var(--muted); }
+.p-ctrls { margin-top: auto; display: flex; gap: 12px; margin-bottom: 34px; }
+.p-btn { border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 12px 24px; font-size: 15.5px; color: var(--ink2); }
+.p-btn.acc { border-color: var(--accent); color: var(--accent); }
+.p-nav {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 54px; border-top: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-around; font-size: 14px; color: var(--muted); opacity: 0.8;
+}
+.p-nav b { color: var(--ink); font-weight: 600; }
+.controls-col { display: flex; flex-direction: column; gap: 24px; }
+.section-box { background: var(--bg); border: 1px solid var(--line); border-radius: 20px; padding: 22px 24px; }
+.section-box h3 { font-size: 16px; font-weight: 600; margin: 0 0 14px; display: flex; align-items: center; justify-content: space-between; }
+.badge-cur { background: var(--line); color: var(--ink2); font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+.badge-rec { background: var(--accent); color: #fff; font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+.style-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 8px; }
+.style-chip {
+  background: var(--bg2); border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px;
+  cursor: pointer; text-align: left; transition: all .2s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; gap: 4px;
+}
+.style-chip:hover { border-color: var(--muted); transform: translateY(-1px); }
+.style-chip.active { border-color: var(--accent); background: var(--bg2); box-shadow: 0 0 0 3px rgba(208, 120, 91, 0.15); }
+.style-chip .name { font-size: 14px; font-weight: 600; color: var(--ink); }
+.style-chip .desc { font-size: 12px; color: var(--muted); line-height: 1.35; }
+.style-chip.active .name { color: var(--accent); }
+.slider-group { margin-top: 14px; }
+.slider-header { display: flex; justify-content: space-between; font-size: 13.5px; color: var(--muted); margin-bottom: 6px; }
+.slider-header b { color: var(--ink); font-variant-numeric: tabular-nums; }
+input[type=range] { width: 100%; height: 6px; border-radius: 3px; background: var(--line); outline: none; accent-color: var(--accent); cursor: pointer; }
+.scenarios { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.sc-btn { border: 1px solid var(--line); background: var(--bg2); color: var(--ink2); border-radius: 999px; padding: 6px 14px; font-size: 13px; cursor: pointer; transition: all .2s; }
+.sc-btn:hover { border-color: var(--accent); color: var(--accent); }
+.sc-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 500; }
+.play-row { display: flex; gap: 12px; align-items: center; margin-top: 14px; }
+.play-btn { background: var(--accent); color: #fff; border: none; border-radius: 999px; padding: 10px 22px; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.mola-btn { border: 1px solid var(--line); background: var(--bg2); color: var(--ink2); border-radius: 999px; padding: 9px 18px; font-size: 13.5px; cursor: pointer; }
+.mola-btn.on { border-color: var(--cool); background: rgba(121, 179, 174, 0.15); color: var(--cool); font-weight: 600; }
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 24px; }
+.card { background: var(--bg); border: 1px solid var(--line); border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+.card h4 { margin: 0; font-size: 15px; font-weight: 600; color: var(--ink); }
+.card p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.45; }
+.card ul { margin: 6px 0 0; padding-left: 18px; font-size: 13px; color: var(--muted); }
+.card li { margin-bottom: 4px; }
+.card strong { color: var(--ink); font-weight: 600; }
+</style>
+<script src="afilli-cekirdek.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-bar">
+    <div class="title-group">
+      <h1>Kronometre Sanat Laboratuvarı</h1>
+      <p>Şu an kullandığınız <b>Akış (Afilli Ebru)</b> motoru ile alternatif 4 sanat paradigmasını canlı simüle edin ve karşılaştırın.</p>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()">
+      <span id="theme-icon">☀️</span> Koyu / Açık Mod
+    </button>
+  </div>
+
+  <div class="stage">
+    <div class="phone-col">
+      <div class="phone">
+        <canvas id="artCanvas"></canvas>
+        <div class="phone-ui">
+          <div class="p-eyebrow" id="uiEyebrow">ÇALIŞIYOR</div>
+          <div class="p-dialwrap">
+            <svg id="uiDial" viewBox="0 0 310 310"></svg>
+            <div class="p-dcenter">
+              <div class="p-clock" id="uiClock">00:00</div>
+              <div class="p-capt" id="uiCapt">1. saat, 47. çentik</div>
+            </div>
+          </div>
+          <div class="p-task">tez — kaynak taraması</div>
+          <div class="p-sub" id="uiSub">bugün 85 dakika · 2 seans</div>
+          <div class="p-ctrls"><div class="p-btn" id="uiMolaBtn">mola</div><div class="p-btn acc">bitir</div></div>
+          <div class="p-nav"><b>sayaç</b><span>bugün</span><span>işler</span><span>ayarlar</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls-col">
+      <div class="section-box">
+        <h3>Sanat Stili Seçin</h3>
+        <div class="style-grid">
+          <div class="style-chip active" onclick="selectStyle('akis', this)">
+            <div class="name">1 · Akış (Şu Anki Ebru) <span class="badge-cur">Mevcut</span></div>
+            <div class="desc">Afilli ebru: FBM akış alanı, fırça basıncı, kademeli sıklaşma.</div>
+          </div>
+          <div class="style-chip" onclick="selectStyle('dendro', this)">
+            <div class="name">2 · Dendrokronoloji <span class="badge-rec">Önerilen</span></div>
+            <div class="desc">Kadranla tam uyumlu dairesel büyüme halkaları (yaşayan ağaç ve akik).</div>
+          </div>
+          <div class="style-chip" onclick="selectStyle('kintsugi', this)">
+            <div class="name">3 · Kintsugi</div>
+            <div class="desc">Siyah arduvaz taş üzerinde zamanla dallanan sıvı altın damarları.</div>
+          </div>
+          <div class="style-chip" onclick="selectStyle('kohdo', this)">
+            <div class="name">4 · Koh-dō (Tütsü Saati)</div>
+            <div class="desc">Tek bir heykelsi duman ve kül patikası (mutlak Seijaku / dinginlik).</div>
+          </div>
+          <div class="style-chip" onclick="selectStyle('aura', this)">
+            <div class="name">5 · Sıvı Işık (Aura)</div>
+            <div class="desc">Apple Intelligence tarzı pürüzsüz optik kırılma ve akışkan ışık.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-box">
+        <h3>Zaman ve Senaryo Simülatörü</h3>
+        <div class="slider-group">
+          <div class="slider-header"><span>Seansın Kaçıncı Dakikası</span><b id="sliderTimeLabel">47. dakika</b></div>
+          <input type="range" id="timeSlider" min="0" max="720" value="47" oninput="onSliderChange(this.value)">
+        </div>
+        <div class="scenarios">
+          <button class="sc-btn" onclick="applyScenario(25, [], this)">25 dk (Kısa)</button>
+          <button class="sc-btn active" onclick="applyScenario(47, [], this)">47 dk</button>
+          <button class="sc-btn" onclick="applyScenario(92, [[52, 64]], this)">1s 20dk (1 Mola)</button>
+          <button class="sc-btn" onclick="applyScenario(165, [[58, 70], [121, 131]], this)">2s 45dk (2 Mola)</button>
+          <button class="sc-btn" onclick="applyScenario(720, [[180, 225], [430, 460]], this)">12 Saat</button>
+        </div>
+        <div class="play-row">
+          <button class="play-btn" id="playBtn" onclick="togglePlay()"><span id="playIcon">▶</span> Canlı Simülasyon</button>
+          <button class="mola-btn" id="molaToggleBtn" onclick="toggleMolaMode()">☕ Mola Durumu: Normal</button>
+        </div>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card" id="analysisCard">
+          <h4 id="cardTitle">Stil Analizi: Akış — Afilli Ebru (Mevcut)</h4>
+          <p id="cardDesc">Geleneksel ebru teknesindeki su hareketini taklit eden FBM akış çizgileri. Fırça basıncı ve kademeli sıklaşma eklenmiş motor.</p>
+          <ul id="cardBullets">
+            <li><strong>Güçlü Yön:</strong> Organik, yumuşak, molalarda renk patlaması yerine silikleşiyor.</li>
+            <li><strong>Zayıf Yön:</strong> Klasik generative flow-field kalıbı; kadran ile yapısal bir geometrik bağ kurmuyor.</li>
+            <li><strong>Odak Eksikliği:</strong> Ekranın her yeri birbirine benziyor, gözün dinleneceği bir merkez/hikaye yok.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const W = 330, H = 700;
+let currentStyle = 'akis';
+let currentMinutes = 47;
+let isPlaying = false;
+let playTimer = null;
+let molalar = [];
+let isInMola = false;
+
+const K = {
+  ilkDolum: 80, katOran: 3, kademeSayi: 5, dsep0: 1.7, bol: 1.5, dene0: 20000,
+  incelmeOran: .78, katki: .58, tonBuyume: .42, isikBuyume: .34, yikamaBuyume: .55,
+  maxl: 700, af: [2.6, 6, 13],
+  katman: [[.62, .80, .16, .11, 0], [.28, 1.35, .34, .24, 0], [.10, 2.30, .52, .40, 9]],
+  ton: 16, isik: .11, parca: 9, halo: [.46, .88], alt: .11
+};
+const SEANS = { id: 'af-lab', dk: 720, molalar: [] };
+
+function getCssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function formatTime(totalMinutes) {
+  const s = Math.floor(totalMinutes / 60), d = Math.floor(totalMinutes % 60);
+  return (s ? String(s).padStart(2, '0') + ':' : '') + String(d).padStart(2, '0') + (s ? '' : ':00');
+}
+
+const canvas = document.getElementById('artCanvas');
+const ctx = canvas.getContext('2d');
+let OFF = document.createElement('canvas');
+let OFFG = OFF.getContext('2d');
+
+function resizeCanvas() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  OFF.width = W * dpr; OFF.height = H * dpr;
+  OFFG.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  render();
+}
+window.addEventListener('resize', resizeCanvas);
+
+const CX = 155, CY = 155, R0 = 118, GAP = 17, GOSTER = 3;
+function kadranCiz(dk) {
+  const svg = document.getElementById('uiDial'); svg.innerHTML = '';
+  const acc = getCssVar('--accent'), trk = getCssVar('--track'), cool = getCssVar('--cool');
+  const tur = m => { for (const b of molalar) if (m >= b[0] && m < b[1]) return 'mola'; return isInMola ? 'mola' : 'is'; };
+  const toplam = Math.max(1, Math.ceil(dk / 60)), ilk = Math.max(0, toplam - GOSTER);
+  const mk = (t, a) => { const e = document.createElementNS('http://www.w3.org/2000/svg', t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const g = mk('g', {}); svg.appendChild(g);
+  const arc = (r, a0, a1) => {
+    const p = a => [CX + r * Math.cos(a * Math.PI / 180), CY + r * Math.sin(a * Math.PI / 180)];
+    const [x0, y0] = p(a0), [x1, y1] = p(a1);
+    return 'M ' + x0.toFixed(2) + ' ' + y0.toFixed(2) + ' A ' + r + ' ' + r + ' 0 ' + (Math.abs(a1 - a0) > 180 ? 1 : 0) + ' 1 ' + x1.toFixed(2) + ' ' + y1.toFixed(2);
+  };
+  const yari = k => R0 + (k - ilk) * GAP, sol = k => k === ilk && ilk > 0 ? .35 : 1;
+  for (let k = ilk; k < toplam; k++) {
+    const f = k * 60, t = Math.min(dk, (k + 1) * 60); if (t <= f) continue;
+    g.appendChild(mk('path', { d: arc(yari(k), (f - k * 60) * 6 - 90, Math.max((t - k * 60) * 6 - 90, (f - k * 60) * 6 - 89.9)), fill: 'none', stroke: trk, 'stroke-width': 1.2, 'stroke-linecap': 'round', opacity: .55 * sol(k) }));
+  }
+  for (let m = ilk * 60; m < Math.floor(dk); m++) {
+    if (tur(m) === 'mola') continue;
+    const k = Math.floor(m / 60), mm = m % 60;
+    let h = 6.5; if (mm === 0) h = 14; else if (mm % 15 === 0) h = 12; else if (mm % 5 === 0) h = 9;
+    const r = yari(k), a = (mm * 6 - 90) * Math.PI / 180;
+    g.appendChild(mk('line', { x1: (CX + (r - h / 2) * Math.cos(a)).toFixed(2), y1: (CY + (r - h / 2) * Math.sin(a)).toFixed(2), x2: (CX + (r + h / 2) * Math.cos(a)).toFixed(2), y2: (CY + (r + h / 2) * Math.sin(a)).toFixed(2), stroke: acc, 'stroke-width': 1.8, 'stroke-linecap': 'round', opacity: sol(k) }));
+  }
+  for (const b of molalar) {
+    let a = Math.max(b[0], ilk * 60); const son = Math.min(b[1], dk);
+    while (a < son) {
+      const k = Math.floor(a / 60), e = Math.min(son, (k + 1) * 60);
+      if (e > a + .05) g.appendChild(mk('path', { d: arc(yari(k), (a - k * 60) * 6 - 90, (e - k * 60) * 6 - 90), fill: 'none', stroke: cool, 'stroke-width': 2.6, 'stroke-linecap': 'round', opacity: .5 * sol(k) }));
+      a = e;
+    }
+  }
+  if (ilk > 0) {
+    const t = mk('text', { x: CX, y: CY + 96, 'text-anchor': 'middle', 'font-size': 10.5, fill: getCssVar('--faint'), 'letter-spacing': '.14em' });
+    t.textContent = '+' + ilk + ' SAAT'; g.appendChild(t);
+  }
+}
+
+function isCurrentInBreak(min) {
+  for (const b of molalar) if (min >= b[0] && min < b[1]) return true;
+  return isInMola;
+}
+
+let Cache = { id: null, veri: null };
+function hesaplaAkis() {
+  if (Cache.id === SEANS.id && Cache.veri) return Cache.veri;
+  const seed = hash32(SEANS.id);
+  const KD = kademeler(K);
+  const veri = []; let eskiler = [];
+  for (const kd of KD) {
+    const serit = kademeHesapla(seed, W, H, K, kd.dsep, kd.dene, eskiler, kd.n * 977);
+    veri.push({ kd, serit, sira: agirlikSirasi(serit, W, seed + kd.n * 13) });
+    eskiler = eskiler.concat(serit);
+    if (kd.bitis > 4200) break;
+  }
+  Cache = { id: SEANS.id, veri };
+  return veri;
+}
+
+function paleti() {
+  const acc = getCssVar('--accent'), cool = getCssVar('--cool');
+  return { acc, cool, accH: hexHsl(acc), coolH: hexHsl(cool), koyu: !document.documentElement.classList.contains('light') };
+}
+
+function renkAkis(P, q, silik, n) {
+  const hsl = P.accH;
+  if (!hsl) return silik ? P.cool : P.acc;
+  const k = q * 2 - 1;
+  const ton = K.ton * (1 + K.tonBuyume * n), isik = K.isik * (1 + K.isikBuyume * n);
+  const h = (hsl[0] + k * ton + 360) % 360;
+  let l = Math.min(.94, Math.max(.06, hsl[2] - k * isik)), s = hsl[1];
+  if (silik) { s *= .55; l = P.koyu ? l * .86 : l + (1 - l) * .34; }
+  return 'hsl(' + h.toFixed(1) + ',' + (s * 100).toFixed(1) + '%,' + (l * 100).toFixed(1) + '%)';
+}
+
+function planAkis(dk) {
+  const veri = hesaplaAkis(), out = [];
+  for (const v of veri) {
+    const d = doluluk(v.kd, dk); if (d <= 0) break;
+    out.push({ ...v, d, adet: Math.floor(v.serit.length * d) });
+    if (d < 1) break;
+  }
+  const ilk = out.length ? (out[0].adet || 1) : 1;
+  for (const v of out) v.alfaKat = v.kd.n === 0 ? 1 : Math.min(1, K.katki * ilk / Math.max(1, v.adet * v.kd.incelme));
+  return out;
+}
+
+function seritCizAkis(g, P, v, i, dk) {
+  const q = v.sira[i];
+  let pay = 0, kat = K.katman[0];
+  for (const kk of K.katman) { pay += kk[0]; kat = kk; if (q < pay) break; }
+  const dkSerit = v.kd.bas + (i / v.serit.length) * (v.kd.bitis - v.kd.bas);
+  let mola = isCurrentInBreak(dkSerit);
+  const a = (P.koyu ? kat[2] : kat[3]) * (mola ? .42 : 1) * v.alfaKat;
+  const kal = kat[1] * v.kd.incelme * (mola ? .85 : 1);
+  const p = v.serit[i];
+  if (p.length < 6) return;
+  if (kat[4] && !mola) {
+    g.strokeStyle = P.acc;
+    g.lineWidth = kat[4] * v.kd.incelme * (1 + K.yikamaBuyume * v.kd.n);
+    g.globalAlpha = a * .13;
+    g.beginPath(); g.moveTo(p[0], p[1]);
+    for (let k = 2; k < p.length; k += 2) g.lineTo(p[k], p[k + 1]);
+    g.stroke();
+  }
+  g.strokeStyle = renkAkis(P, q, mola, v.kd.n); g.globalAlpha = a;
+  firca(g, p, kal, hash32(SEANS.id) + i, K.parca);
+}
+
+function drawStyleAkis(g, dk) {
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  const P = paleti();
+  for (const v of planAkis(dk)) {
+    for (let i = 0; i < v.adet; i++) seritCizAkis(g, P, v, i, dk);
+  }
+  g.globalAlpha = 1;
+}
+
+function drawStyleDendro(g, dk) {
+  const cx = W / 2, cy = 272, r0 = 120;
+  const maxRadius = Math.hypot(W, H) * 0.58;
+  const P = paleti();
+  const ringCount = Math.max(1, Math.min(180, Math.floor(dk * 0.85)));
+  g.lineCap = 'round'; g.lineJoin = 'round';
+
+  for (let rIdx = 0; rIdx < ringCount; rIdx++) {
+    const minuteAtRing = (rIdx / ringCount) * dk;
+    const isBreak = isCurrentInBreak(minuteAtRing);
+    const progress = rIdx / Math.max(ringCount, 75);
+    const radius = r0 + Math.pow(progress, 0.88) * (maxRadius - r0);
+    const noiseSeed = rIdx * 1.43;
+    g.beginPath();
+    const segments = 120;
+    for (let s = 0; s <= segments; s++) {
+      const angle = (s / segments) * Math.PI * 2;
+      const n1 = Math.sin(angle * 2 + noiseSeed) * 3.8;
+      const n2 = Math.sin(angle * 5 + noiseSeed * 2.1) * 1.9;
+      const microJitter = (fbm(s * 0.2, rIdx * 0.3, 12) - 0.5) * 1.4;
+      const currentR = radius + n1 + n2 + microJitter;
+      const px = cx + Math.cos(angle) * currentR, py = cy + Math.sin(angle) * currentR * 1.06;
+      if (s === 0) g.moveTo(px, py); else g.lineTo(px, py);
+    }
+    g.closePath();
+    if (isBreak) {
+      g.strokeStyle = P.cool; g.globalAlpha = 0.26; g.lineWidth = 1.6; g.setLineDash([4, 6]); g.stroke(); g.setLineDash([]);
+    } else {
+      g.strokeStyle = P.acc;
+      const isLatest = rIdx >= ringCount - 2;
+      g.globalAlpha = isLatest ? 0.5 : (0.10 + (rIdx / ringCount) * 0.22);
+      g.lineWidth = isLatest ? 1.5 : (0.75 + (rIdx % 4 === 0 ? 0.6 : 0));
+      g.stroke();
+    }
+  }
+  g.globalAlpha = 1;
+}
+
+function drawStyleKintsugi(g, dk) {
+  const cx = W / 2, cy = 272, bosR = 122;
+  const P = { gold: getCssVar('--gold'), cool: getCssVar('--cool') };
+  const branchCount = 3 + Math.min(8, Math.floor(dk / 40));
+  g.lineCap = 'round'; g.lineJoin = 'round';
+
+  for (let b = 0; b < branchCount; b++) {
+    const startAngle = (b / branchCount) * Math.PI * 2 + 0.4;
+    let x = cx + Math.cos(startAngle) * (bosR + 6), y = cy + Math.sin(startAngle) * (bosR + 6);
+    const steps = Math.min(95, Math.floor(dk * 0.65) + 15);
+    let angle = startAngle + (fbm(b, 2, 7) - 0.5) * 0.4;
+    g.beginPath(); g.moveTo(x, y);
+    for (let st = 0; st < steps; st++) {
+      angle += (fbm(st * 0.4, b, 19) - 0.5) * 0.55;
+      const stepLen = 3.2 + fbm(st, b, 44) * 2.5;
+      x += Math.cos(angle) * stepLen; y += Math.sin(angle) * stepLen;
+      g.lineTo(x, y);
+    }
+    g.strokeStyle = P.gold; g.lineWidth = 1.8; g.globalAlpha = 0.45; g.stroke();
+    g.lineWidth = 0.85; g.globalAlpha = 0.85; g.stroke();
+  }
+  g.globalAlpha = 1;
+}
+
+function drawStyleKohdo(g, dk) {
+  const cx = W / 2, cy = 272, bosR = 120;
+  const P = paleti();
+  const totalLength = Math.min(380, Math.floor(dk * 1.6) + 20);
+  let x = cx, y = cy + bosR + 15, angle = -Math.PI / 2, radius = bosR + 15;
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  g.beginPath(); g.moveTo(x, y);
+  for (let i = 0; i < totalLength; i++) {
+    radius += 0.22;
+    angle += 0.055 + (fbm(i * 0.08, 0, 9) - 0.5) * 0.04;
+    x = cx + Math.cos(angle) * radius; y = cy + Math.sin(angle) * (radius * 1.12);
+    if (x < 10 || x > W - 10 || y < 10 || y > H - 10) break;
+    g.lineTo(x, y);
+  }
+  g.strokeStyle = getCssVar('--ink'); g.globalAlpha = 0.14; g.lineWidth = 3.5; g.stroke();
+  g.strokeStyle = P.acc; g.globalAlpha = 0.65; g.lineWidth = 1.2; g.stroke();
+  if (dk > 0) {
+    g.beginPath(); g.arc(x, y, 3, 0, Math.PI * 2); g.fillStyle = P.acc; g.globalAlpha = 0.9; g.fill();
+  }
+  g.globalAlpha = 1;
+}
+
+function drawStyleAura(g, dk) {
+  const cx = W / 2, cy = 272;
+  const P = paleti();
+  const isBreak = isCurrentInBreak(dk);
+  const activeColor = isBreak ? 'rgba(121, 179, 174, ' : 'rgba(208, 120, 91, ';
+  const intensity = Math.min(1, dk / 120);
+  const glowR = 120 + intensity * 70;
+  const radGrad = g.createRadialGradient(cx, cy, 80, cx, cy, glowR + 60);
+  radGrad.addColorStop(0, activeColor + '0.22)');
+  radGrad.addColorStop(0.5, activeColor + '0.08)');
+  radGrad.addColorStop(1, activeColor + '0)');
+  g.fillStyle = radGrad; g.beginPath(); g.arc(cx, cy, glowR + 60, 0, Math.PI * 2); g.fill();
+  for (let ring = 0; ring < 3; ring++) {
+    const r = 118 + ring * 24;
+    g.beginPath();
+    for (let a = 0; a <= 48; a++) {
+      const angle = (a / 48) * Math.PI * 2;
+      const wobble = Math.sin(angle * 3 + ring * 2) * 5;
+      const px = cx + Math.cos(angle) * (r + wobble), py = cy + Math.sin(angle) * (r + wobble) * 1.05;
+      a === 0 ? g.moveTo(px, py) : g.lineTo(px, py);
+    }
+    g.closePath();
+    g.strokeStyle = isBreak ? P.cool : P.acc; g.globalAlpha = 0.25 / (ring + 1); g.lineWidth = 1.5; g.stroke();
+  }
+  g.globalAlpha = 1;
+}
+
+function render() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  OFFG.setTransform(1, 0, 0, 1, 0, 0); OFFG.clearRect(0, 0, OFF.width, OFF.height);
+  OFFG.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  switch (currentStyle) {
+    case 'akis': drawStyleAkis(OFFG, currentMinutes); break;
+    case 'dendro': drawStyleDendro(OFFG, currentMinutes); break;
+    case 'kintsugi': drawStyleKintsugi(OFFG, currentMinutes); break;
+    case 'kohdo': drawStyleKohdo(OFFG, currentMinutes); break;
+    case 'aura': drawStyleAura(OFFG, currentMinutes); break;
+  }
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = getCssVar('--bg'); ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(OFF, 0, 0);
+
+  if (currentStyle === 'akis') {
+    ctx.globalCompositeOperation = 'destination-out';
+    const cx = (W / 2) * dpr, cy = 272 * dpr, rad = 118 * dpr;
+    const gr = ctx.createRadialGradient(cx, cy, rad * K.halo[0], cx, cy, rad * K.halo[1] * 1.55);
+    gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(.45, 'rgba(0,0,0,.74)');
+    gr.addColorStop(.78, 'rgba(0,0,0,.26)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = gr; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const alt = canvas.height * K.alt;
+    const gl = ctx.createLinearGradient(0, canvas.height - alt, 0, canvas.height);
+    gl.addColorStop(0, 'rgba(0,0,0,0)'); gl.addColorStop(1, 'rgba(0,0,0,1)');
+    ctx.fillStyle = gl; ctx.fillRect(0, canvas.height - alt, canvas.width, alt);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  kadranCiz(currentMinutes);
+  document.getElementById('uiClock').textContent = formatTime(currentMinutes);
+  document.getElementById('uiCapt').textContent = Math.floor(currentMinutes / 60) + 1 + '. saat, ' + (Math.floor(currentMinutes) % 60) + '. çentik';
+  document.getElementById('sliderTimeLabel').textContent = Math.floor(currentMinutes) + '. dakika';
+
+  const inBreak = isCurrentInBreak(currentMinutes);
+  const eyebrow = document.getElementById('uiEyebrow');
+  const molaBtn = document.getElementById('uiMolaBtn');
+  if (inBreak) { eyebrow.textContent = 'MOLADA'; eyebrow.classList.add('mola'); molaBtn.textContent = 'devam'; }
+  else { eyebrow.textContent = 'ÇALIŞIYOR'; eyebrow.classList.remove('mola'); molaBtn.textContent = 'mola'; }
+}
+
+const styleDetails = {
+  akis: {
+    title: '1 · Akış — Afilli Ebru (Şu Anki Motorunuz)',
+    desc: 'FBM akış alanı, fırça basıncı varyasyonu ve katman aralıklarının kademeli daralması.',
+    bullets: [
+      '<strong>Sanat Malzemesi:</strong> Su üzerindeki mürekkep akışı (Ebru).',
+      '<strong>Zayıf Yön 1:</strong> Üretken sanat dünyasının en yaygın kalıbı (klasik Perlin flow field).',
+      '<strong>Zayıf Yön 2:</strong> Kadranın dairesel geometrisiyle yapısal bağı yok; ortasında delik açılmış homojen bir zemin.',
+      '<strong>Wabi-Sabi Durumu:</strong> Molada soluklaşma ve fırça basıncı başarılı, ancak kompozisyonda odak/hikaye eksik.'
+    ]
+  },
+  dendro: {
+    title: '2 · Dendrokronoloji & Akik (Önerilen)',
+    desc: 'Kadranın merkezkaç gücüyle dışarıya doğru genişleyen organik yıllık büyüme halkaları.',
+    bullets: [
+      '<strong>Kadran Uyumu:</strong> %100 kusursuz dairesel geometri uyumu (merkezden doğar).',
+      '<strong>Mola Mantığı:</strong> Molalarda büyüme durur ve mineral yarığı/çatlağı oluşur.',
+      '<strong>Wabi-Sabi Ruhu:</strong> Pomodoro\'s Kum Bahçesi ile kardeş kalır; zaman bir ağacın gövdesi gibi birikir.'
+    ]
+  },
+  kintsugi: {
+    title: '3 · Kintsugi (Siyah Arduvaz & Sıvı Altın)',
+    desc: 'Ham taş yüzeyde zaman geçtikçe açılan ve içi parlayan sıvı altınla dolan kırık hatları.',
+    bullets: [
+      '<strong>Karakter:</strong> Özellikle koyu modda ve OLED ekranlarda olağanüstü lüks ve meditatif.',
+      '<strong>Mola Mantığı:</strong> Çatlak durur, gümüş patinaya döner, devam edilince yeni bir kol verir.',
+      '<strong>Görsel Güç:</strong> Her seans benzersiz bir kırık seramik sanatına dönüşür.'
+    ]
+  },
+  kohdo: {
+    title: '4 · Koh-dō (Tütsü Saati & Kül)',
+    desc: 'Mekanik sayılar yerine yavaşça yanarak ekranda heykelsi bir kül patikası bırakan tütsü hattı.',
+    bullets: [
+      '<strong>Dinginlik (Seijaku):</strong> Ekranda sıfır görsel kalabalık, tek ve saf bir hat sanatı.',
+      '<strong>Minimalizm:</strong> Fazlalıklardan tamamen arındırılmış saf Japon estetiği.',
+      '<strong>Zaman Hissi:</strong> Zamanın geriye döndürülemez akışını tek çizgide toplar.'
+    ]
+  },
+  aura: {
+    title: '5 · Sıvı Işık (Aura / Apple Optics)',
+    desc: 'Fiziksel malzeme taklidi yerine cam altından süzülen modern, optik ve akışkan bir ışık difüzyonu.',
+    bullets: [
+      '<strong>Modernite:</strong> Apple Intelligence hissini veren tertemiz 2026 arayüz kalitesi.',
+      '<strong>Göz Yormayan Işık:</strong> Karanlık odalarda çalışırken meditatif ve dinlendirici.',
+      '<strong>Dinamizm:</strong> Zaman aktıkça ışığın spektral tonu amberden ay ışığına kayar.'
+    ]
+  }
+};
+
+function selectStyle(styleName, el) {
+  currentStyle = styleName;
+  document.querySelectorAll('.style-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  const info = styleDetails[styleName];
+  document.getElementById('cardTitle').textContent = info.title;
+  document.getElementById('cardDesc').textContent = info.desc;
+  document.getElementById('cardBullets').innerHTML = info.bullets.map(b => '<li>' + b + '</li>').join('');
+  render();
+}
+
+function onSliderChange(val) { currentMinutes = parseFloat(val); render(); }
+function applyScenario(minutes, breakIntervals, el) {
+  currentMinutes = minutes; molalar = breakIntervals; document.getElementById('timeSlider').value = minutes;
+  document.querySelectorAll('.sc-btn').forEach(btn => btn.classList.remove('active'));
+  el.classList.add('active'); render();
+}
+function togglePlay() {
+  isPlaying = !isPlaying;
+  const btn = document.getElementById('playBtn'), icon = document.getElementById('playIcon');
+  if (isPlaying) {
+    btn.style.background = getCssVar('--cool'); icon.textContent = '⏸';
+    playTimer = setInterval(() => {
+      currentMinutes += 0.5; if (currentMinutes > 720) currentMinutes = 0;
+      document.getElementById('timeSlider').value = currentMinutes; render();
+    }, 100);
+  } else {
+    btn.style.background = getCssVar('--accent'); icon.textContent = '▶'; clearInterval(playTimer);
+  }
+}
+function toggleMolaMode() {
+  isInMola = !isInMola;
+  const btn = document.getElementById('molaToggleBtn');
+  if (isInMola) { btn.classList.add('on'); btn.textContent = '☕ Mola Durumu: MOLADA'; }
+  else { btn.classList.remove('on'); btn.textContent = '☕ Mola Durumu: Normal'; }
+  render();
+}
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-icon').textContent = isLight ? '🌙' : '☀️';
+  setTimeout(render, 50);
+}
+
+window.addEventListener('DOMContentLoaded', () => { resizeCanvas(); });
+</script>
+</body>
+</html>

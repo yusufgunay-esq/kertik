@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Halka — eksensiz kertik</title>
+<style>
+:root{
+  --bg:#F5F2EA; --bg2:#EFEBE1; --ink:#16181B; --muted:#726E65; --line:#DCD5C6;
+  --acc:#B05237; --cool:#3E7C77;
+}
+html.gece{ --bg:#16171A; --bg2:#1C1D21; --ink:#EDE9E0; --muted:#948F84; --line:#2E2F34;
+  --acc:#D0785B; --cool:#79B3AE }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding:40px 30px 80px;transition:background .35s,color .35s}
+.wrap{max-width:1150px;margin:0 auto}
+h1{font-weight:300;font-size:38px;letter-spacing:-.6px;margin:0 0 8px}
+h2{font-weight:400;font-size:23px;margin:56px 0 4px}
+h3{font-weight:600;font-size:15px;margin:0 0 4px}
+p{color:var(--muted);max-width:76ch;margin:6px 0}
+p.k{color:var(--ink)}
+b{font-weight:600;color:var(--ink)}
+code{font-size:.88em;background:var(--bg2);padding:1px 5px;border-radius:4px}
+.gecebtn{position:fixed;top:18px;right:20px;border:1px solid var(--line);background:var(--bg2);
+  color:var(--muted);border-radius:999px;padding:7px 16px;font:inherit;font-size:14px;cursor:pointer;z-index:9}
+.satir{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;align-items:flex-start}
+.kutu{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:16px}
+.kutu canvas{display:block}
+.alt{margin-top:10px;font-size:12.5px;color:var(--muted);line-height:1.45;max-width:230px}
+.alt b{font-size:13px}
+ul{color:var(--muted);max-width:78ch;font-size:14.5px;padding-left:20px}
+li{margin:7px 0}
+.uyari{border-left:2px solid var(--acc);padding:2px 0 2px 16px;margin:18px 0;max-width:76ch}
+.uyari p{color:var(--ink)}
+</style></head><body>
+<button class="gecebtn" onclick="document.documentElement.classList.toggle('gece');ciz()">gece</button>
+<div class="wrap">
+
+<h1>Halka</h1>
+<p class="k">Bir önceki denemede yanlış değişkeni değiştirmiştim: aynı cetveli alıp rengini değiştirdim.
+Oysa <code>24-sanat-dili.md</code> teşhisi koymuş: <b>datsuzoku ❌</b> — "dikey eksen + eşit aralıklı
+yatay işaretler + soldan sağa büyüyen değer, bu bar grafiğinin tanımıdır."
+Burada palet <b>bilerek aynı</b> kalıyor. Değişen tek şey <b>form</b>.</p>
+
+<h2>1 · Yabancı testi</h2>
+<p>Aynı seans (1s 47 dk, iki mola), aynı renk, aynı "bir dakika = bir çentik" kuralı.
+Üç saniye bak ve sor: <b>bu ne?</b></p>
+<div class="satir">
+  <div class="kutu"><canvas id="c_cetvel"></canvas>
+    <div class="alt"><b>Bugünkü — çubuk</b><br>Eksen var, işaretler 5/15/60'ta kademeli uzuyor,
+      değer soldan sağa büyüyor. Cetvel dilbilgisi. "Grafik" cevabı buradan geliyor.</div></div>
+  <div class="kutu"><canvas id="c_halka"></canvas>
+    <div class="alt"><b>Halka</b><br>Eksen yok. Kademe yok — hiçbir çentik ölçü değil.
+      Başlangıç noktası yok, "ne kadar doldu" okuması yok. Saat, çentiğin uzamasıyla değil
+      <b>ikizle</b> işaretleniyor.</div></div>
+</div>
+
+<h2>2 · Neden madalyon değil, halka</h2>
+<p>Bu form <code>widget-ve-motif.html</code>'de vardı ve sen "mantar vari" dedin. Haklıydın —
+ama sebebi yuvarlak olması değildi. İki şey vardı ve ikisi de kaldırıldı:</p>
+<ul>
+  <li><b>İçteki daire çizgisi.</b> Ortada çizili bir halka olduğu anda göz onu bir <b>kadran</b>
+    okuyor: hız göstergesi, akıllı saat. <code>24</code> bunu ayrıca yasaklıyor. Artık halka
+    çizilmiyor — sadece çentiklerin nereden başladığı ima ediyor. Şapka gitti, ışın kaldı.</li>
+  <li><b>Sabit toplam.</b> Eskisinde tam tur = 180 dakikaydı; yani <b>dolan ilerleme halkası</b>.
+    <code>15-yol-haritasi-v2.md</code> o halkayı bilerek kaldırmıştı: "dolan halka bir varış
+    noktası var der, kronometrede varış noktası yoktur." Şimdi tam tur = <b>bir saat</b>.
+    Dolan bir şey yok; biten saat <b>dışarıya yeni bir halka açıyor</b> — kertik kadranının
+    zaten alınmış kararı.</li>
+</ul>
+
+<h2>3 · Altı saat sorunu</h2>
+<p>"Bir telefon aşağı yukarı iki buçuk saat sürebiliyor. Ben altı saat çalışıyorum. Bir yerden
+sonra ekranıma güncelleme gelmeyecek." — çubukta ve kum bahçesinde bunun cevabı yoktu.
+Halkada var: <b>saat sayısı arttıkça halka aralığı ve çentik boyu birlikte küçülüyor.</b>
+Kompozisyon aynı çerçevede kalıyor, kayıt kısalmıyor.</p>
+<div class="satir" id="s_saatler"></div>
+
+<h2>4 · Pomodoro ile kronometre aynı çizmiyor</h2>
+<p>Fark <b>tamamlanma</b> değil — <code>20</code> haklı, yarım kalan resim suçlar.
+Fark <b>kompozisyonun sınırı</b>: pomodoro'da tam tur hedeftir (25 dakika = bir tur),
+kronometrede tam tur her zaman bir saattir. İkisi de her anında bütün görünür.</p>
+<div class="satir" id="s_mod"></div>
+
+<h2>5 · Malzeme — asıl eksik olan</h2>
+<p>"Sadelik bizde zaten var. Eksik olan malzeme." Aynı halka, solda çıplak vektörle,
+sağda <code>24</code>'ün malzeme sözlüğüyle. Sivri değil — laboratuvardaki "malzeme"
+denemesi konikleşmeyi 3'ün üstüne çıkardığı için diken olmuştu, burada oran 1.8.</p>
+<div class="satir" id="s_malzeme"></div>
+
+<h2>6 · Mola boşluktur</h2>
+<p><b>Ma.</b> Mola çentik almıyor; halkada <b>kesilmemiş bir yay</b> olarak duruyor.
+Molanın uzunluğu ölçülmüyor, görülüyor. Doldurma dürtüsüne direniyoruz — tek eklenen,
+tabanda çok ince serin bir su izi.</p>
+<div class="satir" id="s_mola"></div>
+
+<h2>7 · Widget ölçeği</h2>
+<p>Halkanın asıl kazandığı yer burası: kare bir widget'ta çubuk hep tuhaf durur
+(dikey bir şey kare kutuya konur), halka kareyi kendi doldurur.</p>
+<div class="satir" id="s_widget"></div>
+
+<div class="uyari">
+<p><b>Dürüst kalan itiraz:</b> dışa doğru büyüyen bir halka, Forest'ın büyüyen ağacına
+benzeme riski taşıyor. Aradaki fark şu olmalı ve kodda da öyle: halka <b>ödül değil kayıt</b> —
+mola boşluk bırakıyor, sayılmayan süre dışarıda kesikli duruyor, ve hiçbir şey "tamamlanmıyor".
+Bir saat çalışınca yeni halka açılması bir kutlama değil, sayfanın bitip yenisinin başlaması.</p>
+</div>
+
+</div>
+<script>
+/* ---------- ortak (uygulamayla birebir) ---------- */
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng32(a){a=a>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const turOf=(v,m)=>{for(const b of (v.molalar||[]))if(m>=b[0]&&m<b[1])return "mola";return "is"};
+
+function tuval(id,w,h){
+  const cv=typeof id==="string"?document.getElementById(id):id;
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=w*dpr;cv.height=h*dpr;cv.style.width=w+"px";cv.style.height=h+"px";
+  const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+  return g;
+}
+
+/* ============================================================
+   MALZEME — 24-sanat-dili.md bölüm 6
+   Çentik bir çizgi değil, dolgulu bir iz: dipte dolgun, uçta biter.
+   ============================================================ */
+function izYolu(g,x,y,ax,L,w0,w1,bend,segs){
+  segs=segs||8;
+  const dx=Math.cos(ax)*L, dy=Math.sin(ax)*L;
+  const px=-Math.sin(ax), py=Math.cos(ax);
+  const ust=[],alt=[];
+  for(let i=0;i<=segs;i++){
+    const t=i/segs, e=Math.pow(1-t,.85), w=(w1+(w0-w1)*e)/2;
+    const bow=Math.sin(t*Math.PI)*bend;
+    const cx=x+dx*t+px*bow, cy=y+dy*t+py*bow;
+    ust.push([cx+px*w,cy+py*w]); alt.push([cx-px*w,cy-py*w]);
+  }
+  g.beginPath();g.moveTo(ust[0][0],ust[0][1]);
+  for(let i=1;i<ust.length;i++)g.lineTo(ust[i][0],ust[i][1]);
+  for(let i=alt.length-1;i>=0;i--)g.lineTo(alt[i][0],alt[i][1]);
+  g.closePath();
+}
+/* uç davranışı: ~%38'i küt biter (bıçak kalktı), gerisi incelir (mürekkep bitti) */
+const ucOrani=r=> r<.38 ? .86 : .52+r*.24;
+
+function centik(g,x,y,ax,boy,kal,P,R,opt){
+  opt=opt||{};
+  const a =ax+(R()-.5)*.105;                 /* fukinsei: ±3° */
+  const L =boy*(.92+R()*.16);                /* ±%8 boy */
+  const w0=kal*(.90+R()*.22);                /* ±%11 kalınlık */
+  const w1=w0*ucOrani(R());                  /* konikleşme oranı ~1.8 — diken değil */
+  const bend=(R()-.5)*L*.055;
+
+  if(opt.malzeme===false){                   /* çıplak vektör — karşılaştırma için */
+    g.strokeStyle=P.acc;g.lineWidth=kal;g.lineCap="round";g.globalAlpha=1;
+    g.beginPath();g.moveTo(x,y);g.lineTo(x+Math.cos(ax)*boy,y+Math.sin(ax)*boy);g.stroke();
+    return;
+  }
+  /* kazıma derinliği: tek yönlü, ofsetli koyu iz */
+  g.save();g.translate(kal*.42,kal*.60);
+  izYolu(g,x,y,a,L*.94,w0*.85,w1*.85,bend);
+  g.fillStyle=P.ink;g.globalAlpha=.17;g.fill();g.restore();
+
+  /* gövde */
+  izYolu(g,x,y,a,L,w0,w1,bend);
+  g.fillStyle=P.acc;g.globalAlpha=.80+R()*.20;g.fill();
+
+  /* emiş: dipte biriken mürekkep, çok kısa ve geniş */
+  if(R()<.55){
+    izYolu(g,x,y,a,L*.20,w0*1.34,w0*1.06,0,3);
+    g.globalAlpha=.34;g.fill();
+  }
+  g.globalAlpha=1;
+}
+
+/* ============================================================
+   HALKA — eksensiz kertik
+   m dakikası:  tur k = floor(m/period),  açı = (m%period)/period
+   period = pomodoro'da hedef, kronometrede 60.
+   Çizili halka YOK, dolan yay YOK, boy kademesi YOK.
+   ============================================================ */
+function cizHalka(g,v,o){
+  const P={acc:o.acc||css("--acc"),cool:o.cool||css("--cool"),ink:css("--ink"),line:css("--line")};
+  const R=rng32(hash32("h"+(v.id||"x")));
+  const dk=Math.max(1,Math.round(v.dk));
+  const per=o.period||60;
+  const tur=Math.ceil(dk/per);
+  const r0=o.r0, rMax=o.rMax;
+
+  /* saat sayısı arttıkça hem aralık hem çentik boyu küçülür — altı saat sorunu */
+  const alan=rMax-r0;
+  const adim=alan/Math.max(1,tur);
+  const boy =Math.min(o.boy||adim*.86, adim*.86);
+
+  /* mola: kesilmemiş yay. Tabanda çok ince serin su izi, dolgu yok. */
+  for(const b of (v.molalar||[])){
+    let a=b[0];
+    while(a<Math.min(b[1],dk)){
+      const k=Math.floor(a/per), son=Math.min(b[1],dk,(k+1)*per);
+      const rk=r0+k*adim;
+      const a0=-Math.PI/2+(a%per)/per*Math.PI*2;
+      const a1=-Math.PI/2+(((son-1)%per)+1)/per*Math.PI*2;
+      g.strokeStyle=P.cool;g.lineWidth=Math.max(1.1,boy*.055);g.globalAlpha=.5;g.lineCap="butt";
+      g.beginPath();g.arc(o.cx,o.cy,rk-boy*.10,a0,a1);g.stroke();g.globalAlpha=1;
+      a=son;
+    }
+  }
+
+  for(let m=0;m<dk;m++){
+    if(turOf(v,m)!=="is")continue;
+    const k=Math.floor(m/per), pos=m%per;
+    const rk=r0+k*adim+(R()-.5)*.9;                 /* taban da titriyor */
+    const ax=-Math.PI/2+pos/per*Math.PI*2;
+    const x=o.cx+Math.cos(ax)*rk, y=o.cy+Math.sin(ax)*rk;
+    centik(g,x,y,ax,boy,(o.kal||1.5)*(o.malzeme===false?1:1.15),P,R,o);
+    /* saat/tur başı: uzun çentik DEĞİL — ikiz. Ölçü kademesi yok. */
+    if(pos===0&&m>0){
+      const a2=ax+.030, x2=o.cx+Math.cos(a2)*rk, y2=o.cy+Math.sin(a2)*rk;
+      centik(g,x2,y2,a2,boy*.92,o.kal||1.5,P,R,o);
+    }
+  }
+
+  /* sayılmayan süre: miktar var, konum iddiası yok. Halka sisteminin dışında. */
+  if(v.sayilmayan>0&&o.sayilmayanGoster!==false){
+    const uz=Math.min(1,v.sayilmayan/60)*(rMax*.55);
+    g.strokeStyle=P.acc;g.globalAlpha=.38;g.lineWidth=1.6;g.setLineDash([3,4]);g.lineCap="butt";
+    g.beginPath();g.moveTo(o.cx,o.cy+rMax+9);g.lineTo(o.cx,o.cy+rMax+9+uz);g.stroke();
+    g.setLineDash([]);g.globalAlpha=1;
+  }
+}
+
+/* ---------- bugünkü çubuk (karşılaştırma) ---------- */
+function cizCetvel(g,v,o){
+  const P={acc:css("--acc"),cool:css("--cool"),ink:css("--ink"),line:css("--line")};
+  const R=rng32(hash32(v.id));const j=[];for(let i=0;i<v.dk*3+40;i++)j.push(R());
+  const SW=o.sw,GAP=o.gap,RP=o.rp,TOP=o.top;
+  const kolon=Math.ceil(v.dk/60), colX=k=>o.x0+k*(SW+GAP), yOf=m=>TOP+(m%60)*RP;
+  g.lineCap="round";
+  for(let k=0;k<kolon;k++){
+    const son=Math.min(60,v.dk-k*60);
+    g.strokeStyle=P.line;g.lineWidth=1.1;g.globalAlpha=1;
+    g.beginPath();g.moveTo(colX(k),TOP-2.5);g.lineTo(colX(k),yOf(son-1)+2.5);g.stroke();
+  }
+  for(const b of v.molalar){
+    let a=b[0];
+    while(a<Math.min(b[1],v.dk)){
+      const k=Math.floor(a/60),son=Math.min(b[1],v.dk,(k+1)*60);
+      g.strokeStyle=P.cool;g.lineWidth=Math.max(1.6,SW*.08);g.globalAlpha=.45;
+      g.beginPath();g.moveTo(colX(k)-4,yOf(a)-RP*.4);g.lineTo(colX(k)-4,yOf(son-1)+RP*.4);g.stroke();
+      a=son;
+    }
+  }
+  g.globalAlpha=1;
+  for(let m=0;m<v.dk;m++){
+    if(turOf(v,m)!=="is")continue;
+    const k=Math.floor(m/60),mm=m%60;
+    let boy=.54; if(mm===0)boy=1.02; else if(mm%15===0)boy=.86; else if(mm%5===0)boy=.72;
+    const r1=j[m*3],r2=j[m*3+1],r3=j[m*3+2];
+    const L=SW*boy*(1+(r1-.5)*.09),x0=colX(k),y0=yOf(m)+(r2-.5)*.7,y1=y0+(r3-.5)*1.5;
+    const kal=mm===0?2.0:(mm%5===0?1.7:1.35+(r1-.5)*.35);
+    g.strokeStyle=P.ink;g.lineWidth=.8;g.globalAlpha=.10;
+    g.beginPath();g.moveTo(x0+.6,y0+1.1);g.lineTo(x0+L*.92,y1+1.1);g.stroke();
+    g.strokeStyle=P.acc;g.lineWidth=kal;g.globalAlpha=mm===0?1:.74+r3*.22;
+    g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+L,y1);g.stroke();
+  }
+  g.globalAlpha=1;
+}
+
+/* ---------- örnek veriler ---------- */
+const V107={id:"s-107",dk:107,molalar:[[41,49],[78,84]],sayilmayan:0};
+const V25 ={id:"s-25", dk:25, molalar:[],sayilmayan:0};
+const V360={id:"s-360",dk:362,molalar:[[55,68],[121,133],[190,205],[248,259],[310,322]],sayilmayan:0};
+const V180={id:"s-180",dk:184,molalar:[[58,71],[126,138]],sayilmayan:22};
+const VMOLA={id:"s-mola",dk:96,molalar:[[34,58]],sayilmayan:0};
+
+function kutu(hedef,w,h,cizen,baslik,not){
+  const d=document.createElement("div");d.className="kutu";
+  const cv=document.createElement("canvas");d.appendChild(cv);
+  const a=document.createElement("div");a.className="alt";
+  a.innerHTML="<b>"+baslik+"</b><br>"+not; d.appendChild(a);
+  hedef.appendChild(d);
+  cizen(tuval(cv,w,h),w,h);
+}
+
+function ciz(){
+  /* 1 — yabancı testi */
+  cizCetvel(tuval("c_cetvel",230,330),V107,{sw:30,gap:30,rp:5.0,top:14,x0:60});
+  cizHalka(tuval("c_halka",230,330),V107,{cx:115,cy:160,r0:44,rMax:110,kal:1.5});
+
+  /* 3 — saatler */
+  const S=document.getElementById("s_saatler");S.innerHTML="";
+  [[V107,"1 saat 47 dakika","İki halka. İçteki ilk saat, dıştaki ikincisi."],
+   [V180,"3 saat 04 dakika","Dört halka. Aralık daralıyor, çentik kısalıyor, çerçeve aynı."],
+   [V360,"6 saat 02 dakika","Yedi halka. Sıkışıyor ama kaybolmuyor — kayıt hâlâ dakika dakika."]]
+  .forEach(([v,b,n])=>kutu(S,224,224,(g)=>cizHalka(g,v,{cx:112,cy:112,r0:30,rMax:104,kal:1.4}),b,n));
+
+  /* 4 — mod ayrımı */
+  const M=document.getElementById("s_mod");M.innerHTML="";
+  kutu(M,224,224,(g)=>cizHalka(g,V25,{cx:112,cy:112,r0:52,rMax:104,period:25,kal:1.9}),
+    "Pomodoro · 25 dakika","Tam tur = hedef. 25 çentik turu kapatıyor. Tek halka, geniş nefes.");
+  kutu(M,224,224,(g)=>cizHalka(g,{id:"p-12",dk:12,molalar:[],sayilmayan:0},
+    {cx:112,cy:112,r0:52,rMax:104,period:25,kal:1.9}),
+    "Pomodoro · 12. dakikada","Yarım tur — ama yarım <i>resim</i> değil. Bir yelpaze de bütündür.");
+  kutu(M,224,224,(g)=>cizHalka(g,{id:"k-12",dk:12,molalar:[],sayilmayan:0},
+    {cx:112,cy:112,r0:52,rMax:104,kal:1.9}),
+    "Kronometre · 12. dakikada","Aynı süre, başka ölçek: tur bir saat olduğu için yay daha dar.");
+
+  /* 5 — malzeme */
+  const Z=document.getElementById("s_malzeme");Z.innerHTML="";
+  kutu(Z,224,224,(g)=>cizHalka(g,V107,{cx:112,cy:112,r0:40,rMax:104,kal:1.5,malzeme:false}),
+    "Çıplak vektör","Sabit kalınlık, yuvarlak uç, gölge yok. Bugün telefonda olan malzeme bu: yok.");
+  kutu(Z,224,224,(g)=>cizHalka(g,V107,{cx:112,cy:112,r0:40,rMax:104,kal:1.5}),
+    "Malzemeli","Fırça basıncı (dipte dolgun), mürekkep bitişi (uçların %62'si incelerek biter), " +
+    "kazıma gölgesi, dipte emiş. Doku eklenmedi — hepsi çizginin kendi geometrisi.");
+  kutu(Z,360,224,(g)=>{
+      /* aynı centik() işlevi, düz dizilmiş ve büyütülmüş */
+      const P={acc:css("--acc"),cool:css("--cool"),ink:css("--ink"),line:css("--line")};
+      const R1=rng32(hash32("zoom")), R2=rng32(hash32("zoom"));
+      for(let i=0;i<9;i++){
+        centik(g,26+i*38,42,Math.PI/2,58,4.6,P,R1,{malzeme:false});
+        centik(g,26+i*38,138,Math.PI/2,58,4.6,P,R2,{});
+      }
+      g.fillStyle=css("--muted");g.font="11px ui-sans-serif";
+      g.fillText("çıplak vektör — bugün",26,118); g.fillText("malzemeli",26,214);
+    },"Yakın plan","Üstte bugünkü çizgi, altta aynı çentikler malzemeyle. " +
+      "Uçlar aynı bitmiyor, kalınlık sabit değil, altında kazıma izi var.");
+
+  /* 6 — mola */
+  const O=document.getElementById("s_mola");O.innerHTML="";
+  kutu(O,224,224,(g)=>cizHalka(g,VMOLA,{cx:112,cy:112,r0:44,rMax:104,kal:1.6}),
+    "24 dakikalık mola","Halkanın üçte biri boş. Kimse 'bu bir moladır' demiyor.");
+  kutu(O,224,224,(g)=>cizHalka(g,V180,{cx:112,cy:112,r0:30,rMax:104,kal:1.4}),
+    "22 dakika sayılmayan","Aşağıdaki kesikli ray. Miktarı söylüyor, konum iddia etmiyor — " +
+    "çubuktaki kararın aynısı.");
+
+  /* 7 — widget */
+  const W=document.getElementById("s_widget");W.innerHTML="";
+  kutu(W,150,150,(g)=>cizHalka(g,V107,{cx:75,cy:75,r0:26,rMax:70,kal:1.15}),
+    "2×2 kare","Widget'ta çubuk hep yamuk durur; halka kareyi kendi doldurur.");
+  kutu(W,150,150,(g)=>cizHalka(g,V25,{cx:75,cy:75,r0:34,rMax:70,period:25,kal:1.5}),
+    "2×2 · pomodoro","Aynı kutu, başka kompozisyon sınırı.");
+  kutu(W,340,150,(g,w,h)=>{
+      cizHalka(g,V107,{cx:56,cy:75,r0:20,rMax:52,kal:1.0});
+      g.fillStyle=css("--muted");g.font="600 10px ui-sans-serif";
+      g.fillText("ÇALIŞIYOR",120,58);
+      g.fillStyle=css("--ink");g.font="300 34px ui-sans-serif";
+      g.fillText("1:47",120,92);
+      g.fillStyle=css("--muted");g.font="11px ui-sans-serif";
+      g.fillText("2. saat, 47. çentik",120,110);
+    },"4×2 kontrol","Sağdaki çubuk yerine soldaki halka. Ölçek küçüldükçe halka " +
+      "okunabilirliğini çubuktan daha iyi koruyor.");
+}
+ciz();
+</script></body></html>

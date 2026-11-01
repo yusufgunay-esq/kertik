@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kertik — çubuktan motife, ve widget'ler</title>
+<style>
+:root{
+  --bg:#F5F2EA; --bg2:#EFEBE1; --ink:#16181B; --ink2:#3E4148;
+  --muted:#726E65; --faint:#9C978C; --line:#DCD5C6; --track:#DCD6C7;
+  --accent:#B05237; --cool:#3E7C77; --segsel:#FFFDF8;
+}
+:root.dark{
+  --bg:#16171A; --bg2:#212227; --ink:#EDE9E0; --ink2:#BCB7AC;
+  --muted:#948F84; --faint:#6A665E; --line:#2E2F34; --track:#33343A;
+  --accent:#D0785B; --cool:#79B3AE; --segsel:#3A3B41;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg2);color:var(--ink);padding:22px;
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  transition:background .35s,color .35s}
+h1{font-size:24px;font-weight:400;letter-spacing:-.02em;margin:0 0 4px}
+h2{font-size:17px;font-weight:500;margin:30px 0 4px}
+.alt{color:var(--muted);font-size:14px;margin:0 0 8px;max-width:680px}
+.duzen{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+
+/* ---------- ana ekran ---------- */
+.ekran{
+  width:342px;flex:0 0 342px;height:700px;border-radius:30px;padding:16px 12px;
+  background:
+    radial-gradient(120% 80% at 20% 8%, #4a5a63 0%, transparent 60%),
+    radial-gradient(110% 90% at 85% 95%, #2b2320 0%, transparent 55%),
+    linear-gradient(160deg,#2f3a40,#171a1c 60%,#221c19);
+  position:relative;overflow:hidden;border:1px solid #0a0c0d;
+  box-shadow:0 10px 34px rgba(0,0,0,.22)
+}
+.ekran.acikduvar{
+  background:
+    radial-gradient(120% 80% at 20% 8%, #e8dcc9 0%, transparent 60%),
+    radial-gradient(110% 90% at 85% 95%, #d5c3ae 0%, transparent 55%),
+    linear-gradient(160deg,#f0e7d8,#e2d6c3 60%,#d9cbb6);
+}
+.saatust{color:#fff;opacity:.86;text-align:center;font:300 40px/1 -apple-system,sans-serif;margin:14px 0 2px;letter-spacing:-.02em}
+.tarihust{color:#fff;opacity:.6;text-align:center;font-size:13px;margin-bottom:18px}
+.acikduvar .saatust,.acikduvar .tarihust{color:#241d17}
+.wg{
+  border-radius:22px;margin-bottom:12px;position:relative;overflow:hidden;
+  background:rgba(20,20,22,.42);backdrop-filter:blur(18px) saturate(1.2);
+  border:1px solid rgba(255,255,255,.09);
+}
+.acikduvar .wg{background:rgba(255,253,248,.52);border-color:rgba(0,0,0,.07)}
+.wg canvas{display:block;width:100%}
+.wg .ustyazi{position:absolute;left:16px;top:12px;font-size:11.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:rgba(255,255,255,.5)}
+.acikduvar .wg .ustyazi{color:rgba(0,0,0,.42)}
+.wgsayac{display:flex;align-items:center;gap:14px;padding:16px}
+.wgsayac .sol{flex:0 0 92px;position:relative}
+.wgsayac .sag{flex:1;display:flex;flex-direction:column;gap:8px}
+.wgsayac .sure{font:400 30px/1 ui-monospace,Menlo,monospace;color:#fff;letter-spacing:-.02em}
+.acikduvar .wgsayac .sure{color:#241d17}
+.wgsayac .gorev{font-size:12.5px;color:rgba(255,255,255,.55);margin-top:-4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acikduvar .wgsayac .gorev{color:rgba(0,0,0,.5)}
+.tuslar{display:flex;gap:8px}
+.tuslar button{
+  flex:1;padding:9px 0;border-radius:12px;border:1px solid rgba(255,255,255,.16);
+  background:rgba(255,255,255,.08);color:#fff;font:inherit;font-size:13px;cursor:pointer
+}
+.tuslar button.ana{background:var(--accent);border-color:transparent;color:#fff}
+.acikduvar .tuslar button{border-color:rgba(0,0,0,.12);background:rgba(0,0,0,.05);color:#241d17}
+.acikduvar .tuslar button.ana{background:var(--accent);color:#fff;border-color:transparent}
+.wgikili{display:flex;gap:12px}
+.wgikili .wg{flex:1;margin-bottom:12px}
+.simgeler{display:flex;justify-content:space-around;margin-top:10px;opacity:.5}
+.simgeler i{width:44px;height:44px;border-radius:13px;background:rgba(255,255,255,.16);display:block}
+.acikduvar .simgeler i{background:rgba(0,0,0,.12)}
+
+/* ---------- kumanda ---------- */
+.kum{width:300px;flex:0 0 300px;background:var(--bg);border:1px solid var(--line);
+  border-radius:20px;padding:18px;transition:background .35s,border-color .35s}
+.kum h3{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);
+  margin:20px 0 9px;font-weight:500}
+.kum h3:first-child{margin-top:0}
+.seg{display:flex;background:var(--track);border-radius:999px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{flex:1;border:0;background:transparent;color:var(--ink2);border-radius:999px;
+  padding:7px 4px;font:inherit;font-size:13px;cursor:pointer;transition:background .18s;min-width:64px}
+.seg button.on{background:var(--segsel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.10)}
+select{width:100%;padding:9px 11px;border-radius:12px;border:1px solid var(--line);
+  background:var(--bg2);color:var(--ink);font:inherit;font-size:14.5px}
+.dugme{width:100%;padding:11px;border-radius:14px;border:1px solid var(--line);
+  background:var(--bg2);color:var(--ink);font:inherit;font-size:14.5px;cursor:pointer;margin-top:10px}
+.dugme:hover{background:var(--track)}
+.paletler{display:flex;gap:7px;flex-wrap:wrap}
+.paletler button{display:flex;align-items:center;gap:7px;padding:6px 11px 6px 8px;border-radius:999px;
+  border:1px solid var(--line);background:var(--bg2);color:var(--ink);font:inherit;font-size:13.5px;cursor:pointer}
+.paletler button.on{border-color:var(--accent);background:var(--track)}
+.nokta{width:12px;height:12px;border-radius:50%;flex:0 0 12px}
+.sat{display:flex;justify-content:space-between;align-items:center;margin:9px 0}
+.sat .deg{font:400 14px/1 ui-monospace,Menlo,monospace;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+
+/* ---------- karşılaştırma ---------- */
+.kars{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
+.kart{background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:16px;
+  width:334px;transition:background .35s,border-color .35s}
+.kart .ad{font-size:15px;font-weight:500;margin-bottom:2px}
+.kart .ac{font-size:12.5px;color:var(--muted);line-height:1.45;margin-bottom:12px;min-height:54px}
+.kart canvas{display:block;width:100%}
+.serit{background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:16px;
+  transition:background .35s,border-color .35s;max-width:1030px}
+.serit canvas{display:block;width:100%}
+.saatler{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+.saatler .kutu{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:12px;
+  width:160px;transition:background .35s,border-color .35s}
+.saatler .kutu canvas{display:block;width:100%;border-radius:9px}
+.saatler .kutu span{display:block;font-size:12.5px;color:var(--muted);margin-top:8px}
+.not{font-size:13px;color:var(--faint);margin-top:14px;max-width:680px;line-height:1.55}
+</style></head>
+<body>
+
+<h1>Çubuktan motife — ve widget'ler</h1>
+<p class="alt">Kız kardeşinin "çok iş gibi" demesinin sebebi jitter eksikliği değil:
+bugünkü çubuk bir <b>cetvel</b>. Dikey eksen çizgisi, 5 / 15 / 60 dakikada uzayan tik işaretleri —
+bunlar ölçü aleti dilbilgisi. Aşağıda o dilbilgisi sökülüyor.</p>
+
+<div class="duzen">
+  <!-- ---------------- ana ekran ---------------- -->
+  <div class="ekran" id="ekran">
+    <div class="saatust" id="ustSaat">09:41</div>
+    <div class="tarihust">Pazar, 16 Ağustos</div>
+
+    <div class="wg">
+      <div class="wgsayac">
+        <div class="sol"><canvas id="wSayacKadran"></canvas></div>
+        <div class="sag">
+          <div><div class="sure" id="wSure">00:46</div>
+          <div class="gorev">Kertik — widget tasarımı</div></div>
+          <div class="tuslar">
+            <button>Mola</button><button class="ana">Bitir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wg" style="padding:14px 16px 12px">
+      <div class="ustyazi">son 30 gün</div>
+      <canvas id="wAy" style="margin-top:22px"></canvas>
+    </div>
+
+    <div class="wgikili">
+      <div class="wg" style="padding:14px"><canvas id="wGun"></canvas></div>
+      <div class="wg" style="padding:14px"><canvas id="wHafta"></canvas></div>
+    </div>
+
+    <div class="simgeler"><i></i><i></i><i></i><i></i></div>
+  </div>
+
+  <!-- ---------------- kumanda ---------------- -->
+  <div class="kum">
+    <h3>motif dili</h3>
+    <div class="seg" id="dil">
+      <button data-v="cetvel">bugünkü</button><button data-v="kertik" class="on">kertik</button>
+    </div>
+    <p class="alt" style="font-size:12.5px;margin:9px 0 0" id="dilAc"></p>
+
+    <h3>gün</h3>
+    <select id="senaryo"></select>
+    <div class="sat" style="margin-top:12px"><span>tohum</span><span class="deg" id="tohumDeg">7</span></div>
+    <button class="dugme" id="tohumBtn" style="margin-top:0">başka gün</button>
+
+    <h3>görünüm</h3>
+    <div class="seg" id="tema"><button data-v="light">açık</button><button data-v="dark" class="on">koyu</button></div>
+    <div class="seg" id="duvar" style="margin-top:8px"><button data-v="koyu" class="on">koyu duvar</button><button data-v="acik">açık duvar</button></div>
+    <div class="paletler" id="palet" style="margin-top:10px"></div>
+
+    <h3>saatin rengi</h3>
+    <p class="alt" style="font-size:12.5px;margin:0 0 8px">Rastgele renk yerine: paletin tonu
+    seansın <b>başladığı saate</b> göre kayıyor. Sabah serin, akşam sıcak. Rastgele değil — kayıt.</p>
+    <div class="sat"><span>seans saati</span><span class="deg" id="saatDeg">09:00</span></div>
+    <input type="range" id="saat" min="0" max="23" step="1" value="9">
+    <div class="seg" id="saatAc" style="margin-top:8px">
+      <button data-v="0">kapalı</button><button data-v="1" class="on">açık</button>
+    </div>
+  </div>
+</div>
+
+<h2>Aynı gün, iki dilbilgisi</h2>
+<p class="alt">Solda bugünkü çubuk, sağda kertik dili. Veri birebir aynı: her çentik bir dakika.</p>
+<div class="kars">
+  <div class="kart">
+    <div class="ad">Bugünkü — cetvel</div>
+    <div class="ac">Dikey eksen çizgisi + 5/15/60'ta uzayan tikler. Bu üçlü her yerde
+    "ölçüm aleti" demek: cetvel, termometre, kronometre kadranı. Molanın kenardaki mavi şeridi de
+    grafik lejantı gibi okunuyor.</div>
+    <canvas id="kCetvel"></canvas>
+  </div>
+  <div class="kart">
+    <div class="ad">Kertik — kazınmış kenar</div>
+    <div class="ac">Eksen çizgisi yok: çentikler kenarın kendisi. Uzunluk kademesi yok —
+    saat, çentiğin uzamasıyla değil demeti bağlayan <b>çaprazla</b> işaretleniyor (çetelede
+    demet böyle bağlanır). Molada kesik atılmıyor, kenar pürüzsüz kalıyor.</div>
+    <canvas id="kKertik"></canvas>
+  </div>
+</div>
+
+<h2>Tarak bordürü — 30 gün, tek kuşak</h2>
+<p class="alt">Otuz ayrı sütun otuz ayrı çubuk grafiğidir. Tek kuşak ise bordür olur.
+Ay ölçeğinde birim gün: her diş bir gün, boyu o günün süresi, dipteki serin çentik molası.
+Haftalar düğümle ayrılıyor, çalışılmayan gün tarakta eksik diş.
+Gün ölçeğinde birim dakikaya iniyor — aynı dilbilgisi, başka mercek.</p>
+<div class="serit"><canvas id="sAy"></canvas></div>
+
+<h2>Aynı seans, dört ayrı saatte</h2>
+<p class="alt">Rastgele renk kimliği yok eder ve anlamı bozar (sıcak = çalışma, serin = mola).
+Ama saat gerçek bir veri: aynı uzunluktaki iki seans farklı saatlerde yapıldıysa
+farklı görünmeyi hak ediyor. Bu ödül değil, kayıt.</p>
+<div class="saatler" id="saatSira"></div>
+
+<p class="not">Widget notu: Android widget'i canlı tuval değil, uygulamanın çizip yerleştirdiği
+bir <b>resimdir</b>. Bu proje için kısıt değil avantaj — animasyon zaten yasak. Seans sürerken
+dakikada bir yeni resim basılır (bildirim sayacının servisi zaten ayakta), seans yokken hiç
+basılmaz. Dokunma hedefleri 48 dp'nin altına inmemeli.</p>
+
+<script>
+/* ---------- çekirdek (uygulamadan) ---------- */
+function hash32(t){let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function rng32(a){a=a>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function hexHsl(x){const m=/^#([0-9a-f]{6})$/i.exec(x||"");if(!m)return null;
+  const n=parseInt(m[1],16),r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255;
+  const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,d=mx-mn;
+  if(!d)return[0,0,l];
+  const s=l>.5?d/(2-mx-mn):d/(mx+mn);
+  let h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;
+  return[h*60,s,l];}
+const hsl=(a)=>"hsl("+((a[0]%360+360)%360).toFixed(1)+","+(a[1]*100).toFixed(1)+"%,"+(a[2]*100).toFixed(1)+"%)";
+
+/* ---------- saatin rengi ----------
+   Rastgele değil: seansın başladığı saat → tonun merkezi.
+   Gece derin ve serin, sabah açık, öğle nötr, akşam sıcak ve doygun.
+   Kayma dar: renk hep aynı renk kalıyor, yalnız günün ışığını alıyor. */
+function saatKaydir(taban,saat,koyu){
+  if(!taban)return taban;
+  const f=(saat%24)/24*Math.PI*2;
+  const sicak=-Math.cos(f-Math.PI/12);          /* ~14:00 en sıcak, ~02:00 en serin */
+  const isik =Math.sin(f-Math.PI/2.2);          /* gündüz açık, gece koyu */
+  return [ taban[0]+sicak*13,
+           Math.min(.95,Math.max(.05,taban[1]+sicak*.07)),
+           Math.min(.94,Math.max(.06,taban[2]+isik*(koyu?.05:-.045))) ];
+}
+
+/* ---------- gün verisi ---------- */
+const GUNLER=[
+  {ad:"Pomodoro günü (4×25)",     dk:126,molalar:[[25,30],[55,60],[85,90],[115,120]],sayilmayan:0},
+  {ad:"52 + 12, iki tur",         dk:130,molalar:[[52,64],[116,128]],sayilmayan:0},
+  {ad:"Uzun tek oturum",          dk:184,molalar:[[58,71],[126,138]],sayilmayan:22},
+  {ad:"Dağınık gün",              dk:97, molalar:[[18,22],[41,50],[66,69],[80,91]],sayilmayan:14},
+  {ad:"Kısa gün",                 dk:38, molalar:[[22,26]],sayilmayan:0}
+];
+const turOf=(v,m)=>{for(const b of v.molalar)if(m>=b[0]&&m<b[1])return "mola";return "is";};
+
+/* ---------- kazınmış çentik ----------
+   Tek kural: hiçbir çentik ölçü değil. Uzunluk kademesi yok; saat ikizle işaretlenir. */
+function cizCentik(g,x,y,boy,aci,kal,renk,golge,R){
+  const ax=aci+(R()-.5)*.11;                    /* ±3° — motif ritim ister, karalama değil */
+  const L=boy*(.92+R()*.16);                    /* ±%8 uzunluk */
+  const bk=(R()-.5)*.10;                        /* çok hafif kavis */
+  const dx=Math.cos(ax)*L, dy=Math.sin(ax)*L;
+  const nx=-Math.sin(ax)*L*bk, ny=Math.cos(ax)*L*bk;
+  const yol=(ox,oy)=>{g.beginPath();g.moveTo(x+ox,y+oy);
+    g.quadraticCurveTo(x+dx/2+nx+ox,y+dy/2+ny+oy,x+dx+ox,y+dy+oy);g.stroke();};
+  g.lineCap="round";
+  if(golge){g.strokeStyle=golge;g.lineWidth=kal*.75;g.globalAlpha=.16;yol(.7,1.0);}
+  g.strokeStyle=renk;g.lineWidth=kal*(.90+R()*.20);g.globalAlpha=.80+R()*.20;yol(0,0);
+  g.globalAlpha=1;
+}
+
+/* ============================================================
+   1) BUGÜNKÜ — cetvel dilbilgisi (uygulamadaki cizCubuk'un aynısı)
+   ============================================================ */
+function cizCetvel(g,v,o){
+  const RP=o.rp,SW=o.sw,GAP=o.gap,TOP=o.top;
+  const dk=v.dk,kolon=Math.ceil(dk/60);
+  const R=rng32(hash32("g"+o.tohum));const j=[];for(let i=0;i<dk*3+40;i++)j.push(R());
+  const colX=k=>o.x0+k*(SW+GAP), yOf=m=>TOP+(m%60)*RP;
+  g.lineCap="round";
+  for(let k=0;k<kolon;k++){                     /* sırt = eksen */
+    const son=Math.min(60,dk-k*60);
+    g.strokeStyle=o.line;g.lineWidth=1.1;g.globalAlpha=1;
+    g.beginPath();g.moveTo(colX(k),TOP-2.5);g.lineTo(colX(k),yOf(son-1)+2.5);g.stroke();
+  }
+  for(const b of v.molalar){                    /* mola = kenardaki şerit */
+    let a=b[0];
+    while(a<Math.min(b[1],dk)){
+      const k=Math.floor(a/60),son=Math.min(b[1],dk,(k+1)*60);
+      if(son>a){g.strokeStyle=o.cool;g.lineWidth=Math.max(1.6,SW*.08);g.globalAlpha=.45;
+        g.beginPath();g.moveTo(colX(k)-4,yOf(a)-RP*.4);g.lineTo(colX(k)-4,yOf(son-1)+RP*.4);g.stroke();}
+      a=son;
+    }
+  }
+  for(let m=0;m<dk;m++){                        /* tikler: 5/15/60 kademeli */
+    if(turOf(v,m)!=="is")continue;
+    const k=Math.floor(m/60),mm=m%60;
+    let boy=.54; if(mm===0)boy=1.02; else if(mm%15===0)boy=.86; else if(mm%5===0)boy=.72;
+    const r1=j[m*3],r2=j[m*3+1],r3=j[m*3+2];
+    const L=SW*boy*(1+(r1-.5)*.09),x0=colX(k),y0=yOf(m)+(r2-.5)*.7,y1=y0+(r3-.5)*1.5;
+    const kal=mm===0?2.0:(mm%5===0?1.7:1.35+(r1-.5)*.35);
+    g.strokeStyle=o.ink;g.lineWidth=.8;g.globalAlpha=.10;
+    g.beginPath();g.moveTo(x0+.6,y0+1.1);g.lineTo(x0+L*.92,y1+1.1);g.stroke();
+    g.strokeStyle=o.acc;g.lineWidth=kal;g.globalAlpha=mm===0?1:.74+r3*.22;
+    g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+L,y1);g.stroke();
+  }
+  g.globalAlpha=1;
+}
+
+/* ============================================================
+   2) KERTİK — kazınmış kenar
+   Eksen yok, kademe yok. Saat = ikiz çentik. Mola = kesilmemiş kenar.
+   ============================================================ */
+function cizKertik(g,v,o){
+  const RP=o.rp,SW=o.sw,GAP=o.gap,TOP=o.top;
+  const dk=v.dk,kolon=Math.ceil(dk/60);
+  const R=rng32(hash32("k"+o.tohum));
+  const colX=k=>o.x0+k*(SW+GAP), yOf=m=>TOP+(m%60)*RP;
+
+  /* kenar: düz çizgi değil, hafif dalgalı bir kâğıt kenarı */
+  for(let k=0;k<kolon;k++){
+    const son=Math.min(60,dk-k*60);
+    g.strokeStyle=o.line;g.lineWidth=1;g.globalAlpha=.75;g.beginPath();
+    for(let m=0;m<son;m++){
+      const x=colX(k)+Math.sin(m*.7+k)*.5+(R()-.5)*.5,y=yOf(m);
+      m?g.lineTo(x,y):g.moveTo(x,y);
+    }
+    g.stroke();g.globalAlpha=1;
+  }
+
+  /* mola: kesik yok. kenarın o parçası boyunca çok ince serin bir su izi */
+  for(const b of v.molalar){
+    let a=b[0];
+    while(a<Math.min(b[1],dk)){
+      const k=Math.floor(a/60),son=Math.min(b[1],dk,(k+1)*60);
+      if(son>a){
+        g.strokeStyle=o.cool;g.lineWidth=1.5;g.globalAlpha=.55;g.beginPath();
+        for(let m=a;m<son;m++){const x=colX(k)+Math.sin(m*.55)*1.4,y=yOf(m);
+          m===a?g.moveTo(x,y):g.lineTo(x,y);}
+        g.stroke();g.globalAlpha=1;
+      }
+      a=son;
+    }
+  }
+
+  for(let m=0;m<dk;m++){
+    if(turOf(v,m)!=="is")continue;
+    const k=Math.floor(m/60),mm=m%60;
+    const x=colX(k),y=yOf(m);
+    cizCentik(g,x,y,SW*.62,0,1.5,o.acc,o.ink,R);
+    if(mm===0&&m>0){                             /* saat: demeti bağlayan çapraz */
+      g.strokeStyle=o.acc;g.lineWidth=1.4;g.globalAlpha=.9;g.lineCap="round";
+      g.beginPath();g.moveTo(x-1,y-RP*2.2);g.lineTo(x+SW*.56,y+RP*2.2);g.stroke();g.globalAlpha=1;
+    }
+  }
+
+  if(v.sayilmayan>0){                            /* sayılmayan: miktar, konum değil */
+    const k=kolon-1,boyu=Math.min(v.sayilmayan,60),x=colX(k)+SW*.62+7;
+    g.strokeStyle=o.acc;g.globalAlpha=.40;g.lineWidth=1.6;
+    g.setLineDash([RP*.5,RP*.5]);
+    g.beginPath();g.moveTo(x,TOP);g.lineTo(x,TOP+Math.max(1,boyu-1)*RP);g.stroke();
+    g.setLineDash([]);g.globalAlpha=1;
+  }
+}
+
+/* ============================================================
+   3) TARAK BORDÜRÜ — 30 gün tek kuşak
+   Ay ölçeğinde birim GÜN, gün ölçeğinde birim DAKİKA. Aynı dilbilgisi,
+   başka mercek. 30 günü dakika dakika çizmek 286 pikselde turuncu bir
+   kütle veriyor — okunmuyor ve zaten hiçbir çentik seçilmiyor.
+   ============================================================ */
+function cizAySeridi(g,gunler,o){
+  const W=o.w,H=o.h,PAD=o.pad,N=gunler.length;
+  const ara=(W-PAD*2)/N, orta=H*.62+(o.ofsY||0), TAVAN=300;
+  const R=rng32(hash32("s"+o.tohum));
+  const kal=o.boy>40?1.9:1.4;
+
+  g.strokeStyle=o.line;g.globalAlpha=.55;g.lineWidth=1;g.lineCap="round";
+  g.beginPath();                                   /* tarağın sırtı */
+  for(let px=PAD;px<=W-PAD;px+=3)g.lineTo(px,orta+Math.sin(px*.06)*.5);
+  g.stroke();g.globalAlpha=1;
+
+  gunler.forEach((d,i)=>{
+    const x=PAD+ara*(i+.5);
+    if(d.dk>0){                                    /* diş boyu = o günün süresi */
+      const boy=(.22+Math.min(1,d.dk/TAVAN)*.78)*o.boy;
+      cizCentik(g,x,orta,boy,-Math.PI/2,kal,o.acc,o.ink,R);
+      const mol=d.molalar.reduce((a,b)=>a+(b[1]-b[0]),0);
+      if(mol>0){                                   /* mola: dipte serin, aşağı doğru */
+        g.strokeStyle=o.cool;g.lineWidth=kal*.9;g.globalAlpha=.62;
+        g.beginPath();g.moveTo(x,orta+1.5);
+        g.lineTo(x,orta+1.5+Math.min(1,mol/60)*o.boy*.30);g.stroke();g.globalAlpha=1;
+      }
+    }                                              /* çalışılmayan gün: eksik diş */
+    if((i+1)%7===0&&i<N-1){                        /* hafta düğümü */
+      const dx=x+ara*.5;
+      g.strokeStyle=o.line;g.globalAlpha=.85;g.lineWidth=1.2;
+      g.beginPath();g.moveTo(dx-2.6,orta-3);g.lineTo(dx+2.6,orta+3);
+      g.moveTo(dx+2.6,orta-3);g.lineTo(dx-2.6,orta+3);g.stroke();g.globalAlpha=1;
+    }
+  });
+}
+
+/* ============================================================
+   4) MADALYON — günün gülü (kare widget)
+   ============================================================ */
+function cizMadalyon(g,v,o){
+  const cx=o.cx,cy=o.cy,ic=o.ic,dis=o.dis;
+  const dk=Math.max(1,v.dk);
+  const R=rng32(hash32("m"+o.tohum));
+  const tam=Math.min(dk,o.tam||180);
+  g.strokeStyle=o.line;g.globalAlpha=.5;g.lineWidth=1;
+  g.beginPath();g.arc(cx,cy,ic-3,0,Math.PI*2);g.stroke();g.globalAlpha=1;
+  for(let m=0;m<dk;m++){
+    const a=-Math.PI/2+(m/(o.tam||180))*Math.PI*2;
+    const x=cx+Math.cos(a)*ic, y=cy+Math.sin(a)*ic;
+    if(turOf(v,m)==="mola"){
+      g.strokeStyle=o.cool;g.globalAlpha=.5;g.lineWidth=1.2;
+      g.beginPath();g.arc(cx,cy,ic-1.5,a-.012,a+.012);g.stroke();g.globalAlpha=1;
+      continue;
+    }
+    cizCentik(g,x,y,(dis-ic)*.9,a,1.35,o.acc,o.ink,R);
+    if(m%60===0&&m>0){
+      const a2=a+.016,x2=cx+Math.cos(a2)*ic,y2=cy+Math.sin(a2)*ic;
+      cizCentik(g,x2,y2,(dis-ic)*.9,a2,1.35,o.acc,o.ink,R);
+    }
+  }
+}
+
+/* ============================================================
+   Tuval yardımcıları ve durum
+   ============================================================ */
+function tuval(id,w,h){
+  const cv=document.getElementById(id);if(!cv)return null;
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.style.height=h+"px";
+  cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);
+  const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+  return g;
+}
+const PALETLER={
+  "kâğıt":{light:{a:"#B05237",c:"#3E7C77"},dark:{a:"#D0785B",c:"#79B3AE"}},
+  "kor":  {light:{a:"#F04E23",c:"#00A3A3"},dark:{a:"#FF7A4D",c:"#35C9C9"}},
+  "deniz":{light:{a:"#0A6ED1",c:"#E8792B"},dark:{a:"#4FA3F7",c:"#FFA05C"}},
+  "bahar":{light:{a:"#E0356B",c:"#2E9E5B"},dark:{a:"#FF5C89",c:"#4FC77E"}},
+  "mor":  {light:{a:"#7B3FE4",c:"#D98A00"},dark:{a:"#A97BFF",c:"#F0B03C"}}
+};
+const durum={dil:"kertik",gun:0,tohum:7,tema:"dark",duvar:"koyu",palet:"kâğıt",saat:9,saatAc:true};
+
+function renkler(beyazUstu){
+  const p=PALETLER[durum.palet][durum.tema];
+  let a=hexHsl(p.a),c=hexHsl(p.c);
+  if(durum.saatAc){a=saatKaydir(a,durum.saat,durum.tema==="dark");
+                   c=saatKaydir(c,durum.saat,durum.tema==="dark");}
+  const kok=getComputedStyle(document.documentElement);
+  return { acc:hsl(a), cool:hsl(c),
+           ink: beyazUstu?"#000":kok.getPropertyValue("--ink").trim(),
+           line: beyazUstu?(durum.duvar==="koyu"?"rgba(255,255,255,.22)":"rgba(0,0,0,.18)")
+                          :kok.getPropertyValue("--line").trim() };
+}
+
+function ciz(){
+  document.documentElement.classList.toggle("dark",durum.tema==="dark");
+  document.getElementById("ekran").classList.toggle("acikduvar",durum.duvar==="acik");
+  const v=GUNLER[durum.gun];
+  const T=durum.tohum;
+  const Rw=renkler(true), Ri=renkler(false);
+  const cetvel=durum.dil==="cetvel";
+  const ciziciDikey=cetvel?cizCetvel:cizKertik;
+
+  /* --- widget: sayaç kadranı (madalyon, canlı seans) --- */
+  {
+    const g=tuval("wSayacKadran",92,92);
+    if(g){ cizMadalyon(g,{dk:46,molalar:[[25,30]],sayilmayan:0},
+      {cx:46,cy:46,ic:26,dis:44,tam:60,tohum:T,...Rw}); }
+  }
+  /* --- widget: ay şeridi --- */
+  const gun30=[];
+  {
+    const R=rng32(hash32("ay"+T));
+    for(let i=0;i<30;i++){
+      const bos=R()<.18;
+      const dk=bos?0:Math.round(30+R()*170);
+      const mol=[];let m=Math.round(20+R()*30);
+      while(m<dk-6){const u=Math.round(4+R()*10);mol.push([m,Math.min(dk,m+u)]);m+=u+Math.round(30+R()*40);}
+      gun30.push({dk,molalar:mol,sayilmayan:0});
+    }
+    const g=tuval("wAy",286,58);
+    if(g)cizAySeridi(g,gun30,{w:286,h:58,pad:6,boy:34,tohum:T,...Rw});
+    const g2=tuval("sAy",998,96);
+    if(g2)cizAySeridi(g2,gun30,{w:998,h:96,pad:16,boy:58,tohum:T,...Ri});
+  }
+  /* --- widget: bugün (kare madalyon) + hafta --- */
+  {
+    const g=tuval("wGun",131,131);
+    if(g)cizMadalyon(g,v,{cx:65,cy:65,ic:34,dis:60,tam:200,tohum:T,...Rw});
+    /* 2×2'de 30 gün: tek sıra 7 diş çubuk grafiğine benziyor, üç sıra halı oluyor */
+    const g2=tuval("wHafta",131,131);
+    if(g2)for(let s=0;s<3;s++)
+      cizAySeridi(g2,gun30.slice(s*10,s*10+10),
+        {w:131,h:44,pad:11,boy:30,tohum:T+s,ofsY:s*42+4,...Rw});
+  }
+  /* --- karşılaştırma kartları --- */
+  {
+    const o={rp:5.4,sw:30,gap:13,top:8,x0:14,tohum:T,...Ri};
+    const h=8*2+59*5.4;
+    const g1=tuval("kCetvel",302,h); if(g1)cizCetvel(g1,v,o);
+    const g2=tuval("kKertik",302,h); if(g2)cizKertik(g2,v,o);
+  }
+  /* --- saat sırası --- */
+  {
+    const kutu=document.getElementById("saatSira");
+    if(!kutu.dataset.kur){
+      kutu.innerHTML=[7,13,19,23].map(s=>
+        '<div class="kutu"><canvas id="st'+s+'"></canvas><span>'+String(s).padStart(2,"0")+':00 seansı</span></div>').join("");
+      kutu.dataset.kur="1";
+    }
+    for(const s of [7,13,19,23]){
+      const g=tuval("st"+s,136,136);if(!g)continue;
+      const p=PALETLER[durum.palet][durum.tema];
+      const a=saatKaydir(hexHsl(p.a),s,durum.tema==="dark");
+      const c=saatKaydir(hexHsl(p.c),s,durum.tema==="dark");
+      g.fillStyle=getComputedStyle(document.documentElement).getPropertyValue("--bg2").trim();
+      g.fillRect(0,0,136,136);
+      cizMadalyon(g,v,{cx:68,cy:68,ic:34,dis:62,tam:200,tohum:T,
+        acc:hsl(a),cool:hsl(c),ink:Ri.ink,line:Ri.line});
+    }
+  }
+  document.getElementById("dilAc").textContent = cetvel
+    ? "Bugünkü hâl: eksen + kademeli tikler. Ölçü aleti."
+    : "Eksen yok, kademe yok. Saat ikiz çentikle işaretleniyor.";
+  document.getElementById("tohumDeg").textContent=T;
+  document.getElementById("saatDeg").textContent=String(durum.saat).padStart(2,"0")+":00";
+}
+
+/* ---------- kumanda ---------- */
+const el=id=>document.getElementById(id);
+const sSel=el("senaryo");
+GUNLER.forEach((s,i)=>{const o=document.createElement("option");o.value=i;o.textContent=s.ad;sSel.appendChild(o);});
+sSel.onchange=e=>{durum.gun=+e.target.value;ciz();};
+el("tohumBtn").onclick=()=>{durum.tohum=Math.floor(Math.random()*9999);ciz();};
+el("saat").oninput=e=>{durum.saat=+e.target.value;ciz();};
+for(const [id,alan] of [["dil","dil"],["tema","tema"],["duvar","duvar"],["saatAc","saatAc"]]){
+  el(id).onclick=e=>{const b=e.target.closest("button");if(!b)return;
+    [...e.currentTarget.children].forEach(x=>x.classList.toggle("on",x===b));
+    durum[alan]= alan==="saatAc" ? b.dataset.v==="1" : b.dataset.v; ciz();};
+}
+const pk=el("palet");
+Object.keys(PALETLER).forEach(ad=>{
+  const b=document.createElement("button");
+  b.innerHTML='<span class="nokta" style="background:'+PALETLER[ad].dark.a+'"></span>'+ad;
+  if(ad===durum.palet)b.classList.add("on");
+  b.onclick=()=>{durum.palet=ad;[...pk.children].forEach(x=>x.classList.toggle("on",x===b));ciz();};
+  pk.appendChild(b);
+});
+ciz();
+</script>
+</body></html>

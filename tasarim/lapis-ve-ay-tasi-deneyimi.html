@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kertik — Nihai Sanat Deneyimi: Gündüz Lapis Lazuli & Gece Ay Taşı</title>
+<style>
+:root {
+  /* Gündüz: Lapis Lazuli & Gümüşi Kuarz Kumu */
+  --bg: #F4F2EE;
+  --bg-deep: #E7E3D8;
+  --surface: rgba(255, 255, 255, 0.82);
+  --surface-border: #DDD6C6;
+  --ink: #16181B;
+  --ink-secondary: #3C424E;
+  --muted: #727986;
+  --faint: #9EA6B4;
+  --line: #D3DBE5;
+  --line-deep: #BCC7D6;
+  --lapis-core: #1B2F4E;
+  --lapis-mid: #254370;
+  --lapis-light: #3A629E;
+  --lapis-highlight: #5A85C8;
+  --gold-pyrite: #D4AF37;
+  --gold-glow: #F9E29B;
+  --shadow: rgba(20, 35, 60, 0.22);
+}
+
+:root.dark {
+  /* Gece: Fildişi Ay Taşı & Karanlık Arduvaz Kumu */
+  --bg: #111317;
+  --bg-deep: #191B22;
+  --surface: rgba(24, 26, 32, 0.85);
+  --surface-border: #2A2D36;
+  --ink: #F2EFE8;
+  --ink-secondary: #C8C4B8;
+  --muted: #8E8A80;
+  --faint: #5C584E;
+  --line: #262934;
+  --line-deep: #3A3E4E;
+  --moon-core: #E4E0D6;
+  --moon-mid: #FAF8F2;
+  --moon-dark: #C8C3B4;
+  --gold-pyrite: #D8AF54;
+  --gold-glow: #F4D98C;
+  --shadow: rgba(0, 0, 0, 0.75);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; min-height: 100%; height: 100%; overflow-x: hidden; }
+body {
+  background: var(--bg-deep);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 20px 60px;
+  transition: background .4s cubic-bezier(0.4, 0, 0.2, 1), color .4s ease;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1040px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Header */
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--surface-border);
+}
+.header-title h1 {
+  font-size: 22px;
+  font-weight: 350;
+  letter-spacing: -.03em;
+  margin: 0;
+}
+.header-title p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+.btn-pill {
+  border: 1px solid var(--surface-border);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .2s;
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-pill:hover { border-color: var(--ink); transform: translateY(-1px); }
+.btn-pill:active { transform: translateY(0); }
+.btn-pill.active {
+  border-color: var(--lapis-mid);
+  color: var(--lapis-light);
+  background: rgba(37, 67, 112, 0.12);
+  font-weight: 600;
+}
+:root.dark .btn-pill.active {
+  border-color: var(--gold-pyrite);
+  color: var(--gold-pyrite);
+  background: rgba(216, 175, 84, 0.12);
+}
+
+/* Main Sanctuary Stage (Phone Frame on Altar) */
+.stage-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin: 10px 0 32px;
+}
+
+.sanctuary-phone {
+  position: relative;
+  width: 360px;
+  height: 740px;
+  border-radius: 48px;
+  overflow: hidden;
+  background: var(--bg);
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 28px 72px var(--shadow), 0 0 0 1px rgba(255,255,255,0.15) inset;
+  cursor: pointer;
+  user-select: none;
+  transition: transform .2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .4s ease;
+}
+.sanctuary-phone:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 34px 84px var(--shadow);
+}
+
+.sanctuary-phone canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* HUD Overlay */
+.hud-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 48px 24px 32px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.hud-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.hud-mode {
+  font-size: 11px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--lapis-light);
+  transition: color .3s;
+}
+:root.dark .hud-mode { color: var(--gold-pyrite); }
+
+.hud-task {
+  font-size: 13.5px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.hud-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 14%;
+}
+.hud-time {
+  font-size: 52px;
+  font-weight: 200;
+  letter-spacing: -.045em;
+  color: var(--ink);
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 14px rgba(255,255,255,0.4);
+}
+:root.dark .hud-time {
+  text-shadow: 0 2px 20px rgba(0,0,0,0.8);
+}
+.hud-status {
+  font-size: 12px;
+  color: var(--faint);
+  margin-top: 6px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.hud-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+}
+.tap-hint {
+  font-size: 11.5px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  padding: 5px 14px;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+}
+
+/* Control Dock */
+.control-dock {
+  width: 100%;
+  max-width: 680px;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 24px;
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 32px var(--shadow);
+  margin-bottom: 28px;
+}
+
+.dock-slider-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--surface-border);
+}
+.dock-slider-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+}
+.sim-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--line);
+  outline: none;
+  cursor: pointer;
+}
+.sim-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--lapis-mid);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  transition: background .3s;
+}
+:root.dark .sim-slider::-webkit-slider-thumb { background: var(--gold-pyrite); }
+
+.dock-btns {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Story & Material Cards */
+.story-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media(max-width: 760px) { .story-grid { grid-template-columns: 1fr; } }
+
+.story-card {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 20px;
+  padding: 22px;
+  backdrop-filter: blur(12px);
+}
+.story-card h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.story-card p {
+  font-size: 13.5px;
+  color: var(--ink-secondary);
+  margin: 0 0 10px;
+  line-height: 1.55;
+}
+.story-card ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: var(--ink-secondary);
+}
+.story-card li { margin-bottom: 6px; }
+
+/* Shake animation */
+.impact-shake {
+  animation: shakeAnim .25s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes shakeAnim {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-2.5px, 0, 0); }
+  40%, 60% { transform: translate3d(2px, 0, 0); }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-title">
+      <h1>Kertik — Nihai Mineral & Sanat Mabedi</h1>
+      <p>Gündüzün heybetli <strong>Lapis Lazuli kayası</strong> ve gecenin parıldayan <strong>Beyaz Ay Taşı (Shiro-Ishi)</strong>.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-pill active" id="themeBtn" onclick="toggleTheme()">☀️ Gündüz: Lapis Lazuli</button>
+      <button class="btn-pill" onclick="triggerImpact()">⚡ Kuma Taş Düşür</button>
+    </div>
+  </header>
+
+  <!-- Phone Sanctuary Stage -->
+  <div class="stage-container">
+    <div class="sanctuary-phone" id="phoneBox" onclick="triggerImpact()">
+      <canvas id="mainCanvas"></canvas>
+      <div class="hud-layer">
+        <div class="hud-top">
+          <span class="hud-mode" id="hudModeLabel">LAPIS LAZULI MONOLİTİ</span>
+          <span class="hud-task">Felsefe & Mimari Taslak</span>
+        </div>
+
+        <div class="hud-center">
+          <span class="hud-time" id="hudTime">25:00</span>
+          <span class="hud-status" id="hudStatus">ZAMAN AKIYOR</span>
+        </div>
+
+        <div class="hud-bottom">
+          <span class="tap-hint">Ekrana tıkla: darbe sesi & titreşim</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Master Interactive Control Dock -->
+  <div class="control-dock">
+    <!-- Slider -->
+    <div class="dock-slider-box">
+      <div class="dock-slider-head">
+        <span>⏱️ Pomodoro Akışı & Tırmık İlerlemesi:</span>
+        <span id="sliderLabel" style="color:var(--lapis-light); font-weight:700;">%100 (25 dk Tamamlandı)</span>
+      </div>
+      <input type="range" min="0" max="100" value="100" class="sim-slider" id="progressSlider" oninput="onProgressChange(this.value)">
+    </div>
+
+    <!-- Buttons -->
+    <div class="dock-btns">
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <span style="font-size:12.5px; font-weight:600; color:var(--muted);">Günün Birikimi:</span>
+        <button class="btn-pill active" onclick="setStoneCount(1, this)">1 Taş</button>
+        <button class="btn-pill" onclick="setStoneCount(3, this)">3 Taş</button>
+        <button class="btn-pill" onclick="setStoneCount(5, this)">5 Taş</button>
+      </div>
+
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <span style="font-size:12.5px; font-weight:600; color:var(--muted);">Wabi-Sabi Durumu:</span>
+        <button class="btn-pill active" onclick="setStoneState('intact', this)">Sağlam</button>
+        <button class="btn-pill" onclick="setStoneState('broken', this)">Kırık</button>
+        <button class="btn-pill" onclick="setStoneState('kintsugi', this)">Kintsugi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deep Story Cards -->
+  <div class="story-grid">
+    <div class="story-card">
+      <h2>☀️ Gündüz: Lapis Lazuli & Altın Pirit</h2>
+      <p>Açık renk gümüşi kuarz kumu üzerine yerleşen kraliyet laciverti (Ultramarin) mineral kayası.</p>
+      <ul>
+        <li><strong>Sıfır Kedi Kumu Riski:</strong> Düz siyah yerine kobalt mavi ve pirit taneleri paha biçilmez bir monolit oluşturur.</li>
+        <li><strong>Samon Su Tırmığı:</strong> Çizgiler taşın etrafından akıcı bir dalga gibi bükülür.</li>
+        <li><strong>Solfeggio 528 Hz:</strong> Taş düştüğünde zihinsel yenilenme ve odaklanma frekansı çalar.</li>
+      </ul>
+    </div>
+
+    <div class="story-card">
+      <h2>🌙 Gece: Beyaz Ay Taşı (*Shiro-Ishi*)</h2>
+      <p>Karanlık arduvaz kumu ortasında geceye düşen bir ay parçası gibi parıldayan fildişi taşı.</p>
+      <ul>
+        <li><strong>12.98:1 Yüksek Kontrast:</strong> Gece odada telefon masada dururken seanslar ışıl ışıl okunur.</li>
+        <li><strong>Kintsugi Şaheseri:</strong> Taş kırıldığında çatlak koyu yarılır; onarıldığında altın vernik gecede parlar.</li>
+        <li><strong>Solfeggio 432 Hz:</strong> Gece meditasyonu ve derin dinlenme frekansı.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================================
+   MATEMATİK & SOLFEGGIO SES MOTORU
+   ========================================================================== */
+function rng32(seed) {
+  let s = seed >>> 0;
+  return function() {
+    s = (s + 0x6D2B79F5) >>> 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function fbm(x, y, seed) {
+  const s = (seed || 0) * 17.13;
+  let v = 0, a = 0.5, f = 1.0;
+  for (let i = 0; i < 3; i++) {
+    v += a * Math.sin(x * f + s) * Math.cos(y * f - s * 0.7);
+    f *= 2.02; a *= 0.5;
+  }
+  return (v + 0.5);
+}
+
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) audioCtx = new AudioContext();
+  }
+  if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+}
+
+function playZenImpact(isDark) {
+  initAudio();
+  if (!audioCtx) return;
+
+  const now = audioCtx.currentTime;
+  
+  // Sub-bass vuruş
+  const osc1 = audioCtx.createOscillator();
+  const gain1 = audioCtx.createGain();
+  osc1.type = "sine";
+  osc1.frequency.setValueAtTime(isDark ? 95 : 85, now);
+  osc1.frequency.exponentialRampToValueAtTime(32, now + 0.18);
+  gain1.gain.setValueAtTime(0.42, now);
+  gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+  osc1.connect(gain1);
+  gain1.connect(audioCtx.destination);
+  osc1.start(now);
+  osc1.stop(now + 0.23);
+
+  // Solfeggio Çanı: Gündüz=528Hz (Lapis), Gece=432Hz (Ay Taşı)
+  const bellFreq = isDark ? 432 : 528;
+  const oscBell = audioCtx.createOscillator();
+  const gainBell = audioCtx.createGain();
+  oscBell.type = "sine";
+  oscBell.frequency.setValueAtTime(bellFreq, now + 0.02);
+  gainBell.gain.setValueAtTime(0.12, now + 0.02);
+  gainBell.gain.exponentialRampToValueAtTime(0.0001, now + 1.4);
+  oscBell.connect(gainBell);
+  gainBell.connect(audioCtx.destination);
+  oscBell.start(now + 0.02);
+  oscBell.stop(now + 1.45);
+}
+
+/* ==========================================================================
+   CANVAS MOTORU
+   ========================================================================== */
+let stoneCount = 1;
+let stoneState = "intact"; // intact | broken | kintsugi
+let progressRatio = 1.0;
+
+function setupCanvas() {
+  const cv = document.getElementById("mainCanvas");
+  const box = document.getElementById("phoneBox");
+  const rect = box.getBoundingClientRect();
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  
+  cv.width = Math.round(rect.width * dpr);
+  cv.height = Math.round(rect.height * dpr);
+  
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  renderSanctuary();
+}
+
+function getStones(count, W, H) {
+  const coords = [
+    { x: W * 0.50, y: H * 0.72, r: W * 0.17, e: 0.88, angle: -0.15, seed: 101 },
+    { x: W * 0.28, y: H * 0.44, r: W * 0.13, e: 0.82, angle: 0.35, seed: 204 },
+    { x: W * 0.74, y: H * 0.38, r: W * 0.11, e: 0.92, angle: -0.45, seed: 309 },
+    { x: W * 0.78, y: H * 0.62, r: W * 0.14, e: 0.85, angle: 0.20, seed: 412 },
+    { x: W * 0.22, y: H * 0.82, r: W * 0.10, e: 0.90, angle: -0.60, seed: 518 }
+  ];
+  return coords.slice(0, Math.min(count, coords.length));
+}
+
+function renderSanctuary() {
+  const cv = document.getElementById("mainCanvas");
+  if (!cv) return;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const W = cv.width / dpr;
+  const H = cv.height / dpr;
+  const ctx = cv.getContext("2d");
+  const isDark = document.documentElement.classList.contains("dark");
+  const stones = getStones(stoneCount, W, H);
+
+  ctx.clearRect(0, 0, W, H);
+
+  if (!isDark) {
+    // ------------------------------------------------------------- GÜNDÜZ: LAPIS LAZULI
+    renderLapisSanctuary(ctx, W, H, stones);
+  } else {
+    // ------------------------------------------------------------- GECE: AY TAŞI (SHIRO-ISHI)
+    renderMoonstoneSanctuary(ctx, W, H, stones);
+  }
+}
+
+/* GÜNDÜZ: LAPIS LAZULI MOTORU */
+function renderLapisSanctuary(ctx, W, H, stones) {
+  const bg = "#F4F2EE";
+  const sandLine = "#D2DCE6";
+  const sandLineLight = "#E8EFF8";
+  const shadow = "rgba(18, 32, 55, 0.24)";
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // 1. Samon Dairesel Su Dalgaları (Taşın etrafındaki tırmık halkaları)
+  ctx.save();
+  ctx.lineCap = "round";
+  stones.forEach(st => {
+    for (let ring = 1; ring <= 4; ring++) {
+      const rad = st.r * (1.18 + ring * 0.32);
+      ctx.beginPath();
+      for (let i = 0; i <= 36; i++) {
+        const a = (i / 36) * Math.PI * 2;
+        const rx = Math.cos(a) * rad;
+        const ry = Math.sin(a) * rad * st.e;
+        i ? ctx.lineTo(st.x + rx, st.y + ry) : ctx.moveTo(st.x + rx, st.y + ry);
+      }
+      ctx.strokeStyle = sandLine;
+      ctx.lineWidth = Math.max(0.8, 1.9 - ring * 0.3);
+      ctx.globalAlpha = Math.max(0.18, 0.65 - ring * 0.12);
+      ctx.stroke();
+    }
+  });
+
+  // 2. Yatay Tırmık Hatları (Van der Corput fazı ve seans ilerlemesi)
+  const maxY = Math.min(H, 24 + (H - 24) * progressRatio);
+  for (let y = 24; y < maxY; y += 18) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    for (let x = 0; x <= W; x += 10) {
+      let dy = Math.sin(x * 0.015 + y * 0.03) * 1.5;
+      stones.forEach(st => {
+        const d = Math.hypot(x - st.x, y - st.y);
+        if (d < st.r * 2.2) dy += (y > st.y ? 1 : -1) * (1 - d / (st.r * 2.2)) * 16;
+      });
+      ctx.lineTo(x, y + dy);
+    }
+    ctx.strokeStyle = sandLine;
+    ctx.lineWidth = 1.4;
+    ctx.globalAlpha = 0.55;
+    ctx.stroke();
+
+    ctx.strokeStyle = sandLineLight;
+    ctx.lineWidth = 0.8;
+    ctx.globalAlpha = 0.40;
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // 3. Ham Lapis Lazuli Monolitleri
+  stones.forEach((st, sIdx) => {
+    ctx.save();
+    ctx.translate(st.x, st.y);
+    ctx.rotate(st.angle);
+
+    // Koyu kobalt gömülme gölgesi
+    const gr = ctx.createRadialGradient(st.r * 0.15, st.r * 0.25, st.r * 0.2, st.r * 0.15, st.r * 0.25, st.r * 1.35);
+    gr.addColorStop(0, shadow);
+    gr.addColorStop(0.7, shadow);
+    gr.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = gr;
+    ctx.beginPath();
+    ctx.ellipse(st.r * 0.15, st.r * 0.25, st.r * 1.35, st.r * st.e * 1.35, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.scale(1, st.e);
+    const N = 32;
+    const pts = [];
+    for (let i = 0; i < N; i++) {
+      const a = (i / N) * Math.PI * 2;
+      const rr = st.r * (0.90 + fbm(Math.cos(a) * 2.2 + 2, Math.sin(a) * 2.2 + 6, st.seed) * 0.25);
+      pts.push([Math.cos(a) * rr, Math.sin(a) * rr]);
+    }
+
+    // Katman 1: Derin Kobalt Gövde
+    ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fillStyle = "#1E365C";
+    ctx.fill();
+
+    // Katman 2: Ultramarin Işık Rölyefi
+    ctx.save();
+    ctx.beginPath();
+    const kHalf = Math.floor(N * 0.55);
+    for (let i = 0; i <= kHalf; i++) {
+      const p = pts[i];
+      i ? ctx.lineTo(p[0] * 0.88, p[1] * 0.88) : ctx.moveTo(p[0] * 0.88, p[1] * 0.88);
+    }
+    for (let i = kHalf; i >= 0; i--) ctx.lineTo(pts[i][0] * 0.25, pts[i][1] * 0.25);
+    ctx.closePath();
+    ctx.fillStyle = "#3D6BB0";
+    ctx.globalAlpha = 0.75;
+    ctx.fill();
+    ctx.restore();
+
+    // Katman 3: Altın Pirit Zerrecikleri
+    ctx.save();
+    const R_pyr = rng32(st.seed + 77);
+    ctx.fillStyle = "#D4AF37";
+    for (let i = 0; i < 16; i++) {
+      const px = (R_pyr() - 0.5) * st.r * 1.25;
+      const py = (R_pyr() - 0.5) * st.r * 1.25;
+      const sz = 0.8 + R_pyr() * 1.8;
+      ctx.globalAlpha = 0.75 + R_pyr() * 0.25;
+      ctx.fillRect(px, py, sz, sz);
+    }
+    ctx.restore();
+
+    // Kırık / Kintsugi
+    if (stoneState === "broken" || (stoneState === "kintsugi" && sIdx === 0)) {
+      renderCrack(ctx, pts, st, "#D4AF37", "#F9E29B", "#F4F2EE", stoneState === "kintsugi");
+    }
+
+    ctx.restore();
+  });
+}
+
+/* GECE: BEYAZ AY TAŞI (SHIRO-ISHI) MOTORU */
+function renderMoonstoneSanctuary(ctx, W, H, stones) {
+  const bg = "#111317";
+  const sandLine = "#282B37";
+  const sandLineLight = "#3C4152";
+  const shadow = "rgba(0,0,0,0.85)";
+
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // 1. Samon Dairesel Su Dalgaları (Ay ışığı gümüşi tırmık halkaları)
+  ctx.save();
+  ctx.lineCap = "round";
+  stones.forEach(st => {
+    for (let ring = 1; ring <= 4; ring++) {
+      const rad = st.r * (1.18 + ring * 0.32);
+      ctx.beginPath();
+      for (let i = 0; i <= 36; i++) {
+        const a = (i / 36) * Math.PI * 2;
+        const rx = Math.cos(a) * rad;
+        const ry = Math.sin(a) * rad * st.e;
+        i ? ctx.lineTo(st.x + rx, st.y + ry) : ctx.moveTo(st.x + rx, st.y + ry);
+      }
+      ctx.strokeStyle = sandLine;
+      ctx.lineWidth = Math.max(0.8, 1.9 - ring * 0.3);
+      ctx.globalAlpha = Math.max(0.18, 0.65 - ring * 0.12);
+      ctx.stroke();
+    }
+  });
+
+  // 2. Yatay Tırmık Hatları
+  const maxY = Math.min(H, 24 + (H - 24) * progressRatio);
+  for (let y = 24; y < maxY; y += 18) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    for (let x = 0; x <= W; x += 10) {
+      let dy = Math.sin(x * 0.015 + y * 0.03) * 1.5;
+      stones.forEach(st => {
+        const d = Math.hypot(x - st.x, y - st.y);
+        if (d < st.r * 2.2) dy += (y > st.y ? 1 : -1) * (1 - d / (st.r * 2.2)) * 16;
+      });
+      ctx.lineTo(x, y + dy);
+    }
+    ctx.strokeStyle = sandLine;
+    ctx.lineWidth = 1.4;
+    ctx.globalAlpha = 0.55;
+    ctx.stroke();
+
+    ctx.strokeStyle = sandLineLight;
+    ctx.lineWidth = 0.8;
+    ctx.globalAlpha = 0.40;
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // 3. Fildişi Ay Taşları (Shiro-Ishi)
+  stones.forEach((st, sIdx) => {
+    ctx.save();
+    ctx.translate(st.x, st.y);
+    ctx.rotate(st.angle);
+
+    // Koyu Gece Çukuru Gölgesi
+    const gr = ctx.createRadialGradient(st.r * 0.15, st.r * 0.25, st.r * 0.2, st.r * 0.15, st.r * 0.25, st.r * 1.35);
+    gr.addColorStop(0, shadow);
+    gr.addColorStop(0.7, shadow);
+    gr.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = gr;
+    ctx.beginPath();
+    ctx.ellipse(st.r * 0.15, st.r * 0.25, st.r * 1.35, st.r * st.e * 1.35, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.scale(1, st.e);
+    const N = 32;
+    const pts = [];
+    for (let i = 0; i < N; i++) {
+      const a = (i / N) * Math.PI * 2;
+      const rr = st.r * (0.92 + fbm(Math.cos(a) * 2.2 + 2, Math.sin(a) * 2.2 + 6, st.seed) * 0.22);
+      pts.push([Math.cos(a) * rr, Math.sin(a) * rr]);
+    }
+
+    // Katman 1: İpek Mat Fildişi Taban (#E2DED4)
+    ctx.beginPath();
+    pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]));
+    ctx.closePath();
+    ctx.fillStyle = "#E4E0D6";
+    ctx.fill();
+
+    // Katman 2: Ay Işığı Üst Parıltı Rölyefi (#FAF8F2)
+    ctx.save();
+    ctx.beginPath();
+    const kHalf = Math.floor(N * 0.55);
+    for (let i = 0; i <= kHalf; i++) {
+      const p = pts[i];
+      i ? ctx.lineTo(p[0] * 0.88, p[1] * 0.88) : ctx.moveTo(p[0] * 0.88, p[1] * 0.88);
+    }
+    for (let i = kHalf; i >= 0; i--) ctx.lineTo(pts[i][0] * 0.25, pts[i][1] * 0.25);
+    ctx.closePath();
+    ctx.fillStyle = "#FAF8F2";
+    ctx.globalAlpha = 0.85;
+    ctx.fill();
+    ctx.restore();
+
+    // Katman 3: İnce Kemik/Mineral Damarları
+    ctx.save();
+    ctx.strokeStyle = "rgba(120, 110, 95, 0.22)";
+    ctx.lineWidth = 1.0;
+    for (let v = -0.4; v <= 0.4; v += 0.35) {
+      ctx.beginPath();
+      ctx.moveTo(-st.r * 0.75, v * st.r);
+      ctx.quadraticCurveTo(0, (v + 0.15) * st.r, st.r * 0.75, (v - 0.05) * st.r);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // Kırık / Kintsugi
+    if (stoneState === "broken" || (stoneState === "kintsugi" && sIdx === 0)) {
+      renderCrack(ctx, pts, st, "#D8AF54", "#F4D98C", "#111317", stoneState === "kintsugi");
+    }
+
+    ctx.restore();
+  });
+}
+
+function renderCrack(ctx, pts, st, gold, goldLight, bgStroke, isKintsugi) {
+  ctx.save();
+  const pStart = pts[0];
+  const pEnd = pts[Math.floor(pts.length / 2)];
+  
+  ctx.beginPath();
+  ctx.moveTo(pStart[0], pStart[1]);
+  ctx.lineTo(pStart[0] * 0.3 + pEnd[0] * 0.7 + (st.r * 0.08), pStart[1] * 0.3 + pEnd[1] * 0.7);
+  ctx.lineTo(pEnd[0], pEnd[1]);
+
+  if (isKintsugi) {
+    ctx.strokeStyle = gold;
+    ctx.lineWidth = Math.max(2.4, st.r * 0.12);
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.shadowColor = goldLight;
+    ctx.shadowBlur = 10;
+    ctx.stroke();
+
+    ctx.strokeStyle = goldLight;
+    ctx.lineWidth = Math.max(1.0, st.r * 0.05);
+    ctx.stroke();
+  } else {
+    ctx.strokeStyle = bgStroke;
+    ctx.lineWidth = Math.max(2.2, st.r * 0.10);
+    ctx.lineCap = "round";
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* ==========================================================================
+   ETKİLEŞİMLER
+   ========================================================================== */
+function triggerImpact() {
+  const box = document.getElementById("phoneBox");
+  box.classList.remove("impact-shake");
+  void box.offsetWidth;
+  box.classList.add("impact-shake");
+
+  const isDark = document.documentElement.classList.contains("dark");
+  playZenImpact(isDark);
+  renderSanctuary();
+}
+
+function onProgressChange(val) {
+  progressRatio = val / 100;
+  const remSec = Math.round(25 * 60 * (1 - progressRatio));
+  const m = Math.floor(remSec / 60);
+  const s = remSec % 60;
+  const timeStr = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+  
+  document.getElementById("sliderLabel").innerText = `%${val} (${25 - m} dk tamamlandı)`;
+  document.getElementById("hudTime").innerText = timeStr;
+  renderSanctuary();
+}
+
+function setStoneCount(cnt, btn) {
+  stoneCount = cnt;
+  document.querySelectorAll('.dock-btns .btn-pill').forEach((b, i) => {
+    if (i < 3) b.classList.remove("active");
+  });
+  btn.classList.add("active");
+  renderSanctuary();
+}
+
+function setStoneState(st, btn) {
+  stoneState = st;
+  document.querySelectorAll('.dock-btns .btn-pill').forEach((b, i) => {
+    if (i >= 3) b.classList.remove("active");
+  });
+  btn.classList.add("active");
+  renderSanctuary();
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.classList.toggle("dark");
+  const themeBtn = document.getElementById("themeBtn");
+  const hudLabel = document.getElementById("hudModeLabel");
+  
+  if (isDark) {
+    themeBtn.innerText = "🌙 Gece: Beyaz Ay Taşı";
+    hudLabel.innerText = "BEYAZ AY TAŞI (SHIRO-ISHI)";
+  } else {
+    themeBtn.innerText = "☀️ Gündüz: Lapis Lazuli";
+    hudLabel.innerText = "LAPIS LAZULI MONOLİTİ";
+  }
+  setupCanvas();
+}
+
+window.addEventListener("resize", setupCanvas);
+window.addEventListener("load", () => {
+  setupCanvas();
+});
+</script>
+</body>
+</html>

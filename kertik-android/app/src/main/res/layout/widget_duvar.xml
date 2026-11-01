@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/wDuvarKok"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_arka"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp">
+
+    <!-- Başlık ve Özet Satırı -->
+    <LinearLayout
+        android:id="@+id/wDuvarBaslikSatir"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/wDuvarBaslik"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="KERTİK · DUVAR"
+            android:textSize="11.5sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08" />
+
+        <TextView
+            android:id="@+id/wDuvarOzet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="30 gün"
+            android:textSize="11.5sp" />
+    </LinearLayout>
+
+    <!-- 30 Günlük C-Kertik Kalasları ve Zen Taşları Galerisi (Tüm orta alanı doldurur) -->
+    <ImageView
+        android:id="@+id/wDuvarCanvas"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/wDuvarAltSatir"
+        android:layout_below="@+id/wDuvarBaslikSatir"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:scaleType="fitXY" />
+
+    <!-- Alt Açıklama Satırı -->
+    <LinearLayout
+        android:id="@+id/wDuvarAltSatir"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/wDuvarSol"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="30 gün önce"
+            android:textSize="10.5sp" />
+
+        <TextView
+            android:id="@+id/wDuvarSag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="bugün"
+            android:textSize="10.5sp" />
+    </LinearLayout>
+
+</RelativeLayout>

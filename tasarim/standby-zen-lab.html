@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kertik — StandBy Zen & Canlı Kapsül Tezgâhı</title>
+<style>
+  :root {
+    --bg: #F5F3EF;
+    --card: #FFFFFF;
+    --ink: #1D1D1F;
+    --ink2: #48484A;
+    --muted: #8E8E93;
+    --line: rgba(0, 0, 0, 0.08);
+    --accent: #E05A47;
+    --cool: #3A86C8;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0F1012;
+      --card: #18191C;
+      --ink: #F2F2F7;
+      --ink2: #AEAEB2;
+      --muted: #636366;
+      --line: rgba(255, 255, 255, 0.1);
+      --accent: #FF6B57;
+      --cool: #5AC8FA;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.45;
+    padding: 32px 20px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header {
+    text-align: center;
+    max-width: 680px;
+    margin-bottom: 32px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    margin-bottom: 8px;
+  }
+  .header p {
+    font-size: 15px;
+    color: var(--ink2);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 28px;
+    max-width: 1040px;
+    width: 100%;
+  }
+
+  .card-lab {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+  }
+
+  .lab-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    width: 100%;
+  }
+
+  /* Telefon Çerçevesi */
+  .device-mockup {
+    position: relative;
+    width: 320px;
+    height: 520px;
+    background: var(--bg);
+    border: 8px solid var(--line);
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.5s var(--ease);
+  }
+
+  .device-mockup.landscape {
+    width: 480px;
+    height: 300px;
+  }
+
+  /* StandBy Görünümü */
+  .sb-view {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    cursor: pointer;
+    user-select: none;
+    background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.03) 100%);
+  }
+
+  .sb-status {
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+    transition: color 0.3s;
+  }
+  .sb-status.break {
+    color: var(--cool);
+  }
+
+  .sb-clock {
+    font-size: 64px;
+    font-weight: 200;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .device-mockup.landscape .sb-clock {
+    font-size: 80px;
+  }
+
+  .sb-sub {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-top: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sb-task {
+    font-size: 13px;
+    color: var(--ink2);
+    margin-top: 6px;
+    font-weight: 450;
+  }
+
+  .sb-hint {
+    position: absolute;
+    bottom: 16px;
+    font-size: 11px;
+    color: var(--muted);
+    opacity: 0.5;
+    letter-spacing: 0.05em;
+  }
+
+  /* Kilit Ekranı Kapsülü */
+  .capsule-mockup {
+    width: 100%;
+    max-width: 330px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 20px;
+    padding: 16px 18px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .capsule-mockup {
+      background: rgba(30, 32, 36, 0.75);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  .cap-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .cap-tag {
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+  }
+  .cap-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+  }
+  .cap-time {
+    font-size: 26px;
+    font-weight: 300;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+  .cap-info {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .cap-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .cap-btn {
+    flex: 1;
+    padding: 9px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 550;
+    text-align: center;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .cap-btn:active {
+    transform: scale(0.96);
+  }
+  .cap-btn.primary {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: transparent;
+  }
+
+  .control-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    width: 100%;
+    justify-content: center;
+  }
+  .btn-lab {
+    padding: 10px 18px;
+    font-size: 13.5px;
+    font-weight: 500;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-lab:hover {
+    border-color: var(--ink);
+  }
+  .btn-lab.active {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: transparent;
+  }
+
+  .live-log {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: monospace;
+    background: rgba(0,0,0,0.03);
+    padding: 6px 12px;
+    border-radius: 8px;
+    width: 100%;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Kertik StandBy Zen & Canlı Kapsül</h1>
+  <p>Hantal ana ekran widget'ları yerine; kilit ekranında sessiz çalışan canlı bildirim ve masaya konduğunda açılan devasa nefes alan masa saati deneyimi.</p>
+</div>
+
+<div class="grid">
+
+  <!-- STANDBY ZEN MODU -->
+  <div class="card-lab">
+    <div class="lab-title">1. StandBy Zen (Masaüstü Odak Modu)</div>
+    
+    <div class="device-mockup" id="phoneMockup">
+      <div class="sb-view" id="sbView" title="Dokunarak çıkış yapabilirsiniz">
+        <div class="sb-status" id="labSbStatus">ÇALIŞIYOR</div>
+        <div class="sb-clock" id="labSbClock">24:59</div>
+        <div class="sb-sub" id="labSbSub">1. çentik · 25dk hedef</div>
+        <div class="sb-task" id="labSbTask">Matematik Soru Çözümü</div>
+        <div class="sb-hint">çıkmak için dokun</div>
+      </div>
+    </div>
+
+    <div class="control-row">
+      <button class="btn-lab active" id="btnPortrait" onclick="setOrientation('portrait')">Dikey Mod</button>
+      <button class="btn-lab" id="btnLandscape" onclick="setOrientation('landscape')">Yatay Masa Saati</button>
+    </div>
+    <div class="live-log" id="sbLog">Durum: StandBy aktif · Ekran uyanık tutuluyor (wakeLock)</div>
+  </div>
+
+  <!-- SESSİZ CANLI KAPSÜL -->
+  <div class="card-lab">
+    <div class="lab-title">2. Sessiz Canlı Bildirim (Kilit Ekranı Kapsülü)</div>
+    
+    <div class="capsule-mockup">
+      <div class="cap-header">
+        <span class="cap-tag" id="capTag">● ÇALIŞIYOR</span>
+        <span id="capMode">Pomodoro (25dk)</span>
+      </div>
+      <div class="cap-body">
+        <div class="cap-time" id="capTime">24:59</div>
+        <div class="cap-info" id="capInfo">Matematik Soru Çözümü</div>
+      </div>
+      <div class="cap-actions" id="capActions">
+        <button class="cap-btn" onclick="eylemSimule('break')">Mola Ver</button>
+        <button class="cap-btn primary" onclick="eylemSimule('end')">Bitir</button>
+      </div>
+    </div>
+
+    <div class="control-row">
+      <button class="btn-lab" onclick="eylemSimule('start')">Yeni Seans Başlat</button>
+      <button class="btn-lab" onclick="eylemSimule('resume')">Devam Et</button>
+    </div>
+    <div class="live-log" id="capLog">Eylem: KertikEylemAlici BroadcastReceiver üzerinden sessizce işlendi (uygulama açılmadı)</div>
+  </div>
+
+</div>
+
+<script>
+  let saniye = 25 * 60;
+  let calisiyor = true;
+  let molada = false;
+  let timerId = null;
+
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+  function formatZaman(s) {
+    const m = Math.floor(s / 60);
+    const sn = s % 60;
+    return pad(m) + ':' + pad(sn);
+  }
+
+  function guncelleUI() {
+    const str = formatZaman(saniye);
+    document.getElementById('labSbClock').textContent = str;
+    document.getElementById('capTime').textContent = str;
+
+    const sbSt = document.getElementById('labSbStatus');
+    const capTag = document.getElementById('capTag');
+    const capActs = document.getElementById('capActions');
+
+    if (!calisiyor) {
+      sbSt.textContent = 'HAZIR';
+      sbSt.className = 'sb-status';
+      capTag.textContent = '○ HAZIR';
+      capTag.style.color = 'var(--muted)';
+      capActs.innerHTML = '<button class="cap-btn primary" style="width:100%" onclick="eylemSimule(\'start\')">Başlat</button>';
+    } else if (molada) {
+      sbSt.textContent = 'MOLA';
+      sbSt.className = 'sb-status break';
+      capTag.textContent = '⏸ MOLADASIN';
+      capTag.style.color = 'var(--cool)';
+      capActs.innerHTML = '<button class="cap-btn primary" onclick="eylemSimule(\'resume\')">Devam Et</button><button class="cap-btn" onclick="eylemSimule(\'end\')">Bitir</button>';
+    } else {
+      sbSt.textContent = 'ÇALIŞIYOR';
+      sbSt.className = 'sb-status';
+      capTag.textContent = '● ÇALIŞIYOR';
+      capTag.style.color = 'var(--accent)';
+      capActs.innerHTML = '<button class="cap-btn" onclick="eylemSimule(\'break\')">Mola Ver</button><button class="cap-btn primary" onclick="eylemSimule(\'end\')">Bitir</button>';
+    }
+  }
+
+  function baslatDongu() {
+    if (timerId) clearInterval(timerId);
+    timerId = setInterval(() => {
+      if (calisiyor && !molada) {
+        if (saniye > 0) saniye--;
+        guncelleUI();
+      } else if (calisiyor && molada) {
+        saniye++;
+        guncelleUI();
+      }
+    }, 1000);
+  }
+
+  function eylemSimule(eylem) {
+    const log = document.getElementById('capLog');
+    if (eylem === 'start') {
+      calisiyor = true; molada = false; saniye = 25 * 60;
+      log.textContent = 'Eylem: Seans arka planda sessizce başlatıldı.';
+    } else if (eylem === 'break') {
+      molada = true; saniye = 0;
+      log.textContent = 'Eylem: KertikEylemAlici (break) broadcast tetiklendi. Uygulama açılmadan mola başladı.';
+    } else if (eylem === 'resume') {
+      molada = false; saniye = 25 * 60;
+      log.textContent = 'Eylem: KertikEylemAlici (resume) broadcast tetiklendi. Odak seansı devam ediyor.';
+    } else if (eylem === 'end') {
+      calisiyor = false; molada = false; saniye = 0;
+      log.textContent = 'Eylem: KertikEylemAlici (end) broadcast tetiklendi. Seans kaydedildi ve kapatıldı.';
+    }
+    guncelleUI();
+  }
+
+  function setOrientation(o) {
+    const m = document.getElementById('phoneMockup');
+    const pBtn = document.getElementById('btnPortrait');
+    const lBtn = document.getElementById('btnLandscape');
+    if (o === 'landscape') {
+      m.classList.add('landscape');
+      lBtn.classList.add('active');
+      pBtn.classList.remove('active');
+    } else {
+      m.classList.remove('landscape');
+      pBtn.classList.add('active');
+      lBtn.classList.remove('active');
+    }
+  }
+
+  document.getElementById('sbView').onclick = () => {
+    const log = document.getElementById('sbLog');
+    log.textContent = 'Dokunma algılandı: StandBy modundan normal sayaç sayfasına pürüzsüz geçiş.';
+  };
+
+  guncelleUI();
+  baslatDongu();
+</script>
+</body>
+</html>

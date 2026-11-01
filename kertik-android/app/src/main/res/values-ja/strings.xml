@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ja — kertik-android/dil/ sözlüğünden üretildi, elle düzenleme -->
+<resources>
+    <string name="bildirim_kanal">進行中のセッション</string>
+    <string name="bildirim_kanal_aciklama">セッション中にタイマーを表示します。音は鳴りません。</string>
+    <string name="bildirim_devam">再開</string>
+    <string name="bildirim_mola">休憩</string>
+    <string name="bildirim_bitir">終了</string>
+    <string name="widget_baslat">開始</string>
+    <string name="widget_calisiyor">実行中</string>
+    <string name="widget_molada">休憩中</string>
+    <string name="widget_duvar_aciklama">直近30日間の作業をひと目で。</string>
+    <string name="widget_kontrol_aciklama">アプリを開かずにセッションを開始・一時停止・終了できます。</string>
+    <string name="resmi_kaydet">画像を保存</string>
+    <string name="yedegi_kaydet">バックアップを保存</string>
+    <string name="widget_bos">まだ記録がありません</string>
+    <string name="widget_pomodoro">ポモドーロ</string>
+    <string name="widget_bugun">今日</string>
+    <string name="widget_gun_once">%1$d日前</string>
+    <string name="widget_bugun_dk">今日 · %1$d分</string>
+    <string name="widget_mola_alt">休憩中 · 一息ついて</string>
+    <string name="widget_basladin">%1$sに開始</string>
+    <string name="widget_centik">%1$d分目</string>
+    <string name="widget_ilerleme">%1$d / %2$d分</string>
+    <string name="widget_duvar_baslik">壁</string>
+    <string name="widget_otuz_gun">30日間</string>
+    <string name="widget_gunde_seans">%1$d日で作業</string>
+    <string name="odak_modu_tetik">セッション中</string>
+</resources>

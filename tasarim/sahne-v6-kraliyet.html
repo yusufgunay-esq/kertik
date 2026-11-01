@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Kertik Yeni Sanat Vizyonu: Harmonograf & Porselen Kintsugi</title>
+<style>
+  body { margin: 0; background: #1a1816; color: #efe7da; font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 24px; }
+  h1 { font-weight: 400; font-size: 20px; letter-spacing: 0.04em; margin: 0 0 18px; color: #d4af61; }
+  .grid { display: grid; grid-template-columns: repeat(3, 390px); gap: 24px; }
+  .card { position: relative; width: 390px; height: 760px; border-radius: 32px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(212,175,97,0.2); }
+  .card canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .ui { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; }
+  .status { position: absolute; top: 118px; font-size: 13px; letter-spacing: 0.14em; text-transform: lowercase; font-weight: 600; }
+  .clock { font-family: Georgia, "Times New Roman", serif; font-size: 54px; font-weight: 400; letter-spacing: -0.02em; margin-top: -16px; font-variant-numeric: tabular-nums; }
+  .sub { font-size: 14px; margin-top: 6px; opacity: 0.72; }
+  .meta { position: absolute; bottom: 195px; font-size: 13.5px; opacity: 0.75; text-align: center; line-height: 1.7; }
+  .btns { position: absolute; bottom: 120px; display: flex; gap: 18px; align-items: center; }
+  .btn-main { padding: 12px 32px; border-radius: 99px; font-size: 15px; font-weight: 600; border: 1.5px solid; }
+  .btn-sec { font-size: 15px; opacity: 0.65; padding: 8px 12px; }
+  .label { position: absolute; top: 18px; left: 22px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.55; }
+</style>
+</head>
+<body>
+<h1>KERTİK YENİ SANAT DİLİ: KRONOMETRE (HARMONOGRAF) & POMODORO (PORSELEN BORDÜR + KİNTSUGİ)</h1>
+<div class="grid" id="grid"></div>
+<script>
+const TAM = Math.PI * 2;
+const cl = (v, a, b) => v < a ? a : v > b ? b : v;
+const hs = (a, b, c) => { const x = Math.sin(a * 12.9898 + b * 78.233 + c * 37.719) * 43758.5453; return x - Math.floor(x); };
+const hexRgb = c => { const m = /^#([0-9a-f]{6})$/i.exec((c || "").trim()); return m ? [parseInt(m[1].slice(0, 2), 16), parseInt(m[1].slice(2, 4), 16), parseInt(m[1].slice(4, 6), 16)] : [128, 128, 128]; };
+const rgba = (c, a) => { const m = hexRgb(c); return "rgba(" + m[0] + "," + m[1] + "," + m[2] + "," + cl(a, 0, 1).toFixed(3) + ")"; };
+
+function palet(koyu) {
+  return koyu ? {
+    koyu: true,
+    bg: "#12100E", bg2: "#1A1714",
+    ink: "#EDE6D8", ink2: "#B8B0A2",
+    acc: "#D46876", gold: "#D4AF61", goldLight: "#F2DDA0",
+    cool: "#7E97A8", band: "#24181B"
+  } : {
+    koyu: false,
+    bg: "#F6F2E9", bg2: "#EBE5D8",
+    ink: "#1E1A17", ink2: "#5C5346",
+    acc: "#7A1C29", gold: "#B08A42", goldLight: "#D6B772",
+    cool: "#5A6E7F", band: "#5E1A24"
+  };
+}
+
+/* 1. Zemin: Saf Fildişi Porselen / Parşömen (kedi tüyü çizikler olmadan, incecik mikro-doku ve köşe vinyeti) */
+function kagitCiz(g, W, H, p) {
+  g.fillStyle = p.bg;
+  g.fillRect(0, 0, W, H);
+  // Merkezden dışa çok zarif sıcaklık/vinyet geçişi
+  const gr = g.createRadialGradient(W / 2, H * 0.44, Math.min(W, H) * 0.2, W / 2, H / 2, Math.max(W, H) * 0.78);
+  gr.addColorStop(0, p.koyu ? "rgba(255,248,230,0.02)" : "rgba(255,253,248,0.55)");
+  gr.addColorStop(0.65, "rgba(0,0,0,0)");
+  gr.addColorStop(1, p.koyu ? "rgba(0,0,0,0.42)" : "rgba(70,56,40,0.08)");
+  g.fillStyle = gr;
+  g.fillRect(0, 0, W, H);
+
+  // Mikro porselen/parşömen greni (yalnızca noktasal, göz yormayan mat his)
+  g.fillStyle = p.koyu ? "rgba(255,245,225,0.016)" : "rgba(45,35,25,0.018)";
+  for (let i = 0; i < 1400; i++) {
+    const x = hs(i, 1, 7) * W, y = hs(i, 2, 7) * H, s = 0.6 + hs(i, 3, 7) * 1.1;
+    g.fillRect(x, y, s, s);
+  }
+}
+
+/* 2. KRONOMETRE: Harmonograf (Çift Sarkaç Senfonisi & Guilloché)
+   Sayacın olduğu iç daire (r < R * 0.78) tamamen saf boşluk kalır.
+   Sarkaç her dakika yeni bir harmonik tel örer; saatler geçtikçe altın, bordo ve sumi katmanları derinleşir.
+   Molalarda rezonans kırılır, soğuk mavi sapma telleri ve mürekkep sızıntısı oluşur. */
+function harmonografCiz(g, W, H, cx, cy, R, p, v, sd) {
+  const ero = v.ero || 0;
+  const dk = v.bos ? 0 : v.dk;
+  const rIn = R * 0.78;
+  const rOut = R * 1.38;
+
+  // İnce referans usturlap halkaları (her zaman sakin bir çerçeve verir)
+  g.save();
+  g.translate(cx, cy);
+
+  // İç ve dış altın-mürekkep kılcal sınır çemberleri
+  g.strokeStyle = rgba(p.gold, p.koyu ? 0.28 : 0.35);
+  g.lineWidth = 0.75;
+  g.beginPath(); g.arc(0, 0, rIn - 4, 0, TAM); g.stroke();
+  g.strokeStyle = rgba(p.ink, p.koyu ? 0.14 : 0.12);
+  g.lineWidth = 0.5;
+  g.beginPath(); g.arc(0, 0, rOut + 6, 0, TAM); g.stroke();
+
+  // 60 dakika kılcal kadran kertikleri (iç çemberde çok zarif saat/dakika ölçeği)
+  for (let i = 0; i < 60; i++) {
+    const a = (i / 60) * TAM - Math.PI / 2;
+    const maj = i % 5 === 0;
+    const r1 = rIn - (maj ? 8 : 5.5), r2 = rIn - 2.5;
+    g.strokeStyle = maj ? rgba(p.gold, 0.55) : rgba(p.ink, 0.18);
+    g.lineWidth = maj ? 1.0 : 0.55;
+    g.beginPath();
+    g.moveTo(Math.cos(a) * r1, Math.sin(a) * r1);
+    g.lineTo(Math.cos(a) * r2, Math.sin(a) * r2);
+    g.stroke();
+  }
+
+  // Tohumdan gelen sarkaç harmonik oranları (her seans eşsiz bir mücevher)
+  const ORANLAR = [
+    [3, 2], [4, 3], [5, 3], [5, 4], [6, 5], [7, 4], [7, 5], [8, 5], [9, 7], [11, 8]
+  ];
+  const secim = ORANLAR[Math.floor(hs(1, 1, sd) * ORANLAR.length)];
+  const P1 = secim[0], Q1 = secim[1];
+  const P2 = P1 + (hs(2, 1, sd) > 0.5 ? 2 : 1);
+  const faz0 = hs(3, 1, sd) * TAM;
+  const yon = hs(4, 1, sd) > 0.5 ? 1 : -1;
+  const ikincilOran = 0.28 + hs(5, 1, sd) * 0.22;
+
+  // Boş durumda bile tohumun hayalet (ghost) ana yörüngesini çok silik göster ki ekran ölü durmasın
+  const telFunc = (t, katman, fazKaymasi, sapma) => {
+    const rMid = rIn + (rOut - rIn) * (0.46 + katman * 0.12);
+    const gen = (rOut - rIn) * (0.38 - katman * 0.04);
+    const w1 = Math.sin(P1 * t + faz0 + fazKaymasi);
+    const w2 = Math.cos(Q1 * t * yon - fazKaymasi * 1.3);
+    const w3 = Math.sin(P2 * t + fazKaymasi * 0.7);
+    const harm = (1 - ikincilOran) * (0.62 * w1 + 0.38 * w2) + ikincilOran * w3;
+    const r = rMid + gen * harm + sapma;
+    const ang = t - Math.PI / 2 + 0.08 * Math.cos(Q1 * t + fazKaymasi);
+    return [Math.cos(ang) * r, Math.sin(ang) * r];
+  };
+
+  if (v.bos) {
+    g.strokeStyle = rgba(p.gold, p.koyu ? 0.18 : 0.22);
+    g.lineWidth = 0.65;
+    g.beginPath();
+    for (let s = 0; s <= 360; s++) {
+      const t = (s / 360) * TAM;
+      const [x, y] = telFunc(t, 0, 0, 0);
+      s ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+    const [bx, by] = telFunc(0, 0, 0, 0);
+    g.fillStyle = p.acc;
+    g.beginPath(); g.arc(bx, by, 3.2, 0, TAM); g.fill();
+    g.restore();
+    return;
+  }
+
+  // Her dakika 1 tam harmonik tel (veya kesirli son tel) örülür
+  // Çok uzun seanslarda (ör. 180+ dk) performans ve zarafet için adım yoğunluğu dengelenir
+  const toplamTel = Math.min(240, Math.ceil(dk));
+  const telBasinaDk = dk / Math.max(1, toplamTel);
+  const molaMi = dkx => v.molas && v.molas.some(([a, b]) => dkx >= a && dkx < b);
+
+  for (let k = 0; k < toplamTel; k++) {
+    const dkx = k * telBasinaDk;
+    const saatKatmani = Math.min(2, Math.floor(dkx / 60)); // 0: ilk saat, 1: ikinci saat, 2: üçüncü+ saat
+    const mo = molaMi(dkx);
+    const sonTelMi = (k === toplamTel - 1);
+    const kesir = sonTelMi ? cl((dk - dkx) / telBasinaDk, 0.05, 1) : 1;
+
+    // Faz kayması: her dakika sarkaç yörüngesi yavaşça döner ve ipeksi moiré dokusunu oluşturur
+    const faz = k * 0.068 + saatKatmani * 0.45;
+    const erozyonSonum = 1 - ero * 0.45 * hs(k, 9, sd);
+
+    // Renk disiplini:
+    // Katman 0 (1. saat): Derin sumi mürekkebi + her 5 dakikada bir ince altın tel
+    // Katman 1 (2. saat): Kraliyet bordosu (#7A1C29) + altın
+    // Katman 2 (3. saat+): Antik altın (#B08A42) ve koyu mürekkep kontrastı
+    let renk = p.ink, alfa = (p.koyu ? 0.24 : 0.22) * erozyonSonum, kalinlik = 0.55;
+    if (mo) {
+      renk = p.cool;
+      alfa = (p.koyu ? 0.35 : 0.38) * erozyonSonum;
+      kalinlik = 0.65;
+    } else if (k % 6 === 0) {
+      renk = p.gold;
+      alfa = (p.koyu ? 0.45 : 0.48) * erozyonSonum;
+      kalinlik = 0.7;
+    } else if (saatKatmani === 1) {
+      renk = p.acc;
+      alfa = (p.koyu ? 0.32 : 0.28) * erozyonSonum;
+    } else if (saatKatmani >= 2) {
+      renk = k % 2 === 0 ? p.gold : p.ink;
+      alfa = (p.koyu ? 0.36 : 0.32) * erozyonSonum;
+    }
+
+    g.strokeStyle = rgba(renk, alfa);
+    g.lineWidth = kalinlik;
+    if (mo) g.setLineDash([3, 3.5]); else g.setLineDash([]);
+
+    const adimSayisi = 220;
+    const sonAdim = Math.max(2, Math.floor(adimSayisi * kesir));
+    g.beginPath();
+    for (let s = 0; s <= sonAdim; s++) {
+      const t = (s / adimSayisi) * TAM;
+      // Molada sarkaçta rezonans kırılması (dissonance / titreme) oluşur
+      const sapma = mo ? Math.sin(t * 19 + k) * 5.5 + (hs(k, s, sd) - 0.5) * 3.0 : 0;
+      const [x, y] = telFunc(t, saatKatmani * 0.35, faz, sapma);
+      s ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+  }
+  g.setLineDash([]);
+
+  // Mola başlangıç noktalarında kağıda sızan dürüst mürekkep/su halkaları
+  if (v.molas) {
+    v.molas.forEach(([mBas, mBit], idx) => {
+      const k = Math.floor(mBas / telBasinaDk);
+      const faz = k * 0.068;
+      const [mx, my] = telFunc((mBas % 1) * TAM, 0, faz, 0);
+      const sure = Math.min(30, (mBit > 1e7 ? dk : mBit) - mBas);
+      const mr = 3.5 + Math.min(8, sure * 0.35);
+      g.fillStyle = rgba(p.cool, 0.16);
+      g.beginPath(); g.arc(mx, my, mr * 1.4, 0, TAM); g.fill();
+      g.strokeStyle = rgba(p.cool, 0.55);
+      g.lineWidth = 0.9;
+      g.beginPath(); g.arc(mx, my, mr, 0, TAM); g.stroke();
+    });
+  }
+
+  // Saat başı elmas/altın kertik mühürleri
+  for (let st = 1; st * 60 <= dk; st++) {
+    const a = (st * 60 / 360) * TAM - Math.PI / 2;
+    const rx = Math.cos(a) * (rIn - 4), ry = Math.sin(a) * (rIn - 4);
+    g.save();
+    g.translate(rx, ry);
+    g.rotate(a + Math.PI / 2);
+    g.fillStyle = p.gold;
+    g.beginPath();
+    g.moveTo(0, -5); g.lineTo(3.5, 0); g.lineTo(0, 5); g.lineTo(-3.5, 0); g.closePath();
+    g.fill();
+    g.restore();
+  }
+
+  // Canlı sarkaç iğnesi (en son telin ucunda parlayan asil mühür ucu)
+  const sonK = toplamTel - 1;
+  const sonKatman = Math.min(2, Math.floor(dk / 60)) * 0.35;
+  const sonFaz = sonK * 0.068 + Math.min(2, Math.floor(dk / 60)) * 0.45;
+  const sonKesir = cl((dk - sonK * telBasinaDk) / telBasinaDk, 0.05, 1);
+  const [px, py] = telFunc(sonKesir * TAM, sonKatman, sonFaz, 0);
+
+  g.fillStyle = p.bg;
+  g.beginPath(); g.arc(px, py, 5.2, 0, TAM); g.fill();
+  g.strokeStyle = v.onBreak ? p.cool : p.gold;
+  g.lineWidth = 1.2;
+  g.beginPath(); g.arc(px, py, 5.2, 0, TAM); g.stroke();
+  g.fillStyle = v.onBreak ? p.cool : p.acc;
+  g.beginPath(); g.arc(px, py, 2.8, 0, TAM); g.fill();
+
+  g.restore();
+}
+
+/* 3. POMODORO: Vintage Porselen Bordür & Kintsugi Altın Tezhip
+   Ortada geniş, dokunulmamış fildişi porselen göbek.
+   Çevresinde koyu bordo/kobalt/zümrüt porselen bant ve çift altın cetvel.
+   Süre ilerledikçe (f: 0 -> 1) bant içinde tohumdan üretilen altın yaldızlı botanik dal, yaprak ve çiçek rozetleri işlenir.
+   Mola uzadığında (ero > 0) porselen bantta sır çatlağı oluşur ve Kintsugi (altın lehim) damarıyla onarılır! */
+function porselenBordurCiz(g, W, H, cx, cy, R, p, v, sd) {
+  const f = v.bos ? 0 : cl(v.f, 0, 1);
+  const ero = v.ero || 0;
+  const rIn = R * 0.78;
+  const rOut = R * 1.16;
+  const rMid = (rIn + rOut) / 2;
+  const bantKalinlik = rOut - rIn;
+
+  // Tohumdan gelen porselen kuşak rengi (Bordo, İznik Kobaltı, İmparatorluk Zümrüdü, Kehribar Siyahı)
+  const BANTLAR_ACIK = ["#5E1A24", "#1B334B", "#1E3A2F", "#3A231E"];
+  const BANTLAR_KOYU = ["#38131A", "#152536", "#162B22", "#281B17"];
+  const bantIdx = Math.floor(hs(1, 1, sd) * 4);
+  const bantRenk = p.koyu ? BANTLAR_KOYU[bantIdx] : BANTLAR_ACIK[bantIdx];
+
+  g.save();
+  g.translate(cx, cy);
+
+  // 1. Porselen tabak çukur gölgesi (rim shadow)
+  const rimGrad = g.createRadialGradient(0, 0, rIn * 0.88, 0, 0, rIn);
+  rimGrad.addColorStop(0, "rgba(0,0,0,0)");
+  rimGrad.addColorStop(1, p.koyu ? "rgba(0,0,0,0.35)" : "rgba(40,28,20,0.06)");
+  g.fillStyle = rimGrad;
+  g.beginPath(); g.arc(0, 0, rIn, 0, TAM); g.fill();
+
+  // 2. Bordür kuşağının zemin halkası (tüm çember boyunca mat porselen kuşak, tamamlanan kısım tam doygun, kalan kısım hafif fildişi iz)
+  // Tam çember ince yatak izi
+  g.strokeStyle = rgba(bantRenk, p.koyu ? 0.28 : 0.11);
+  g.lineWidth = bantKalinlik;
+  g.beginPath(); g.arc(0, 0, rMid, 0, TAM); g.stroke();
+
+  // İlerleyen koyu porselen sır kuşağı
+  if (f > 0.001) {
+    const basAci = -Math.PI / 2;
+    const bitAci = basAci + f * TAM;
+    g.strokeStyle = bantRenk;
+    g.lineWidth = bantKalinlik;
+    g.lineCap = "butt";
+    g.beginPath(); g.arc(0, 0, rMid, basAci, bitAci); g.stroke();
+  }
+
+  // 3. Çift Altın Cetvel (İç ve dış çift yaldız bilezik - Vintage tabağın imzası)
+  const cizAltinHalka = (r, kal, alfa) => {
+    g.strokeStyle = rgba(p.gold, alfa);
+    g.lineWidth = kal;
+    g.beginPath(); g.arc(0, 0, r, 0, TAM); g.stroke();
+  };
+  cizAltinHalka(rIn - 3.5, 0.8, 0.55);
+  cizAltinHalka(rIn, 1.5, 0.88);
+  cizAltinHalka(rOut, 1.5, 0.88);
+  cizAltinHalka(rOut + 3.5, 0.8, 0.55);
+
+  // Köşe/Kenar ince altın geometrik inci dizisi
+  const inciSayisi = 72;
+  for (let i = 0; i < inciSayisi; i++) {
+    const oran = i / inciSayisi;
+    const a = oran * TAM - Math.PI / 2;
+    const aktif = oran <= f;
+    g.fillStyle = rgba(aktif ? p.goldLight : p.gold, aktif ? 0.75 : 0.22);
+    g.beginPath();
+    g.arc(Math.cos(a) * (rIn + 3.2), Math.sin(a) * (rIn + 3.2), 0.9, 0, TAM);
+    g.arc(Math.cos(a) * (rOut - 3.2), Math.sin(a) * (rOut - 3.2), 0.9, 0, TAM);
+    g.fill();
+  }
+
+  // 4. Bordür İçi Altın Yaldız Botanik Tezhip (Sarmaşık, Yapraklar ve Çiçek Rozetleri)
+  if (f > 0.005) {
+    const cicekSayisi = [8, 10, 12][Math.floor(hs(2, 1, sd) * 3)];
+    const tacSayisi = [5, 6, 8][Math.floor(hs(3, 1, sd) * 3)];
+    const dalDalga = 2.2 + Math.floor(hs(4, 1, sd) * 2);
+
+    // Ana altın sarmaşık dalı (bordürün ortasında kıvrılarak ilerleyen tezhip dalı)
+    const dalAdim = Math.max(4, Math.floor(f * 320));
+    g.strokeStyle = rgba(p.goldLight, 0.88);
+    g.lineWidth = 1.25;
+    g.beginPath();
+    for (let s = 0; s <= dalAdim; s++) {
+      const u = (s / 320);
+      const a = u * TAM - Math.PI / 2;
+      const salinim = Math.sin(u * cicekSayisi * TAM) * (bantKalinlik * 0.22);
+      const r = rMid + salinim;
+      const x = Math.cos(a) * r, y = Math.sin(a) * r;
+      s ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+
+    // İkincil ince karşıt altın dal (çift sarmal arabesk)
+    g.strokeStyle = rgba(p.gold, 0.52);
+    g.lineWidth = 0.75;
+    g.beginPath();
+    for (let s = 0; s <= dalAdim; s++) {
+      const u = (s / 320);
+      const a = u * TAM - Math.PI / 2;
+      const salinim = -Math.sin(u * cicekSayisi * TAM) * (bantKalinlik * 0.18);
+      const r = rMid + salinim;
+      const x = Math.cos(a) * r, y = Math.sin(a) * r;
+      s ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+
+    // Yapraklar (her dal kıvrımında çift yönlü altın yaldız yaprak)
+    const toplamYaprak = cicekSayisi * 4;
+    for (let j = 0; j < toplamYaprak; j++) {
+      const u = (j + 0.5) / toplamYaprak;
+      if (u > f) break;
+      const buyume = cl((f - u) * toplamYaprak, 0, 1);
+      const a = u * TAM - Math.PI / 2;
+      const yon = j % 2 === 0 ? 1 : -1;
+      const salinim = Math.sin(u * cicekSayisi * TAM) * (bantKalinlik * 0.20);
+      const r = rMid + salinim + yon * 3.5;
+      const lx = Math.cos(a) * r, ly = Math.sin(a) * r;
+
+      g.save();
+      g.translate(lx, ly);
+      g.rotate(a + Math.PI / 2 + yon * 0.55);
+      g.scale(buyume, buyume);
+      g.fillStyle = rgba(p.goldLight, 0.78);
+      g.strokeStyle = rgba(p.gold, 0.95);
+      g.lineWidth = 0.6;
+      g.beginPath();
+      g.moveTo(0, 0);
+      g.quadraticCurveTo(4.5, -3.2 * yon, 9.5, -0.5 * yon);
+      g.quadraticCurveTo(4.5, 2.2 * yon, 0, 0);
+      g.fill();
+      g.stroke();
+      g.restore();
+    }
+
+    // Ana Çiçek Rozetleri (her dilimin tepesinde açan altın yaldızlı Vintage porselen çiçeği)
+    for (let k = 0; k < cicekSayisi; k++) {
+      const u = (k + 0.25) / cicekSayisi;
+      if (u > f) break;
+      const acilma = cl((f - u) * cicekSayisi * 1.4, 0, 1);
+      const a = u * TAM - Math.PI / 2;
+      const salinim = Math.sin(u * cicekSayisi * TAM) * (bantKalinlik * 0.16);
+      const r = rMid + salinim * 0.35;
+      const fx = Math.cos(a) * r, fy = Math.sin(a) * r;
+
+      g.save();
+      g.translate(fx, fy);
+      g.rotate(a);
+      g.scale(acilma, acilma);
+
+      const cr = bantKalinlik * 0.27;
+      for (let t = 0; t < tacSayisi; t++) {
+        const ta = (t / tacSayisi) * TAM;
+        g.save();
+        g.rotate(ta);
+        g.fillStyle = rgba(p.goldLight, 0.85);
+        g.strokeStyle = bantRenk;
+        g.lineWidth = 0.65;
+        g.beginPath();
+        g.moveTo(0, 0);
+        g.bezierCurveTo(cr * 0.5, -cr * 0.38, cr * 0.95, -cr * 0.28, cr, 0);
+        g.bezierCurveTo(cr * 0.95, cr * 0.28, cr * 0.5, cr * 0.38, 0, 0);
+        g.fill();
+        g.stroke();
+        g.restore();
+      }
+      // Çiçek göbeği (bordo/zümrüt üzerine altın тоhum)
+      g.fillStyle = bantRenk;
+      g.beginPath(); g.arc(0, 0, cr * 0.28, 0, TAM); g.fill();
+      g.fillStyle = p.goldLight;
+      g.beginPath(); g.arc(0, 0, cr * 0.15, 0, TAM); g.fill();
+      g.restore();
+    }
+
+    // 5. Molada Bozulma: Krakle (Sır Çatlağı) ve Kintsugi (Altın Lehim) Damarları
+    if (ero > 0.02 || (v.molas && v.molas.length > 0)) {
+      const catlakSayisi = Math.max(v.molas ? v.molas.length : 0, Math.ceil(ero * 5));
+      for (let c = 0; c < catlakSayisi; c++) {
+        const cu = v.molas && v.molas[c] ? cl(v.molas[c][0] / 25, 0.05, f) : cl((c + 1) / (catlakSayisi + 1) * f, 0.05, f);
+        const ca = cu * TAM - Math.PI / 2;
+        // Çatlak dış kenardan iç porselen göbeğe doğru kırık zikzaklarla yürür
+        const x0 = Math.cos(ca) * (rOut + 3), y0 = Math.sin(ca) * (rOut + 3);
+        const nx = -Math.cos(ca), ny = -Math.sin(ca);
+        const tx = -ny, ty = nx;
+        const derinlik = bantKalinlik + 18 + ero * 26;
+
+        // Önce koyu çatlak yarığı, üstüne parlak altın Kintsugi dolgusu
+        const noktalar = [[x0, y0]];
+        let sap = 0;
+        for (let st = 1; st <= 7; st++) {
+          const d = (st / 7) * derinlik;
+          sap += (hs(c, st, sd + 19) - 0.5) * 9;
+          noktalar.push([x0 + nx * d + tx * sap, y0 + ny * d + ty * sap]);
+        }
+
+        // Kırık gölgesi
+        g.strokeStyle = "rgba(0,0,0,0.45)";
+        g.lineWidth = 2.6;
+        g.beginPath();
+        noktalar.forEach(([px, py], i) => i ? g.lineTo(px + 0.8, py + 0.8) : g.moveTo(px + 0.8, py + 0.8));
+        g.stroke();
+
+        // Kintsugi altın lehim damarı (moladaysa soğuk gümüş/çatlak, çalışmaya dönüldüyse parlak altın onarım)
+        g.strokeStyle = v.onBreak ? p.cool : p.goldLight;
+        g.lineWidth = 1.6;
+        g.beginPath();
+        noktalar.forEach(([px, py], i) => i ? g.lineTo(px, py) : g.moveTo(px, py));
+        g.stroke();
+
+        // Yan kılcal çatlak dalı
+        if (noktalar[3]) {
+          const [bx, by] = noktalar[3];
+          g.lineWidth = 0.85;
+          g.beginPath();
+          g.moveTo(bx, by);
+          g.lineTo(bx + (nx + tx * 0.7) * 14, by + (ny + ty * 0.7) * 14);
+          g.stroke();
+        }
+      }
+    }
+
+    // 6. Büyüme Ucu (Altın Tezhip İğnesi)
+    if (f < 1) {
+      const ucAci = f * TAM - Math.PI / 2;
+      const ux = Math.cos(ucAci) * rMid, uy = Math.sin(ucAci) * rMid;
+      g.fillStyle = p.goldLight;
+      g.beginPath(); g.arc(ux, uy, 4.2, 0, TAM); g.fill();
+      g.fillStyle = v.onBreak ? p.cool : p.acc;
+      g.beginPath(); g.arc(ux, uy, 2.2, 0, TAM); g.fill();
+    }
+  }
+
+  g.restore();
+}
+
+const sahneler = [
+  {
+    baslik: "1. KRONOMETRE (95 DK ÇALIŞMA + 1 MOLA)",
+    mod: "k", koyu: false, sd: 42,
+    durum: "çalışıyor", saat: "1:35:18", alt: "2. saat, 35. çentik",
+    meta: "bugünkü işler ›<br>14:00'te başladın · mola 8dk",
+    v: { bos: false, dk: 95, ero: 0.08, onBreak: false, molas: [[42, 50]] }
+  },
+  {
+    baslik: "2. POMODORO (PORSELEN BORDÜR — %72)",
+    mod: "p", koyu: false, sd: 19,
+    durum: "çalışıyor", saat: "07:12", alt: "18 / 25 çentik",
+    meta: "bugünkü işler ›<br>15:10'da başladın",
+    v: { bos: false, f: 0.72, ero: 0, onBreak: false, molas: [] }
+  },
+  {
+    baslik: "3. POMODORO (TAMAMLANDI + KİNTSUGİ ONARIMI)",
+    mod: "p", koyu: true, sd: 77,
+    durum: "tamamlandı", saat: "+04:15", alt: "fazladan 4dk · kintsugi",
+    meta: "bugünkü işler ›<br>gece seansı · 1 mola onarıldı",
+    v: { bos: false, f: 1.0, ero: 0.35, onBreak: false, molas: [[11, 19]] }
+  }
+];
+
+const grid = document.getElementById("grid");
+sahneler.forEach(s => {
+  const p = palet(s.koyu);
+  const card = document.createElement("div");
+  card.className = "card";
+  card.style.color = p.ink;
+  const cv = document.createElement("canvas");
+  cv.width = 390 * 2; cv.height = 760 * 2;
+  const g = cv.getContext("2d");
+  g.scale(2, 2);
+
+  kagitCiz(g, 390, 760, p);
+  const cx = 195, cy = 325, R = 126;
+  if (s.mod === "k") harmonografCiz(g, 390, 760, cx, cy, R, p, s.v, s.sd);
+  else porselenBordurCiz(g, 390, 760, cx, cy, R, p, s.v, s.sd);
+
+  card.appendChild(cv);
+  const ui = document.createElement("div");
+  ui.className = "ui";
+  ui.innerHTML = `
+    <div class="label" style="color:${p.ink2}">${s.baslik}</div>
+    <div class="status" style="color:${p.acc}">${s.durum}</div>
+    <div class="clock" style="color:${s.durum === 'tamamlandı' ? p.acc : p.ink}">${s.saat}</div>
+    <div class="sub" style="color:${p.ink2}">${s.alt}</div>
+    <div class="meta" style="color:${p.ink2}">${s.meta}</div>
+    <div class="btns">
+      <div class="btn-main" style="background:${p.koyu ? '#1e1b18' : '#efeae0'};border-color:${p.ink2};color:${p.ink}">mola</div>
+      <div class="btn-sec" style="color:${p.ink2}">bitir</div>
+    </div>
+  `;
+  card.appendChild(ui);
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+- generic [ref=f6e3]:
+  - heading "Sahne laboratuvarı" [level=3] [ref=f6e4]
+  - generic [ref=f6e5]:
+    - 'button "kronometre: yolculuk" [ref=f6e6] [cursor=pointer]'
+    - 'button "pomodoro: havuz" [ref=f6e7] [cursor=pointer]'
+  - generic [ref=f6e8]:
+    - generic [ref=f6e9]: "geçen süre: 190 dk (molalar 60–72 ve 130–142)"
+    - slider [ref=f6e10]: "190"
+  - generic [ref=f6e11]: "tohum: 7"
+  - slider [ref=f6e12]: "7"
+  - generic [ref=f6e13]:
+    - button "koyu tema" [ref=f6e14] [cursor=pointer]
+    - button "kadran ve saat" [ref=f6e15] [cursor=pointer]
+  - generic [ref=f6e16]: "Ekranda döngü yok: her kare, süreden ve tohumdan türeyen tek bir durağan resim. Aynı süre ve tohum aynı resmi verir."

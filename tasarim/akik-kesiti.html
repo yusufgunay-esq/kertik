@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Akik Kesiti — aynı iskelet, başka maden</title>
+<style>
+:root{
+  --bg:#F5F2EA; --bg2:#EFEBE1; --ink:#16181B; --muted:#726E65; --line:#DCD5C6;
+  --acc:#B05237; --cool:#3E7C77;
+}
+html.gece{ --bg:#16171A; --bg2:#1C1D21; --ink:#EDE9E0; --muted:#948F84; --line:#2E2F34;
+  --acc:#D0785B; --cool:#79B3AE }
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding:40px 30px 90px;transition:background .35s,color .35s}
+.wrap{max-width:1150px;margin:0 auto}
+h1{font-weight:300;font-size:38px;letter-spacing:-.6px;margin:0 0 8px}
+h2{font-weight:400;font-size:23px;margin:56px 0 4px}
+h3{font-weight:600;font-size:15px;margin:0 0 4px}
+p{color:var(--muted);max-width:76ch;margin:6px 0}
+p.k{color:var(--ink)}
+b{font-weight:600;color:var(--ink)}
+i{color:var(--ink)}
+code{font-size:.88em;background:var(--bg2);padding:1px 5px;border-radius:4px}
+.gecebtn{position:fixed;top:18px;right:20px;border:1px solid var(--line);background:var(--bg2);
+  color:var(--muted);border-radius:999px;padding:7px 16px;font:inherit;font-size:14px;cursor:pointer;z-index:9}
+.satir{display:flex;gap:18px;flex-wrap:wrap;margin-top:22px;align-items:flex-start}
+.kutu{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:16px}
+.kutu canvas{display:block}
+.alt{margin-top:10px;font-size:12.5px;color:var(--muted);line-height:1.45;max-width:230px}
+.alt b{font-size:13px}
+ul{color:var(--muted);max-width:78ch;font-size:14.5px;padding-left:20px}
+li{margin:7px 0}
+.uyari{border-left:2px solid var(--acc);padding:2px 0 2px 16px;margin:18px 0;max-width:76ch}
+.uyari p{color:var(--ink)}
+.itiraf{border-left:2px solid var(--muted);padding:2px 0 2px 16px;margin:18px 0;max-width:76ch}
+.rafwrap{display:flex;gap:10px;align-items:flex-end;margin-top:18px;flex-wrap:wrap}
+
+/* ---- tam ekran telefon çerçevesi (ana-ekran.html'deki .tel/.cam ile birebir aynı dil) ---- */
+.buyukwrap{display:flex;gap:30px;flex-wrap:wrap;align-items:flex-start;margin-top:22px}
+.tel{width:300px}
+.cam{width:300px;height:620px;border-radius:34px;overflow:hidden;background:var(--bg);
+  border:1px solid var(--line);position:relative;box-shadow:0 1px 0 var(--line) inset}
+.cam canvas{position:absolute;inset:0}
+.cam .ust{position:absolute;top:20px;left:0;right:0;text-align:center;font-size:10.5px;
+  letter-spacing:.19em;color:var(--acc);transition:color .2s}
+.cam .ust.mola{color:var(--cool)}
+.cam .sayi{position:absolute;left:0;right:0;top:256px;text-align:center;
+  font-weight:200;font-size:50px;letter-spacing:-.02em;color:var(--ink)}
+.cam .alt2{position:absolute;left:0;right:0;top:320px;text-align:center;font-size:11px;
+  color:var(--muted)}
+.cam .nav{position:absolute;bottom:0;left:0;right:0;height:50px;display:flex;
+  align-items:center;justify-content:space-around;font-size:10px;color:var(--muted);opacity:.22}
+.kontrol{display:flex;flex-direction:column;gap:12px;min-width:230px;padding-top:6px}
+.kontrol .lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pill{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:1px solid var(--line);background:var(--bg2);color:var(--ink);border-radius:999px;
+  padding:7px 14px;font:inherit;font-size:13.5px;cursor:pointer}
+.chip.sec{border-color:var(--acc);color:var(--acc)}
+.izlebtn{border:1px solid var(--ink);background:var(--ink);color:var(--bg);border-radius:999px;
+  padding:10px 18px;font:inherit;font-size:14.5px;cursor:pointer;font-weight:600;margin-top:4px}
+.kontrol .not{font-size:12.5px;color:var(--muted);max-width:220px;line-height:1.5}
+</style></head><body>
+<button class="gecebtn" onclick="document.documentElement.classList.toggle('gece');ciz()">gece</button>
+<div class="wrap">
+
+<h1>Akik Kesiti</h1>
+<p class="k">Sordun: ebruyu mu geliştireyim, yoksa kum bahçesi gibi başka bir dünya mı getireyim.
+Notların hepsini okudum — ama önce kendi gözümle baktım, sonra karşılaştırdım. Kısa cevap:
+ebruyu boyama, kırağı ve halka teknik olarak doğru ama <b>duygusuz</b>, kum bahçesi gerçekten
+başka bir dünya ama <b>fazla öngörülebilir</b>. Bu sayfa dördüncü bir yol: <code>halka.html</code>'nin
+zaten çözdüğü iskeleti (eksensiz, altı saat sorunu çözülmüş) alıp üstüne <b>tamamen başka bir
+malzeme</b> giydiriyor — çentik/cetvel değil, <b>akik</b>. Bir taşın enine kesiti gibi büyüyen,
+kesilince cilalanmış bir minerale bakıyormuşsun gibi duran bir kayıt.</p>
+
+<h2>0 · Önce şuna bak — tam ekran, canlı</h2>
+<p>Dün gösterdiğim kutular yan yana laboratuvar karşılaştırmasıydı — haklısın, widget gibi
+durdu. Burada aynı çizim <b>gerçek telefon çerçevesinde</b>, gerçek arayüzün üstünde
+(<code>ana-ekran.html</code>'deki telefon kartının birebir aynısı) ve <b>oynatarak</b>: "izle"ye
+bas, dakikalar gerçekten birikirken izle. Gerçek uygulamada bu bir oynatma değil — her katman
+kendi dakikasında bir kez, sessizce ekleniyor; burada sadece hızlandırıyorum ki büyümeyi
+görebilesin.</p>
+<div class="buyukwrap">
+  <div class="tel">
+    <div class="cam" id="buyukCam">
+      <canvas id="buyukCanvas"></canvas>
+      <div class="ust" id="buyukUst">ÇALIŞIYOR</div>
+      <div class="sayi" id="buyukSayi">0:00</div>
+      <div class="alt2" id="buyukAlt">—</div>
+      <div class="nav"><span>SAYAÇ</span><span>KAYIT</span><span>GÖREV</span><span>AYAR</span></div>
+    </div>
+  </div>
+  <div class="kontrol">
+    <div class="lbl">Senaryo</div>
+    <div class="pill" id="senaryolar"></div>
+    <button class="izlebtn" id="izleBtn" onclick="izle()">▶ izle</button>
+    <div class="not">Halka aralığının saat arttıkça nasıl daraldığını da burada canlı
+    göreceksin — altı saatlik senaryoda yedinci halka açılırken duraklat, kendi gözünle bak.</div>
+  </div>
+</div>
+
+<h2>1 · İskelet aynı, deri başka</h2>
+<p>Aşağıdaki kutular artık ikinci sırada — laboratuvar karşılaştırması için, tam ekran deneyim
+değil. Yukarıdakini gördükten sonra bunlara "widget" gözüyle bakman doğru; buradaki amaç
+büyük resmi görmek değil, halka ile akiğin aynı iskeleti nasıl paylaştığını yan yana kanıtlamak.</p>
+<p>Solda <code>halka.html</code>'nin ta kendisi — hiç değiştirmedim. Sağda aynı veri, aynı
+<code>r0/rMax</code> mantığı, aynı "saat sayısı arttıkça aralık küçülür" kuralı. Değişen tek şey:
+ışın yerine <b>katman</b>. Çentik bir kayıt <i>işareti</i>; akik bir kayıt <i>maddesi</i> —
+ikisi de dürüst, ikisi de aynı dakikayı temsil ediyor, ama biri ölçü aleti gibi okunuyor,
+diğeri bir nesne gibi.</p>
+<div class="satir" id="s_iskelet"></div>
+
+<h2>2 · Nasıl büyüyor</h2>
+<p>Her dakika, o anki halkanın dış kenarına ince bir tortu ekleniyor — kesin sınırlı bir çizgi değil,
+komşularıyla birleşen bir hücre. Saat dolunca halka kapanıyor, yeni halka dışarıda başka bir
+tondan açılıyor. <code>halka.html</code>'nin altı saat çözümü birebir burada da geçerli: halka
+aralığı ve katman kalınlığı saat sayısıyla birlikte küçülüyor, çerçeve hiç taşmıyor.</p>
+<div class="satir" id="s_buyume"></div>
+
+<h2>3 · Mola: berrak damar</h2>
+<p>Akikte molayı <b>renk vermeyerek</b> değil, <b>maden biriktirmeyerek</b> gösteriyorum — o açıda
+büyüme durmuş, geriye neredeyse saydam bir kuvars boşluğu kalmış. Ölçülmüyor, görülüyor: tıpkı
+<code>halka.html</code>'nin kesilmemiş yayı gibi, ama burada boşluk "kesik" değil "duraklamış maden."</p>
+<div class="satir" id="s_mola"></div>
+
+<h2>4 · Aynı seansta birden fazla maden</h2>
+<p><code>25-widget-cubuk-ve-arkaplan.md</code> tek bir vurgu rengi seçmemizi öneriyordu (is mürekkebi
+ya da arduvaz). Akikte bu seçim zorunlu değil — <b>hepsi aynı anda</b> yaşayabilir. Her saat halkası
+kendi seansının kimliğinden türeyen bir sırayla is mürekkebi/arduvaz/çini/bister arasında geçiş
+yapıyor; terracotta yalnız ara sıra ince bir damar olarak sızıyor. Palet kararı laboratuvarındaki
+beş ton burada rakip değil, aynı taşın farklı katmanları oluyor.</p>
+<div class="satir" id="s_maden"></div>
+
+<h2>5 · Duvar: taş rafı</h2>
+<p>Ayrı bir arka plan aramaya gerek yok — duvar/arşiv ekranı zaten bunun doğal galerisi. Her gün
+kendi kesitini bırakıyor; eski günler soluyor (<code>24-sanat-dili.md</code>'nin <i>sabi</i>si,
+zaten kararlı ilke), kısa gün küçük taş, uzun gün büyük taş. Bir koleksiyoncunun rafı gibi —
+ödül değil, biriken kayıt.</p>
+<div class="rafwrap" id="s_raf"></div>
+
+<h2>6 · Kendi eleştirim</h2>
+<p><code>24-sanat-dili.md</code> bölüm 5'teki altı soruyu kendi önerime uyguluyorum, kendimi
+kayırmadan:</p>
+<ul>
+<li><b>Malzeme testi ✅</b> — "vektör" değil, "mineral katmanı" cevabı çıkıyor. Katman kalınlığı,
+  ton, mikro-çizgi hepsi çizginin kendi geometrisinden.</li>
+<li><b>Asimetri testi ✅</b> — her hücrenin yarıçapı ve tonu ayrı ayrı titriyor, iki halka asla
+  birebir aynı büyümüyor.</li>
+<li><b>Yabancı testi — muhtemelen ✅, ama denenmedi.</b> Üç saniye gösterip "bu ne?" diye sormadım.
+  Tahminim "kesilmiş bir taş" ya da "mineral" cevabı — ama bu iddia değil, test edilmesi gereken
+  bir varsayım.</li>
+<li><b>Zaman testi ✅</b> — en taze katman en dış kenarda, iç katmanlar sabit ve "eski" duruyor.
+  Hiçbir yer aynı tazelikte değil.</li>
+<li><b>Ma testi ✅</b> — mola dolduruluyor değil, <i>biriktirilmiyor</i>. Boşluk maddenin
+  yokluğu, "kesik" bir sinyal değil.</li>
+<li><b>Bağırma testi ⚠️</b> — burada dürüst olayım: akik/kuvars/taş kesiti estetiği, meditasyon
+  uygulamalarının "kristal" klişesine tehlikeli derecede yakın (Calm, parlak taş ikonları, chakra
+  görselleri). Bunu <b>parlaklık, gradyan, ışıltı koymayarak</b> önlemeye çalıştım — mat, donuk,
+  jeoloji ders kitabı sayfası gibi kalmalı, mücevherci vitrini gibi değil. Bu satırdan sonra
+  eklenecek her efekt bu sınırı test etmeli.</li>
+</ul>
+<div class="itiraf">
+<p><b>İkinci itiraf:</b> halka dolgusuz olduğu için <code>24</code>'ün "dolan halka = varış
+noktası" yasağından kaçıyordu. Akik <b>dolan bir halka</b> — bu riski geri getiriyor olabilir mi?
+Cevabım hayır, ama gerekçesi önemli: dolan şey bir <i>hedefe</i> değil, <i>o saate</i> doluyor
+ve dolduktan sonra hiçbir şey "tamamlandı" demiyor, sadece yeni halka açılıyor — halkanın kendi
+kuralı. Yine de bu ayrımı gerçek kullanıcıya göstermeden %100 emin olamam; ilk risk buydu, bunu
+saklamıyorum.</p>
+</div>
+
+<h2>7 · Diğer üçü hakkında dürüst fikrim</h2>
+<p><b>Kırağı</b> teknik olarak en güzel çizilmiş olanı — ama senin "kimse bunun için bu uygulamaya
+geçmez" tepkine katılıyorum: buz, Kertik'in <i>adıyla</i> hiçbir ilişki kurmuyor, herhangi bir
+odak uygulamasına takılabilir. <b>Halka</b> bir iskelet olarak mükemmel — eksensiz, ölçeklenen,
+madalyon tuzağına düşmeyen — ama saf çentik dilinde kalınca soğuk ve enstrüman gibi duruyor,
+"havalı bir kronometre" hissi oradan geliyor bence. <b>Kum bahçesi</b> gerçekten başka bir
+dünyaydı ve öngörülebilirlik dışında haklı bir eleştirisi yok — ama alan/kontur dili
+(<code>marching squares</code>) akikle aynı aileden, ikisini birden götürmek gereksiz; akik
+aynı "başka dünya" hissini <b>çentiğin kendi ölçeklenen iskeletinde</b> vererek iki kuşu tek
+taşla vurmayı deniyor. Kısacası: halkanın <i>iskeletini</i>, kum bahçesinin <i>ruhunu</i> alıp
+ebrudan tamamen kopan bir malzemede birleştirmeye çalıştım.</p>
+
+</div>
+<script>
+/* ---------- ortak (uygulamayla ve halka.html ile birebir) ---------- */
+function hash32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng32(a){a=a>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const turOf=(v,m)=>{for(const b of (v.molalar||[]))if(m>=b[0]&&m<b[1])return "mola";return "is"};
+
+function tuval(id,w,h){
+  const cv=typeof id==="string"?document.getElementById(id):id;
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=w*dpr;cv.height=h*dpr;cv.style.width=w+"px";cv.style.height=h+"px";
+  const g=cv.getContext("2d");g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);
+  return g;
+}
+
+/* ============================================================
+   MADEN — beş ton, palet-karari.html'deki tam hex değerleri
+   ============================================================ */
+function madenler(){
+  const gece=document.documentElement.classList.contains("gece");
+  return gece ? [
+    {ad:"is mürekkebi", h:"#DCD8CF"}, {ad:"arduvaz", h:"#8FA6AC"},
+    {ad:"çini", h:"#8FA8CE"}, {ad:"bister", h:"#BFA47C"}, {ad:"kor", h:"#D0785B"}
+  ] : [
+    {ad:"is mürekkebi", h:"#23272B"}, {ad:"arduvaz", h:"#42585F"},
+    {ad:"çini", h:"#2E4B78"}, {ad:"bister", h:"#6B5334"}, {ad:"kor", h:"#B05237"}
+  ];
+}
+function hexKaristir(hex,hex2,t){
+  const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+  const a=p(hex),b=p(hex2);
+  const c=a.map((v,i)=>Math.round(v+(b[i]-v)*t));
+  return "rgb("+c.join(",")+")";
+}
+
+/* ============================================================
+   AKİK — halka.html'nin iskeleti, çentik yerine katman
+   ============================================================ */
+function cizAkik(g,v,o){
+  const M=madenler();
+  const R=rng32(hash32("akik-"+(v.id||"x")));
+  const Rkor=Math.floor(R()*M.length);              /* seans kimliğinden tür sıralaması */
+  const dk=Math.max(1,Math.round(v.dk));
+  const per=o.period||60;
+  const tur=Math.ceil(dk/per);
+  const r0=o.r0, rMax=o.rMax;
+  const alan=rMax-r0, adim=alan/Math.max(1,tur);
+
+  const P={ink:css("--ink"),cool:css("--cool"),line:css("--line")};
+
+  /* çekirdek — büyümenin başladığı yer, mat, parlamasız */
+  g.beginPath();g.arc(o.cx,o.cy,Math.max(3,r0*.4),0,7);
+  g.fillStyle=P.ink;g.globalAlpha=.14;g.fill();g.globalAlpha=1;
+
+  for(let m=0;m<dk;m++){
+    const k=Math.floor(m/per), pos=m%per;
+    const rIn0=r0+k*adim, rOut0=r0+(k+1)*adim;
+    const a0=-Math.PI/2+pos/per*Math.PI*2, a1=-Math.PI/2+(pos+1.02)/per*Math.PI*2;
+    const jr=(R()-.5)*adim*.16;                       /* fukinsei: organik, kusursuz halka değil */
+    const rIn=rIn0+jr*.4, rOut=rOut0+jr;
+
+    if(turOf(v,m)==="mola"){
+      /* berrak damar — maden birikmemiş, ince bir çatlak izi kalmış */
+      g.beginPath();g.arc(o.cx,o.cy,(rIn+rOut)/2,a0,a1);
+      g.strokeStyle=P.ink;g.lineWidth=.7;g.globalAlpha=.10;g.stroke();
+      continue;
+    }
+
+    const toneIdx=(Rkor+k)%M.length;
+    const tone=M[toneIdx].h;
+    const shade=hexKaristir(tone, P.ink, .10+R()*.10);  /* mikro ton titremesi */
+
+    g.beginPath();g.arc(o.cx,o.cy,rOut,a0,a1);
+    g.arc(o.cx,o.cy,rIn,a1,a0,true);
+    g.closePath();
+    g.fillStyle=shade;g.globalAlpha=.90+R()*.10;g.fill();
+
+    /* ince katman çizgisi — her ~5 dakikada bir mikro-şerit */
+    if(pos%5===0){
+      g.beginPath();g.arc(o.cx,o.cy,rOut,a0,a1);
+      g.strokeStyle=P.ink;g.lineWidth=.6;g.globalAlpha=.10;g.stroke();
+    }
+  }
+  g.globalAlpha=1;
+
+  /* büyüme ucu — "kalem şu an burada" */
+  const sonM=dk-1;
+  if(turOf(v,sonM)==="is"){
+    const k=Math.floor(sonM/per), pos=sonM%per;
+    const rk=r0+(k+1)*adim;
+    const ax=-Math.PI/2+(pos+1)/per*Math.PI*2;
+    const x=o.cx+Math.cos(ax)*rk, y=o.cy+Math.sin(ax)*rk;
+    g.beginPath();g.arc(x,y,1.6,0,7);
+    g.fillStyle=M[(Rkor+k)%M.length].h;g.globalAlpha=.9;g.fill();g.globalAlpha=1;
+  }
+
+  /* sayılmayan süre — halka.html'deki aynı sözleşme */
+  if(v.sayilmayan>0&&o.sayilmayanGoster!==false){
+    const uz=Math.min(1,v.sayilmayan/60)*(rMax*.5);
+    g.strokeStyle=P.ink;g.globalAlpha=.30;g.lineWidth=1.4;g.setLineDash([3,4]);g.lineCap="butt";
+    g.beginPath();g.moveTo(o.cx,o.cy+rMax+9);g.lineTo(o.cx,o.cy+rMax+9+uz);g.stroke();
+    g.setLineDash([]);g.globalAlpha=1;
+  }
+}
+
+/* ---------- halka.html'nin kendisi, karşılaştırma için (yalın kopya) ---------- */
+function izYolu(g,x,y,ax,L,w0,w1,bend,segs){
+  segs=segs||8;
+  const dx=Math.cos(ax)*L, dy=Math.sin(ax)*L;
+  const px=-Math.sin(ax), py=Math.cos(ax);
+  const ust=[],alt=[];
+  for(let i=0;i<=segs;i++){
+    const t=i/segs, e=Math.pow(1-t,.85), w=(w1+(w0-w1)*e)/2;
+    const bow=Math.sin(t*Math.PI)*bend;
+    const cx=x+dx*t+px*bow, cy=y+dy*t+py*bow;
+    ust.push([cx+px*w,cy+py*w]); alt.push([cx-px*w,cy-py*w]);
+  }
+  g.beginPath();g.moveTo(ust[0][0],ust[0][1]);
+  for(let i=1;i<ust.length;i++)g.lineTo(ust[i][0],ust[i][1]);
+  for(let i=alt.length-1;i>=0;i--)g.lineTo(alt[i][0],alt[i][1]);
+  g.closePath();
+}
+const ucOrani=r=> r<.38 ? .86 : .52+r*.24;
+function centik(g,x,y,ax,boy,kal,P,R){
+  const a=ax+(R()-.5)*.105, L=boy*(.92+R()*.16), w0=kal*(.90+R()*.22), w1=w0*ucOrani(R());
+  const bend=(R()-.5)*L*.055;
+  g.save();g.translate(kal*.42,kal*.60);
+  izYolu(g,x,y,a,L*.94,w0*.85,w1*.85,bend);
+  g.fillStyle=P.ink;g.globalAlpha=.17;g.fill();g.restore();
+  izYolu(g,x,y,a,L,w0,w1,bend);
+  g.fillStyle=P.acc;g.globalAlpha=.80+R()*.20;g.fill();
+  if(R()<.55){izYolu(g,x,y,a,L*.20,w0*1.34,w0*1.06,0,3);g.globalAlpha=.34;g.fill();}
+  g.globalAlpha=1;
+}
+function cizHalka(g,v,o){
+  const P={acc:css("--acc"),cool:css("--cool"),ink:css("--ink"),line:css("--line")};
+  const R=rng32(hash32("h"+(v.id||"x")));
+  const dk=Math.max(1,Math.round(v.dk)), per=o.period||60, tur=Math.ceil(dk/per);
+  const r0=o.r0, rMax=o.rMax, alan=rMax-r0, adim=alan/Math.max(1,tur);
+  const boy=Math.min(o.boy||adim*.86, adim*.86);
+  for(const b of (v.molalar||[])){
+    let a=b[0];
+    while(a<Math.min(b[1],dk)){
+      const k=Math.floor(a/per), son=Math.min(b[1],dk,(k+1)*per);
+      const rk=r0+k*adim;
+      const a0=-Math.PI/2+(a%per)/per*Math.PI*2, a1=-Math.PI/2+(((son-1)%per)+1)/per*Math.PI*2;
+      g.strokeStyle=P.cool;g.lineWidth=Math.max(1.1,boy*.055);g.globalAlpha=.5;g.lineCap="butt";
+      g.beginPath();g.arc(o.cx,o.cy,rk-boy*.10,a0,a1);g.stroke();g.globalAlpha=1;
+      a=son;
+    }
+  }
+  for(let m=0;m<dk;m++){
+    if(turOf(v,m)!=="is")continue;
+    const k=Math.floor(m/per), pos=m%per;
+    const rk=r0+k*adim+(R()-.5)*.9, ax=-Math.PI/2+pos/per*Math.PI*2;
+    const x=o.cx+Math.cos(ax)*rk, y=o.cy+Math.sin(ax)*rk;
+    centik(g,x,y,ax,boy,(o.kal||1.5)*1.15,P,R);
+    if(pos===0&&m>0){
+      const a2=ax+.030, x2=o.cx+Math.cos(a2)*rk, y2=o.cy+Math.sin(a2)*rk;
+      centik(g,x2,y2,a2,boy*.92,o.kal||1.5,P,R);
+    }
+  }
+}
+
+/* ---------- örnek veriler (halka.html ile birebir aynı) ---------- */
+const V107={id:"s-107",dk:107,molalar:[[41,49],[78,84]],sayilmayan:0};
+const V25 ={id:"s-25", dk:25, molalar:[],sayilmayan:0};
+const V360={id:"s-360",dk:362,molalar:[[55,68],[121,133],[190,205],[248,259],[310,322]],sayilmayan:0};
+const V180={id:"s-180",dk:184,molalar:[[58,71],[126,138]],sayilmayan:22};
+const VMOLA={id:"s-mola",dk:96,molalar:[[34,58]],sayilmayan:0};
+
+function kutu(hedef,w,h,cizen,baslik,not){
+  const d=document.createElement("div");d.className="kutu";
+  const cv=document.createElement("canvas");d.appendChild(cv);
+  const a=document.createElement("div");a.className="alt";
+  a.innerHTML="<b>"+baslik+"</b><br>"+not; d.appendChild(a);
+  hedef.appendChild(d);
+  cizen(tuval(cv,w,h),w,h);
+}
+
+/* ============================================================
+   BÜYÜK TELEFON — tam ekran, canlı oynatma
+   ana-ekran.html'deki .tel/.cam çerçevesiyle birebir aynı dil,
+   sadece cizHalka yerine cizAkik çiziyor.
+   ============================================================ */
+const SENARYOLAR=[
+  {ad:"25 dk",       id:"anim-25",  dk:25,  molalar:[]},
+  {ad:"1s 47 · 2 mola", id:"anim-107", dk:107, molalar:[[41,49],[78,84]]},
+  {ad:"mola ortasında", id:"anim-mola",dk:58,  molalar:[[34,70]]},
+  {ad:"6 saat",      id:"anim-360", dk:362, molalar:[[55,68],[121,133],[190,205],[248,259],[310,322]]},
+];
+let secili=SENARYOLAR[1], oynatiliyor=null;
+const OYB={cx:150,cy:300,r0:78,rMax:140};
+
+function hhmmBuyuk(dk){const s=Math.floor(dk/60),d=Math.round(dk)%60;
+  return s?s+":"+String(d).padStart(2,"0"):"0:"+String(Math.round(dk)).padStart(2,"0")}
+
+function buyukCiz(dk){
+  const v={id:secili.id,dk:Math.max(1,Math.round(dk)),molalar:secili.molalar,sayilmayan:0};
+  const g=tuval("buyukCanvas",300,620);
+  cizAkik(g,v,OYB);
+  const mola = turOf(v,v.dk-1)==="mola";
+  const ustEl=document.getElementById("buyukUst");
+  ustEl.textContent = mola? "MOLADA" : "ÇALIŞIYOR";
+  ustEl.className = "ust"+(mola?" mola":"");
+  document.getElementById("buyukSayi").textContent = hhmmBuyuk(v.dk);
+  const k=Math.floor((v.dk-1)/60)+1, c=((v.dk-1)%60)+1;
+  document.getElementById("buyukAlt").textContent = k+". saat, "+c+". çentik";
+}
+
+function senaryoSec(s){
+  secili=s;
+  if(oynatiliyor){clearInterval(oynatiliyor);oynatiliyor=null}
+  document.getElementById("izleBtn").textContent="▶ izle";
+  buyukCiz(s.dk);
+  document.querySelectorAll("#senaryolar .chip").forEach(c=>c.classList.toggle("sec",c.dataset.id===s.id));
+}
+
+function izle(){
+  if(oynatiliyor){clearInterval(oynatiliyor);oynatiliyor=null;
+    document.getElementById("izleBtn").textContent="▶ izle";return}
+  document.getElementById("izleBtn").textContent="■ durdur";
+  let cur=0;const hedef=secili.dk,adim=hedef/130;
+  oynatiliyor=setInterval(()=>{
+    cur+=adim;
+    if(cur>=hedef){cur=hedef;clearInterval(oynatiliyor);oynatiliyor=null;
+      document.getElementById("izleBtn").textContent="▶ tekrar izle"}
+    buyukCiz(cur);
+  },55);
+}
+
+function buyukKur(){
+  const S=document.getElementById("senaryolar");S.innerHTML="";
+  SENARYOLAR.forEach(s=>{
+    const b=document.createElement("button");b.className="chip";b.textContent=s.ad;
+    b.dataset.id=s.id;b.onclick=()=>senaryoSec(s);S.appendChild(b);
+  });
+  senaryoSec(secili);
+}
+
+function ciz(){
+  buyukKur();
+  /* 0 — iskelet karşılaştırma */
+  const I=document.getElementById("s_iskelet");I.innerHTML="";
+  kutu(I,224,224,(g)=>cizHalka(g,V107,{cx:112,cy:112,r0:30,rMax:104,kal:1.4}),
+    "Halka — çentik","Işın: her dakika ayrı, sayılabilir bir işaret. Enstrüman gibi okunuyor.");
+  kutu(I,224,224,(g)=>cizAkik(g,V107,{cx:112,cy:112,r0:30,rMax:104}),
+    "Akik — katman","Aynı veri, aynı iskelet. Sayılmıyor, birikiyor. Nesne gibi okunuyor.");
+
+  /* 1 — büyüme / altı saat */
+  const B=document.getElementById("s_buyume");B.innerHTML="";
+  [[V25,"25 dakika","Tek halka, geniş nefes — henüz tek maden."],
+   [V107,"1 saat 47 dakika","İkinci halka açıldı, ikinci ton başladı."],
+   [V180,"3 saat 04 dakika","Dört halka. Aralık daralıyor, katman inceliyor — çerçeve aynı."],
+   [V360,"6 saat 02 dakika","Yedi halka, beş maden dönüyor. Sıkışıyor ama boğulmuyor."]]
+  .forEach(([v,b,n])=>kutu(B,208,208,(g)=>cizAkik(g,v,{cx:104,cy:104,r0:26,rMax:96}),b,n));
+
+  /* 2 — mola yakın plan */
+  const O=document.getElementById("s_mola");O.innerHTML="";
+  kutu(O,224,224,(g)=>cizAkik(g,VMOLA,{cx:112,cy:112,r0:34,rMax:104}),
+    "24 dakikalık mola","Halkanın üçte biri berrak. Maden orada birikmemiş, boşluk değil duraklama.");
+  kutu(O,224,224,(g)=>cizAkik(g,V180,{cx:112,cy:112,r0:26,rMax:104}),
+    "22 dakika sayılmayan","Aşağıdaki kesikli ray — halka.html'deki kararın birebir aynısı.");
+
+  /* 3 — çoklu maden */
+  const D=document.getElementById("s_maden");D.innerHTML="";
+  [["s-a","1 saat"],["s-b","1 saat"],["s-c","1 saat"],["s-d","1 saat"]].forEach(([id,lbl],i)=>{
+    kutu(D,150,150,(g)=>cizAkik(g,{id,dk:250+i*40,molalar:[[30,40]],sayilmayan:0},
+      {cx:75,cy:75,r0:16,rMax:70}),"Tohum "+(i+1),"Aynı kod, başka seans kimliği — başka maden sırası.");
+  });
+
+  /* 4 — duvar rafı */
+  const F=document.getElementById("s_raf");F.innerHTML="";
+  const gunler=[[420,0],[95,1],[260,2],[40,3],[610,4],[150,5],[0,6]];
+  gunler.forEach(([dk,yas])=>{
+    const boy=Math.max(50, 40+Math.sqrt(dk)*4.4);
+    const solukluk=Math.max(.22,1-yas*.13);
+    const d=document.createElement("div");
+    d.style.cssText="display:flex;flex-direction:column;align-items:center;gap:6px;opacity:"+solukluk;
+    const cv=document.createElement("canvas");d.appendChild(cv);
+    const lbl=document.createElement("div");lbl.style.cssText="font-size:11px;color:var(--muted)";
+    lbl.textContent = dk===0? "boş gün" : Math.floor(dk/60)+"s "+String(dk%60).padStart(2,"0");
+    d.appendChild(lbl);
+    F.appendChild(d);
+    if(dk>0) cizAkik(tuval(cv,boy,boy),{id:"gun"+yas,dk,molalar:[],sayilmayan:0},
+      {cx:boy/2,cy:boy/2,r0:boy*.12,rMax:boy*.46});
+    else tuval(cv,boy,boy);
+  });
+}
+ciz();
+</script></body></html>
