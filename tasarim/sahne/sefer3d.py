@@ -4,6 +4,7 @@
 #     sahne: kalkis | seyir | varis      vakit: gun | aksam | sabah | gece
 #   blender -b --factory-startup --python sefer3d.py -- kaydet <sahne> <vakit> <file.blend>
 import bpy, bmesh, math, random, sys, os
+import numpy as np
 from mathutils import Vector, Matrix, noise
 
 ARGS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else ["still", "seyir", "gun", "test.png"]
@@ -86,6 +87,11 @@ def mesh_nesne(ad, verts, faces, mat=None, smooth=True):
 
 
 # ---------------------------------------------------------------- material helpers
+BAND = (0.20, 0.34)                 # sun-normalised light: shadow -> lit (soft)
+GOLGE = (0.70, 0.66, 0.85, 1.0)     # shadow multiplier, warm lilac
+SICAK = (1.0, 0.92, 0.78, 1.0)      # warm rim
+
+
 class Agac:
     def __init__(self, ad):
         self.m = bpy.data.materials.new(ad)
@@ -151,7 +157,7 @@ class Agac:
         g = self.n("ShaderNodeNewGeometry")
         return g
 
-    def yuzey(self, renk, rough=0.75, spec=0.3):
+    def yuzey(self, renk, rough=0.75, spec=0.3, boya=True):
         p = self.n("ShaderNodeBsdfPrincipled")
         if isinstance(renk, tuple):
             p.inputs["Base Color"].default_value = renk
@@ -159,7 +165,37 @@ class Agac:
             self.b(renk, p.inputs["Base Color"])
         p.inputs["Roughness"].default_value = rough
         p.inputs["Specular IOR Level"].default_value = spec
-        return p.outputs[0], p
+        return (self.boya(renk) if boya else p.outputs[0]), p
+
+    def carp(self, a, c):
+        n = self.n("ShaderNodeMix"); n.data_type = "RGBA"; n.blend_type = "MULTIPLY"
+        n.inputs[0].default_value = 1.0
+        for sok, v in ((n.inputs[6], a), (n.inputs[7], c)):
+            if isinstance(v, tuple):
+                sok.default_value = v
+            else:
+                self.b(v, sok)
+        return n.outputs[2]
+
+    def boya(self, renk):
+        """Illustrated shading shared with the crew: diffuse light normalised by the sun, one soft
+        band, shadow as a cool lavender multiplier (never black), a warm rim where the sun grazes."""
+        if isinstance(renk, tuple):
+            rgb = self.n("ShaderNodeRGB"); rgb.outputs[0].default_value = renk
+            renk = rgb.outputs[0]
+        d = self.n("ShaderNodeBsdfDiffuse"); d.inputs["Color"].default_value = (1, 1, 1, 1)
+        s2r = self.n("ShaderNodeShaderToRGB"); self.b(d.outputs[0], s2r.inputs[0])
+        bw = self.n("ShaderNodeRGBToBW"); self.b(s2r.outputs["Color"], bw.inputs[0])
+        isik = self.m_("MULTIPLY", bw.outputs[0], 1 / (V["gunes_guc"] * 1.15))
+        bant = self.aralik(isik, *BAND)
+        col = self.karis(bant, self.carp(renk, GOLGE), renk)
+        lw = self.n("ShaderNodeLayerWeight"); lw.inputs["Blend"].default_value = 0.3
+        kenar = self.m_("MULTIPLY", self.m_("POWER", lw.outputs["Facing"], 3.0), self.m_("MULTIPLY", bant, 0.16))
+        ek = self.n("ShaderNodeMix"); ek.data_type = "RGBA"; ek.blend_type = "SCREEN"
+        self.b(kenar, ek.inputs[0]); self.b(col, ek.inputs[6]); ek.inputs[7].default_value = SICAK
+        em = self.n("ShaderNodeEmission"); self.b(ek.outputs[2], em.inputs["Color"])
+        em.inputs["Strength"].default_value = 1.27
+        return em.outputs[0]
 
     def bitir(self, s, sis=True):
         if sis:
@@ -281,7 +317,7 @@ def badana_malzeme(ad, renk):
 
 def deniz_malzeme():
     A = Agac("Deniz")
-    p_s, p = A.yuzey(lin(V["deniz"]), 0.2, 0.55)
+    p_s, p = A.yuzey(lin(V["deniz"]), 0.2, 0.55, boya=False)
     p.inputs["IOR"].default_value = 1.33
     lw = A.n("ShaderNodeLayerWeight"); lw.inputs["Blend"].default_value = 0.35
     govde = A.m_("POWER", A.m_("SUBTRACT", 1.0, lw.outputs["Facing"]), 2.0)
@@ -915,7 +951,7 @@ TK = tekne(YELKEN)
 POZ = ARGS[5] if len(ARGS) > 5 else "dumen"
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import murettebat  # noqa: E402  (two brothers, MakeHuman)
-murettebat.isik(GUNES)
+murettebat.isik(GUNES, V["gunes_guc"])
 EKIP = murettebat.murettebat(TK, POZ, SAHNE)
 for tur, *a_ in EKIP["cizim"]:
     if tur == "cubuk":
@@ -971,11 +1007,29 @@ sc.view_settings.view_transform = "Khronos PBR Neutral"
 sc.view_settings.look = "None"
 sc.view_settings.exposure = -0.35
 
+def grenle(yol, guc=0.026, tohum=7):
+    """Film grain baked into a still: fine monochrome grain, strongest in the mid-tones."""
+    im = bpy.data.images.load(yol)
+    w, h = im.size
+    px = np.array(im.pixels[:], dtype=np.float32).reshape(h, w, 4)
+    n = np.random.default_rng(tohum).normal(0.0, 1.0, (h, w)).astype(np.float32)
+    n = 0.6 * n + 0.2 * (np.roll(n, 1, 0) + np.roll(n, 1, 1))      # a touch of clumping
+    lum = px[..., :3].mean(-1)
+    agirlik = 0.45 + 0.55 * (1.0 - np.abs(lum - 0.5) * 2.0)
+    px[..., :3] = np.clip(px[..., :3] + (n * guc * agirlik)[..., None], 0.0, 1.0)
+    im.pixels.foreach_set(px.ravel())
+    im.filepath_raw = yol
+    im.file_format = "PNG"
+    im.save()
+
+
 if KOMUT == "still":
     sc.frame_set(1)
     r.image_settings.file_format = "PNG"
     r.filepath = CIKTI
     bpy.ops.render.render(write_still=True)
+    if not os.environ.get("SEFER_GRENSIZ"):
+        grenle(CIKTI)
 elif KOMUT == "kaydet":
     bpy.ops.wm.save_as_mainfile(filepath=CIKTI)
 print("BITTI", KOMUT, SAHNE, VAKIT)

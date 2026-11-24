@@ -23,13 +23,41 @@ from insan import anime  # noqa: E402
 # Art: the shared illustrated-people recipe (stylised MakeHuman mesh, painted eyes, ribbon hair,
 # own-colour contour, colour shadows) softened for a sunlit sea: a wider light-to-shadow band and
 # emission lifted to sit under the scene's tone mapping.
-anime.RAMP = (0.09, 0.27)
+# The band is read on light normalised by the sun's strength, the same scale the world is painted on
+# (sefer3d.BAND), so people and places share one light-to-shadow edge.
+anime.RAMP = (0.20, 0.34)
 PARLAK = 1.27            # emission gain; 2 ** 0.35 undoes the scene exposure of -0.35
+OLCEK = None             # 1 / (sun strength * 1.15), set by isik()
 
 
-def isik(gunes):
-    """Unit vector towards the sun (world space): faces are lit by N.L against it."""
+def isik(gunes, guc):
+    """Sun direction (towards the light, world space) and strength of the scene."""
+    global OLCEK
     anime.SUN_DIR = tuple(Vector(gunes).normalized())
+    OLCEK = 1.0 / (guc * 1.15)
+
+
+def isik_olcegi(p, olcek):
+    """Scale the measured diffuse light (Shader-to-RGB -> luminance) before the band."""
+    for o in [p["body"]] + p["parts"]:
+        for m in (o.data.materials if o.type == "MESH" else []):
+            if not (m and m.use_nodes):
+                continue
+            nt = m.node_tree
+            for nd in list(nt.nodes):
+                if nd.type != "RGBTOBW" or not nd.inputs[0].links:
+                    continue
+                s2r = nd.inputs[0].links[0].from_node
+                if s2r.type != "SHADERTORGB" or not s2r.inputs[0].links:
+                    continue
+                if s2r.inputs[0].links[0].from_node.type != "BSDF_DIFFUSE":
+                    continue                       # leave the glossy hair sheen alone
+                hedefler = [l.to_socket for l in nd.outputs[0].links]
+                mul = nt.nodes.new("ShaderNodeMath"); mul.operation = "MULTIPLY"
+                mul.inputs[1].default_value = olcek
+                nt.links.new(nd.outputs[0], mul.inputs[0])
+                for t in hedefler:
+                    nt.links.new(mul.outputs[0], t)
 
 IRK = {"caucasian": 0.90, "african": 0.04, "asian": 0.06}
 
@@ -64,7 +92,7 @@ ABI = dict(
 )
 
 # Younger brother: about eighteen, slim, oval face, bright blue eyes, brown hair falling on the
-# forehead, no beard. Undyed linen tee, ochre trousers, a red neckerchief that answers the sail.
+# forehead, no beard. Undyed linen tee, ochre trousers.
 KARDES = dict(
     name="kardes",
     m=dict(sex=1.0, age=0.37, muscle=0.45, weight=0.40, boy=1.76, proportions=0.85, race=IRK),
@@ -83,7 +111,6 @@ KARDES = dict(
     sac_stil="kisa_dalga", kakul=True, kas_stil="thick_warm", kas_kalin=0.90, kas_kavis=0.85,
     yuz=("smile", 0.22), bas_don=0.0, bas_eg=0.0,
     giysi=[("clothes", "male_casualsuit06", ["#E2D3B6", "#9E7C45"]), ("clothes", "shoes02", "#7A6450")],
-    mendil="#B5412C",
 )
 
 # Boat-local landmarks (bow +Y), from sefer3d.tekne()
@@ -170,74 +197,12 @@ def sakal_kirp(p, e):
     me.materials[0] = anime.toon(m, col, rim=0.12)
 
 
-def mendil(p, renk):
-    """A knotted neckerchief: a soft roll around the neck and a triangle on the chest, fitted
-    to whatever the person wears, skinned to neck01 / spine01."""
-    arm = p["arm"]
-    c = arm.data.bones["neck01"].head_local.copy() + Vector((0, 0.004, 0.012))
-    nesneler = [p["body"]] + [o for o in p["parts"] if "suit" in o.name]
-    agaclar = [_agac(o) for o in nesneler]
-
-    def on(x, z):                       # front-most surface y at (x, z)
-        ys = []
-        for t in agaclar:
-            h = t.ray_cast(Vector((x, -1.0, z)), Vector((0, 1, 0)))[0]
-            if h is not None:
-                ys.append(h.y)
-        return min(ys) if ys else c.y - 0.08
-    body = p["body"].data.vertices
-    kesit = [v.co for v in body if abs(v.co.z - c.z) < 0.008]
-    rx = max(abs(q.x - c.x) for q in kesit if abs(q.y - c.y) < 0.02) + 0.006
-    ry = max(abs(q.y - c.y) for q in kesit if abs(q.x - c.x) < 0.02) + 0.006
-    bm = bmesh.new()
-    N, K, r = 28, 8, 0.0095
-    halka = []
-    for i in range(N):
-        a = 2 * math.pi * i / N
-        P = Vector((c.x + rx * math.cos(a), c.y + ry * math.sin(a), c.z))
-        R = Vector((math.cos(a), math.sin(a), 0)).normalized()
-        halka.append([bm.verts.new(P + r * (math.cos(2 * math.pi * j / K) * R * 0.45
-                                            + math.sin(2 * math.pi * j / K) * Vector((0, 0, 1)) * 1.4))
-                      for j in range(K)])
-    for i in range(N):
-        for j in range(K):
-            bm.faces.new((halka[i][j], halka[(i + 1) % N][j], halka[(i + 1) % N][(j + 1) % K],
-                          halka[i][(j + 1) % K]))
-    n_halka = len(bm.verts)
-    satir = []
-    for k in range(6):
-        s = k / 5
-        z = c.z - 0.004 - 0.105 * s
-        w = 0.05 * (1 - s)
-        xs = [c.x - w, c.x, c.x + w] if k < 5 else [c.x]
-        satir.append([bm.verts.new((x, on(x, z) - 0.007 - 0.004 * (1 - abs(x - c.x) / 0.05), z)) for x in xs])
-    for k in range(4):
-        a, b = satir[k], satir[k + 1]
-        bm.faces.new((a[0], a[1], b[1], b[0])); bm.faces.new((a[1], a[2], b[2], b[1]))
-    a, t = satir[4], satir[5][0]
-    bm.faces.new((a[0], a[1], t)); bm.faces.new((a[1], a[2], t))
-    me = bpy.data.meshes.new(p["name"] + "_mendil"); bm.to_mesh(me); bm.free()
-    for f in me.polygons:
-        f.use_smooth = True
-    o = bpy.data.objects.new(p["name"] + "_mendil", me)
-    bpy.context.scene.collection.objects.link(o)
-    so = o.modifiers.new("kalin", "SOLIDIFY"); so.thickness = 0.006
-    gn, gs = o.vertex_groups.new(name="neck01"), o.vertex_groups.new(name="spine01")
-    gn.add(list(range(n_halka)), 1.0, "REPLACE")
-    gs.add(list(range(n_halka, len(me.vertices))), 1.0, "REPLACE")
-    md = o.modifiers.new("rig", "ARMATURE"); md.object = arm
-    o.parent = arm
-    me.materials.append(anime.flat(p["name"] + "_mendil", mz.cloth(renk)))
-    anime.kontur(o, np.asarray(mz.cloth(renk), float) * 0.42, 0.0018)
-    p["parts"].append(o)
-
-
 def kur(e, x=0.0, parlak=None):
     p = anime.make(e, x, kakul=e.get("kakul", True))
     if e.get("sakal") == "kisa_sakal":
         sakal_kirp(p, e)
-    if e.get("mendil"):
-        mendil(p, e["mendil"])
+    if OLCEK is not None and parlak is None:
+        isik_olcegi(p, OLCEK)
     g = PARLAK if parlak is None else parlak
     for o in [p["body"]] + p["parts"]:
         for m in (o.data.materials if o.type == "MESH" else []):
