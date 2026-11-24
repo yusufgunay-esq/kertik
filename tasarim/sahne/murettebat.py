@@ -64,9 +64,24 @@ IRK = {"caucasian": 0.90, "african": 0.04, "asian": 0.06}
 # Elder brother: late twenties, lean, long face, long straight nose, high cheekbones,
 # grey-blue eyes, wavy brown hair swept back; dense moustache and chin, light stubble on the cheeks.
 # Sea clothes: undyed linen shirt, dark brown trousers.
+def kas(guc):
+    """One musculature knob, the way character creators do it: a single strength drives arms,
+    shoulders, back, chest and neck together (neck widening capped at 0.4), so no limb ends up
+    stick-thin next to a broad chest. Clothes are fitted afterwards, so they follow the build."""
+    g = {"armslegs/{s}-upperarm-muscle-incr": 1.0, "armslegs/{s}-upperarm-fat-incr": 0.5,
+         "armslegs/{s}-upperarm-scale-depth-incr": 0.6, "armslegs/{s}-upperarm-scale-horiz-incr": 0.6,
+         "armslegs/{s}-upperarm-shoulder-muscle-incr": 0.5,
+         "armslegs/{s}-lowerarm-muscle-incr": 1.0, "armslegs/{s}-lowerarm-fat-incr": 0.5,
+         "armslegs/{s}-lowerarm-scale-depth-incr": 0.6, "armslegs/{s}-lowerarm-scale-horiz-incr": 0.7,
+         "torso/torso-vshape-incr": 0.55, "torso/torso-muscle-dorsi-incr": 0.5,
+         "torso/torso-muscle-pectoral-incr": 0.22,
+         "neck/neck-scale-horiz-incr": 0.4, "neck/neck-scale-depth-incr": 0.2}
+    return {k: v * guc for k, v in g.items()}
+
+
 ABI = dict(
     name="abi",
-    m=dict(sex=1.0, age=0.52, muscle=0.74, weight=0.38, boy=1.80, proportions=0.85, race=IRK),
+    m=dict(sex=1.0, age=0.455, muscle=0.74, weight=0.48, boy=1.80, proportions=0.5, race=IRK),  # 23, trains
     yuz_gen={
         "head/head-oval": 0.10,
         "head/head-square": 0.20,
@@ -81,11 +96,7 @@ ABI = dict(
         "chin/chin-prominent-incr": 0.10,
         "chin/chin-bones-incr": 0.45,                       # slight jawline under the beard
         "head/head-fat-decr": 0.35,
-        "torso/torso-vshape-incr": 0.55,                    # athlete's back: wide lats, narrow waist
-        "torso/torso-muscle-dorsi-incr": 0.50,
-        "torso/torso-muscle-pectoral-incr": 0.22,
-        "armslegs/{s}-upperarm-shoulder-muscle-incr": 0.30,
-        "armslegs/{s}-upperarm-muscle-incr": 0.18,
+        **kas(1.0),                                         # athlete: arms, back, chest, neck
         "eyebrows/eyebrows-trans-down": 0.12,
         "eyes/{s}-eye-eyefold-down": 0.15,
         "eyes/{s}-eye-scale-decr": 0.08,
