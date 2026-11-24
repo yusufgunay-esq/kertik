@@ -1140,6 +1140,13 @@ if os.environ.get("SEFER_YAKIN"):  # close-up from the port bow quarter: faces a
     cam.location = W_ @ Vector((-6.0, -0.05, 2.9))
     cam.rotation_euler = (hedef - cam.location).to_track_quat("-Z", "Y").to_euler()
     cd.lens = 20
+if os.environ.get("SEFER_BAK"):     # check camera, boat-local "cx,cy,cz,hx,hy,hz,lens"
+    bpy.context.view_layer.update()
+    W_ = TK.matrix_world
+    b_ = [float(x) for x in os.environ["SEFER_BAK"].split(",")]
+    cam.location = W_ @ Vector(b_[0:3])
+    cam.rotation_euler = (W_ @ Vector(b_[3:6]) - cam.location).to_track_quat("-Z", "Y").to_euler()
+    cd.lens = b_[6]
 
 # ---------------------------------------------------------------- render
 r = sc.render

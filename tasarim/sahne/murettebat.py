@@ -66,19 +66,26 @@ IRK = {"caucasian": 0.90, "african": 0.04, "asian": 0.06}
 # Sea clothes: undyed linen shirt, dark brown trousers.
 ABI = dict(
     name="abi",
-    m=dict(sex=1.0, age=0.52, muscle=0.55, weight=0.42, boy=1.80, proportions=0.85, race=IRK),
+    m=dict(sex=1.0, age=0.52, muscle=0.74, weight=0.38, boy=1.80, proportions=0.85, race=IRK),
     yuz_gen={
-        "head/head-oval": 0.25,
+        "head/head-oval": 0.10,
+        "head/head-square": 0.20,
         "head/head-scale-horiz-decr": 0.12,
         "head/head-scale-vert-incr": 0.08,
         "nose/nose-scale-vert-incr": 0.30,
         "nose/nose-scale-depth-incr": 0.22,
         "nose/nose-point-width-decr": 0.10,
-        "cheek/{s}-cheek-bones-incr": 0.30,
+        "cheek/{s}-cheek-bones-incr": 0.40,
         "cheek/{s}-cheek-volume-decr": 0.15,
         "chin/chin-height-incr": 0.12,
-        "chin/chin-width-decr": 0.12,
         "chin/chin-prominent-incr": 0.10,
+        "chin/chin-bones-incr": 0.45,                       # slight jawline under the beard
+        "head/head-fat-decr": 0.35,
+        "torso/torso-vshape-incr": 0.55,                    # athlete's back: wide lats, narrow waist
+        "torso/torso-muscle-dorsi-incr": 0.50,
+        "torso/torso-muscle-pectoral-incr": 0.22,
+        "armslegs/{s}-upperarm-shoulder-muscle-incr": 0.30,
+        "armslegs/{s}-upperarm-muscle-incr": 0.18,
         "eyebrows/eyebrows-trans-down": 0.12,
         "eyes/{s}-eye-eyefold-down": 0.15,
         "eyes/{s}-eye-scale-decr": 0.08,
@@ -88,24 +95,28 @@ ABI = dict(
     sac_stil="geriye_tarak", kakul=False, sakal="kisa_sakal", sakal_renk=(0.52, 0.50),
     kas_stil="thick_warm", kas_kalin=1.05, kas_kavis=0.70,
     yuz=("smile", 0.15), bas_don=0.0, bas_eg=0.0,
-    giysi=[("clothes", "male_casualsuit01", ["#EDE6D6", "#4A3B30"]), ("clothes", "shoes06", "#5A4030")],
+    giysi=[("clothes", "male_casualsuit04", ["#EDE6D6", "#4A3B30"]), ("clothes", "shoes06", "#5A4030")],
 )
 
 # Younger brother: about eighteen, slim, oval face, bright blue eyes, brown hair falling on the
 # forehead, no beard. Undyed linen tee, ochre trousers.
 KARDES = dict(
     name="kardes",
-    m=dict(sex=1.0, age=0.37, muscle=0.45, weight=0.40, boy=1.76, proportions=0.85, race=IRK),
+    m=dict(sex=1.0, age=0.37, muscle=0.45, weight=0.37, boy=1.76, proportions=0.85, race=IRK),
     yuz_gen={
-        "head/head-oval": 0.35,
+        "head/head-oval": 0.10,
+        "head/head-square": 0.25,
         "head/head-scale-horiz-decr": 0.08,
         "head/head-scale-vert-incr": 0.06,
         "nose/nose-scale-vert-incr": 0.16,
         "nose/nose-point-width-decr": 0.08,
         "eyes/{s}-eye-scale-incr": 0.04,
         "chin/chin-height-incr": 0.06,
-        "chin/chin-width-decr": 0.08,
-        "cheek/{s}-cheek-volume-decr": 0.12,
+        "chin/chin-width-incr": 0.15,
+        "chin/chin-bones-incr": 0.80,                       # bony face: jaw corner, high cheekbones,
+        "cheek/{s}-cheek-bones-incr": 0.80,                 # a little hollow under them
+        "cheek/{s}-cheek-volume-decr": 0.70,
+        "head/head-fat-decr": 0.80,
     },
     ten=(0.31, 0.56), sac=(0.60, 0.34), goz=("mavi", 0.18),
     sac_stil="kisa_dalga", kakul=True, kas_stil="thick_warm", kas_kalin=0.90, kas_kavis=0.85,
@@ -156,44 +167,54 @@ def _bant_genisligi(z, ztop):
 
 
 def sakal_kirp(p, e):
-    """Short beard that is dense on the moustache and chin and sparse on the cheeks: the cheek
-    shell is pulled close to the skin and painted towards the skin tone through a density map."""
+    """Light short beard: moustache and chin, the cheeks only a faint shadow below the mouth line
+    (he is not that bearded). The shell hugs the skin and melts into it through a density map."""
     sakal = _parca(p, "_beard")
     if not sakal:
         return
     me = sakal.data
     agac = _agac(p["body"])
     ztop = max(v.co.z for v in me.vertices if abs(v.co.x) < 0.012)
+    yanak_ust = ztop - 0.014                                    # cheek line: at the mouth corners
 
     def yogunluk(co):
+        """1 = full beard colour, 0 = bare skin. Cheeks hold a faint shadow that fades out
+        towards the cheek line, so the trimmed edge melts into the skin instead of stepping."""
         d = max(abs(co.x) - _bant_genisligi(co.z, ztop), 0.0)
-        return max(0.40, 1.0 - d / 0.022 * 0.60)
+        y = max(0.18, 1.0 - d / 0.014 * 0.82)
+        if d > 0.0:
+            y *= min(1.0, max(0.0, (yanak_ust + 0.010 - co.z) / 0.014))
+        return y
     yeni = []
     for v in me.vertices:
         yakin, _, _, d = agac.find_nearest(v.co)
         y_ = yogunluk(v.co)
-        k = 1.3 if v.co.z > ztop - 0.018 and y_ > 0.99 else 0.55 + 0.35 * y_
+        k = 0.95 if v.co.z > ztop - 0.018 and y_ > 0.99 else 0.40 + 0.30 * y_
         yeni.append(yakin + (v.co - yakin) * k if yakin is not None and d > 0.002 else v.co.copy())
     _kaydir(me, yeni)
     zs = [v.co.z for v in me.vertices]
-    alt = min(zs) + 0.25 * (max(zs) - min(zs))
+    alt = min(zs) + 0.36 * (max(zs) - min(zs))     # not down under the jaw
     arka = p["arm"].data.bones["head"].head_local.y - 0.01     # nothing behind the jaw hinge
     bm = bmesh.new(); bm.from_mesh(me)
-    bmesh.ops.delete(bm, geom=[v for v in bm.verts if v.co.z < alt or v.co.y > arka], context="VERTS")
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if v.co.z < alt or v.co.y > arka or (
+        v.co.z > yanak_ust + 0.010 and abs(v.co.x) > _bant_genisligi(v.co.z, ztop) + 0.004)], context="VERTS")
     bm.to_mesh(me); bm.free(); me.update()
     at = me.attributes.new("yogun", "FLOAT", "POINT")
     at.data.foreach_set("value", [yogunluk(v.co) for v in me.vertices])
 
-    # painted, not stippled: full beard colour on the moustache and chin, a stubble tone that
-    # melts into the skin on the cheeks
+    # painted, not stippled: one beard colour whose coverage follows the density map, so the
+    # cheek shadow fades into whatever the skin shading is underneath
     hair = np.array([0.11, 0.10, 0.13]) + mz.hair(*e.get("sakal_renk", e["sac"])) * 0.88
     skin = np.asarray(mz.skin(*e["ten"]), float)
     m = bpy.data.materials.new(p["name"] + "_sakal_boya"); m.use_nodes = True
     n, L = m.node_tree.nodes, m.node_tree.links
     at_n = n.new("ShaderNodeAttribute"); at_n.attribute_name = "yogun"
-    fac = mz._math(n, L, "MULTIPLY_ADD", at_n.outputs["Fac"], 1 / 0.6, -0.4 / 0.6)
-    col = mz._mix_rgba(n, L, fac, mz.lin(hair * 0.20 + skin * 0.80), mz.lin(hair * 0.86 + skin * 0.14))
+    renk = mz.lin(hair * 0.50 + skin * 0.50)
+    col = mz._mix_rgba(n, L, 1.0, renk, renk)
     L.new(col, n["Principled BSDF"].inputs["Base Color"])
+    L.new(at_n.outputs["Fac"], n["Principled BSDF"].inputs["Alpha"])   # density = coverage
+    if hasattr(m, "surface_render_method"):
+        m.surface_render_method = "BLENDED"
     me.materials[0] = anime.toon(m, col, rim=0.12)
 
 
@@ -253,6 +274,30 @@ def otur(arm, diz_acik=0.10):
         bpy.context.view_layer.update()
         kadro._aim(arm, "lowerleg01" + side, "foot" + side, (sx * 0.03, -0.22, -1.0))
         bpy.context.view_layer.update()
+
+
+def dik_otur(arm, ileri=0.0, gogus=9.0, bakis=0.8):
+    """Sit tall like an athlete: the trunk stacks over the hips (ileri deg, + forward), the
+    sideways lean squares up, the shoulder blades go back and down so the chest opens. The head
+    keeps most of where it was looking (bakis share); the rest lifts the chin a little."""
+    pb = arm.pose.bones
+    zincir = ("spine05", "spine04", "spine03", "spine02")
+    on_t = yan_t = 0.0
+    for _ in range(3):
+        v = pb["neck01"].head - pb["spine05"].head
+        on = ileri - math.degrees(math.atan2(-v.y, v.z))
+        yan = -math.degrees(math.atan2(v.x, v.z))
+        on_t += on; yan_t += yan
+        for k in zincir:
+            kadro._rotate(arm, k, Quaternion(Vector((1, 0, 0)), math.radians(on / len(zincir))))
+            kadro._rotate(arm, k, Quaternion(Vector((0, 1, 0)), math.radians(yan / len(zincir))))
+    kadro._rotate(arm, "head", Quaternion(Vector((1, 0, 0)), math.radians(-on_t * bakis)))
+    kadro._rotate(arm, "head", Quaternion(Vector((0, 1, 0)), math.radians(-yan_t)))
+    for side, sx in ((".L", 1), (".R", -1)):
+        kadro._rotate(arm, "clavicle" + side, Quaternion(Vector((0, 0, 1)), math.radians(sx * gogus)))
+        kadro._rotate(arm, "clavicle" + side, Quaternion(Vector((0, 1, 0)), math.radians(sx * 4.0)))
+    print(f"dik_otur: govde {on_t:+.1f} derece one, {yan_t:+.1f} yana duzeltildi")
+    return on_t
 
 
 def egil(arm, derece):
@@ -430,7 +475,7 @@ def murettebat(kok, poz="dumen", sahne="seyir"):
         hareket(abi, "siper", sadece=UST_SAG)
     ic, dis = yerlestir(abi, kok, (0.46, -2.66), math.radians(-143), OTURAK_Z, True)
     ayaklar_yere(abi, ic, dis, 0.36, 0.13)
-    egil(a, {"dumen": -4, "olta": 4, "tuttu": -2}.get(an, 0))
+    dik_otur(a, {"dumen": -3.0, "olta": 3.0, "tuttu": -1.0, "varis": -2.0}.get(an, 0.0))
     el_uygula(abi, kavra, ".L")
     if an == "kalkis":
         bas(a, 24.0, -4.0); gulus(abi, 0.45)
