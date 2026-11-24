@@ -11,12 +11,25 @@ if AHALI not in sys.path:
     sys.path.insert(0, AHALI)
 
 import bmesh  # noqa: E402
+import numpy as np  # noqa: E402
 import bpy  # noqa: E402
 from mathutils import Matrix, Quaternion, Vector  # noqa: E402
 from mathutils.bvhtree import BVHTree  # noqa: E402
 
 from insan import kadro  # noqa: E402
 from insan import malzeme as mz  # noqa: E402
+from insan import anime  # noqa: E402
+
+# Art: the shared illustrated-people recipe (stylised MakeHuman mesh, painted eyes, ribbon hair,
+# own-colour contour, colour shadows) softened for a sunlit sea: a wider light-to-shadow band and
+# emission lifted to sit under the scene's tone mapping.
+anime.RAMP = (0.09, 0.27)
+PARLAK = 1.27            # emission gain; 2 ** 0.35 undoes the scene exposure of -0.35
+
+
+def isik(gunes):
+    """Unit vector towards the sun (world space): faces are lit by N.L against it."""
+    anime.SUN_DIR = tuple(Vector(gunes).normalized())
 
 IRK = {"caucasian": 0.90, "african": 0.04, "asian": 0.06}
 
@@ -43,8 +56,8 @@ ABI = dict(
         "eyes/{s}-eye-scale-decr": 0.08,
         "forehead/forehead-scale-vert-incr": 0.10,
     },
-    ten=(0.36, 0.62), sac=(0.74, 0.30), goz=("mavi", 0.35),
-    sac_stil="geriye_tarak", sakal="kisa_sakal", kirli=0.85, sakal_renk=(0.62, 0.40),
+    ten=(0.36, 0.62), sac=(0.56, 0.44), goz=("mavi", 0.35),
+    sac_stil="geriye_tarak", kakul=False, sakal="kisa_sakal", sakal_renk=(0.52, 0.50),
     kas_stil="thick_warm", kas_kalin=1.05, kas_kavis=0.70,
     yuz=("smile", 0.15), bas_don=0.0, bas_eg=0.0,
     giysi=[("clothes", "male_casualsuit01", ["#EDE6D6", "#4A3B30"]), ("clothes", "shoes06", "#5A4030")],
@@ -66,8 +79,8 @@ KARDES = dict(
         "chin/chin-width-decr": 0.08,
         "cheek/{s}-cheek-volume-decr": 0.12,
     },
-    ten=(0.31, 0.56), sac=(0.76, 0.22), goz=("mavi", 0.18),
-    sac_stil="kisa_dalga", kas_stil="thick_warm", kas_kalin=0.90, kas_kavis=0.85,
+    ten=(0.31, 0.56), sac=(0.60, 0.34), goz=("mavi", 0.18),
+    sac_stil="kisa_dalga", kakul=True, kas_stil="thick_warm", kas_kalin=0.90, kas_kavis=0.85,
     yuz=("smile", 0.22), bas_don=0.0, bas_eg=0.0,
     giysi=[("clothes", "male_casualsuit06", ["#E2D3B6", "#9E7C45"]), ("clothes", "shoes02", "#7A6450")],
     mendil="#B5412C",
@@ -117,7 +130,7 @@ def _bant_genisligi(z, ztop):
 
 def sakal_kirp(p, e):
     """Short beard that is dense on the moustache and chin and sparse on the cheeks: the cheek
-    shell is pulled close to the skin and stippled away in the shader through a density map."""
+    shell is pulled close to the skin and painted towards the skin tone through a density map."""
     sakal = _parca(p, "_beard")
     if not sakal:
         return
@@ -127,7 +140,7 @@ def sakal_kirp(p, e):
 
     def yogunluk(co):
         d = max(abs(co.x) - _bant_genisligi(co.z, ztop), 0.0)
-        return max(0.40, 1.0 - d / 0.014 * 0.60)
+        return max(0.40, 1.0 - d / 0.022 * 0.60)
     yeni = []
     for v in me.vertices:
         yakin, _, _, d = agac.find_nearest(v.co)
@@ -144,28 +157,17 @@ def sakal_kirp(p, e):
     at = me.attributes.new("yogun", "FLOAT", "POINT")
     at.data.foreach_set("value", [yogunluk(v.co) for v in me.vertices])
 
-    mat = mz.hair_material(p["name"] + "_sakal2", mz.hair(*e.get("sakal_renk", e["sac"])))
-    nt = mat.node_tree
-    out = next(n for n in nt.nodes if n.type == "OUTPUT_MATERIAL" and n.is_active_output)
-    kaynak = out.inputs["Surface"].links[0].from_socket
-    tc = nt.nodes.new("ShaderNodeTexCoord")
-    gur = nt.nodes.new("ShaderNodeTexNoise"); gur.inputs["Scale"].default_value = 700.0
-    gur.inputs["Detail"].default_value = 1.0
-    nt.links.new(tc.outputs["Object"], gur.inputs["Vector"])
-    at_n = nt.nodes.new("ShaderNodeAttribute"); at_n.attribute_name = "yogun"
-    esik = nt.nodes.new("ShaderNodeMath"); esik.operation = "LESS_THAN"
-    nt.links.new(gur.outputs["Fac"], esik.inputs[0]); nt.links.new(at_n.outputs["Fac"], esik.inputs[1])
-    seff = nt.nodes.new("ShaderNodeBsdfTransparent")
-    kar = nt.nodes.new("ShaderNodeMixShader")
-    nt.links.new(esik.outputs["Value"], kar.inputs["Fac"])
-    nt.links.new(seff.outputs["BSDF"], kar.inputs[1]); nt.links.new(kaynak, kar.inputs[2])
-    nt.links.new(kar.outputs["Shader"], out.inputs["Surface"])
-    me.materials[0] = mat
-    # painted stubble on the skin underneath
-    m = e["m"]
-    p["body"].data.materials[0] = mz.skin_material(
-        p["name"] + "_ten2", *e["ten"], sex=float(m.get("sex", 0.5)), lip_tint=e.get("dudak"),
-        blush_boost=e.get("allik", 1.0), sakal_yogun=e["kirli"], sakal_renk=mz.hair(*e["sac"]))
+    # painted, not stippled: full beard colour on the moustache and chin, a stubble tone that
+    # melts into the skin on the cheeks
+    hair = np.array([0.11, 0.10, 0.13]) + mz.hair(*e.get("sakal_renk", e["sac"])) * 0.88
+    skin = np.asarray(mz.skin(*e["ten"]), float)
+    m = bpy.data.materials.new(p["name"] + "_sakal_boya"); m.use_nodes = True
+    n, L = m.node_tree.nodes, m.node_tree.links
+    at_n = n.new("ShaderNodeAttribute"); at_n.attribute_name = "yogun"
+    fac = mz._math(n, L, "MULTIPLY_ADD", at_n.outputs["Fac"], 1 / 0.6, -0.4 / 0.6)
+    col = mz._mix_rgba(n, L, fac, mz.lin(hair * 0.20 + skin * 0.80), mz.lin(hair * 0.86 + skin * 0.14))
+    L.new(col, n["Principled BSDF"].inputs["Base Color"])
+    me.materials[0] = anime.toon(m, col, rim=0.12)
 
 
 def mendil(p, renk):
@@ -194,8 +196,8 @@ def mendil(p, renk):
         a = 2 * math.pi * i / N
         P = Vector((c.x + rx * math.cos(a), c.y + ry * math.sin(a), c.z))
         R = Vector((math.cos(a), math.sin(a), 0)).normalized()
-        halka.append([bm.verts.new(P + r * (math.cos(2 * math.pi * j / K) * R
-                                            + math.sin(2 * math.pi * j / K) * Vector((0, 0, 1)) * 0.8))
+        halka.append([bm.verts.new(P + r * (math.cos(2 * math.pi * j / K) * R * 0.45
+                                            + math.sin(2 * math.pi * j / K) * Vector((0, 0, 1)) * 1.4))
                       for j in range(K)])
     for i in range(N):
         for j in range(K):
@@ -225,20 +227,23 @@ def mendil(p, renk):
     gs.add(list(range(n_halka, len(me.vertices))), 1.0, "REPLACE")
     md = o.modifiers.new("rig", "ARMATURE"); md.object = arm
     o.parent = arm
-    mat = bpy.data.materials.new(p["name"] + "_mendil"); mat.use_nodes = True
-    bsdf = mat.node_tree.nodes["Principled BSDF"]
-    bsdf.inputs["Base Color"].default_value = (*[float(x) ** 2.2 for x in mz.cloth(renk)], 1.0)
-    bsdf.inputs["Roughness"].default_value = 0.85
-    me.materials.append(mat)
+    me.materials.append(anime.flat(p["name"] + "_mendil", mz.cloth(renk)))
+    anime.kontur(o, np.asarray(mz.cloth(renk), float) * 0.42, 0.0018)
     p["parts"].append(o)
 
 
-def kur(e, x=0.0):
-    p = kadro.make(e, x)
-    if e.get("sakal") == "kisa_sakal" and e.get("kirli"):
+def kur(e, x=0.0, parlak=None):
+    p = anime.make(e, x, kakul=e.get("kakul", True))
+    if e.get("sakal") == "kisa_sakal":
         sakal_kirp(p, e)
     if e.get("mendil"):
         mendil(p, e["mendil"])
+    g = PARLAK if parlak is None else parlak
+    for o in [p["body"]] + p["parts"]:
+        for m in (o.data.materials if o.type == "MESH" else []):
+            for nd in (m.node_tree.nodes if m and m.use_nodes else []):
+                if nd.type == "EMISSION":
+                    nd.inputs["Strength"].default_value *= g
     return p
 
 
@@ -415,10 +420,9 @@ def murettebat(kok, poz="dumen", sahne="seyir"):
 if __name__ == "__main__" and "--" in sys.argv:
     args = sys.argv[sys.argv.index("--") + 1:]
     if args[0] == "deneme":
-        bpy.ops.wm.read_factory_settings(use_empty=True)
-        s = mz.studio()
-        b = kur(ABI, -0.45)
-        c = kur(KARDES, 0.45)
+        s = anime.sahne()
+        b = kur(ABI, -0.45, parlak=1.0)
+        c = kur(KARDES, 0.45, parlak=1.0)
         pb = b["arm"].pose.bones
         print("PARENTS", {k: (pb[k].parent.name if pb[k].parent else None)
                           for k in ("upperleg01.L", "spine05", "spine04", "neck01", "spine01")})

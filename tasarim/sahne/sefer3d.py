@@ -915,6 +915,7 @@ TK = tekne(YELKEN)
 POZ = ARGS[5] if len(ARGS) > 5 else "dumen"
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import murettebat  # noqa: E402  (two brothers, MakeHuman)
+murettebat.isik(GUNES)
 EKIP = murettebat.murettebat(TK, POZ, SAHNE)
 for tur, *a_ in EKIP["cizim"]:
     if tur == "cubuk":
