@@ -894,7 +894,7 @@ def canlandir(arm, hal="yuz", f0=1, f1=120, faz=0.0, hiz=1.0):
                 g = math.sin(TAU * t) * (0.75 + 0.25 * math.sin(TAU * t * 0.37))
                 bukum = 0.32 * g
             else:
-                kasil = max(0.0, math.sin(TAU * t * 0.23)) ** 12            # a rare flick
+                kasil = max(0.0, math.sin(TAU * t * 0.41)) ** 6             # a flick every few beats
                 bukum = 0.05 * math.sin(TAU * t) + 0.25 * kasil * math.sin(TAU * t * 3)
             acilar = [0.0] + [bukum * (0.6 + 0.4 * i / len(spine)) for i in range(1, len(spine))]
         else:
