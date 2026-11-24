@@ -299,6 +299,79 @@ def diz_ustu(arm, side):
     return arm.pose.bones["lowerleg01" + side].head + Vector((0.0, -0.02, 0.09))
 
 
+# ---------------------------------------------------------------- motion from reference clips
+# Body poses come from captured humanoid motion retargeted onto the rig (xklip). Which clip and
+# moment stands for each pose is a local, git-ignored table: _yerel/klipler.json
+#   {"kok": <clip folder>, "pozlar": {<pose>: [<clip>, <0..1 moment>], ...}}
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import xklip  # noqa: E402
+
+_TABLO, _KLIPLER = None, {}
+PARMAK = [f"finger{f}-{j}" for f in range(1, 6) for j in range(1, 4)]
+UST_SAG = {"spine03", "neck01", "head", "clavicle.R", "upperarm01.R", "lowerarm01.R", "wrist.R"} | \
+          {b + ".R" for b in PARMAK}
+UST = UST_SAG | {"clavicle.L", "upperarm01.L", "lowerarm01.L", "wrist.L"} | {b + ".L" for b in PARMAK}
+
+
+def _tablo():
+    global _TABLO
+    if _TABLO is None:
+        yol = os.path.join(os.path.dirname(os.path.abspath(__file__)), "_yerel", "klipler.json")
+        if not os.path.exists(yol):
+            raise SystemExit("murettebat: pose clips missing, expected " + yol)
+        import json
+        with open(yol, encoding="utf-8") as f:
+            _TABLO = json.load(f)
+    return _TABLO
+
+
+def hareket(p, poz, sadece=None):
+    """Pose p's rig from the reference clip that stands for poz. Returns the retargeter and tick.
+    A table entry [clip, moment, true] plays the clip mirrored."""
+    t = _tablo()
+    ad, an, *ayna = t["pozlar"][poz]
+    if ad not in _KLIPLER:
+        _KLIPLER[ad] = xklip.Klip(os.path.join(t["kok"], ad + ".x"))
+    k = _KLIPLER[ad]
+    a = xklip.Aktarici(k, p["arm"])
+    tik = k.t0 + (k.t1 - k.t0) * an
+    a.poz(tik, sadece=sadece, ayna=bool(ayna and ayna[0]))
+    bpy.context.view_layer.update()
+    return a, tik
+
+
+def el_kalibi(p, poz="kavra"):
+    """Finger rotations (local to the hand) of a gripping hand, both sides."""
+    hareket(p, poz)
+    pb = p["arm"].pose.bones
+    return {b + s: pb[b + s].matrix_basis.to_quaternion() for s in (".L", ".R") for b in PARMAK
+            if b + s in pb}
+
+
+def el_uygula(p, kalip, side, duz=()):
+    """Close a hand around a held object; fingers in duz stay straight (a pointing index)."""
+    pb = p["arm"].pose.bones
+    for b in PARMAK:
+        n = b + side
+        if n in pb and n in kalip:
+            pb[n].rotation_mode = "QUATERNION"
+            pb[n].rotation_quaternion = Quaternion() if b.split("-")[0] in duz else kalip[n]
+    bpy.context.view_layer.update()
+
+
+def avuc(arm, side):
+    """Centre of the closed fist (between the knuckles), armature space."""
+    pb = arm.pose.bones
+    return (pb["finger2-1" + side].head + pb["finger5-1" + side].head) / 2
+
+
+def olta_yonu(akt, tik, dis):
+    """Rod direction held in the right hand at tick, in boat-local space."""
+    _, R = akt.tutamak(tik, "R")
+    d = Vector(R[:, 1].tolist())
+    return (dis(d) - dis(Vector((0, 0, 0)))).normalized()
+
+
 def murettebat(kok, poz="dumen", sahne="seyir"):
     """sahne: kalkis | seyir | varis; poz (seyir): dumen | olta | tuttu.
     Returns dict(abi, kardes, cizim) where cizim lists props for the scene to draw in boat-local
@@ -306,79 +379,75 @@ def murettebat(kok, poz="dumen", sahne="seyir"):
     cizim = []
     an = sahne if sahne != "seyir" else poz        # kalkis | dumen | olta | tuttu | varis
 
-    # elder brother: always at the helm, left hand on the tiller
+    # elder brother: always seated at the helm, left hand closed on the tiller
     abi = kur(ABI)
     a = abi["arm"]
-    otur(a, 0.14)
-    ic, _ = yerlestir(abi, kok, (0.46, -2.58), math.radians(-143), OTURAK_Z, True)
-    egil(a, {"dumen": -6, "olta": 4, "tuttu": -4}.get(an, 0))
-    kol(a, ".L", ic(YEKE_UCU + Vector((0.02, 0.04, 0.03))), (0.6, 0.6, -0.8))
+    kavra = el_kalibi(abi)
+    hareket(abi, "otur")
     if an == "kalkis":       # waves back to the quay
-        kol(a, ".R", omuz(a, ".R") + Vector((-0.2, -0.16, 0.5)), (-1.0, 0.3, -0.5))
-        bas(a, 34.0, -6.0); gulus(abi, 0.45)
-    elif an == "varis":      # shades his eyes towards the town
-        kol(a, ".R", a.pose.bones["head"].head + Vector((-0.02, -0.14, 0.10)), (-1.0, 0.2, -0.8))
-        bas(a, -14.0, -2.0); gulus(abi, 0.2)
+        hareket(abi, "el_salla", sadece=UST_SAG)
+    elif an == "varis":      # hand at the brow against the low sun, looking at the town
+        hareket(abi, "siper", sadece=UST_SAG)
+    ic, _ = yerlestir(abi, kok, (0.46, -2.58), math.radians(-143), OTURAK_Z, True)
+    egil(a, {"dumen": -4, "olta": 4, "tuttu": -2}.get(an, 0))
+    kol(a, ".L", ic(YEKE_UCU + Vector((0.02, 0.04, 0.03))), (0.6, 0.6, -0.8))
+    el_uygula(abi, kavra, ".L")
+    if an == "kalkis":
+        bas(a, 24.0, -4.0); gulus(abi, 0.45)
+    elif an == "varis":
+        bas(a, -10.0, 0.0); gulus(abi, 0.2)
     else:
-        kol(a, ".R", diz_ustu(a, ".R"), (-1.0, 0.2, -0.5))
         bas(a, {"dumen": -22.0, "olta": -34.0, "tuttu": -40.0}[an], {"olta": 6.0}.get(an, 0.0))
         gulus(abi, {"dumen": 0.35, "olta": 0.25, "tuttu": 0.85}[an])
 
     kardes = kur(KARDES)
     c = kardes["arm"]
-    if an == "kalkis":       # hauls the sail up the mast
+    kavra = el_kalibi(kardes)
+    if an == "kalkis":       # hauls the sail up the mast, hand over hand
+        hareket(kardes, "ip_cek")
         y = 0.6
         ic2, dis2 = yerlestir(kardes, kok, (0.08, y), math.pi, guverte_z(y), False)
-        egil(c, -8)
         ust, alt_ = MANDAR
 
         def ip(z):
             s = (ust.z - z) / (ust.z - alt_.z)
             return ust.lerp(alt_, s)
-        kol(c, ".L", ic2(ip(2.6)), (1.0, 0.3, -0.3))
-        kol(c, ".R", ic2(ip(1.9)), (-1.0, 0.2, -0.7))
-        bas(c, 0.0, -32.0); gulus(kardes, 0.3)
+        kol(c, ".L", ic2(ip(2.55)), (1.0, 0.3, -0.3))
+        kol(c, ".R", ic2(ip(2.05)), (-1.0, 0.2, -0.7))
+        el_uygula(kardes, kavra, ".L"); el_uygula(kardes, kavra, ".R")
+        bas(c, 0.0, -24.0); gulus(kardes, 0.3)
         cizim.append(("cubuk", "Mandar", ust, alt_, 0.012, "halat"))
-    elif an == "dumen":      # leans back on his hands, watching the sail
-        otur(c, 0.18)
-        ic2, _ = yerlestir(kardes, kok, (0.16, -1.6), math.radians(90), SANDIK_Z, True)
-        egil(c, -16)
-        kol(c, ".L", ic2((-0.12, -1.38, SANDIK_Z + 0.03)), (0.6, 1.0, 0.0))
-        kol(c, ".R", ic2((-0.12, -1.82, SANDIK_Z + 0.03)), (-0.6, 1.0, 0.0))
-        bas(c, 16.0, -22.0); gulus(kardes, 0.35)
-    elif an == "olta":       # rod over the starboard rail
-        otur(c, 0.16)
-        ic2, _ = yerlestir(kardes, kok, (0.24, -1.55), math.radians(45), SANDIK_Z, True)
-        egil(c, 12)
-        alt = Vector((0.52, -1.86, 1.36))
-        yon = (OLTA_UCU - alt).normalized()
-        kol(c, ".R", ic2(alt), (-1.0, 0.2, -0.8))
-        kol(c, ".L", ic2(alt + yon * 0.38), (1.0, 0.0, -1.0))
-        bas(c, 10.0, -12.0); gulus(kardes, 0.2)
-        cizim += [("cubuk", "Olta", alt - yon * 0.3, OLTA_UCU, 0.022, "kusak"),
-                  ("cubuk", "Misina", OLTA_UCU, Vector((3.3, -0.5, 0.05)), 0.006, "halat")]
-    elif an == "tuttu":      # stands up and lifts the catch
-        # on the port side, clear of the sail, so the catch hangs against open water
-        y = -0.55
-        ic2, dis2 = yerlestir(kardes, kok, (-0.3, y), math.radians(-60), guverte_z(y), False)
-        kol(c, ".R", omuz(c, ".R") + Vector((-0.06, -0.26, 0.36)), (-1.0, 0.3, -0.6))
-        kol(c, ".L", omuz(c, ".L") + Vector((0.16, -0.06, 0.52)), (1.0, 0.3, -0.4))
-        bas(c, -12.0, -14.0); gulus(kardes, 0.9)
+    elif an == "dumen":      # sits on the crate, watching the sail fill
+        hareket(kardes, "otur")
+        ic2, _ = yerlestir(kardes, kok, (0.30, -1.6), math.radians(-90), SANDIK_Z, True)
+        bas(c, -16.0, -22.0); gulus(kardes, 0.35)
+    elif an in ("olta", "tuttu"):   # sits on the deck, trolling over the port quarter
+        akt, tik = hareket(kardes, "olta")
+        if an == "tuttu":    # rod up, the catch swinging in over the rail
+            akt, tik = hareket(kardes, "cekti", sadece=UST)
+        y = -0.5
+        ic2, dis2 = yerlestir(kardes, kok, (0.10, 0.0), math.radians(-45), guverte_z(0.0), True)
+        el_uygula(kardes, kavra, ".R")
+        bas(c, 0.0, {"olta": 8.0, "tuttu": -16.0}[an]); gulus(kardes, {"olta": 0.2, "tuttu": 0.9}[an])
         bpy.context.view_layer.update()
-        el = dis2(c.pose.bones["wrist.R"].head)
-        uc = el + Vector((-0.62, 0.05, 0.78)).normalized() * 1.9
-        balik = Vector((uc.x + 0.05, uc.y, el.z - 0.15))
-        cizim += [("cubuk", "Olta", el - (uc - el).normalized() * 0.3, uc, 0.022, "kusak"),
-                  ("cubuk", "Misina", uc, balik + Vector((0, 0, 0.3)), 0.006, "halat"),
-                  ("balik", balik)]
-    else:                    # varis: at the bow, points at the town, coil in hand
-        y = 2.05
-        ic2, dis2 = yerlestir(kardes, kok, (0.28, y), math.pi, guverte_z(y), False)
-        kol(c, ".R", omuz(c, ".R") + Vector((-0.10, -0.60, 0.20)), (-0.3, 0.0, -1.0))
-        kol(c, ".L", c.pose.bones["upperleg01.L"].head + Vector((0.17, -0.10, 0.04)), (1.0, 0.4, 0.0))
+        el = dis2(avuc(c, ".R"))
+        yon = olta_yonu(akt, tik, dis2)
+        uc = el + yon * 2.1
+        cizim.append(("cubuk", "Olta", el - yon * 0.32, uc, 0.022, "kusak"))
+        if an == "olta":
+            cizim.append(("cubuk", "Misina", uc, Vector((uc.x - 0.4, uc.y - 0.5, 0.05)), 0.006, "halat"))
+        else:
+            balik = uc + Vector((0.0, 0.0, -0.75))
+            cizim += [("cubuk", "Misina", uc, balik + Vector((0, 0, 0.26)), 0.006, "halat"), ("balik", balik)]
+    else:                    # varis: at the bow, points at the town, coil in the other hand
+        hareket(kardes, "goster")
+        y = 0.72
+        ic2, dis2 = yerlestir(kardes, kok, (-0.34, y), math.pi, guverte_z(y), False)
+        el_uygula(kardes, kavra, ".R", duz=("finger2",))
+        el_uygula(kardes, kavra, ".L")
         bas(c, -6.0, -4.0); gulus(kardes, 0.5)
         bpy.context.view_layer.update()
-        cizim.append(("kangal", dis2(c.pose.bones["wrist.L"].head) + Vector((0, 0, -0.06))))
+        cizim.append(("kangal", dis2(avuc(c, ".L")) + Vector((0, 0, -0.08))))
     return dict(abi=abi, kardes=kardes, cizim=cizim)
 
 

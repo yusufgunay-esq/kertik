@@ -412,7 +412,9 @@ M["halat"] = duz_malzeme("Halat", "#C9B48E", 0.9, 0.1)
 M["deniz"] = deniz_malzeme()
 M["bayrak"] = bayrak_malzeme()
 M["kusak"] = duz_malzeme("Kusak", "#6B4A30", 0.8, 0.2)
-M["balik"] = duz_malzeme("Balik", "#B9C6CC", 0.25, 0.7)
+M["balik"] = duz_malzeme("Balik", "#C9D3D6", 0.25, 0.7)
+M["balik_sirt"] = duz_malzeme("BalikSirt", "#3F5D72", 0.35, 0.5)
+M["balik_goz"] = duz_malzeme("BalikGoz", "#151515", 0.2, 0.6)
 M["yelken"] = yelken_malzeme()
 M["govde"] = govde_malzeme()
 
@@ -576,6 +578,20 @@ def kutu(ad, boyut, konum, mat, ac=0.0, pah=0.12):
     return ob
 
 
+def elden(ob, genlik, frek=0.4, kes=5, egim=0.0):
+    """Hand-made, not machined: split the faces, then push the surface with low-frequency noise
+    (bulging walls, uneven edges) and lean it a little. genlik in metres."""
+    me = ob.data
+    bm = bmesh.new(); bm.from_mesh(me)
+    bmesh.ops.subdivide_edges(bm, edges=bm.edges[:], cuts=kes, use_grid_fill=True)
+    o = Vector((ob.location.x * 0.37 + 11.3, ob.location.y * 0.53 - 4.1, ob.location.z * 0.11))
+    for v in bm.verts:
+        v.co += noise.noise_vector(v.co * frek + o) * genlik
+        v.co.x += v.co.z * egim
+    bm.to_mesh(me); bm.free()
+    return ob
+
+
 def silindir(ad, r1, r2, h, konum, mat, seg=24):
     bpy.ops.mesh.primitive_cone_add(vertices=seg, radius1=r1, radius2=r2, depth=h,
                                     location=(konum[0], konum[1], konum[2] + h / 2))
@@ -590,22 +606,26 @@ def silindir(ad, r1, r2, h, konum, mat, seg=24):
 
 def ev(x, y, z, w_, d_, h_, ac, cati):
     g = kutu("Ev", (w_, d_, h_), (x, y, z + h_ / 2), random.choice([M["badana"], M["badana"], M["badana2"]]), ac, 0.18)
+    elden(g, 0.07, 0.42, 6, random.uniform(-0.012, 0.012))
     if cati == "kiremit":
         bpy.ops.mesh.primitive_cone_add(vertices=4, radius1=1.0, radius2=0.0, depth=1.0,
                                         location=(x, y, z + h_ + 0.55), rotation=(0, 0, ac + math.pi / 4))
         r_ = bpy.context.active_object
         r_.scale = (w_ * 0.78, d_ * 0.78, 1.15)
+        elden(r_, 0.06, 1.3, 4)
         r_.data.materials.append(M["kiremit"])
     else:
-        kutu("Parapet", (w_ + 0.15, d_ + 0.15, 0.35), (x, y, z + h_ + 0.12), M["badana"], ac, 0.08)
+        elden(kutu("Parapet", (w_ + 0.15, d_ + 0.15, 0.35), (x, y, z + h_ + 0.12), M["badana"], ac, 0.08),
+              0.05, 0.6, 5)
     # door and windows on the face towards the camera
     yon = Vector((math.sin(ac), -math.cos(ac), 0))
     yan = Vector((math.cos(ac), math.sin(ac), 0))
     on = Vector((x, y, z)) + yon * (d_ / 2 + 0.02)
-    kutu("Kapi", (0.9, 0.12, 1.9), (on + yan * (-w_ * 0.22) + Vector((0, 0, 0.95)))[:], M["kapi"], ac, 0.03)
+    elden(kutu("Kapi", (0.9, 0.26, 1.9), (on + yan * (-w_ * 0.22) + Vector((0, 0, 0.95)))[:], M["kapi"], ac, 0.03),
+          0.02, 1.5, 2)
     for k in range(1 if h_ < 4 else 2):
-        kutu("Pencere", (0.7, 0.12, 0.8), (on + yan * (w_ * 0.2) + Vector((0, 0, 1.6 + k * 1.7)))[:],
-             M["pencere"], ac, 0.03)
+        elden(kutu("Pencere", (0.7, 0.26, 0.8), (on + yan * (w_ * 0.2) + Vector((0, 0, 1.6 + k * 1.7)))[:],
+                   M["pencere"], ac, 0.03), 0.02, 1.5, 2)
     return g
 
 
@@ -681,7 +701,7 @@ def cali(x, y, z, r):
 
 
 def fener(x, y, z, h=10.0):
-    silindir("FenerKule", 1.7, 1.15, h, (x, y, z), M["badana"], 28)
+    elden(silindir("FenerKule", 1.7, 1.15, h, (x, y, z), M["badana"], 28), 0.07, 0.35, 8, 0.006)
     silindir("FenerBant", 1.36, 1.3, h * 0.12, (x, y, z + h * 0.58), M["fener_bant"], 28)
     silindir("FenerBalkon", 1.75, 1.75, 0.25, (x, y, z + h), M["fener_bant"], 28)
     silindir("FenerCam", 0.95, 0.95, 1.5, (x, y, z + h + 0.25), M["fener_cam"], 16)
@@ -802,14 +822,13 @@ def tekne(yelken=1.0):
     # cabin-less fishing boat: a small wheel box, crates, a tiller, a lantern post
     for ad, boyut, kon, mat in (("Sandik", (0.8, 0.6, 0.45), (0.25, -1.6, 0.9), M["ahsap"]),
                                 ("Sandik2", (0.6, 0.5, 0.35), (-0.3, -1.1, 0.85), M["guverte"])):
-        o = kutu(ad, boyut, kon, mat, 0.1, 0.04); o.parent = kok
-    bpy.ops.mesh.primitive_torus_add(major_radius=0.35, minor_radius=0.08, location=(-0.35, 0.3, 0.85))
-    hl = bpy.context.active_object; hl.data.materials.append(M["halat"]); hl.parent = kok
+        o = elden(kutu(ad, boyut, kon, mat, 0.1, 0.04), 0.014, 2.2, 3); o.parent = kok
+    kangal(Vector((0.62, -0.5, 0.70)), 0.27, 5, 0.032, kok)
     yeke = kutu("Yeke", (0.08, 1.1, 0.08), (0, -3.5, 1.35), M["ahsap"], 0, 0.02); yeke.rotation_euler.x = 0.25
     yeke.parent = kok
     # mast (raked forward) and lateen yard
     direk_alt, direk_ust = Vector((0, 1.0, 0.7)), Vector((0, 1.3, 5.3))
-    cubuk("Direk", direk_alt, direk_ust, 0.1, M["ahsap"], kok)
+    cubuk("Direk", direk_alt, direk_ust, 0.1, M["ahsap"], kok, uc_oran=0.72, elle=0.006)
     beta = math.radians(34 if yelken > 0.6 else 30)
 
     def dondur(p):
@@ -824,7 +843,7 @@ def tekne(yelken=1.0):
         tack, peak = Vector((0, 3.1, 1.5)), Vector((0, -2.6, 4.6))
         clew = None
     T_, P_ = dondur(tack), dondur(peak)
-    cubuk("Seren", T_ + (T_ - P_) * 0.05, P_ + (P_ - T_) * 0.04, 0.075, M["ahsap"], kok)
+    cubuk("Seren", T_ + (T_ - P_) * 0.05, P_ + (P_ - T_) * 0.04, 0.075, M["ahsap"], kok, uc_oran=0.55, elle=0.005)
     if clew is not None:
         C_ = dondur(clew)
         nrm_ = (P_ - T_).cross(C_ - T_).normalized()
@@ -854,7 +873,7 @@ def tekne(yelken=1.0):
         # sheet line from clew to the stern
         cubuk("Iskota", C_, Vector((0.3, -3.2, 1.2)), 0.015, M["halat"], kok)
     else:
-        cubuk("Sarili", T_.lerp(P_, 0.08), P_.lerp(T_, 0.1), 0.2, M["yelken"], kok)
+        sarili_yelken(T_.lerp(P_, 0.06), P_.lerp(T_, 0.08), kok)
     # lantern post at the stern
     cubuk("FenerDirek", Vector((-0.4, -3.0, 1.0)), Vector((-0.4, -3.0, 2.3)), 0.04, M["ahsap"], kok)
     f_ = kutu("Fener", (0.13, 0.13, 0.17), (-0.4, -3.0, 2.38), M["fener_cam"], 0, 0.02); f_.parent = kok
@@ -864,10 +883,131 @@ def tekne(yelken=1.0):
     return kok
 
 
-def cubuk(ad, p1, p2, r, mat, ebeveyn):
+def kangal(merkez, r, tur, kalin, ebeveyn, dik=False):
+    """A coil of rope: a few loose, uneven loops stacked and slumped, not a torus.
+    dik hangs it from a hand (loops in a vertical plane)."""
+    cu = bpy.data.curves.new("Kangal", "CURVE"); cu.dimensions = "3D"
+    cu.bevel_depth = kalin; cu.bevel_resolution = 3
+    sp_ = cu.splines.new("POLY")
+    n = tur * 28
+    sp_.points.add(n)
+    for i in range(n + 1):
+        u = i / 28.0
+        a = u * TAU
+        rr = r * (1.0 - 0.05 * u) * (1 + 0.07 * noise.noise(Vector((math.cos(a), math.sin(a), u * 0.7))))
+        h = kalin * 1.7 * u * 0.55 + kalin * 0.8 * noise.noise(Vector((u * 2.1, 3.3, 0.5)))
+        p = Vector((math.cos(a) * rr, math.sin(a) * rr * 0.92, h))
+        if dik:
+            p = Vector((p.x, p.z, -p.y * 1.25))
+        sp_.points[i].co = (*(merkez + p), 1)
+    ob = bpy.data.objects.new("Kangal", cu); bagla(ob); ob.parent = ebeveyn
+    cu.materials.append(M["halat"])
+    return ob
+
+
+def sarili_yelken(a, b, ebeveyn):
+    """Furled lateen sail: cloth bunched under the yard, pinched by gaskets, sagging between them."""
+    u = (b - a); L = u.length; u.normalize()
+    asagi = Vector((0, 0, -1)); asagi = (asagi - u * asagi.dot(u)).normalized()
+    yan = u.cross(asagi)
+    NS, NA, ties = 64, 14, 6
+    bm = bmesh.new(); hal = []
+    for i in range(NS + 1):
+        t = i / NS
+        kis = 0.45 + 0.55 * abs(math.sin(math.pi * t * ties)) ** 0.7       # pinched at the gaskets
+        boy = (0.10 + 0.13 * math.sin(math.pi * t) ** 0.6) * kis              # fatter mid-yard
+        sark = boy * (0.9 + 0.5 * abs(math.sin(math.pi * t * ties)))
+        c = a + u * (L * t) + asagi * sark
+        ring = []
+        for k in range(NA):
+            ang = TAU * k / NA
+            ca, sa = math.cos(ang), math.sin(ang)
+            damla = 1.0 + 0.45 * max(0.0, ca)                                  # hangs heavier below
+            n_ = noise.noise(Vector((t * 9.0, ca * 1.3, sa * 1.3))) * 0.28 + \
+                noise.noise(Vector((t * 31.0, ca * 2.6, sa * 2.6 + 4))) * 0.10
+            rr = boy * damla * (1 + n_)
+            ring.append(bm.verts.new(c + asagi * (ca * rr) + yan * (sa * rr * 0.8)))
+        hal.append(ring)
+    for i in range(NS):
+        for k in range(NA):
+            bm.faces.new((hal[i][k], hal[i][(k + 1) % NA], hal[i + 1][(k + 1) % NA], hal[i + 1][k]))
+    me = bpy.data.meshes.new("Sarili"); bm.to_mesh(me); bm.free()
+    for p in me.polygons:
+        p.use_smooth = True
+    ob = bpy.data.objects.new("Sarili", me); bagla(ob); ob.parent = ebeveyn
+    me.materials.append(M["yelken"])
+    for k in range(1, ties):                                                    # the gaskets
+        t = k / ties
+        c = a + u * (L * t)
+        cu = bpy.data.curves.new("Kalcete", "CURVE"); cu.dimensions = "3D"
+        cu.bevel_depth = 0.014; cu.bevel_resolution = 2
+        sp_ = cu.splines.new("POLY"); sp_.points.add(16); sp_.use_cyclic_u = True
+        boy = 0.10 + 0.13 * math.sin(math.pi * t) ** 0.6
+        for j in range(17):
+            ang = TAU * j / 16
+            q = c + asagi * (boy * 0.45 + math.cos(ang) * boy * 0.62) + yan * (math.sin(ang) * boy * 0.55) + \
+                u * (0.02 * math.sin(ang * 2))
+            sp_.points[j].co = (*q, 1)
+        g = bpy.data.objects.new("Kalcete", cu); bagla(g); g.parent = ebeveyn
+        cu.materials.append(M["halat"])
+
+
+def balik_yap(konum, boy, ebeveyn):
+    """The catch hanging from the line, head up: a real fish profile (deep body, pointed snout,
+    dark back, silver belly, forked tail, dorsal fin, eye). Local z = length, x = back(+)/belly(-),
+    y = thickness. boy is the length in metres."""
+    NZ, NA = 22, 16
+    bm = bmesh.new(); hal = []; prof = []
+    for i in range(NZ + 1):
+        u = i / NZ                                           # 0 tail root .. 1 snout
+        h = 0.13 * math.sin(math.pi * (0.10 + 0.86 * u)) ** 0.75 * (0.35 + 0.65 * min(1.0, u * 2.4)) + 0.008
+        t = h * 0.34
+        c = 0.012 * math.sin(math.pi * u)                    # back slightly fuller than belly
+        z = u - 0.5
+        ring = [bm.verts.new((c + h * math.cos(TAU * k / NA), t * math.sin(TAU * k / NA), z)) for k in range(NA)]
+        hal.append(ring); prof.append((h, c, z))
+    burun = bm.verts.new((0.01, 0, 0.53))
+    yuz = []
+    for i in range(NZ):
+        for k in range(NA):
+            yuz.append(bm.faces.new((hal[i][k], hal[i][(k + 1) % NA], hal[i + 1][(k + 1) % NA], hal[i + 1][k])))
+    for k in range(NA):
+        yuz.append(bm.faces.new((hal[NZ][k], hal[NZ][(k + 1) % NA], burun)))
+    for f in yuz:                                            # dark back, silver belly
+        f.material_index = 1 if f.calc_center_median().x > 0.02 else 0
+    kok = bm.verts.new((0, 0, -0.5)); a_ = bm.verts.new((0.19, 0, -0.74)); b_ = bm.verts.new((0, 0, -0.62))
+    c_ = bm.verts.new((-0.19, 0, -0.74)); r1 = bm.verts.new((0.04, 0, -0.47)); r2 = bm.verts.new((-0.04, 0, -0.47))
+    for f in (bm.faces.new((r1, kok, a_)), bm.faces.new((kok, b_, a_)), bm.faces.new((kok, c_, b_)),
+              bm.faces.new((r2, c_, kok))):
+        f.material_index = 1
+    h5, c5, z5 = prof[int(NZ * 0.55)]; h7, c7, z7 = prof[int(NZ * 0.78)]
+    d1 = bm.verts.new((c5 + h5 * 0.9, 0, z5)); d2 = bm.verts.new((c7 + h7 * 0.9, 0, z7))
+    d3 = bm.verts.new((c5 + h5 + 0.075, 0, z5 + 0.02))
+    bm.faces.new((d1, d2, d3)).material_index = 1
+    me = bpy.data.meshes.new("Balik"); bm.to_mesh(me); bm.free()
+    for p in me.polygons:
+        p.use_smooth = True
+    me.materials.append(M["balik"]); me.materials.append(M["balik_sirt"])
+    ob = bpy.data.objects.new("Balik", me); bagla(ob)
+    ob.location = konum; ob.scale = (boy, boy, boy); ob.parent = ebeveyn
+    for yan in (1, -1):                                      # eyes
+        hg, cg, zg = prof[int(NZ * 0.9)]
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=8, ring_count=6, radius=0.018,
+                                             location=(cg + hg * 0.25, yan * hg * 0.30, zg))
+        g = bpy.context.active_object; g.data.materials.append(M["balik_goz"]); g.parent = ob
+    return ob
+
+
+def cubuk(ad, p1, p2, r, mat, ebeveyn, uc_oran=1.0, elle=0.0):
     d = p2 - p1
-    bpy.ops.mesh.primitive_cylinder_add(vertices=10, radius=r, depth=d.length, location=((p1 + p2) / 2)[:])
+    if uc_oran != 1.0:
+        bpy.ops.mesh.primitive_cone_add(vertices=12, radius1=r, radius2=r * uc_oran, depth=d.length,
+                                        location=((p1 + p2) / 2)[:])
+    else:
+        bpy.ops.mesh.primitive_cylinder_add(vertices=10, radius=r, depth=d.length, location=((p1 + p2) / 2)[:])
     ob = bpy.context.active_object; ob.name = ad
+    if elle:
+        elden(ob, elle, 1.6, 8)
     ob.rotation_euler = d.to_track_quat("Z", "Y").to_euler()
     ob.data.materials.append(mat)
     for p in ob.data.polygons:
@@ -958,12 +1098,10 @@ for tur, *a_ in EKIP["cizim"]:
         ad, p1, p2, r_, mk = a_
         cubuk(ad, Vector(p1), Vector(p2), r_, M[mk], TK)
     elif tur == "balik":
-        bal = kure(a_[0], 0.27, M["balik"], TK, (0.3, 0.42, 1.0))
-        bal.rotation_euler = (0.25, 0, 0.5)
+        bal = balik_yap(Vector(a_[0]), 0.5, TK)
+        bal.rotation_euler = (0.0, 0.14, math.pi / 2 + 0.25)
     elif tur == "kangal":
-        bpy.ops.mesh.primitive_torus_add(major_radius=0.13, minor_radius=0.032, location=a_[0][:],
-                                         rotation=(1.35, 0.0, 0.3))
-        kg = bpy.context.active_object; kg.data.materials.append(M["halat"]); kg.parent = TK
+        kangal(Vector(a_[0]), 0.14, 4, 0.022, TK, dik=True)
 bpy.ops.mesh.primitive_cube_add(size=1, location=(0, -2.55, 1.06))
 otur = bpy.context.active_object
 otur.scale = (1.9, 0.32, 0.08)
@@ -986,13 +1124,13 @@ cd.clip_start, cd.clip_end = 0.5, 6000
 cam = bpy.data.objects.new("Kamera", cd); bagla(cam); sc.camera = cam
 cam.location = (0, 0, KAMERA_Y)
 cam.rotation_euler = (math.radians(90 - EGIM), 0, math.radians(YAW))
-if os.environ.get("SEFER_YAKIN"):  # close-up on the crew, for checking poses
+if os.environ.get("SEFER_YAKIN"):  # close-up from the port bow quarter: faces and hands
     bpy.context.view_layer.update()
     W_ = TK.matrix_world
-    hedef = W_ @ Vector((0.2, -0.6, 1.8))
-    cam.location = W_ @ Vector((4.2, -7.4, 3.1))
+    hedef = W_ @ Vector((0.1, -0.85, 1.5))
+    cam.location = W_ @ Vector((-6.0, -0.05, 2.9))
     cam.rotation_euler = (hedef - cam.location).to_track_quat("-Z", "Y").to_euler()
-    cd.lens = 38
+    cd.lens = 20
 
 # ---------------------------------------------------------------- render
 r = sc.render
