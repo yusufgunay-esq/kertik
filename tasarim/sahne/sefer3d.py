@@ -9,7 +9,7 @@ from mathutils import Vector, Matrix, noise
 
 ARGS = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else ["still", "seyir", "gun", "test.png"]
 KOMUT, SAHNE, VAKIT = ARGS[0], ARGS[1], ARGS[2]
-CIKTI = ARGS[3]
+CIKTI = os.path.abspath(ARGS[3])
 GEN = int(ARGS[4]) if len(ARGS) > 4 else 540
 TAU = math.tau
 F = 300
@@ -59,8 +59,9 @@ YARI_FOV = 26.0         # vertical half field of view (deg)
 TEKNE = dict(kalkis=(0.3, 14.0, 14.0), seyir=(-0.5, 14.0, 22.0), varis=(-0.4, 14.0, 16.0))[SAHNE]
 TX, TY, TPSI = TEKNE
 HD = Vector((-math.sin(math.radians(TPSI)), math.cos(math.radians(TPSI)), 0.0))   # heading
-YELKEN = dict(kalkis=0.0, seyir=1.0, varis=0.5)[SAHNE]
-HIZ = dict(kalkis=0.0, seyir=1.0, varis=0.35)[SAHNE]
+_POZ_ARG = ARGS[5] if len(ARGS) > 5 else "dumen"
+YELKEN = 0.0 if (SAHNE == "kalkis" or _POZ_ARG in ("kalkis", "mola", "balik")) else (0.5 if SAHNE == "varis" else 1.0)
+HIZ = 0.08 if _POZ_ARG == "balik" else dict(kalkis=0.0, seyir=1.0, varis=0.35)[SAHNE]   # fishing: sail furled, drifting
 
 random.seed(11)
 for o in list(bpy.data.objects):
@@ -410,6 +411,7 @@ M["ahsap"] = duz_malzeme("Ahsap", "#7A5236", 0.65, 0.3, 0.15, 3.0)
 M["guverte"] = duz_malzeme("Guverte", "#B58E66", 0.75, 0.25, 0.15, 4.0)
 M["halat"] = duz_malzeme("Halat", "#C9B48E", 0.9, 0.1)
 M["deniz"] = deniz_malzeme()
+M["kopuk"] = duz_malzeme("Kopuk", V["kopuk"], 0.6, 0.3)
 M["bayrak"] = bayrak_malzeme()
 M["kusak"] = duz_malzeme("Kusak", "#6B4A30", 0.8, 0.2)
 M["balik"] = duz_malzeme("Balik", "#C9D3D6", 0.25, 0.7)
@@ -821,7 +823,7 @@ def tekne(yelken=1.0):
         cu.materials.append(M["ahsap"])
     # cabin-less fishing boat: a small wheel box, crates, a tiller, a lantern post
     for ad, boyut, kon, mat in (("Sandik", (0.8, 0.6, 0.45), (0.25, -1.6, 0.9), M["ahsap"]),
-                                ("Sandik2", (0.6, 0.5, 0.35), (-0.3, -1.1, 0.85), M["guverte"])):
+                                ("Sandik2", (0.55, 0.48, 0.35), (0.56, -0.92, 0.85), M["guverte"])):
         o = elden(kutu(ad, boyut, kon, mat, 0.1, 0.04), 0.014, 2.2, 3); o.parent = kok
     kangal(Vector((0.62, -0.5, 0.70)), 0.27, 5, 0.032, kok)
     yeke = kutu("Yeke", (0.08, 1.1, 0.08), (0, -3.5, 1.35), M["ahsap"], 0, 0.02); yeke.rotation_euler.x = 0.25
@@ -1057,7 +1059,9 @@ def uzak_adalar():
     tepe("UzakAda3", -60, 2400, 280, 80, 70, 23, adim=16, basamak=14)
 
 
-if SAHNE == "kalkis":
+if KOMUT == "sprite":
+    pass
+elif SAHNE == "kalkis":
     # home harbour: quay along the boat's port side, town on the hill behind it, light at the mole
     rihtim(-4.6, -4.0, -4.6, 70.0, gen=6.0)
     rihtim(-4.6, 68.0, -26.0, 92.0, gen=6.0)
@@ -1088,7 +1092,7 @@ else:
     uzak_adalar()
 
 TK = tekne(YELKEN)
-POZ = ARGS[5] if len(ARGS) > 5 else "dumen"
+POZ = "dumen" if (len(ARGS) > 5 and ARGS[5] == "mola") else (ARGS[5] if len(ARGS) > 5 else "dumen")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import murettebat  # noqa: E402  (two brothers, MakeHuman)
 murettebat.isik(GUNES, V["gunes_guc"])
@@ -1116,6 +1120,204 @@ otur = bpy.context.active_object
 otur.scale = (1.9, 0.32, 0.08)
 otur.data.materials.append(M["ahsap"])
 otur.parent = TK
+
+# ---------------------------------------------------------------- fishing sequence props (poz "balik")
+YEKE_PIVOT = Vector((0.0, -4.03, 1.214))
+
+
+def yeke_koy(el):
+    yk = bpy.data.objects.get("Yeke")
+    d_ = el - YEKE_PIVOT
+    L_ = d_.length + 0.06
+    yk.location = YEKE_PIVOT + d_.normalized() * (L_ / 2)
+    yk.rotation_euler = d_.to_track_quat("Y", "Z").to_euler()
+    yk.scale = (1.0, L_ / 1.1, 1.0)
+    return yk
+
+
+def serit(ad, n, r, mat, uc_oran=1.0):
+    """An animatable rod/line: a poly curve whose points are keyed every frame."""
+    cu = bpy.data.curves.new(ad, "CURVE"); cu.dimensions = "3D"
+    cu.bevel_depth = r; cu.bevel_resolution = 2; cu.use_fill_caps = True
+    sp_ = cu.splines.new("POLY"); sp_.points.add(n - 1)
+    for k in range(n):
+        sp_.points[k].radius = 1.0 + (uc_oran - 1.0) * k / (n - 1)
+    ob = bpy.data.objects.new(ad, cu); bagla(ob); ob.parent = TK
+    cu.materials.append(mat)
+    return ob
+
+
+def serit_anahtar(ob, noktalar, f):
+    for k, q in enumerate(noktalar):
+        pt = ob.data.splines[0].points[k]
+        pt.co = (q.x, q.y, q.z, 1.0)
+        pt.keyframe_insert("co", frame=f)
+
+
+def kova(merkez):
+    """A wooden pail on the deck with a little sea water in it."""
+    z0 = murettebat.guverte_z(merkez[1])
+    bpy.ops.mesh.primitive_cone_add(vertices=20, radius1=0.15, radius2=0.18, depth=0.3,
+                                    location=(merkez[0], merkez[1], z0 + 0.15), end_fill_type="NOTHING")
+    k_ = bpy.context.active_object; k_.name = "Kova"
+    k_.modifiers.new("Kalin", "SOLIDIFY").thickness = 0.018
+    k_.data.materials.append(M["ahsap"]); k_.parent = TK
+    for p in k_.data.polygons:
+        p.use_smooth = True
+    for zz in (0.06, 0.24):
+        bpy.ops.mesh.primitive_torus_add(major_radius=0.155 + zz * 0.1, minor_radius=0.012,
+                                         location=(merkez[0], merkez[1], z0 + zz))
+        c_ = bpy.context.active_object; c_.data.materials.append(M["fener_bant"]); c_.parent = TK
+    bpy.ops.mesh.primitive_circle_add(vertices=20, radius=0.165, fill_type="NGON",
+                                      location=(merkez[0], merkez[1], z0 + 0.2))
+    s_ = bpy.context.active_object; s_.data.materials.append(M["deniz"]); s_.parent = TK
+    return Vector((merkez[0], merkez[1], z0))
+
+
+def sicrama(ad):
+    """A foam ring that opens where something meets the water; scale keyed per event."""
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.25, minor_radius=0.035, location=(0, 0, 0))
+    h_ = bpy.context.active_object; h_.name = ad
+    h_.scale = (0, 0, 0); h_.data.materials.append(M["kopuk"]); h_.parent = TK
+    h_.visible_shadow = False
+    h_.keyframe_insert("scale", frame=1)
+    return h_
+
+
+def sicrat(h_, yer, f, sure=18, boy=1.0):
+    for df, sk in ((-1, 0.0), (0, 0.25 * boy), (sure // 3, 0.8 * boy), (sure, 1.25 * boy), (sure + 1, 0.0)):
+        h_.location = (yer.x, yer.y, 0.02)
+        h_.scale = (sk, sk, sk * 0.35)
+        h_.keyframe_insert("scale", frame=f + df)
+        h_.keyframe_insert("location", frame=f + df)
+
+
+def balik_sahnesi(tur="cipura", boy=0.34):
+    """The elder brother casts, waits, strikes, fights and lands a fish; Latif keeps the boat stopped."""
+    import baliklar
+    baliklar.isik(GUNES, V["gunes_guc"], sis=(V["sis"], V["pus"]))
+    kayit = murettebat.balik_tut(EKIP, TK, YEKE_PIVOT, 1)
+    F_ = kayit[-1]["f"]
+    sc.frame_start, sc.frame_end = 1, F_
+    OB, OS = murettebat.OLTA_BOY, murettebat.OLTA_SAP
+    olta = serit("Olta", 8, 0.02, M["kusak"], 0.28)
+    misina = serit("Misina", 14, 0.0045, M["halat"])
+    kv = kova((-0.32, -0.92))
+    bal = baliklar.yap(tur, boy, ebeveyn=TK)
+    ag = boy / (1 + bal["kuyruk"]) * 0.5                # body centre -> mouth
+    su1, su2 = sicrama("Sicrama1"), sicrama("Sicrama2")
+    # where the lure lands: rod tip at the end of the cast, pushed out over the water
+    son_atis = [k for k in kayit if k["faz"] == "atis"][-1]
+    uc_ = son_atis["el_R"] + son_atis["yon"] * OB
+    yatay = Vector((son_atis["yon"].x, son_atis["yon"].y, 0)).normalized()
+    W = uc_ + yatay * 3.2; W.z = 0.02
+    yakin = uc_ + yatay * 0.3; yakin.z = -0.35          # under the rod tip, beside the hull
+    sicradi = set()
+    for k in kayit:
+        f, faz, u = k["f"], k["faz"], k["u"]
+        el, yon = k["el_R"], k["yon"]
+        uc = el + yon * OB
+        sallan = Vector((0.02 * math.sin(f * 0.3), 0, -0.32))
+        gerilim, sarkma = 0.0, 0.0
+        bal_yer, bal_don, bal_hal = Vector((W.x, W.y, -3.0)), (0, 0, 0), None
+        if faz in ("durdur", "son") or (faz == "atis" and u < 0.55):
+            uc_nokta = uc + sallan                              # lure dangling under the tip
+        elif faz == "atis":                                     # lure flies out and lands
+            q = (u - 0.55) / 0.45
+            uc_nokta = (uc + sallan).lerp(W, q) + Vector((0, 0, 1.4 * q * (1 - q)))
+            sarkma = 0.15 * q
+            if q > 0.97 and "atis" not in sicradi:
+                sicrat(su1, W, f, 16, 0.6); sicradi.add("atis")
+        elif faz == "bekle":
+            uc_nokta = W + Vector((0, 0, 0.015 * math.sin(f * 0.25)))
+            sarkma, gerilim = 0.35, 0.03
+        elif faz == "vurus":
+            uc_nokta = W + Vector((0.1 * math.sin(f * 0.9), 0, -0.05))
+            gerilim = 0.25 + 0.25 * math.sin(math.pi * u)
+            if "vurus" not in sicradi:
+                sicrat(su2, W, f, 14, 0.5); sicradi.add("vurus")
+        elif faz == "cekis":
+            yan = Vector((-yatay.y, yatay.x, 0)) * (0.5 * math.sin(u * math.tau * 2))
+            uc_nokta = W.lerp(yakin, u ** 1.3) + yan * (1 - u)
+            uc_nokta.z = min(uc_nokta.z, -0.1 - 0.25 * u)
+            gerilim = 0.38 + 0.12 * math.sin(f * 0.7)
+            bal_yer = uc_nokta - Vector((0, 0, 0.2)); bal_hal = "hizli"
+        else:                                                   # al: lift, unhook, into the pail
+            asi = uc - Vector((0, 0, 0.8))
+            elL = k["el_L"]
+            tutus = elL + Vector((0, 0, ag * 1.6))
+            uc_nokta = uc + sallan
+            if u < 0.18:
+                q = u / 0.18
+                uc_nokta = yakin.lerp(asi, q * q * (3 - 2 * q))
+                gerilim = 0.3 * (1 - q) + 0.15
+                if uc_nokta.z > 0 and "cik" not in sicradi:
+                    sicrat(su1, uc_nokta, f, 20, 0.9); sicradi.add("cik")
+                bal_hal = "cirpin"
+            elif u < 0.40:
+                q = (u - 0.18) / 0.22
+                uc_nokta = asi.lerp(tutus, q * q * (3 - 2 * q))
+                gerilim = 0.12; bal_hal = "cirpin"
+            elif u < 0.60:
+                uc_nokta = tutus
+                bal_hal = "asili"
+            if u < 0.72:
+                tut = uc_nokta if u < 0.60 else tutus
+                bal_yer = tut - Vector((0, 0, ag))
+                bal_don = (math.radians(90), 0, 0)              # head up, hanging by the mouth
+                bal_hal = bal_hal or "asili"
+            elif u < 0.86:
+                q = (u - 0.72) / 0.14
+                q = q * q * (3 - 2 * q)
+                a_ = elL + Vector((0, 0, ag * 0.6))
+                b_ = kv + Vector((0, 0, 0.42))
+                bal_yer = a_.lerp(b_, q) + Vector((0, 0, 0.25 * math.sin(math.pi * q)))
+                bal_don = (math.radians(90 - 180 * q), 0, 0)
+                bal_hal = "asili"
+            else:
+                bal_yer = kv + Vector((0, 0, 0.36))
+                bal_don = (math.radians(-90), 0, 0)             # head down in the pail, tail out
+                bal_hal = "asili"
+        if faz == "son":
+            bal_yer = kv + Vector((0, 0, 0.36)); bal_don = (math.radians(-90), 0, 0); bal_hal = "asili"
+        # rod: bends towards the pull, more at the tip
+        cek = uc_nokta - uc
+        cek_dik = cek - yon * cek.dot(yon)
+        cek_dik = cek_dik.normalized() if cek_dik.length > 1e-4 else Vector((0, 0, -1))
+        olta_n = []
+        for j in range(8):
+            s_ = j / 7
+            olta_n.append(el - yon * OS + yon * (OS + OB) * s_
+                          + cek_dik * (gerilim * 0.75 * max(0.0, s_ - 0.15) ** 2))
+        serit_anahtar(olta, olta_n, f)
+        uc_b = olta_n[-1]
+        mis = []
+        for j in range(14):
+            s_ = j / 13
+            mis.append(uc_b.lerp(uc_nokta, s_) - Vector((0, 0, sarkma * 4 * s_ * (1 - s_))))
+        serit_anahtar(misina, mis, f)
+        bal.location = bal_yer; bal.rotation_euler = bal_don
+        bal.keyframe_insert("location", frame=f); bal.keyframe_insert("rotation_euler", frame=f)
+        yk = yeke_koy(k["yeke"])
+        for dp in ("location", "rotation_euler", "scale"):
+            yk.keyframe_insert(dp, frame=f)
+        k["bal_hal"] = bal_hal
+    # fish body motion, phase by phase
+    seg = []
+    for k in kayit:
+        h_ = k["bal_hal"] or "yuz"
+        if seg and seg[-1][0] == h_:
+            seg[-1][2] = k["f"]
+        else:
+            seg.append([h_, k["f"], k["f"]])
+    for h_, a_, b_ in seg:
+        baliklar.canlandir(bal, h_, a_, b_)
+    print("BALIK_SAHNESI", F_, "kare", [(h_, a_, b_) for h_, a_, b_ in seg])
+    ilk = {}
+    for k in kayit:
+        ilk.setdefault(k["faz"], k["f"])
+    return F_, ilk
+
 
 # ---------------------------------------------------------------- light
 bpy.ops.object.light_add(type="SUN")
@@ -1161,8 +1363,8 @@ sc.view_settings.view_transform = "Khronos PBR Neutral"
 sc.view_settings.look = "None"
 sc.view_settings.exposure = -0.35
 
-def grenle(yol, guc=0.026, tohum=7):
-    """Film grain baked into a still: fine monochrome grain, strongest in the mid-tones."""
+def grenle(yol, guc=0.011, tohum=7):
+    """Whisper-quiet tactile print grain (~1.1% in mid-tones; breaks CG sterility without noise)."""
     im = bpy.data.images.load(yol)
     w, h = im.size
     px = np.array(im.pixels[:], dtype=np.float32).reshape(h, w, 4)
@@ -1184,6 +1386,72 @@ if KOMUT == "still":
     bpy.ops.render.render(write_still=True)
     if not os.environ.get("SEFER_GRENSIZ"):
         grenle(CIKTI)
+elif KOMUT == "anim":
+    kare = int(ARGS[6]) if len(ARGS) > 6 else 24
+    sc.frame_start, sc.frame_end = 1, kare
+    murettebat.canlandir(EKIP, TK, SAHNE, POZ, 1, kare)
+    r.image_settings.file_format = "PNG"
+    for f_ in range(1, kare + 1):
+        sc.frame_set(f_)
+        yol_ = f"{CIKTI}_{f_:03d}.png"
+        r.filepath = yol_
+        bpy.ops.render.render(write_still=True)
+elif KOMUT == "sprite":
+    # Transparent 3D boat + crew (Yusuf & Latif) cutout for live app canvas animation
+    deniz.hide_render = True
+    r.film_transparent = True
+    r.resolution_x = GEN
+    r.resolution_y = int(GEN * 0.92)
+    cd.sensor_fit = "AUTO"
+    bpy.context.view_layer.update()
+    W_ = TK.matrix_world
+    hedef = W_ @ Vector((0.08, -0.32, 2.72))
+    cam.location = W_ @ Vector((-9.4, -1.85, 3.22))
+    cam.rotation_euler = (hedef - cam.location).to_track_quat("-Z", "Y").to_euler()
+    cd.lens = 33.0
+    sc.frame_set(1)
+    r.image_settings.file_format = "PNG"
+    r.image_settings.color_mode = "RGBA"
+    r.filepath = CIKTI
+    bpy.ops.render.render(write_still=True)
+elif KOMUT == "balik":     # the fishing sequence as a video (and .blend with SEFER_KAYDET)
+    F_, ilk = balik_sahnesi(os.environ.get("SEFER_BALIK", "cipura"))
+    if not (os.environ.get("SEFER_BAK") or os.environ.get("SEFER_YAKIN")):
+        # port side, low and close: the elder's hands, the rod tip, the water it fishes and the pail
+        bpy.context.view_layer.update()
+        W_ = TK.matrix_world
+        # wide for the cast and the fight, then a slow push in on his hands as he lands the fish
+        cekimler = ((1, (-1.9, -1.5, 1.35), (-4.4, 3.6, 2.4), 19.0),
+                    (ilk["al"] - 6, (-1.9, -1.5, 1.35), (-4.4, 3.6, 2.4), 19.0),
+                    (ilk["al"] + 70, (-0.45, -1.25, 1.45), (-3.1, 1.9, 2.05), 31.0),
+                    (F_, (-0.4, -1.2, 1.45), (-3.0, 1.85, 2.0), 32.0))
+        for f_, h_, k_, l_ in cekimler:
+            hedef = W_ @ Vector(h_)
+            cam.location = W_ @ Vector(k_)
+            cam.rotation_euler = (hedef - cam.location).to_track_quat("-Z", "Y").to_euler()
+            cd.lens = l_
+            cam.keyframe_insert("location", frame=f_); cam.keyframe_insert("rotation_euler", frame=f_)
+            cd.keyframe_insert("lens", frame=f_)
+    if os.environ.get("SEFER_KAYDET"):
+        bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(os.environ["SEFER_KAYDET"]))
+    kareler = os.environ.get("SEFER_KARELER")      # "12,80,150": stills only, for checking
+    if kareler:
+        r.image_settings.file_format = "PNG"
+        for f_ in [int(x) for x in kareler.split(",")]:
+            sc.frame_set(f_)
+            r.filepath = f"{CIKTI}_{f_:03d}.png"
+            bpy.ops.render.render(write_still=True)
+    else:
+        ee.taa_render_samples = 16
+        sc.render.fps = 24
+        im_ = r.image_settings
+        if hasattr(im_, "media_type"):
+            im_.media_type = "VIDEO"
+        im_.file_format = "FFMPEG"
+        r.ffmpeg.format = "MPEG4"; r.ffmpeg.codec = "H264"; r.ffmpeg.constant_rate_factor = "HIGH"
+        r.filepath = CIKTI
+        bpy.ops.render.render(animation=True)
 elif KOMUT == "kaydet":
+    murettebat.canlandir(EKIP, TK, SAHNE, POZ, 1, 48)
     bpy.ops.wm.save_as_mainfile(filepath=CIKTI)
 print("BITTI", KOMUT, SAHNE, VAKIT)
