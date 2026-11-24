@@ -1102,6 +1102,15 @@ for tur, *a_ in EKIP["cizim"]:
         bal.rotation_euler = (0.0, 0.14, math.pi / 2 + 0.25)
     elif tur == "kangal":
         kangal(Vector(a_[0]), 0.14, 4, 0.022, TK, dik=True)
+    elif tur == "yeke":      # the tiller swings to where the helmsman's hand is
+        yk = bpy.data.objects.get("Yeke")
+        if yk is not None:
+            pv = Vector((0.0, -4.03, 1.214))
+            d_ = Vector(a_[0]) - pv
+            L_ = d_.length + 0.06
+            yk.location = pv + d_.normalized() * (L_ / 2)
+            yk.rotation_euler = d_.to_track_quat("Y", "Z").to_euler()
+            yk.scale = (1.0, L_ / 1.1, 1.0)
 bpy.ops.mesh.primitive_cube_add(size=1, location=(0, -2.55, 1.06))
 otur = bpy.context.active_object
 otur.scale = (1.9, 0.32, 0.08)

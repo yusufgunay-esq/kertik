@@ -286,13 +286,12 @@ def yerlestir(p, kok, nokta, yon_z, zemin, oturuyor):
     kr = Matrix.Rotation(yon_z, 4, "Z") @ k
     arm.parent = kok
     arm.rotation_euler = (0, 0, yon_z)
-    z = zemin + 0.09 - kr.z if oturuyor else zemin
+    z = zemin + 0.11 - kr.z if oturuyor else zemin
     arm.location = (nokta[0] - kr.x, nokta[1] - kr.y, z)
     bpy.context.view_layer.update()
     ters = Matrix.Rotation(-yon_z, 4, "Z")
     duz = Matrix.Rotation(yon_z, 4, "Z")
-    loc = Vector(arm.location)
-    return (lambda q: ters @ (Vector(q) - loc)), (lambda q: duz @ Vector(q) + loc)
+    return (lambda q: ters @ (Vector(q) - Vector(arm.location))), (lambda q: duz @ Vector(q) + Vector(arm.location))
 
 
 def diz_ustu(arm, side):
@@ -365,6 +364,47 @@ def avuc(arm, side):
     return (pb["finger2-1" + side].head + pb["finger5-1" + side].head) / 2
 
 
+def en_alt(p, kok):
+    """Lowest point of the dressed, posed body (evaluated mesh incl. clothes), boat-local z."""
+    dg = bpy.context.evaluated_depsgraph_get()
+    T = kok.matrix_world.inverted()
+    enk = 1e9
+    for o in [p["body"]] + p["parts"]:
+        if o.type != "MESH":
+            continue
+        oe = o.evaluated_get(dg)
+        me = oe.to_mesh()
+        n = len(me.vertices)
+        if n:
+            co = np.empty(n * 3)
+            me.vertices.foreach_get("co", co)
+            M_ = np.array(T @ oe.matrix_world)
+            z = co.reshape(-1, 3) @ M_[2, :3] + M_[2, 3]
+            enk = min(enk, float(z.min()))
+        oe.to_mesh_clear()
+    return enk
+
+
+def yere_bas(p, kok, zemin):
+    """Rest the figure on a surface: its lowest point (soles, or seat and legs) touches zemin."""
+    p["arm"].location.z += zemin - en_alt(p, kok)
+    bpy.context.view_layer.update()
+
+
+def ayaklar_yere(p, ic, dis, adim=0.40, acik=0.12):
+    """Seated on a raised seat: plant both feet flat on the deck in front of it (leg IK)."""
+    arm = p["arm"]
+    pb = arm.pose.bones
+    bpy.context.view_layer.update()
+    for side, sx in ((".L", 1), (".R", -1)):
+        b = dis(pb["upperleg01" + side].head + Vector((sx * acik, -adim, 0.0)))
+        b.z = guverte_z(b.y) + 0.085
+        uzuv(arm, "upperleg01" + side, "lowerleg01" + side, "foot" + side, ic(b), (sx * 0.15, -1.0, 0.3))
+        if "toe1-1" + side in pb:
+            kadro._aim(arm, "foot" + side, "toe1-1" + side, (sx * 0.06, -1.0, -0.10))
+    bpy.context.view_layer.update()
+
+
 def olta_yonu(akt, tik, dis):
     """Rod direction held in the right hand at tick, in boat-local space."""
     _, R = akt.tutamak(tik, "R")
@@ -379,7 +419,7 @@ def murettebat(kok, poz="dumen", sahne="seyir"):
     cizim = []
     an = sahne if sahne != "seyir" else poz        # kalkis | dumen | olta | tuttu | varis
 
-    # elder brother: always seated at the helm, left hand closed on the tiller
+    # elder brother: always seated at the helm; the tiller comes to his left hand
     abi = kur(ABI)
     a = abi["arm"]
     kavra = el_kalibi(abi)
@@ -388,9 +428,9 @@ def murettebat(kok, poz="dumen", sahne="seyir"):
         hareket(abi, "el_salla", sadece=UST_SAG)
     elif an == "varis":      # hand at the brow against the low sun, looking at the town
         hareket(abi, "siper", sadece=UST_SAG)
-    ic, _ = yerlestir(abi, kok, (0.46, -2.58), math.radians(-143), OTURAK_Z, True)
+    ic, dis = yerlestir(abi, kok, (0.46, -2.66), math.radians(-143), OTURAK_Z, True)
+    ayaklar_yere(abi, ic, dis, 0.36, 0.13)
     egil(a, {"dumen": -4, "olta": 4, "tuttu": -2}.get(an, 0))
-    kol(a, ".L", ic(YEKE_UCU + Vector((0.02, 0.04, 0.03))), (0.6, 0.6, -0.8))
     el_uygula(abi, kavra, ".L")
     if an == "kalkis":
         bas(a, 24.0, -4.0); gulus(abi, 0.45)
@@ -399,34 +439,41 @@ def murettebat(kok, poz="dumen", sahne="seyir"):
     else:
         bas(a, {"dumen": -22.0, "olta": -34.0, "tuttu": -40.0}[an], {"olta": 6.0}.get(an, 0.0))
         gulus(abi, {"dumen": 0.35, "olta": 0.25, "tuttu": 0.85}[an])
+    bpy.context.view_layer.update()
+    cizim.append(("yeke", dis(avuc(a, ".L")) + Vector((0, 0, -0.03))))
 
     kardes = kur(KARDES)
     c = kardes["arm"]
     kavra = el_kalibi(kardes)
-    if an == "kalkis":       # hauls the sail up the mast, hand over hand
-        hareket(kardes, "ip_cek")
-        y = 0.6
-        ic2, dis2 = yerlestir(kardes, kok, (0.08, y), math.pi, guverte_z(y), False)
-        ust, alt_ = MANDAR
-
-        def ip(z):
-            s = (ust.z - z) / (ust.z - alt_.z)
-            return ust.lerp(alt_, s)
-        kol(c, ".L", ic2(ip(2.55)), (1.0, 0.3, -0.3))
-        kol(c, ".R", ic2(ip(2.05)), (-1.0, 0.2, -0.7))
+    if an == "kalkis":       # hauls the sail up: the halyard runs through both fists
+        hareket(kardes, "dur")
+        hareket(kardes, "ip_cek", sadece=UST)
+        ic2, dis2 = yerlestir(kardes, kok, (0.08, 0.5), math.pi, guverte_z(0.5), False)
         el_uygula(kardes, kavra, ".L"); el_uygula(kardes, kavra, ".R")
-        bas(c, 0.0, -24.0); gulus(kardes, 0.3)
-        cizim.append(("cubuk", "Mandar", ust, alt_, 0.012, "halat"))
+        bpy.context.view_layer.update()
+        orta = (dis2(avuc(c, ".L")) + dis2(avuc(c, ".R"))) / 2
+        c.location.x += 0.05 - orta.x
+        c.location.y += 0.84 - orta.y
+        bpy.context.view_layer.update()
+        yere_bas(kardes, kok, guverte_z(c.location.y))
+        gulus(kardes, 0.3)
+        e1, e2 = dis2(avuc(c, ".L")), dis2(avuc(c, ".R"))
+        ust_el, alt_el = (e1, e2) if e1.z > e2.z else (e2, e1)
+        bas_ = MANDAR[0]
+        cizim += [("cubuk", "Mandar", bas_, ust_el, 0.012, "halat"),
+                  ("cubuk", "Mandar", ust_el, alt_el, 0.012, "halat"),
+                  ("cubuk", "Mandar", alt_el, Vector((0.12, 0.95, guverte_z(0.95) + 0.25)), 0.012, "halat")]
     elif an == "dumen":      # sits on the crate, watching the sail fill
         hareket(kardes, "otur")
-        ic2, _ = yerlestir(kardes, kok, (0.30, -1.6), math.radians(-90), SANDIK_Z, True)
+        ic2, dis2 = yerlestir(kardes, kok, (0.30, -1.6), math.radians(-90), SANDIK_Z, True)
+        ayaklar_yere(kardes, ic2, dis2, 0.40, 0.12)
         bas(c, -16.0, -22.0); gulus(kardes, 0.35)
     elif an in ("olta", "tuttu"):   # sits on the deck, trolling over the port quarter
         akt, tik = hareket(kardes, "olta")
         if an == "tuttu":    # rod up, the catch swinging in over the rail
             akt, tik = hareket(kardes, "cekti", sadece=UST)
-        y = -0.5
         ic2, dis2 = yerlestir(kardes, kok, (0.10, 0.0), math.radians(-45), guverte_z(0.0), True)
+        yere_bas(kardes, kok, guverte_z(0.0))
         el_uygula(kardes, kavra, ".R")
         bas(c, 0.0, {"olta": 8.0, "tuttu": -16.0}[an]); gulus(kardes, {"olta": 0.2, "tuttu": 0.9}[an])
         bpy.context.view_layer.update()
@@ -439,10 +486,12 @@ def murettebat(kok, poz="dumen", sahne="seyir"):
         else:
             balik = uc + Vector((0.0, 0.0, -0.75))
             cizim += [("cubuk", "Misina", uc, balik + Vector((0, 0, 0.26)), 0.006, "halat"), ("balik", balik)]
-    else:                    # varis: at the bow, points at the town, coil in the other hand
-        hareket(kardes, "goster")
+    else:                    # varis: beside the mast, points at the town, coil in the other hand
+        hareket(kardes, "dur")
+        hareket(kardes, "goster", sadece=UST_SAG)
         y = 0.72
         ic2, dis2 = yerlestir(kardes, kok, (-0.34, y), math.pi, guverte_z(y), False)
+        yere_bas(kardes, kok, guverte_z(y))
         el_uygula(kardes, kavra, ".R", duz=("finger2",))
         el_uygula(kardes, kavra, ".L")
         bas(c, -6.0, -4.0); gulus(kardes, 0.5)
