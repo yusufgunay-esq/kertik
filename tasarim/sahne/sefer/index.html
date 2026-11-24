@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kertik Sefer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --kagit: #F4EEE1;
+    --murekkep: #221D1A;
+    --soluk: #6F6A62;
+    --aksan: #B8382A;
+    --zemin: #E7E0D0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --zemin: #1B1A19; }
+  }
+  :root[data-theme="dark"] { --zemin: #1B1A19; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--zemin); }
+  body { display: flex; align-items: center; justify-content: center; font-family: "EB Garamond", Georgia, serif; color: var(--murekkep); }
+  .telefon { position: relative; width: min(100vw, 440px); height: min(100dvh, 940px); overflow: hidden; background: var(--kagit); }
+  @media (min-width: 500px) { .telefon { border-radius: 28px; box-shadow: 0 30px 80px rgba(0,0,0,.28); } }
+  canvas#sahne { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .gren { position: absolute; inset: -50%; pointer-events: none; opacity: .09; mix-blend-mode: overlay; animation: gren 0.5s steps(1) infinite; }
+  @keyframes gren { 0%{transform:translate(0,0)} 20%{transform:translate(-3%,2%)} 40%{transform:translate(2%,-3%)} 60%{transform:translate(-2%,-1%)} 80%{transform:translate(3%,3%)} }
+  .golge { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(40,30,20,.22) 100%); }
+  .ust { position: absolute; left: 0; right: 0; top: 0; padding: max(18px, env(safe-area-inset-top)) 22px 0; text-align: center; pointer-events: none; }
+  .saat { font-size: 64px; line-height: 1; font-weight: 500; letter-spacing: .01em; font-variant-numeric: tabular-nums; text-shadow: 0 0 18px var(--kagit), 0 0 6px var(--kagit); }
+  .alt-yazi { margin-top: 6px; font-size: 17px; font-style: italic; color: var(--soluk); text-shadow: 0 0 10px var(--kagit); min-height: 1.3em; }
+  .gece .saat, .gece .alt-yazi { color: #EDE6D6; text-shadow: 0 0 14px rgba(20,26,40,.8); }
+  .alt { position: absolute; left: 0; right: 0; bottom: 0; padding: 0 16px max(18px, env(safe-area-inset-bottom)); display: grid; gap: 10px; }
+  .cipler, .dugmeler { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  button { font: inherit; border: 1px solid rgba(34,29,26,.55); background: rgba(244,238,225,.86); color: var(--murekkep); border-radius: 999px; padding: 9px 18px; font-size: 18px; cursor: pointer; backdrop-filter: blur(2px); transition: background .25s, transform .15s; }
+  button:active { transform: scale(.97); }
+  button.ana { background: var(--murekkep); color: var(--kagit); padding: 11px 28px; }
+  button.secili { background: var(--murekkep); color: var(--kagit); }
+  button[hidden] { display: none; }
+  .cip { font-size: 16px; padding: 6px 14px; }
+  .kose { position: absolute; top: max(14px, env(safe-area-inset-top)); right: 12px; display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+  .kose button { font-size: 13px; padding: 4px 10px; opacity: .8; }
+  .kose .etiket { font-size: 12px; color: var(--soluk); font-style: italic; }
+  .defter-dugme { position: absolute; left: 14px; top: max(14px, env(safe-area-inset-top)); font-size: 14px; padding: 5px 12px; }
+  .haber { position: absolute; left: 50%; top: 130px; transform: translate(-50%, -8px); opacity: 0; transition: opacity .6s, transform .6s; background: rgba(244,238,225,.92); border: 1px solid rgba(34,29,26,.3); border-radius: 14px; padding: 8px 14px; display: flex; gap: 10px; align-items: center; font-size: 18px; pointer-events: none; }
+  .haber.acik { opacity: 1; transform: translate(-50%, 0); }
+  .haber canvas { width: 72px; height: 36px; }
+  .defter { position: absolute; inset: 0; background: rgba(244,238,225,.97); transform: translateY(100%); transition: transform .5s cubic-bezier(.2,.8,.2,1); padding: max(22px, env(safe-area-inset-top)) 18px 24px; overflow-y: auto; }
+  .defter.acik { transform: translateY(0); }
+  .defter h2 { font-weight: 500; font-size: 30px; margin: 0 0 2px; }
+  .defter p { margin: 0 0 16px; color: var(--soluk); font-style: italic; }
+  .izgara { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .kart { border-top: 1px solid rgba(34,29,26,.25); padding-top: 8px; }
+  .kart canvas { width: 100%; height: auto; aspect-ratio: 2 / 1; }
+  .kart .ad { font-size: 19px; }
+  .kart .sayi { font-size: 15px; color: var(--soluk); }
+  .kart.yok { opacity: .38; }
+  .defter .kapat { position: sticky; bottom: 0; margin: 18px auto 0; display: block; }
+</style>
+</head>
+<body>
+<div class="telefon" id="telefon">
+  <canvas id="sahne"></canvas>
+  <div class="gren" id="gren"></div>
+  <div class="golge"></div>
+  <div class="ust">
+    <div class="saat" id="saat">25:00</div>
+    <div class="alt-yazi" id="altYazi">Limanda, yola hazır</div>
+  </div>
+  <button class="defter-dugme" id="defterAc">Balık defteri</button>
+  <div class="kose">
+    <span class="etiket">önizleme hızı</span>
+    <button id="hiz">×1</button>
+    <button id="vakit">gün</button>
+  </div>
+  <div class="haber" id="haber"><canvas width="144" height="72"></canvas><span></span></div>
+  <div class="alt">
+    <div class="cipler" id="cipler">
+      <button class="cip secili" data-mod="pomodoro" data-dk="25">25 dk</button>
+      <button class="cip" data-mod="pomodoro" data-dk="50">50 dk</button>
+      <button class="cip" data-mod="kronometre">Serbest</button>
+    </div>
+    <div class="dugmeler">
+      <button class="ana" id="basla">Yola çık</button>
+      <button id="dur" hidden>Dur</button>
+      <button id="mola" hidden>Mola</button>
+      <button id="bitir" hidden>Bitir</button>
+    </div>
+  </div>
+  <div class="defter" id="defter">
+    <h2>Balık defteri</h2>
+    <p id="defterAlt">Yalnız odakta geçen dakikalarda olta atılır.</p>
+    <div class="izgara" id="izgara"></div>
+    <button class="kapat" id="defterKapat">Kapat</button>
+  </div>
+</div>
+<script src="rota.js"></script>
+<script>
+(() => {
+  "use strict";
+  const R = window.ROTA;
+  const EN = 1200, BOY = Math.round(1200 * R.boy / R.en);                // tomarın piksel boyu (rota u,v bu boya çarpılır)
+  const SPR = 160, SPR_M = 20;                // sprite pikseli ve kapsadığı metre
+  const MPX = EN / 150;                       // tomarda metre başına piksel
+  const KRONO_HIZ = 8.5;                      // serbest seferde dakikada alınan yol (m)
+  const KERTIK_DK = 15;                       // serbest seferde her şamandıra
+  const MOLA_SINIR = 5 * 60000;               // molanın aşınmaya başladığı yer
+  const ASINMA_SURE = 10 * 60000;             // aşınmanın tam sise varması
+
+  const BALIKLAR = [
+    { kod: "hamsi", ad: "Hamsi", boy: .55, gov: .17, sirt: "#5E7088", karin: "#E9E6DD", desen: "serit", agirlik: 6 },
+    { kod: "istavrit", ad: "İstavrit", boy: .62, gov: .23, sirt: "#6C7C8C", karin: "#E6E3DA", desen: "yanhat", agirlik: 5 },
+    { kod: "uskumru", ad: "Uskumru", boy: .74, gov: .21, sirt: "#3F5A63", karin: "#E3E2D8", desen: "zebra", agirlik: 4 },
+    { kod: "kefal", ad: "Kefal", boy: .82, gov: .24, sirt: "#6A7480", karin: "#E5E1D6", desen: "cizgili", agirlik: 4 },
+    { kod: "istavrit2", ad: "Mezgit", boy: .72, gov: .22, sirt: "#8A8C88", karin: "#ECE8DE", desen: "duz", agirlik: 3 },
+    { kod: "barbunya", ad: "Barbunya", boy: .62, gov: .27, sirt: "#B98A6A", karin: "#EBDCCB", desen: "sakal", agirlik: 3 },
+    { kod: "cipura", ad: "Çipura", boy: .78, gov: .4, sirt: "#7C8A92", karin: "#E8E5DC", desen: "alin", agirlik: 2 },
+    { kod: "levrek", ad: "Levrek", boy: .92, gov: .27, sirt: "#6D7A84", karin: "#E9E6DE", desen: "duz", agirlik: 2 },
+    { kod: "lufer", ad: "Lüfer", boy: .9, gov: .27, sirt: "#56708A", karin: "#E4E4DC", desen: "duz", agirlik: 2 },
+    { kod: "palamut", ad: "Palamut", boy: .95, gov: .26, sirt: "#3D4D66", karin: "#E2E1D8", desen: "egik", agirlik: 2 },
+    { kod: "kalkan", ad: "Kalkan", boy: .82, gov: .78, sirt: "#8B7B62", karin: "#D9CDB5", desen: "benek", agirlik: 1 },
+    { kod: "orkinos", ad: "Orkinos", boy: 1.0, gov: .3, sirt: "#2F3E57", karin: "#E0DFD6", desen: "orkinos", agirlik: .5 },
+  ];
+
+  // ---------------------------------------------------------------- durum
+  const S = {
+    mod: "pomodoro", hedefDk: 25, durum: "hazir", odak: 0, mola: 0, hiz: 1,
+    vakit: "gun", balik: [], defter: {}, sonDakika: 0, kalkisT: 0, varisT: 0, zoom: 1.4,
+    camY: null, camX: null, iz: 0, tohum: 1,
+  };
+  const $ = (id) => document.getElementById(id);
+  const cv = $("sahne"), cx = cv.getContext("2d");
+  const tomar = new Image(); tomar.src = "tomar_gun.jpg";
+  const atlas = new Image(); atlas.src = "tekne_atlas.png";
+
+  function rota() { return R.rotalar[S.mod === "kronometre" ? "kronometre" : "pomodoro"]; }
+
+  function ilerleme() {
+    const r = rota();
+    if (S.mod === "kronometre") return Math.min(1, (S.odak / 60000) * KRONO_HIZ / r.uzunluk_m);
+    return Math.min(1, S.odak / (S.hedefDk * 60000));
+  }
+
+  function noktaAl(p) {
+    const n = rota().nokta, f = p * (n.length - 1), i = Math.min(n.length - 2, Math.floor(f)), t = f - i;
+    const a = n[i], b = n[i + 1];
+    const L = (k) => a[k] + (b[k] - a[k]) * t;
+    const j0 = Math.max(0, i - 4), j1 = Math.min(n.length - 1, i + 5);
+    return { u: L(0) * EN, v: L(1) * BOY, sis: L(2), ortu: Math.max(a[3], b[3]),
+             dx: n[j1][4] - n[j0][4], dy: n[j1][5] - n[j0][5] };
+  }
+
+  // ---------------------------------------------------------------- çizim
+  function boyutla() {
+    const r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d);
+  }
+  window.addEventListener("resize", boyutla);
+
+  function kamera(b, dt) {
+    const olcek = cv.width / EN * S.zoom;
+    const gorH = cv.height / olcek, gorW = cv.width / olcek;
+    const hedefY = Math.max(0, Math.min(BOY - gorH, b.v - gorH * 0.64));
+    const hedefX = Math.max(0, Math.min(EN - gorW, b.u - gorW / 2));
+    if (S.camY === null) { S.camY = hedefY; S.camX = hedefX; }
+    const k = Math.min(1, dt * 1.8);
+    S.camY += (hedefY - S.camY) * k; S.camX += (hedefX - S.camX) * k;
+    return { olcek, gorH, gorW };
+  }
+
+  function izCiz(K, p) {
+    const n = rota().nokta, son = Math.floor(p * (n.length - 1));
+    if (son < 1) return;
+    cx.save();
+    cx.strokeStyle = "rgba(34,29,26,.55)"; cx.lineWidth = 1.6 * K.olcek; cx.setLineDash([2.5 * K.olcek, 5 * K.olcek]);
+    cx.beginPath();
+    for (let i = 0; i <= son; i++) {
+      const x = (n[i][0] * EN - S.camX) * K.olcek, y = (n[i][1] * BOY - S.camY) * K.olcek;
+      i ? cx.lineTo(x, y) : cx.moveTo(x, y);
+    }
+    cx.stroke(); cx.restore();
+    if (S.mod === "kronometre") {      // her on beş dakikada bir şamandıra: kertik
+      const adet = Math.floor(S.odak / (KERTIK_DK * 60000));
+      for (let k = 1; k <= adet; k++) {
+        const pk = Math.min(1, (k * KERTIK_DK) * KRONO_HIZ / rota().uzunluk_m);
+        const q = noktaAl(pk), x = (q.u - S.camX) * K.olcek + 9 * K.olcek, y = (q.v - S.camY) * K.olcek;
+        cx.strokeStyle = "rgba(34,29,26,.8)"; cx.lineWidth = 1.4 * K.olcek; cx.setLineDash([]);
+        cx.beginPath(); cx.moveTo(x, y - 7 * K.olcek); cx.lineTo(x, y + 1 * K.olcek); cx.stroke();
+        cx.beginPath(); cx.ellipse(x, y + 2 * K.olcek, 2.4 * K.olcek, 1.2 * K.olcek, 0, 0, Math.PI * 2); cx.stroke();
+        cx.fillStyle = "rgba(34,29,26,.75)"; cx.font = `${9 * K.olcek}px "EB Garamond", serif`;
+        cx.fillText(String(k * KERTIK_DK), x + 4 * K.olcek, y - 3 * K.olcek);
+      }
+    }
+  }
+
+  function dumen(b) {     // rota teğetinden 16 yönlü sprite sırası
+    const a = Math.atan2(b.dx, b.dy);
+    return ((Math.round(a / (Math.PI * 2 / 16)) % 16) + 16) % 16;
+  }
+
+  function yelkenHali(t) {
+    if (S.durum === "hazir" || S.durum === "bitti" && ilerleme() >= 1) return 2;
+    if (S.durum === "kalkis") { const e = (t - S.kalkisT) / 1600; return e < .45 ? 2 : e < .9 ? 1 : 0; }
+    if (S.durum === "varis") { const e = (t - S.varisT) / 1800; return e < .4 ? 0 : e < .8 ? 1 : 2; }
+    if (S.durum === "durak") return 1;
+    if (S.durum === "mola") return 2;
+    return 0;
+  }
+
+  const halkalar = [];
+  function tekneCiz(K, b, t) {
+    const sat = yelkenHali(t), sut = dumen(b);
+    const yuzer = S.durum === "seyir" || S.durum === "kalkis";
+    const sal = Math.sin(t / 900) * (yuzer ? 0.9 : 0.5), salR = Math.sin(t / 1300) * (yuzer ? 0.035 : 0.02);
+    const x = (b.u - S.camX) * K.olcek, y = (b.v - S.camY) * K.olcek + sal * K.olcek;
+    let alfa = (b.ortu ? 0.18 : 1) * (0.3 + 0.7 * b.sis);
+    // dümen suyu: yürürken arkada iki ince çizgi
+    if (S.durum === "seyir") {
+      const a = Math.atan2(b.dx, b.dy), ux = Math.sin(a), uy = -Math.cos(a) * 0.56;
+      cx.save(); cx.globalAlpha = 0.45 * alfa; cx.strokeStyle = "#3E4F66"; cx.lineWidth = 1 * K.olcek;
+      for (const s of [-1, 1]) {
+        cx.beginPath(); cx.moveTo(x - ux * 3 * K.olcek, y - uy * 3 * K.olcek + 4 * K.olcek);
+        cx.lineTo(x - ux * 26 * K.olcek + s * uy * 9 * K.olcek, y - uy * 26 * K.olcek + 4 * K.olcek + s * ux * 5 * K.olcek);
+        cx.stroke();
+      }
+      cx.restore();
+    }
+    for (let i = halkalar.length - 1; i >= 0; i--) {
+      const h = halkalar[i], e = (t - h.t) / h.sure;
+      if (e > 1) { halkalar.splice(i, 1); continue; }
+      cx.save(); cx.globalAlpha = (1 - e) * 0.7; cx.strokeStyle = "#3E4F66"; cx.lineWidth = 1.1 * K.olcek;
+      cx.beginPath(); cx.ellipse(x + h.dx * K.olcek, y + 5 * K.olcek, (4 + e * h.r) * K.olcek, (2 + e * h.r * 0.5) * K.olcek, 0, 0, Math.PI * 2); cx.stroke();
+      cx.restore();
+    }
+    if (!atlas.complete) return;
+    cx.save(); cx.globalAlpha = alfa; cx.translate(x, y); cx.rotate(salR);
+    const w = SPR * (MPX / (SPR / SPR_M)) * K.olcek;   // sprite metreyle tomara oturur
+    // sprite merkezi su çizgisinin 3.2 m üstü, rota noktası 1.2 m üstü (34 derece eğimle ekranda 13 px)
+    cx.drawImage(atlas, sut * SPR, sat * SPR, SPR, SPR, -w / 2, -w / 2 - 13 * K.olcek, w, w);
+    cx.restore();
+  }
+
+  // sis: mola aşınması ve hafif mola puslu havası (üst üste kayan yumuşak bantlar)
+  function sisCiz(K, t) {
+    let a = 0;
+    if (S.durum === "mola") a = 0.12 + 0.78 * Math.min(1, Math.max(0, S.mola - MOLA_SINIR) / ASINMA_SURE);
+    S.sisA = (S.sisA || 0) + (a - (S.sisA || 0)) * 0.02;
+    if (S.sisA < 0.01) return;
+    cx.save();
+    for (let k = 0; k < 7; k++) {
+      const yy = ((k / 7) * cv.height + Math.sin(t / 7000 + k) * 30 * K.olcek);
+      const xx = ((t / (60 + k * 17)) % (cv.width * 2)) - cv.width * 0.5 + k * 40;
+      const g = cx.createRadialGradient(xx, yy, 0, xx, yy, cv.width * 0.75);
+      g.addColorStop(0, `rgba(244,238,225,${0.85 * S.sisA})`); g.addColorStop(1, "rgba(244,238,225,0)");
+      cx.fillStyle = g; cx.fillRect(0, 0, cv.width, cv.height);
+    }
+    cx.restore();
+  }
+
+  const VAKIT = {
+    gun: null,
+    safak: { renk: "#F2D7CF", a: 0.55 },
+    aksam: { renk: "#EFC69B", a: 0.6 },
+    gece: { renk: "#34405E", a: 0.88 },
+  };
+  function vakitCiz(K) {
+    const v = VAKIT[S.vakit];
+    if (!v) return;
+    cx.save(); cx.globalCompositeOperation = "multiply"; cx.globalAlpha = v.a; cx.fillStyle = v.renk;
+    cx.fillRect(0, 0, cv.width, cv.height); cx.restore();
+    if (S.vakit === "gece") {       // ay: kâğıt rengi düz bir daire, ışık efekti yok
+      const ay = (BOY * 0.03 - S.camY) * K.olcek;
+      cx.save(); cx.fillStyle = "rgba(236,230,214,.92)"; cx.beginPath();
+      cx.arc(cv.width * 0.72, Math.max(cv.height * 0.2, ay + 120 * K.olcek), 16 * K.olcek, 0, Math.PI * 2); cx.fill(); cx.restore();
+    }
+  }
+
+  function muhurCiz(K, t) {
+    if (!(S.durum === "varis" || S.durum === "bitti") || ilerleme() < 1 || S.mod !== "pomodoro") return;
+    const e = Math.min(1, Math.max(0, (t - S.varisT - 1400) / 500));
+    if (e <= 0) return;
+    const s = 1.35 - 0.35 * (1 - Math.pow(1 - e, 3)), boy = 64 * (cv.width / 440);
+    cx.save(); cx.globalAlpha = Math.min(1, e * 1.4) * 0.92;
+    cx.translate(cv.width * 0.76, cv.height * 0.66); cx.rotate(-0.08); cx.scale(s, s);
+    cx.fillStyle = "#B8382A"; cx.fillRect(-boy / 2, -boy / 2, boy, boy);
+    cx.strokeStyle = "#F4EEE1"; cx.lineWidth = boy * 0.045; cx.strokeRect(-boy / 2 + boy * .09, -boy / 2 + boy * .09, boy * .82, boy * .82);
+    cx.fillStyle = "#F4EEE1"; cx.textAlign = "center";
+    cx.font = `500 ${boy * 0.36}px "EB Garamond", serif`; cx.fillText(String(S.hedefDk), 0, boy * 0.08);
+    cx.font = `${boy * 0.16}px "EB Garamond", serif`; cx.fillText("vardı", 0, boy * 0.3);
+    cx.restore();
+  }
+
+  // ---------------------------------------------------------------- balık
+  function rastgele() { S.tohum = (S.tohum * 16807) % 2147483647; return (S.tohum - 1) / 2147483646; }
+  function balikSec() {
+    const top = BALIKLAR.reduce((a, b) => a + b.agirlik, 0);
+    let r = rastgele() * top;
+    for (const b of BALIKLAR) { r -= b.agirlik; if (r <= 0) return b; }
+    return BALIKLAR[0];
+  }
+  function balikCiz(c, b, sahip = true) {
+    const g = c.getContext("2d"), W = c.width, H = c.height;
+    g.clearRect(0, 0, W, H);
+    const L = W * 0.82 * (0.75 + b.boy * 0.25), x0 = (W - L) / 2, cy = H * 0.5, h = H * Math.min(0.8, b.gov * 1.6);
+    const kuy = x0 + L * 0.82;
+    g.save(); g.lineJoin = "round"; g.lineCap = "round";
+    const govde = new Path2D();
+    govde.moveTo(x0, cy);
+    govde.bezierCurveTo(x0 + L * 0.15, cy - h * 0.62, x0 + L * 0.55, cy - h * 0.55, kuy, cy - h * 0.12);
+    govde.lineTo(kuy, cy + h * 0.1);
+    govde.bezierCurveTo(x0 + L * 0.55, cy + h * 0.5, x0 + L * 0.15, cy + h * 0.5, x0, cy);
+    const kuyruk = new Path2D();
+    kuyruk.moveTo(kuy - 2, cy); kuyruk.lineTo(x0 + L * 1.0, cy - h * 0.5); kuyruk.quadraticCurveTo(x0 + L * 0.93, cy, x0 + L * 1.0, cy + h * 0.48); kuyruk.closePath();
+    if (sahip) {
+      const gr = g.createLinearGradient(0, cy - h * 0.6, 0, cy + h * 0.5);
+      gr.addColorStop(0, b.sirt); gr.addColorStop(0.55, b.karin); gr.addColorStop(1, b.karin);
+      g.globalAlpha = 0.82; g.fillStyle = gr; g.fill(govde); g.fillStyle = b.sirt; g.globalAlpha = 0.5; g.fill(kuyruk);
+      g.globalAlpha = 0.55; g.strokeStyle = "#221D1A"; g.lineWidth = Math.max(1, W / 140);
+      if (b.desen === "zebra") for (let i = 0; i < 9; i++) { const xx = x0 + L * (0.25 + i * 0.06); g.beginPath(); g.moveTo(xx, cy - h * 0.42); g.quadraticCurveTo(xx + 5, cy - h * 0.25, xx - 2, cy - h * 0.1); g.stroke(); }
+      if (b.desen === "serit" || b.desen === "yanhat" || b.desen === "cizgili") { g.beginPath(); g.moveTo(x0 + L * 0.2, cy - h * 0.05); g.quadraticCurveTo(x0 + L * 0.5, cy - h * (b.desen === "yanhat" ? 0.18 : 0.08), kuy, cy - h * 0.02); g.stroke(); }
+      if (b.desen === "egik") for (let i = 0; i < 6; i++) { const xx = x0 + L * (0.3 + i * 0.08); g.beginPath(); g.moveTo(xx, cy - h * 0.4); g.lineTo(xx + L * 0.06, cy - h * 0.12); g.stroke(); }
+      if (b.desen === "benek") for (let i = 0; i < 14; i++) { g.beginPath(); g.arc(x0 + L * (0.2 + (i * 37 % 55) / 100), cy + h * (((i * 23) % 60) / 100 - 0.35), W / 90, 0, 7); g.stroke(); }
+      if (b.desen === "alin") { g.globalAlpha = 0.6; g.strokeStyle = "#C2A277"; g.lineWidth = W / 60; g.beginPath(); g.moveTo(x0 + L * 0.14, cy - h * 0.34); g.lineTo(x0 + L * 0.2, cy - h * 0.08); g.stroke(); }
+      if (b.desen === "sakal") { g.beginPath(); g.moveTo(x0 + L * 0.06, cy + h * 0.1); g.lineTo(x0 + L * 0.03, cy + h * 0.3); g.stroke(); }
+      g.globalAlpha = 1;
+    }
+    g.strokeStyle = "#221D1A"; g.lineWidth = Math.max(1.2, W / 95); g.globalAlpha = sahip ? 0.9 : 0.6;
+    g.stroke(govde); g.stroke(kuyruk);
+    g.lineWidth = Math.max(1, W / 140);
+    g.beginPath(); g.moveTo(x0 + L * 0.35, cy - h * 0.5); g.quadraticCurveTo(x0 + L * 0.45, cy - h * 0.85, x0 + L * 0.58, cy - h * 0.42); g.stroke();
+    g.beginPath(); g.moveTo(x0 + L * 0.2, cy + h * 0.05); g.quadraticCurveTo(x0 + L * 0.28, cy + h * 0.3, x0 + L * 0.3, cy + h * 0.08); g.stroke();
+    g.fillStyle = "#221D1A"; g.beginPath(); g.arc(x0 + L * 0.1, cy - h * 0.12, Math.max(1.4, W / 70), 0, 7); g.fill();
+    g.restore();
+  }
+  function balikTut(t) {
+    const b = balikSec();
+    S.defter[b.kod] = (S.defter[b.kod] || 0) + 1; S.balik.push(b.kod);
+    halkalar.push({ t, sure: 1600, r: 16, dx: 6 }, { t: t + 220, sure: 1700, r: 24, dx: 6 });
+    const h = $("haber"); balikCiz(h.querySelector("canvas"), b);
+    h.querySelector("span").textContent = `Bir ${b.ad.toLocaleLowerCase("tr")} çıktı`;
+    h.classList.add("acik"); clearTimeout(S.haberZ); S.haberZ = setTimeout(() => h.classList.remove("acik"), 3200);
+    $("defterAc").textContent = `Balık defteri · ${S.balik.length}`;
+  }
+  function defterDoldur() {
+    const iz = $("izgara"); iz.innerHTML = "";
+    for (const b of BALIKLAR) {
+      const n = S.defter[b.kod] || 0, k = document.createElement("div");
+      k.className = "kart" + (n ? "" : " yok");
+      const c = document.createElement("canvas"); c.width = 320; c.height = 160; balikCiz(c, b, n > 0);
+      const ad = document.createElement("div"); ad.className = "ad"; ad.textContent = b.ad;
+      const sy = document.createElement("div"); sy.className = "sayi"; sy.textContent = n ? `${n} kez` : "henüz yok";
+      k.append(c, ad, sy); iz.append(k);
+    }
+    $("defterAlt").textContent = S.balik.length ? `Bu seferde ${S.balik.length} balık. Yalnız odakta geçen dakikalarda olta atılır.` : "Yalnız odakta geçen dakikalarda olta atılır.";
+  }
+
+  // ---------------------------------------------------------------- akış
+  function arayuz() {
+    const h = S.durum;
+    $("basla").hidden = !(h === "hazir" || h === "bitti" || h === "durak" || h === "mola");
+    $("basla").textContent = h === "hazir" ? "Yola çık" : h === "bitti" ? "Yeni sefer" : "Sürdür";
+    $("dur").hidden = h !== "seyir"; $("mola").hidden = h !== "seyir";
+    $("bitir").hidden = !(h === "seyir" || h === "durak" || h === "mola");
+    $("cipler").style.visibility = (h === "hazir" || h === "bitti") ? "visible" : "hidden";
+  }
+  function yaz() {
+    const dk = (ms) => { const s = Math.max(0, Math.round(ms / 1000)); return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`; };
+    const p = ilerleme();
+    let saat, alt;
+    if (S.mod === "pomodoro") {
+      saat = dk(S.hedefDk * 60000 - S.odak);
+      const kalan = Math.ceil((S.hedefDk * 60000 - S.odak) / 60000);
+      alt = { hazir: "Limanda, yola hazır", kalkis: "Halat çözüldü", seyir: `Karşı kıyıya ${kalan} dk`, durak: "Demir atmadan bekliyor",
+              mola: S.mola > MOLA_SINIR ? "Sis basıyor" : "Mola, yelken sarılı", varis: "Limana yanaşıyor",
+              bitti: p >= 1 ? `Vardı · ${S.hedefDk} dk` : `Yarı yolda kaldı · %${Math.round(p * 100)}` }[S.durum];
+    } else {
+      saat = dk(S.odak);
+      const n = Math.floor(S.odak / (KERTIK_DK * 60000));
+      alt = { hazir: "Limanda, açığa hazır", kalkis: "Halat çözüldü", seyir: n ? `Açıkta · ${n} kertik` : "Açığa doğru",
+              durak: "Demir atmadan bekliyor", mola: S.mola > MOLA_SINIR ? "Sis basıyor" : "Mola, yelken sarılı",
+              bitti: `${Math.round(S.odak / 60000)} dk açıkta kaldı` }[S.durum];
+    }
+    if (S.durum === "mola") saat = dk(S.mola);
+    $("saat").textContent = saat; $("altYazi").textContent = alt;
+  }
+
+  $("basla").onclick = () => {
+    const t = performance.now();
+    if (S.durum === "hazir" || S.durum === "bitti") {
+      if (S.durum === "bitti") { S.odak = 0; S.balik = []; S.camY = null; S.zoom = 1.4; $("defterAc").textContent = "Balık defteri"; }
+      S.durum = "kalkis"; S.kalkisT = t; S.sonDakika = 0;
+      halkalar.push({ t, sure: 1800, r: 22, dx: 0 }, { t: t + 300, sure: 1900, r: 30, dx: 0 });
+    } else { S.durum = "seyir"; S.mola = 0; }
+    arayuz();
+  };
+  $("dur").onclick = () => { S.durum = "durak"; arayuz(); };
+  $("mola").onclick = () => { S.durum = "mola"; S.mola = 0; arayuz(); };
+  $("bitir").onclick = () => { S.durum = "bitti"; arayuz(); };
+  for (const c of document.querySelectorAll("#cipler .cip")) c.onclick = () => {
+    document.querySelectorAll("#cipler .cip").forEach((x) => x.classList.remove("secili")); c.classList.add("secili");
+    S.mod = c.dataset.mod; S.hedefDk = Number(c.dataset.dk || 0); S.odak = 0; S.durum = "hazir"; S.camY = null; S.zoom = 1.4; arayuz();
+  };
+  const HIZLAR = [1, 60, 600];
+  $("hiz").onclick = () => { S.hiz = HIZLAR[(HIZLAR.indexOf(S.hiz) + 1) % HIZLAR.length]; $("hiz").textContent = "×" + S.hiz; };
+  const VAKITLER = ["gun", "aksam", "gece", "safak"], VAD = { gun: "gün", aksam: "akşam", gece: "gece", safak: "şafak" };
+  $("vakit").onclick = () => { S.vakit = VAKITLER[(VAKITLER.indexOf(S.vakit) + 1) % 4]; $("vakit").textContent = VAD[S.vakit];
+    $("telefon").classList.toggle("gece", S.vakit === "gece"); };
+  $("defterAc").onclick = () => { defterDoldur(); $("defter").classList.add("acik"); };
+  $("defterKapat").onclick = () => $("defter").classList.remove("acik");
+
+  // gren: bir kez üretilen gürültü dokusu, adım adım kayar
+  (function gren() {
+    const c = document.createElement("canvas"); c.width = c.height = 256;
+    const g = c.getContext("2d"), d = g.createImageData(256, 256);
+    for (let i = 0; i < d.data.length; i += 4) { const v = Math.random() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
+    g.putImageData(d, 0, 0); $("gren").style.backgroundImage = `url(${c.toDataURL()})`;
+  })();
+
+  let onceki = performance.now();
+  function kare(t) {
+    const dt = Math.min(0.1, (t - onceki) / 1000); onceki = t;
+    const dtSim = dt * 1000 * S.hiz;
+    if (S.durum === "kalkis" && t - S.kalkisT > 1700) S.durum = "seyir", arayuz();
+    if (S.durum === "seyir") {
+      S.odak += dtSim;
+      if (S.mod === "pomodoro" && S.odak >= S.hedefDk * 60000) { S.odak = S.hedefDk * 60000; S.durum = "varis"; S.varisT = t; arayuz(); }
+      const dakika = Math.floor(S.odak / 60000);
+      while (S.sonDakika < dakika) { S.sonDakika++; if (S.sonDakika > 1 && rastgele() < 1 / 9) balikTut(t); }
+    }
+    if (S.durum === "varis" && t - S.varisT > 2600) { S.durum = "bitti"; arayuz(); }
+    if (S.durum === "mola") S.mola += dtSim;
+    const zHedef = S.durum === "hazir" ? 1.4 : (S.durum === "varis" || S.durum === "bitti") && ilerleme() >= 1 ? 1.3 : 1.0;
+    S.zoom += (zHedef - S.zoom) * Math.min(1, dt * 0.9);
+
+    const b = noktaAl(ilerleme());
+    const K = kamera(b, dt);
+    cx.fillStyle = "#F4EEE1"; cx.fillRect(0, 0, cv.width, cv.height);
+    if (tomar.complete) cx.drawImage(tomar, S.camX, S.camY, K.gorW, K.gorH, 0, 0, cv.width, cv.height);
+    izCiz(K, ilerleme());
+    tekneCiz(K, b, t);
+    sisCiz(K, t);
+    vakitCiz(K);
+    muhurCiz(K, t);
+    yaz();
+    requestAnimationFrame(kare);
+  }
+  boyutla(); arayuz(); requestAnimationFrame(kare);
+  window.__S = S;
+})();
+</script>
+</body>
+</html>

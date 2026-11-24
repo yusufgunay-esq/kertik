@@ -38,3 +38,12 @@ Thumbs.db
 
 uygulama/imza/parola.txt
 *.properties.ornek
+
+# Kişisel çalışma klasörleri ve üretilen görseller
+_claude/
+.claude/
+_rea_*/
+_ekran/
+_demo/
+__pycache__/
+tasarim/sahne/_cikti/
