@@ -514,6 +514,16 @@ setp = N.new("GeometryNodeSetPosition")
 gn.links.new(gi.outputs[0], setp.inputs["Geometry"]); gn.links.new(cmb.outputs[0], setp.inputs["Offset"])
 gn.links.new(setp.outputs[0], go.inputs[0])
 deniz.modifiers.new("Dalga", "NODES").node_group = gn
+DALGA_F = F
+
+
+def dalga_z(x, y, kare):
+    """Height of the rendered sea at world (x, y) on a frame; the same sum the Dalga node tree builds."""
+    z_ = 0.0
+    for dx, dy, lam, amp, tur in DALGALAR:
+        L_ = math.hypot(dx, dy)
+        z_ += amp * 1.7 * math.sin(TAU / lam * (x * dx + y * dy) / L_ - kare * TAU * tur / DALGA_F)
+    return z_ / (y / 90.0 + 1.0)
 
 
 # ---------------------------------------------------------------- land kit
@@ -1178,18 +1188,19 @@ def kova(merkez):
     return Vector((merkez[0], merkez[1], z0))
 
 
-def sicrama(ad, damla_say=6):
-    """A water-surface foam ripple ring paired with 3D ballistic splash droplets."""
-    bpy.ops.mesh.primitive_torus_add(major_radius=0.22, minor_radius=0.009, major_segments=32, minor_segments=8, location=(0, 0, 0))
+def sicrama(ad, damla_say=6, kalin=0.009, ebeveyn=True):
+    """A water-surface foam ripple ring paired with 3D ballistic splash droplets.
+    ebeveyn=False keeps it in world space, so a ring on the open sea stays put while the boat rolls."""
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.22, minor_radius=kalin, major_segments=32, minor_segments=8, location=(0, 0, 0))
     h_ = bpy.context.active_object; h_.name = ad
-    h_.scale = (0, 0, 0); h_.data.materials.append(M["kopuk"]); h_.parent = TK
+    h_.scale = (0, 0, 0); h_.data.materials.append(M["kopuk"]); h_.parent = TK if ebeveyn else None
     h_.visible_shadow = False
     h_.keyframe_insert("scale", frame=0)
     damlalar = []
     for k in range(damla_say):
         bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, radius=0.018, location=(0, 0, 0))
         d_ = bpy.context.active_object; d_.name = f"{ad}_Damla{k}"
-        d_.scale = (0, 0, 0); d_.data.materials.append(M["kopuk"]); d_.parent = TK
+        d_.scale = (0, 0, 0); d_.data.materials.append(M["kopuk"]); d_.parent = TK if ebeveyn else None
         d_.visible_shadow = False
         d_.keyframe_insert("scale", frame=0)
         damlalar.append(d_)
@@ -1198,11 +1209,21 @@ def sicrama(ad, damla_say=6):
 
 
 def sicrat(h_, yer, f, sure=18, boy=1.0, z0=0.012):
+    # a world-space ring rides the rendered swell frame by frame; a boat-parented one sits on the hull's plane
+    def su_(k_):
+        return dalga_z(yer.x, yer.y, k_) if h_.parent is None else 0.0
     for df, sk in ((-1, 0.0), (0, 0.28 * boy), (sure // 3, 0.82 * boy), (sure, 1.18 * boy), (sure + 1, 0.0)):
-        h_.location = (yer.x, yer.y, z0)
         h_.scale = (sk, sk, sk * 0.16)
         h_.keyframe_insert("scale", frame=f + df)
+    for df in range(-1, sure + 2):
+        h_.location = (yer.x, yer.y, z0 + su_(f + df))
         h_.keyframe_insert("location", frame=f + df)
+        if h_.parent is None:      # lie on the swell's slope, else half the ring sinks into the rising side
+            e_ = 0.05
+            gx = (dalga_z(yer.x + e_, yer.y, f + df) - dalga_z(yer.x - e_, yer.y, f + df)) / (2 * e_)
+            gy = (dalga_z(yer.x, yer.y + e_, f + df) - dalga_z(yer.x, yer.y - e_, f + df)) / (2 * e_)
+            h_.rotation_euler = Vector((-gx, -gy, 1.0)).normalized().to_track_quat("Z", "Y").to_euler()
+            h_.keyframe_insert("rotation_euler", frame=f + df)
     d_adlar = h_.get("damlalar", [])
     n_d = len(d_adlar)
     for idx_d, d_ad in enumerate(d_adlar):
@@ -1217,7 +1238,7 @@ def sicrat(h_, yer, f, sure=18, boy=1.0, z0=0.012):
         for df in range(0, sure + 1):
             u_ = df / max(1, sure)
             rr = r_max * (0.22 + 0.78 * u_)
-            zz = z0 + 4.0 * h_max * u_ * (1.0 - u_)
+            zz = z0 + su_(f + df) + 4.0 * h_max * u_ * (1.0 - u_)
             sk_d = (1.15 - 0.55 * u_) * boy
             d_.location = (yer.x + rr * math.cos(aci), yer.y + rr * math.sin(aci), zz)
             d_.scale = (sk_d * 0.90, sk_d * 0.90, sk_d * 1.45)
@@ -1225,6 +1246,23 @@ def sicrat(h_, yer, f, sure=18, boy=1.0, z0=0.012):
             d_.keyframe_insert("scale", frame=f + df)
         d_.scale = (0, 0, 0)
         d_.keyframe_insert("scale", frame=f + sure + 1)
+
+
+def samandira():
+    """A small cork float: red cap, cream belly, a thin red antenna; it rides on the water at the line's end."""
+    M.setdefault("sam_kirmizi", duz_malzeme("SamKirmizi", "#B23A24", 0.5, 0.4))
+    M.setdefault("sam_beyaz", duz_malzeme("SamBeyaz", "#EDE4D2", 0.6, 0.3))
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=20, ring_count=12, radius=0.05, location=(0, 0, 0))
+    s_ = bpy.context.active_object; s_.name = "Samandira"; s_.scale = (1, 1, 1.25)
+    s_.data.materials.append(M["sam_beyaz"]); s_.data.materials.append(M["sam_kirmizi"])
+    for p in s_.data.polygons:
+        p.use_smooth = True
+        p.material_index = 1 if p.center.z > 0.006 else 0
+    bpy.ops.mesh.primitive_cylinder_add(vertices=8, radius=0.005, depth=0.1, location=(0, 0, 0.1))
+    a_ = bpy.context.active_object; a_.name = "SamandiraUc"; a_.data.materials.append(M["sam_kirmizi"])
+    a_.parent = s_
+    s_.parent = TK
+    return s_
 
 
 KILAVUZ = ((0.30, 0.012), (0.46, 0.010), (0.60, 0.0085), (0.73, 0.0072), (0.85, 0.0062), (0.95, 0.0052))
@@ -1313,7 +1351,22 @@ def balik_sahnesi(tur="cipura", boy=0.34):
     kv = kova((-0.32, -0.92))
     bal = baliklar.yap(tur, boy, ebeveyn=TK)
     ag = boy / (1 + bal["kuyruk"]) * 0.5                # body centre -> mouth
-    su1, su2, su_kova = sicrama("Sicrama1", 6), sicrama("Sicrama2", 6), sicrama("SicramaKova", 8)
+    su1, su2, su_kova = sicrama("Sicrama1", 6, ebeveyn=False), sicrama("Sicrama2", 6, ebeveyn=False), sicrama("SicramaKova", 8)
+    # the boat pitches and rolls, so boat-local z=0 is not the sea 3-4 m out; sample the hull's motion once
+    TKM = {}
+    for f_ in range(0, F_ + 2):
+        sc.frame_set(f_)
+        TKM[f_] = TK.matrix_world.copy()
+
+    def deniz_xy(f_, p_):
+        """World point on the open sea under a boat-local point (z is filled per frame by sicrat's zf)."""
+        w_ = TKM[min(max(f_, 0), F_ + 1)] @ Vector((p_.x, p_.y, 0.0))
+        return Vector((w_.x, w_.y, 0.0))
+
+    def su_kilidi(f_, p_, w_=1.0):
+        """Boat-local point whose height is measured from the rendered swell instead of the hull's plane."""
+        w0 = TKM[min(max(f_, 0), F_ + 1)] @ Vector((p_.x, p_.y, 0.0))
+        return p_ - Vector((0, 0, (w0.z - dalga_z(w0.x, w0.y, f_)) * w_))
     meraKli_tur = "levrek" if tur != "levrek" else "cipura"
     bal2 = baliklar.yap(meraKli_tur, boy * 0.85, ebeveyn=TK, ad="Merakli")
     bekle_f = [k["f"] for k in kayit if k["faz"] == "bekle"]
@@ -1325,6 +1378,11 @@ def balik_sahnesi(tur="cipura", boy=0.34):
     W = uc_ + yatay * 2.1; W.z = 0.02
     yakin = uc_ + yatay * 0.3; yakin.z = -0.35          # under the rod tip, beside the hull
     sicradi = set()
+    # the fish stays under the skin of the sea; only its foam and the float give it away
+    iz = [sicrama(f"Iz{i}", 0, kalin=0.03, ebeveyn=False) for i in range(8)]
+    iz_ara, iz_say = round(12 * KS), 0
+    sam = samandira()
+    DURTME = (0.60, 0.72, 0.84)                          # nibbles before the bite: the float dips, a small ring opens
     for k in kayit:
         f, faz, u = k["f"], k["faz"], k["u"]
         el, yon = k["el_R"], k["yon"]
@@ -1339,20 +1397,24 @@ def balik_sahnesi(tur="cipura", boy=0.34):
             uc_nokta = (uc + sallan).lerp(W, q) + Vector((0, 0, 1.4 * q * (1 - q)))
             sarkma = 0.15 * q
             if q > 0.97 and "atis" not in sicradi:
-                sicrat(su1, W, f, round(16 * KS), 0.6); sicradi.add("atis")
+                sicrat(su1, deniz_xy(f, W), f, round(16 * KS), 0.6); sicradi.add("atis")
         elif faz == "bekle":
-            uc_nokta = W + Vector((0, 0, 0.015 * math.sin(f * 0.25 / KS)))
-            sarkma, gerilim = 0.35, 0.03
+            dip = sum(math.exp(-((u - c_) / 0.022) ** 2) for c_ in DURTME)
+            uc_nokta = W + Vector((0, 0, 0.012 * math.sin(f * 0.25 / KS) - 0.05 * dip))
+            sarkma, gerilim = 0.35, 0.03 + 0.04 * dip
+            for c_ in DURTME:
+                if u >= c_ and ("durt", c_) not in sicradi:
+                    sicrat(iz[iz_say % len(iz)], deniz_xy(f, W), f, round(16 * KS), 0.4); iz_say += 1; sicradi.add(("durt", c_))
             th = -2.5 * math.pi * (1 - u)                       # heading; ends at 0 for the bite
             r_ = 1.3 - 1.05 * u
             bal_yer = W + Vector((r_ * math.cos(th), r_ * math.sin(th), 0))   # moving along its heading
-            bal_yer.z = -1.2 + 1.13 * min(1.0, u / 0.25)         # rises from the deep, back just under the skin
+            bal_yer.z = -1.2 + 0.8 * min(1.0, u / 0.3) + 0.15 * max(0.0, (u - 0.8) / 0.2)   # rises to 40 cm under, then up to the bait
             bal_don, bal_hal = (0, 0, th), "yuz"
         elif faz == "vurus":
-            uc_nokta = W + Vector((0.1 * math.sin(f * 0.45 / KS), 0, -0.05))
+            uc_nokta = W + Vector((0.1 * math.sin(f * 0.45 / KS), 0, -0.14 * min(1.0, u / 0.15)))   # the float is pulled under
             gerilim = 0.25 + 0.25 * math.sin(math.pi * u)
             if "vurus" not in sicradi:
-                sicrat(su2, W, f, round(14 * KS), 0.5); sicradi.add("vurus")
+                sicrat(su2, deniz_xy(f, W), f, round(14 * KS), 0.5); sicradi.add("vurus")
             bal_yer = W + Vector((0.1 * math.sin(f * 0.45 / KS), 0, -0.12)); bal_hal = "hizli"
         elif faz == "cekis":
             yan = Vector((-yatay.y, yatay.x, 0)) * (0.5 * math.sin(u * math.tau * 2))
@@ -1371,7 +1433,7 @@ def balik_sahnesi(tur="cipura", boy=0.34):
                 uc_nokta = yakin.lerp(asi + sarkac, q * q * (3 - 2 * q))
                 gerilim = 0.34 * (1 - q) + 0.22 + 0.07 * math.sin(f * 0.88 / KS)
                 if uc_nokta.z > 0 and "cik" not in sicradi:
-                    sicrat(su1, uc_nokta, f, round(20 * KS), 0.95); sicradi.add("cik")
+                    sicrat(su1, deniz_xy(f, uc_nokta), f, round(20 * KS), 0.95); sicradi.add("cik")
                 bal_hal = "cirpin"
             elif u < 0.44:
                 q = (u - 0.18) / 0.26
@@ -1406,11 +1468,11 @@ def balik_sahnesi(tur="cipura", boy=0.34):
         if faz == "son":
             bal_yer = kv + Vector((0.02, -0.02, 0.28)); bal_don = (math.radians(-66), math.radians(16), math.radians(22)); bal_hal = "asili"
         alt = (faz, min(4, int(u / 0.18)) if faz == "al" else 0)     # sub-steps of the landing
-        k.update(uc_nokta=uc_nokta, gerilim=gerilim, sarkma=sarkma, bal_yer=bal_yer,
+        k.update(uc_nokta=uc_nokta, gerilim=gerilim, sarkma=sarkma, bal_yer=bal_yer, sam_d=0.45 if faz in ("cekis", "al") else 0.0,
                  bal_don=Vector(bal_don), bal_hal=bal_hal, alt=alt)
     # unhurried, continuous motion: every prop channel is low-passed, wider at each change of step
     sin_i = [i for i in range(1, len(kayit)) if kayit[i]["alt"] != kayit[i - 1]["alt"]]
-    for ad_, sg_, ss_ in (("uc_nokta", 1.6, 4.0), ("gerilim", 3.0, 4.0), ("sarkma", 3.0, 4.0),
+    for ad_, sg_, ss_ in (("uc_nokta", 1.6, 4.0), ("gerilim", 3.0, 4.0), ("sarkma", 3.0, 4.0), ("sam_d", 3.0, 4.0),
                           ("bal_yer", 1.2, 4.0), ("bal_don", 1.5, 5.0)):
         yum = murettebat.yumusat_liste([k[ad_] for k in kayit], sg_ * KS, sin_i, ss_ * KS, 6.0 * KS)
         for k, v_ in zip(kayit, yum):
@@ -1421,6 +1483,10 @@ def balik_sahnesi(tur="cipura", boy=0.34):
         uc = el + yon * OB
         uc_nokta, gerilim, sarkma = k["uc_nokta"], k["gerilim"], k["sarkma"]
         bal_yer, bal_don = k["bal_yer"], tuple(k["bal_don"])
+        # out on the water things ride the sea, under the rod tip they ride the boat
+        uc_nokta = su_kilidi(f, uc_nokta, min(1.0, max(0.0, (0.6 - uc_nokta.z) / 0.3)))
+        if k["faz"] in ("bekle", "vurus", "cekis") or (k["faz"] == "atis" and bal_yer.z < -0.5):
+            bal_yer = su_kilidi(f, bal_yer)
         # rod: bends towards the pull, more at the tip
         cek = uc_nokta - uc
         cek_dik = cek - yon * cek.dot(yon)
@@ -1452,6 +1518,11 @@ def balik_sahnesi(tur="cipura", boy=0.34):
             s_ = j / 13
             mis.append(uc_b.lerp(uc_nokta, s_) - Vector((0, 0, sarkma * 4 * s_ * (1 - s_))))
         serit_anahtar(misina, mis, f)
+        boy_ = uc_b - uc_nokta
+        sam.location = uc_nokta + boy_.normalized() * k["sam_d"] if boy_.length > 1e-4 else uc_nokta
+        dik_ = Vector((0, 0, 1)).lerp(boy_.normalized(), min(1.0, k["sam_d"] / 0.45))
+        sam.rotation_euler = dik_.to_track_quat("Z", "Y").to_euler()
+        sam.keyframe_insert("location", frame=f); sam.keyframe_insert("rotation_euler", frame=f)
         bal.location = bal_yer; bal.rotation_euler = bal_don
         bal.keyframe_insert("location", frame=f); bal.keyframe_insert("rotation_euler", frame=f)
         # the curious one: circles the other way round, bolts when the line goes tight
@@ -1459,8 +1530,8 @@ def balik_sahnesi(tur="cipura", boy=0.34):
             u2 = (f - bekle_f[0]) / max(1, bekle_f[-1] - bekle_f[0])
             th2 = math.pi - 2.0 * math.pi * (1 - u2)
             r2 = 1.3 - 0.5 * u2
-            m_ = W + Vector((r2 * math.cos(th2), r2 * math.sin(th2), -1.2 + 1.12 * min(1.0, u2 / 0.3)))
-            bal2.location = m_; bal2.rotation_euler = (0, 0, th2)
+            m_ = W + Vector((r2 * math.cos(th2), r2 * math.sin(th2), -1.2 + 0.65 * min(1.0, u2 / 0.3)))
+            bal2.location = su_kilidi(f, m_); bal2.rotation_euler = (0, 0, th2)
             kacis = (m_.copy(), th2)
         elif vurus_f and f > bekle_f[-1] and f <= vurus_f[0] + round(50 * KS):
             q2 = (f - bekle_f[-1]) / round(50 * KS)
@@ -1471,6 +1542,11 @@ def balik_sahnesi(tur="cipura", boy=0.34):
         else:
             bal2.location = W + Vector((0, 0, -3.0)); bal2.rotation_euler = (0, 0, 0)
         bal2.keyframe_insert("location", frame=f); bal2.keyframe_insert("rotation_euler", frame=f)
+        if k["faz"] == "bekle" and (f - bekle_f[0]) % iz_ara == 0:
+            for yer_ in (bal_yer, bal2.location):
+                if yer_.z > -0.7:
+                    sicrat(iz[iz_say % len(iz)], deniz_xy(f, Vector(yer_)), f, round(24 * KS), 0.55)
+                    iz_say += 1
         yk = yeke_koy(k["yeke"])
         for dp in ("location", "rotation_euler", "scale"):
             yk.keyframe_insert(dp, frame=f)
@@ -1491,6 +1567,7 @@ def balik_sahnesi(tur="cipura", boy=0.34):
     ilk = {}
     for k in kayit:
         ilk.setdefault(k["faz"], k["f"])
+    ilk["W"] = W.copy()
     return F_, ilk
 
 
@@ -1663,7 +1740,15 @@ elif KOMUT == "balik":     # the fishing sequence as a video (and .blend with SE
         # port-aft quarter looking forward (+Y towards the Aegean islands, lateen yard, Yusuf's standing pose & bucket)
         bpy.context.view_layer.update()
         W_ = TK.matrix_world
+        # while the fish circles and takes the lure, the frame leans towards the water out there
+        # the camera steps out over the port beam: float in front, fisher behind, both in one tall frame
+        su_ = Vector((-0.30, -0.95, 1.65)).lerp(Vector((ilk["W"].x, ilk["W"].y, -0.2)), 0.5)
+        su_k = tuple(su_ + Vector((-6.6, -1.9, 2.75)))
         cekimler = ((1, (-0.30, -0.95, 1.65), (-5.2, -3.2, 2.55), 20.0),
+                    (ilk["bekle"], (-0.30, -0.95, 1.65), (-5.2, -3.2, 2.55), 20.0),
+                    (ilk["bekle"] + round(40 * murettebat.KS), tuple(su_), su_k, 23.0),
+                    (ilk["cekis"] + round(10 * murettebat.KS), tuple(su_), su_k, 23.0),
+                    (ilk["cekis"] + round(70 * murettebat.KS), (-0.30, -0.95, 1.65), (-5.2, -3.2, 2.55), 20.0),
                     (ilk["al"] - round(6 * murettebat.KS), (-0.30, -0.95, 1.65), (-5.2, -3.2, 2.55), 20.0),
                     (ilk["al"] + round(70 * murettebat.KS), (-0.15, -1.05, 1.72), (-3.4, -2.35, 2.18), 28.0),
                     (F_, (-0.12, -1.05, 1.72), (-3.3, -2.30, 2.15), 29.0))
