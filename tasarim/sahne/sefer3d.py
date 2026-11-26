@@ -1379,7 +1379,7 @@ def balik_sahnesi(tur="cipura", boy=0.34):
     yakin = uc_ + yatay * 0.3; yakin.z = -0.35          # under the rod tip, beside the hull
     sicradi = set()
     # the fish stays under the skin of the sea; only its foam and the float give it away
-    iz = [sicrama(f"Iz{i}", 0, kalin=0.03, ebeveyn=False) for i in range(8)]
+    iz = [sicrama(f"Iz{i}", 0, kalin=0.011, ebeveyn=False) for i in range(8)]
     iz_ara, iz_say = round(12 * KS), 0
     sam = samandira()
     DURTME = (0.60, 0.72, 0.84)                          # nibbles before the bite: the float dips, a small ring opens
@@ -1422,47 +1422,44 @@ def balik_sahnesi(tur="cipura", boy=0.34):
             uc_nokta.z = min(uc_nokta.z, -0.1 - 0.25 * u)
             gerilim = 0.38 + 0.12 * math.sin(f * 0.35 / KS)
             bal_yer = uc_nokta - Vector((0, 0, 0.2)); bal_hal = "hizli"
-        else:                                                   # al: lift, pendulum swing & thrash, unhook, drop into bucket with splash
-            asi = uc - Vector((0, 0, 0.76))
-            elL = k["el_L"]
-            tutus = elL + Vector((-0.08, 0.12, ag * 1.45))
-            sarkac = Vector((0.11 * math.sin(f * 0.44 / KS), 0.08 * math.cos(f * 0.36 / KS), 0.03 * math.sin(f * 0.88 / KS))) * max(0.0, 1.0 - u * 1.15)
-            uc_nokta = uc + sallan + sarkac * 0.65
-            if u < 0.18:
-                q = u / 0.18
+        else:                                                   # al: lift, pendulum swing & thrash over bucket, drop into bucket water with impact splash
+            asi = uc - Vector((0, 0, 0.72))
+            kova_ustu = kv + Vector((0.02, -0.02, 0.96))
+            sarkac = Vector((0.12 * math.sin(f * 0.44 / KS), 0.09 * math.cos(f * 0.36 / KS), 0.03 * math.sin(f * 0.88 / KS))) * max(0.0, 1.0 - u * 1.05)
+            uc_nokta = uc + sallan + sarkac * 0.55
+            if u < 0.22:
+                q = u / 0.22
                 uc_nokta = yakin.lerp(asi + sarkac, q * q * (3 - 2 * q))
-                gerilim = 0.34 * (1 - q) + 0.22 + 0.07 * math.sin(f * 0.88 / KS)
+                gerilim = 0.36 * (1 - q) + 0.24 + 0.07 * math.sin(f * 0.88 / KS)
                 if uc_nokta.z > 0 and "cik" not in sicradi:
                     sicrat(su1, deniz_xy(f, uc_nokta), f, round(20 * KS), 0.95); sicradi.add("cik")
                 bal_hal = "cirpin"
-            elif u < 0.44:
-                q = (u - 0.18) / 0.26
-                uc_nokta = (asi + sarkac).lerp(tutus + sarkac * 0.5, q * q * (3 - 2 * q))
-                gerilim = 0.22 + 0.06 * math.sin(f * 0.88 / KS); bal_hal = "cirpin"
-            elif u < 0.64:
-                uc_nokta = tutus + sarkac * 0.35
-                gerilim = 0.16 + 0.04 * math.sin(f * 0.88 / KS); bal_hal = "cirpin"
-            if u < 0.70:
-                tut = uc_nokta if u < 0.64 else (tutus + sarkac * 0.25)
-                bal_yer = tut - Vector((0, 0, ag))
-                sal_x = math.radians(16.0) * math.sin(f * 0.44 / KS) * (1.0 - 0.5 * u)
-                sal_y = math.radians(13.0) * math.cos(f * 0.36 / KS) * (1.0 - 0.5 * u)
-                bal_don = (math.radians(90) + sal_x, sal_y, math.radians(24.0) * math.sin(f * 0.65 / KS))
-                bal_hal = bal_hal or "cirpin"
-            elif u < 0.86:
-                q = (u - 0.70) / 0.16
-                q_s = q * q * (3 - 2 * q)
-                a_ = (tutus - Vector((0, 0, ag)))
-                b_ = kv + Vector((0.02, -0.02, 0.27))
-                # High arc over the bucket rim, then gravity drop straight into the bucket water
-                bal_yer = a_.lerp(b_, q_s) + Vector((0, 0, 0.26 * math.sin(math.pi * q)))
-                bal_don = (math.radians(90 - 156 * q_s), math.radians(16 * q_s), math.radians(22 * q_s))
-                bal_hal = "cirpin" if q < 0.65 else "asili"
-                if q > 0.72 and "kova_su" not in sicradi:
-                    sicrat(su_kova, kv, f, round(16 * KS), 0.52, z0=kv.z + 0.27)
+            elif u < 0.54:
+                q = (u - 0.22) / 0.32
+                uc_nokta = (asi + sarkac).lerp(kova_ustu + sarkac * 0.6, q * q * (3 - 2 * q))
+                gerilim = 0.24 + 0.06 * math.sin(f * 0.88 / KS); bal_hal = "cirpin"
+            elif u < 0.68:
+                uc_nokta = kova_ustu + sarkac * 0.45
+                gerilim = 0.20 + 0.05 * math.sin(f * 0.88 / KS); bal_hal = "cirpin"
+            if u < 0.68:
+                bal_yer = uc_nokta - Vector((0, 0, ag))
+                sal_x = math.radians(18.0) * math.sin(f * 0.44 / KS) * (1.0 - 0.35 * u)
+                sal_y = math.radians(14.0) * math.cos(f * 0.36 / KS) * (1.0 - 0.35 * u)
+                bal_don = (math.radians(90) + sal_x, sal_y, math.radians(26.0) * math.sin(f * 0.65 / KS))
+                bal_hal = "cirpin"
+            elif u < 0.84:
+                q = (u - 0.68) / 0.16
+                q_fall = q * q                                  # gravity drop straight into the wooden bucket water
+                a_ = kova_ustu - Vector((0, 0, ag))
+                b_ = kv + Vector((0.02, -0.02, 0.26))
+                bal_yer = a_.lerp(b_, q_fall)
+                bal_don = (math.radians(90 - 156 * q_fall), math.radians(16 * q_fall), math.radians(22 * q_fall))
+                bal_hal = "cirpin" if q < 0.70 else "asili"
+                if q >= 0.84 and "kova_su" not in sicradi:
+                    sicrat(su_kova, kv, f, round(18 * KS), 0.68, z0=kv.z + 0.24)
                     sicradi.add("kova_su")
             else:
-                bal_yer = kv + Vector((0.02, -0.02, 0.27))
+                bal_yer = kv + Vector((0.02, -0.02, 0.26))
                 bal_don = (math.radians(-66), math.radians(16), math.radians(22))  # resting naturally inside bucket rim
                 bal_hal = "asili"
         if faz == "son":
@@ -1503,7 +1500,7 @@ def balik_sahnesi(tur="cipura", boy=0.34):
         sap.location = el; sap.rotation_euler = don_q.to_euler()
         sap.keyframe_insert("location", frame=f); sap.keyframe_insert("rotation_euler", frame=f)
         alt_y = don_q @ Vector((0, 0, -1))
-        ic_n = [el + don_q @ Vector((0.0, 0.11, -0.062 + 0.026))]
+        ic_n = [el + don_q @ Vector((0.0, -0.02, -0.062 + 0.025))]
         for g, (s_g, r_g) in zip(kilavuzlar, KILAVUZ):
             pn, tn = _egri_nokta(olta_n, s_g)
             merkez = pn + alt_y * (0.0105 * (1 - 0.76 * s_g) + r_g + 0.004)
@@ -1604,7 +1601,7 @@ def olta_statik_kur(kv_merkez):
     don_q = yon.to_track_quat("Y", "Z")
     sap.location = el; sap.rotation_euler = don_q.to_euler()
     alt_y = don_q @ Vector((0, 0, -1))
-    ic_n = [el + don_q @ Vector((0.0, 0.11, -0.062 + 0.026))]
+    ic_n = [el + don_q @ Vector((0.0, -0.02, -0.062 + 0.025))]
     for g, (s_g, r_g) in zip(kilavuzlar, KILAVUZ):
         pn, tn = _egri_nokta(olta_n, s_g)
         merkez = pn + alt_y * (0.0105 * (1 - 0.76 * s_g) + r_g + 0.004)
@@ -1746,12 +1743,12 @@ elif KOMUT == "balik":     # the fishing sequence as a video (and .blend with SE
         su_k = tuple(su_ + Vector((-6.6, -1.9, 2.75)))
         cekimler = ((1, (-0.30, -0.95, 1.65), (-5.2, -3.2, 2.55), 20.0),
                     (ilk["bekle"], (-0.30, -0.95, 1.65), (-5.2, -3.2, 2.55), 20.0),
-                    (ilk["bekle"] + round(40 * murettebat.KS), tuple(su_), su_k, 23.0),
-                    (ilk["cekis"] + round(10 * murettebat.KS), tuple(su_), su_k, 23.0),
-                    (ilk["cekis"] + round(70 * murettebat.KS), (-0.30, -0.95, 1.65), (-5.2, -3.2, 2.55), 20.0),
-                    (ilk["al"] - round(6 * murettebat.KS), (-0.30, -0.95, 1.65), (-5.2, -3.2, 2.55), 20.0),
-                    (ilk["al"] + round(70 * murettebat.KS), (-0.15, -1.05, 1.72), (-3.4, -2.35, 2.18), 28.0),
-                    (F_, (-0.12, -1.05, 1.72), (-3.3, -2.30, 2.15), 29.0))
+                    (ilk["bekle"] + 26, tuple(su_), su_k, 22.0),
+                    (ilk["cekis"] + 18, tuple(su_), su_k, 22.0),
+                    (ilk["cekis"] + 64, (-0.30, -0.95, 1.65), (-5.2, -3.2, 2.55), 20.0),
+                    (ilk["al"] - 4, (-0.28, -1.00, 1.66), (-4.6, -2.90, 2.40), 22.0),
+                    (ilk["al"] + 48, (-0.16, -1.06, 1.65), (-3.5, -2.35, 2.15), 27.0),
+                    (F_, (-0.14, -1.06, 1.66), (-3.4, -2.30, 2.12), 28.0))
         for f_, h_, k_, l_ in cekimler:
             hedef = W_ @ Vector(h_)
             cam.location = W_ @ Vector(k_)
