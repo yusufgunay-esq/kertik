@@ -1347,8 +1347,11 @@ SIZMA = 1.0 / (1.5 * FPS)  # captured hand/rod offsets leak back to the framing 
 
 def _neon_hedef(faz, u):
     """RDR2-paced task-space fishing choreography (boat-local coordinates):
-    durdur -> atis (cast) -> bekle (nibble) -> vurus (hook set) -> cekis (lateral fight + pump/reel)
-    -> al (lift, pendulum swing, unhook, drop into wooden bucket) -> son (proud settle)."""
+    durdur -> atis (anticipation dip + wind-up + whip release + follow-through)
+    -> bekle (base_reel_idle living micro-motion + nibble alert)
+    -> vurus (torso-leads-arm crisp hook set)
+    -> cekis (RDR2 lateral counter-lean resist + pump & reel crank)
+    -> al (lift, swing over wooden bucket, unhook drop) -> son (proud settle)."""
     s_u = u * u * (3 - 2 * u)
     egim_one, don_z, bas_don, bas_y = 2.0, 0.0, -10.0, 4.0
     el_R, yon, el_L = EL_TABAN.copy(), YON_TABAN.copy(), None
@@ -1360,77 +1363,92 @@ def _neon_hedef(faz, u):
         yon = Vector((-0.70, 0.40, 0.58)).normalized()
         el_R = Vector((-0.07, -1.48, 1.35))
     elif faz == "atis":
-        if u < 0.42:
-            q = u / 0.42; q = q * q * (3 - 2 * q)
-            egim_one, don_z = lerp(1.0, -6.5, q), lerp(0.0, 9.0, q)
-            bas_don, bas_y = lerp(-8.0, -2.0, q), lerp(3.0, -8.0, q)
-            yon = Vector((-0.70, 0.40, 0.58)).lerp(Vector((-0.44, 0.28, 0.85)), q).normalized()
-            el_R = Vector((-0.07, -1.48, 1.35)).lerp(Vector((-0.03, -1.50, 1.46)), q)
+        # RDR2 cast_intro -> cast_action -> cast_exit with pre-cast dip anticipation & follow-through
+        if u < 0.14:
+            q = u / 0.14; q = q * q * (3 - 2 * q)
+            egim_one, don_z = lerp(1.0, 3.2, q), lerp(0.0, -3.5, q)
+            bas_don, bas_y = lerp(-8.0, -11.0, q), lerp(3.0, 5.0, q)
+            yon = Vector((-0.70, 0.40, 0.58)).lerp(Vector((-0.73, 0.41, 0.54)), q).normalized()
+            el_R = Vector((-0.07, -1.48, 1.35)).lerp(Vector((-0.09, -1.48, 1.32)), q)
+        elif u < 0.46:
+            q = (u - 0.14) / 0.32; q = q * q * (3 - 2 * q)
+            egim_one, don_z = lerp(3.2, -7.8, q), lerp(-3.5, 11.0, q)
+            bas_don, bas_y = lerp(-11.0, -1.0, q), lerp(5.0, -9.0, q)
+            yon = Vector((-0.73, 0.41, 0.54)).lerp(Vector((-0.38, 0.26, 0.89)), q).normalized()
+            el_R = Vector((-0.09, -1.48, 1.32)).lerp(Vector((-0.02, -1.51, 1.48)), q)
+        elif u < 0.80:
+            q = (u - 0.46) / 0.34; q = q * q * (3 - 2 * q)
+            egim_one, don_z = lerp(-7.8, 5.8, q), lerp(11.0, -5.5, q)
+            bas_don, bas_y = lerp(-1.0, -15.0, q), lerp(-9.0, 7.5, q)
+            yon = Vector((-0.38, 0.26, 0.89)).lerp(Vector((-0.77, 0.43, 0.47)), q).normalized()
+            el_R = Vector((-0.02, -1.51, 1.48)).lerp(Vector((-0.10, -1.48, 1.31)), q)
         else:
-            q = (u - 0.42) / 0.58; q = q * q * (3 - 2 * q)
-            egim_one, don_z = lerp(-6.5, 4.5, q), lerp(9.0, -4.0, q)
-            bas_don, bas_y = lerp(-2.0, -14.0, q), lerp(-8.0, 6.0, q)
-            yon = Vector((-0.44, 0.28, 0.85)).lerp(Vector((-0.75, 0.42, 0.50)), q).normalized()
-            el_R = Vector((-0.03, -1.50, 1.46)).lerp(Vector((-0.09, -1.48, 1.33)), q)
+            q = (u - 0.80) / 0.20; q = q * q * (3 - 2 * q)
+            egim_one, don_z = lerp(5.8, 3.5, q), lerp(-5.5, -2.0, q)
+            bas_don, bas_y = lerp(-15.0, -14.0, q), lerp(7.5, 6.0, q)
+            yon = Vector((-0.77, 0.43, 0.47)).lerp(Vector((-0.74, 0.42, 0.52)), q).normalized()
+            el_R = Vector((-0.10, -1.48, 1.31)).lerp(Vector((-0.08, -1.48, 1.33)), q)
     elif faz == "bekle":
+        # Living base_reel_idle weight shift + subtle attentive rod micro-twitches on nibbles
         sal = math.sin(u * math.tau * 2.0)
-        egim_one = 3.5 + 0.8 * sal
-        don_z = -2.0 + 1.5 * math.cos(u * math.tau)
-        bas_don = -14.0 + 2.0 * math.sin(u * math.tau)
-        bas_y = 6.0 + 1.5 * sal
-        yon = Vector((-0.74, 0.42, 0.52 + 0.025 * sal)).normalized()
-        el_R = Vector((-0.08, -1.48, 1.33 + 0.012 * sal))
+        sal2 = math.cos(u * math.tau * 1.0)
+        egim_one = 3.5 + 1.0 * sal + 0.5 * sal2
+        don_z = -2.0 + 2.2 * sal2
+        bas_don = -14.0 + 3.0 * math.sin(u * math.tau * 1.5)
+        bas_y = 6.0 + 1.8 * sal
+        yon = Vector((-0.74, 0.42 + 0.015 * sal2, 0.52 + 0.028 * sal)).normalized()
+        el_R = Vector((-0.08, -1.48 + 0.010 * sal2, 1.33 + 0.015 * sal))
     elif faz == "vurus":
+        # Torso leads arm by slight phase advance for weighty RDR2 hook-set
+        u_t = min(1.0, u * 1.12); v_t = math.sin(math.pi * (u_t * u_t * (3 - 2 * u_t)))
         v_ = math.sin(math.pi * s_u)
-        egim_one = 3.5 - 9.0 * v_
-        don_z = -2.0 + 7.0 * v_
-        bas_don = -12.0 + 4.0 * v_
-        bas_y = 6.0 - 11.0 * v_
-        yon = YON_TABAN.lerp(Vector((-0.60, 0.40, 0.69)), v_).normalized()
-        el_R = EL_TABAN.lerp(Vector((-0.05, -1.48, 1.45)), v_)
+        egim_one = 3.5 - 10.5 * v_t
+        don_z = -2.0 + 8.5 * v_t
+        bas_don = -12.0 + 5.0 * v_
+        bas_y = 6.0 - 12.0 * v_
+        yon = YON_TABAN.lerp(Vector((-0.56, 0.39, 0.73)), v_).normalized()
+        el_R = EL_TABAN.lerp(Vector((-0.04, -1.48, 1.47)), v_)
     elif faz == "cekis":
-        # RDR2 fishing rhythm: first half lateral counter-lean fight, second half pump rod + turn reel crank
+        # RDR2 fishing rhythm: first half lateral counter-lean fight (resist_lt/rt), second half pump + reel
         if u < 0.42:
             q = u / 0.42
             yan_sal = math.sin(q * math.tau * 1.5)
-            egim_one = -3.0 + 2.0 * math.cos(q * math.tau)
-            don_z = 8.0 * yan_sal
-            bas_don = -10.0 - 4.0 * yan_sal
-            bas_y = -2.0 + 3.0 * math.cos(q * math.tau)
-            yon = Vector((-0.68, 0.42 + 0.14 * yan_sal, 0.60)).normalized()
-            el_R = Vector((-0.07, -1.48 + 0.05 * yan_sal, 1.40))
+            egim_one = -3.8 + 2.4 * math.cos(q * math.tau)
+            don_z = 9.5 * yan_sal
+            bas_don = -10.0 - 5.0 * yan_sal
+            bas_y = -2.5 + 3.2 * math.cos(q * math.tau)
+            yon = Vector((-0.67, 0.42 + 0.16 * yan_sal, 0.61)).normalized()
+            el_R = Vector((-0.07, -1.48 + 0.055 * yan_sal, 1.41))
             el_L = el_R - yon * 0.15
         else:
             q = (u - 0.42) / 0.58
             pompa = 0.5 - 0.5 * math.cos(q * math.tau * 2.0)
-            egim_one = lerp(3.0, -5.0, pompa)
-            don_z = -2.0 + 4.0 * pompa
+            egim_one = lerp(3.2, -5.5, pompa)
+            don_z = -2.0 + 4.5 * pompa
             bas_don = -12.0
-            bas_y = lerp(4.0, -7.0, pompa)
-            yon = Vector((-0.70, 0.42, 0.57)).lerp(Vector((-0.58, 0.40, 0.71)), pompa).normalized()
-            el_R = Vector((-0.08, -1.48, 1.35)).lerp(Vector((-0.05, -1.48, 1.46)), pompa)
-            # Left hand circles smoothly around the spinning reel crank between the two hands
-            makara = Vector((0.0, 0.024 * math.sin(q * math.tau * 5.0), 0.024 * math.cos(q * math.tau * 5.0)))
+            bas_y = lerp(4.5, -7.5, pompa)
+            yon = Vector((-0.70, 0.42, 0.57)).lerp(Vector((-0.57, 0.40, 0.72)), pompa).normalized()
+            el_R = Vector((-0.08, -1.48, 1.35)).lerp(Vector((-0.05, -1.48, 1.47)), pompa)
+            # Left hand circles smoothly around the spinning reel crank synchronized with MakaraKol
+            makara = Vector((0.0, 0.025 * math.sin(q * math.tau * 5.0), 0.025 * math.cos(q * math.tau * 5.0)))
             el_L = el_R - yon * 0.13 + makara
     elif faz == "al":
-        # Lift rod high with both hands locked on the cork grips, guide swinging fish over the wooden bucket,
-        # dip rod tip to drop the catch cleanly into the bucket water (zero crossed arms!)
         if u < 0.42:
             q = u / 0.42; q = q * q * (3 - 2 * q)
-            egim_one, don_z = lerp(-3.5, -6.0, q), lerp(2.0, -5.0, q)
+            egim_one, don_z = lerp(-3.5, -6.2, q), lerp(2.0, -5.0, q)
             bas_don, bas_y = lerp(-10.0, -16.0, q), lerp(-6.0, -2.0, q)
-            yon = Vector((-0.60, 0.40, 0.69)).lerp(Vector((-0.50, 0.36, 0.79)), q).normalized()
+            yon = Vector((-0.60, 0.40, 0.69)).lerp(Vector((-0.49, 0.36, 0.80)), q).normalized()
             el_R = Vector((-0.06, -1.48, 1.44)).lerp(Vector((-0.04, -1.46, 1.50)), q)
         elif u < 0.76:
             q = (u - 0.42) / 0.34; q = q * q * (3 - 2 * q)
-            egim_one, don_z = lerp(-6.0, 5.0, q), lerp(-5.0, -11.0, q)
-            bas_don, bas_y = lerp(-16.0, -20.0, q), lerp(-2.0, 11.0, q)
-            yon = Vector((-0.50, 0.36, 0.79)).lerp(Vector((-0.58, 0.40, 0.71)), q).normalized()
+            egim_one, don_z = lerp(-6.2, 5.2, q), lerp(-5.0, -11.5, q)
+            bas_don, bas_y = lerp(-16.0, -20.0, q), lerp(-2.0, 11.5, q)
+            yon = Vector((-0.49, 0.36, 0.80)).lerp(Vector((-0.58, 0.40, 0.71)), q).normalized()
             el_R = Vector((-0.04, -1.46, 1.50)).lerp(Vector((-0.07, -1.46, 1.40)), q)
         else:
             q = (u - 0.76) / 0.24; q = q * q * (3 - 2 * q)
-            egim_one, don_z = lerp(5.0, 2.0, q), lerp(-11.0, -4.0, q)
-            bas_don, bas_y = lerp(-20.0, -12.0, q), lerp(11.0, 4.0, q)
+            egim_one, don_z = lerp(5.2, 2.0, q), lerp(-11.5, -4.0, q)
+            bas_don, bas_y = lerp(-20.0, -12.0, q), lerp(11.5, 4.0, q)
             yon = Vector((-0.58, 0.40, 0.71)).lerp(Vector((-0.68, 0.40, 0.60)), q).normalized()
             el_R = Vector((-0.07, -1.46, 1.40)).lerp(Vector((-0.07, -1.48, 1.36)), q)
         el_L = el_R - yon * 0.15
@@ -1524,10 +1542,10 @@ def balik_tut(ekip, kok, yeke_pivot, f0=1, harman=None, yavas=1.4):
 
     # Step 2: Gaussian low-pass in TASK SPACE BEFORE IK so transitions are weighty and hands stay locked
     for k_, sg_, ss_ in (
-        ("egim_one", 2.0, 4.5), ("don_z", 2.0, 4.5), ("bas_don", 2.2, 4.5), ("bas_y", 2.2, 4.5),
-        ("el_R", 1.8, 4.0), ("el_L", 1.8, 4.0), ("yon", 1.8, 4.0), ("ac", 1.8, 3.5), ("izle", 2.2, 4.0),
+        ("egim_one", 2.2, 5.0), ("don_z", 2.2, 5.0), ("bas_don", 2.5, 5.0), ("bas_y", 2.5, 5.0),
+        ("el_R", 2.0, 4.5), ("el_L", 2.0, 4.5), ("yon", 2.0, 4.5), ("ac", 2.0, 4.0), ("izle", 2.5, 4.5),
     ):
-        ham[k_] = yumusat_liste(ham[k_], sg_, sinir_idx, ss_, 6.5)
+        ham[k_] = yumusat_liste(ham[k_], sg_, sinir_idx, ss_, 7.0)
 
     # Step 3: Solve exact anatomical trunk + head + dual-hand IK at every frame and keyframe all bones
     kayit = []
