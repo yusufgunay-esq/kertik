@@ -81,9 +81,10 @@ Uyarılar:
   `IDP.HELU.JarMat16` yanlış pozitifiyle engeller (2026-11-27, 21:34). Jar git'te
   izlenir ve temizdir. O an derleme doğrudan
   `"C:\Users\yusuf_eqta17n\.jdks\jbr-21.0.11\bin\java.exe" -jar gradle/wrapper/gradle-wrapper.jar assembleDebug`
-  ile koşulur. Yusuf 2026-11-27'de `C:\Users\yusuf_eqta17n` klasörünü Avast
-  istisnasına ekledi; `D:\Projelerim` kapsam dışı, orada aynı sessiz engel olursa
-  orası da istisnaya eklenir. Avast'ın çekirdek havuzu ayrıca RAM şişirir
+  ile koşulur. `D:\Projelerim` baştan beri Avast istisnasındaydı; bu proje
+  `C:\Users\yusuf_eqta17n\` altında olduğu için engel yalnız burada çıktı. Yusuf
+  2026-11-27'de `C:\Users\yusuf_eqta17n` klasörünü de istisnaya ekledi, istisna
+  kalkan açıkken doğrulandı. Avast'ın çekirdek havuzu ayrıca RAM şişirir
   (bir dalgada worker'ları beş kez öldürdü).
 
 ---
