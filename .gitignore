@@ -48,3 +48,14 @@ _demo/
 __pycache__/
 tasarim/sahne/_cikti/
 tasarim/sahne/_yerel/
+
+# Public repo hijyeni: REA izleri ve yerel iş sırası panosu depoya girmez
+REA.md
+REA-*.md
+*rea-kutuphanesi*
+siralama.html
+SIRALAMA.md
+
+# REA inceleme izleri (tescilli içerik; git dışında)
+rea-kutuphanesi.json
+_claude/indirmeler/
