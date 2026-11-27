@@ -76,6 +76,13 @@ Uyarılar:
 - `kt-yaz.bat`, `kt-oku.bat` ile tazelenmeden asla çalıştırılmaz; kaynağı bozar.
 - Sırlar (`gizli.properties`, `local.properties`, imza dosyaları) hiçbir zaman
   kaynak dosyaya gömülmez ve depoya girmez.
+- `gradlew.bat` sessizce hiç çıktı vermeden dönerse (exit 0, ekranda hiçbir şey yok,
+  Java süreci de başlamamış) ilk şüpheli Avast'tır: `gradle-wrapper.jar` dosyasını
+  `IDP.HELU.JarMat16` yanlış pozitifiyle engeller (2026-11-27, 21:34). Jar git'te
+  izlenir ve temizdir. O an derleme doğrudan
+  `"C:\Users\yusuf_eqta17n\.jdks\jbr-21.0.11\bin\java.exe" -jar gradle/wrapper/gradle-wrapper.jar assembleDebug`
+  ile koşulur; kalıcı çözüm Avast'a proje klasörü istisnasıdır. Avast'ın çekirdek
+  havuzu ayrıca RAM şişirir (bir dalgada worker'ları beş kez öldürdü).
 
 ---
 
