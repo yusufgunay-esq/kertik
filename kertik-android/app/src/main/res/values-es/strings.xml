@@ -3,6 +3,8 @@
 <resources>
     <string name="bildirim_kanal">sesión en curso</string>
     <string name="bildirim_kanal_aciklama">muestra el temporizador mientras hay una sesión. sin sonido.</string>
+    <string name="haber_kanal">pausa larga</string>
+    <string name="haber_kanal_aciklama">avisa cuando una pausa se alarga. vibra, sin sonido.</string>
     <string name="bildirim_devam">continuar</string>
     <string name="bildirim_mola">descanso</string>
     <string name="bildirim_bitir">terminar</string>

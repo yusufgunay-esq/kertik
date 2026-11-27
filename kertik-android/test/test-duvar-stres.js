@@ -33,7 +33,7 @@ function sahteCtx() {
     canvas: null, globalAlpha: 1, globalCompositeOperation: "source-over",
     strokeStyle: "", fillStyle: "", lineWidth: 1, lineCap: "", lineJoin: ""
   };
-  const yut = ["beginPath", "moveTo", "lineTo", "stroke", "fill", "fillRect", "clearRect",
+  const yut = ["beginPath", "moveTo", "lineTo", "stroke", "fill", "fillRect", "strokeRect", "clearRect",
                "setTransform", "drawImage", "putImageData", "closePath", "arc", "save", "restore"];
   for (const k of yut) c[k] = () => {};
   c.createImageData = (w, h) => ({ width: w, height: h, data: new Uint8ClampedArray(w * h * 4) });

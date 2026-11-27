@@ -3,6 +3,8 @@
 <resources>
     <string name="bildirim_kanal">lopende sessie</string>
     <string name="bildirim_kanal_aciklama">toont de timer tijdens een sessie. zonder geluid.</string>
+    <string name="haber_kanal">lange pauze</string>
+    <string name="haber_kanal_aciklama">laat weten wanneer een pauze uitloopt. trilt, zonder geluid.</string>
     <string name="bildirim_devam">hervatten</string>
     <string name="bildirim_mola">pauze</string>
     <string name="bildirim_bitir">beëindigen</string>

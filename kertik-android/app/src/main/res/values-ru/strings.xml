@@ -3,6 +3,8 @@
 <resources>
     <string name="bildirim_kanal">текущая сессия</string>
     <string name="bildirim_kanal_aciklama">показывает таймер во время сессии. без звука.</string>
+    <string name="haber_kanal">долгий перерыв</string>
+    <string name="haber_kanal_aciklama">сообщает, когда перерыв затягивается. вибрация, без звука.</string>
     <string name="bildirim_devam">продолжить</string>
     <string name="bildirim_mola">перерыв</string>
     <string name="bildirim_bitir">завершить</string>

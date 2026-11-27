@@ -3,6 +3,8 @@
 <resources>
     <string name="bildirim_kanal">جلسة جارية</string>
     <string name="bildirim_kanal_aciklama">يعرض المؤقّت أثناء الجلسة. بلا صوت.</string>
+    <string name="haber_kanal">استراحة طويلة</string>
+    <string name="haber_kanal_aciklama">ينبّهك عندما تطول الاستراحة. اهتزاز بلا صوت.</string>
     <string name="bildirim_devam">متابعة</string>
     <string name="bildirim_mola">استراحة</string>
     <string name="bildirim_bitir">إنهاء</string>

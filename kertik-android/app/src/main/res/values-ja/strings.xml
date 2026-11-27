@@ -3,6 +3,8 @@
 <resources>
     <string name="bildirim_kanal">進行中のセッション</string>
     <string name="bildirim_kanal_aciklama">セッション中にタイマーを表示します。音は鳴りません。</string>
+    <string name="haber_kanal">長い休憩</string>
+    <string name="haber_kanal_aciklama">休憩が長くなったときに知らせます。振動のみで、音は鳴りません。</string>
     <string name="bildirim_devam">再開</string>
     <string name="bildirim_mola">休憩</string>
     <string name="bildirim_bitir">終了</string>

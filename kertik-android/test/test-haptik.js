@@ -51,7 +51,7 @@ const dom = new JSDOM(html, {
     w.HTMLCanvasElement.prototype.getContext = () => ({
       canvas: {}, globalAlpha: 1, globalCompositeOperation: 'source-over',
       beginPath() {}, moveTo() {}, lineTo() {}, quadraticCurveTo() {}, bezierCurveTo() {},
-      stroke() {}, fill() {}, fillRect() {}, clearRect() {}, rect() {}, clip() {},
+      stroke() {}, fill() {}, fillRect() {}, strokeRect() {}, clearRect() {}, rect() {}, clip() {},
       setTransform() {}, drawImage() {}, putImageData() {}, closePath() {}, arc() {}, ellipse() {},
       save() {}, restore() {}, translate() {}, rotate() {}, scale() {}, setLineDash() {},
       measureText: () => ({ width: 10 }), strokeText() {}, fillText() {},

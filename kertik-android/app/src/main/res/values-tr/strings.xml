@@ -3,6 +3,8 @@
 <resources>
     <string name="bildirim_kanal">çalışan seans</string>
     <string name="bildirim_kanal_aciklama">açık bir seans varken sayacı gösterir. ses çıkarmaz.</string>
+    <string name="haber_kanal">uzayan mola</string>
+    <string name="haber_kanal_aciklama">mola uzayınca haber verir. titreşir, ses çıkarmaz.</string>
     <string name="bildirim_devam">devam et</string>
     <string name="bildirim_mola">mola</string>
     <string name="bildirim_bitir">bitir</string>

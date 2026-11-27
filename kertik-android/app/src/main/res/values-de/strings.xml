@@ -3,6 +3,8 @@
 <resources>
     <string name="bildirim_kanal">laufende sitzung</string>
     <string name="bildirim_kanal_aciklama">zeigt den timer, solange eine sitzung läuft. ohne ton.</string>
+    <string name="haber_kanal">lange Pause</string>
+    <string name="haber_kanal_aciklama">meldet sich, wenn eine Pause lang wird. vibriert, kein Ton.</string>
     <string name="bildirim_devam">weiter</string>
     <string name="bildirim_mola">pause</string>
     <string name="bildirim_bitir">beenden</string>

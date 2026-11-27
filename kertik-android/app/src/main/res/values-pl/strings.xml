@@ -3,6 +3,8 @@
 <resources>
     <string name="bildirim_kanal">trwająca sesja</string>
     <string name="bildirim_kanal_aciklama">pokazuje licznik podczas sesji. bez dźwięku.</string>
+    <string name="haber_kanal">długa przerwa</string>
+    <string name="haber_kanal_aciklama">daje znać, gdy przerwa się przeciąga. wibruje, bez dźwięku.</string>
     <string name="bildirim_devam">wznów</string>
     <string name="bildirim_mola">przerwa</string>
     <string name="bildirim_bitir">zakończ</string>

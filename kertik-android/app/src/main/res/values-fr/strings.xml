@@ -3,6 +3,8 @@
 <resources>
     <string name="bildirim_kanal">séance en cours</string>
     <string name="bildirim_kanal_aciklama">affiche le minuteur pendant une séance. sans son.</string>
+    <string name="haber_kanal">pause qui s’allonge</string>
+    <string name="haber_kanal_aciklama">prévient quand une pause s’allonge. vibre, sans son.</string>
     <string name="bildirim_devam">reprendre</string>
     <string name="bildirim_mola">pause</string>
     <string name="bildirim_bitir">terminer</string>

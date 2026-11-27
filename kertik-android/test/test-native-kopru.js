@@ -141,7 +141,7 @@ const SAHTE = () => {
   const r = await son("resim");
   ok("köprüye resim gönderildi", !!r);
   ok("PNG base64 ve boş değil", r && r.b64.length > 2000 && !r.b64.startsWith("data:"), r && r.b64.length);
-  ok("dosya adı seansın tarihini taşıyor", r && /^kertik-\d{4}-\d{2}-\d{2}-\d{4}\.png$/.test(r.ad), r && r.ad);
+  ok("dosya adı seansın tarihini taşıyor", r && /^kertik-seans-\d{4}-\d{2}-\d{2}-\d{4}\.png$/.test(r.ad), r && r.ad);
   ok("kullanıcıya sonuç söylendi",
     (await pg.evaluate(() => document.getElementById("resimDurum").textContent)) ===
       await pg.evaluate(() => soz("resim_galeri")),

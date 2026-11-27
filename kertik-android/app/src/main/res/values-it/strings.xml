@@ -3,6 +3,8 @@
 <resources>
     <string name="bildirim_kanal">sessione in corso</string>
     <string name="bildirim_kanal_aciklama">mostra il timer durante una sessione. nessun suono.</string>
+    <string name="haber_kanal">pausa lunga</string>
+    <string name="haber_kanal_aciklama">avvisa quando una pausa si allunga. vibra, senza suono.</string>
     <string name="bildirim_devam">riprendi</string>
     <string name="bildirim_mola">pausa</string>
     <string name="bildirim_bitir">termina</string>

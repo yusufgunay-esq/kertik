@@ -159,7 +159,14 @@ class MainActivity : ComponentActivity() {
        her gelişte mağazaya sorulur. Sayfa sonucu kendisi bekliyor. */
     override fun onResume() {
         super.onResume()
+        onPlanda = true
         if (::kasa.isInitialized) kasa.tazele()
+    }
+
+    /* Mola haberi yalnız uygulama öndeyken susar; öndeyse sayfa aynı anı kendisi karşılıyor. */
+    override fun onPause() {
+        onPlanda = false
+        super.onPause()
     }
 
     override fun onNewIntent(yeni: Intent) {
@@ -418,6 +425,13 @@ class MainActivity : ComponentActivity() {
 
         @JavascriptInterface
         fun gizle() = runOnUiThread { bildirim.gizle() }
+
+        /** Mola başlarken sayfa en çok iki an verir; bkz. [MolaHaberi]. */
+        @JavascriptInterface
+        fun molaHaberiKur(json: String) = MolaHaberi.kur(applicationContext, json)
+
+        @JavascriptInterface
+        fun molaHaberiIptal() = MolaHaberi.iptal(applicationContext)
 
         /**
          * Ana ekran widget'larının gördüğü durumu tazele.
@@ -951,6 +965,8 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         var aktifOrnek: MainActivity? = null
+        /** Etkinlik şu an ekranda mı (onResume ile onPause arası). */
+        @Volatile var onPlanda = false
         const val EXTRA_EYLEM = "kertik_eylem"
         const val EXTRA_SESSIZ = "kertik_sessiz"
         const val EYLEM_BROADCAST = "com.yusufgunay.kertik.EYLEM"

@@ -3,6 +3,8 @@
 <resources>
     <string name="bildirim_kanal">진행 중인 세션</string>
     <string name="bildirim_kanal_aciklama">세션이 진행되는 동안 타이머를 보여줘요. 소리는 나지 않습니다.</string>
+    <string name="haber_kanal">긴 휴식</string>
+    <string name="haber_kanal_aciklama">휴식이 길어지면 알려 줍니다. 진동만 울리고 소리는 나지 않습니다.</string>
     <string name="bildirim_devam">계속</string>
     <string name="bildirim_mola">휴식</string>
     <string name="bildirim_bitir">종료</string>

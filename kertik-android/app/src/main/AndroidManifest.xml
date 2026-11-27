@@ -42,6 +42,11 @@
             </intent-filter>
         </receiver>
 
+        <!-- Mola haberi: uzayan molayı uygulama ekranda değilken bir kez duyurur (41-dehb-dostu.md) -->
+        <receiver
+            android:name=".MolaHaberAlici"
+            android:exported="false" />
+
         <!-- Ana Ekran Widget'ları (Kontrol & Duvar) -->
         <receiver
             android:name=".KontrolWidget"

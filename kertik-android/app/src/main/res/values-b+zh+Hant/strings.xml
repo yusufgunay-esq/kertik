@@ -3,6 +3,8 @@
 <resources>
     <string name="bildirim_kanal">進行中的時段</string>
     <string name="bildirim_kanal_aciklama">時段進行時顯示計時，不發出聲音。</string>
+    <string name="haber_kanal">休息過長</string>
+    <string name="haber_kanal_aciklama">休息時間變長時提醒你。只震動，沒有聲音。</string>
     <string name="bildirim_devam">繼續</string>
     <string name="bildirim_mola">休息</string>
     <string name="bildirim_bitir">結束</string>
