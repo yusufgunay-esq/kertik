@@ -256,7 +256,10 @@ if (snInput) {
 }
 
 // Kronometre bitir
+// (seans geri tarihlendiriliyor: 10 sn hoşgörü penceresi kısa seansları
+//  sessizce iptal ettiği için bitir dokusunun tetiklenebilmesi için gerekli)
 temizle();
+win.eval('const se = activeSession(); se.startedAt -= 15 * 60000; se.events[0].at = se.startedAt;');
 win.eval('finish()');
 const hBitir = sonHaptik();
 ok('Kronometre basariyla bitirildiginde bitir dokusu (110 -> 60) tetiklendi',
@@ -266,6 +269,7 @@ ok('Kronometre basariyla bitirildiginde bitir dokusu (110 -> 60) tetiklendi',
 win.eval('S.settings.mode = "pomodoro"; S.settings.pomoTarget = 25; save(); render();');
 win.eval('startSession()');
 temizle();
+win.eval('const se2 = activeSession(); se2.startedAt -= 3 * 60000; se2.events[0].at = se2.startedAt;');
 win.eval('finish()');
 const hKirik = sonHaptik();
 ok('Hedefe ulasilmadan bitirilen Pomodoro kirik dokusu (205 -> 90 -> 45) tetikledi',

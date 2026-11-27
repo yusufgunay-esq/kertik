@@ -90,6 +90,9 @@ const SAHTE = () => {
   ok("mola süresi kayda geçti", await pg.evaluate(() => stats(activeSession()).brk) > 0);
 
   /* --- Bitir --- */
+  /* 10 sn hoşgörü penceresi kısa seansı sessizce iptal eder; kayıt üretmesi
+     için seans geri tarihlendiriliyor. */
+  await pg.evaluate(() => { const se = activeSession(); se.startedAt -= 15 * 60000; se.events[0].at = se.startedAt; });
   await temizle();
   await pg.evaluate(() => window.kertikNativeEylem("end"));
   await pg.waitForTimeout(300);
@@ -104,6 +107,9 @@ const SAHTE = () => {
   await pg.waitForTimeout(200);
   ok("DND açıkken seans başlayınca dndBaslat çağrıldı", !!(await son("dndBaslat")));
   await temizle();
+  /* 10 sn hoşgörü penceresi kısa seansı sessizce iptal eder; kayıt üretmesi
+     için seans geri tarihlendiriliyor. */
+  await pg.evaluate(() => { const se = activeSession(); se.startedAt -= 15 * 60000; se.events[0].at = se.startedAt; });
   await pg.evaluate(() => { finish(); closeSheet(); });
   await pg.waitForTimeout(200);
   ok("seans bitince dndBitir çağrıldı", !!(await son("dndBitir")));

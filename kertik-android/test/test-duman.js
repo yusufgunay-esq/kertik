@@ -85,6 +85,10 @@ function dinle(pg, etiket) {
   ok("moladan dönüldü", await pg.evaluate(() => stats(activeSession()).onBreak) === false);
   ok("mola süresi sayıldı", await pg.evaluate(() => stats(activeSession()).brk) > 0);
 
+  /* Hoşgörü penceresi (ilk 10 sn) kısa seansı sessizce iptal eder. Bu test
+     ana akışı ve kaydı doğruladığı için seansı geri tarihlendiriyoruz. */
+  await pg.evaluate(() => { const se = activeSession(); se.startedAt -= 15 * 60000; se.events[0].at = se.startedAt; });
+
   await pg.click('#bEnd'); await pg.waitForTimeout(400);
   ok("seans kapandı", await pg.evaluate(() => S.active) === null);
   ok("seans sonu sorusu açıldı", await pg.evaluate(() => el("sheet").classList.contains("on")));

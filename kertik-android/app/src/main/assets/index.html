@@ -1268,6 +1268,39 @@ function stats(se, ref) {
   };
 }
 const activeSession = () => S.active ? S.sessions.find(x => x.id === S.active) : null;
+
+/* Hoşgörü penceresi: seans başlayıp ilk 10 saniyede bırakılırsa hiç yaşanmamış
+   sayılır. Yanlış dokunuşla açılan seans kırık kayıt ve ceza sesi üretmez;
+   sessizce silinir. (focus-friend: GRACE_PERIOD_IN_SECONDS = 10) */
+const GRACE_PERIOD_MS = 10000;
+/* Kronometre mola bütçesi: 5 dk odak = 1 dk hak edilen mola (goodtime 5:1). */
+const WORK_BREAK_RATIO = 5;
+
+/* Hak edilen ama harcanmamış mola (ms). Yalnız kronometre modunda birikir;
+   pomodoro kendi molasını hedef süreden verir. */
+function hakEdilenMolaMs(se, ref) {
+  if (!se || se.mode === "pomodoro") return 0;
+  const st = stats(se, ref);
+  const kazanilan = Math.floor((st.net || 0) / WORK_BREAK_RATIO);
+  const harcanan = st.brk || 0;
+  return Math.max(0, kazanilan - harcanan);
+}
+
+/* Seansın kesinti (mola) aralıkları: tide'nin {start, end} pencere biçimi.
+   Açık kalan mola, seans bittiğinde kapanır. */
+function kesintiAraliklari(se) {
+  const out = [];
+  let acik = null;
+  for (const ev of (se.events || [])) {
+    if (ev.type === "break_start") acik = ev.at;
+    else if (ev.type === "break_end" && acik != null) {
+      out.push({ start: acik, end: ev.at });
+      acik = null;
+    }
+  }
+  if (acik != null) out.push({ start: acik, end: se.endedAt || now() });
+  return out;
+}
 function push(se, type, at) { se.events.push({ type, at: at || now() }); }
 
 /* senkron damgası: her değişiklikte kaydın yaşı güncellenir.
@@ -1381,6 +1414,25 @@ function finish(at) {
   push(se, "end", at);
   se.endedAt = at || now(); touch(se);
   const st = stats(se);
+
+  /* Hoşgörü penceresi: ilk saniyelerde bırakılan seans kırık sayılmaz, ses
+     çalmaz, özet açılmaz. Kayıt oluşmadığı için listeden çıkarılır; bildirim
+     ve widget asılı kalmasın. */
+  if (st.net < GRACE_PERIOD_MS && (st.brk || 0) < GRACE_PERIOD_MS) {
+    S.sessions = S.sessions.filter(x => x.id !== se.id);
+    S.active = null; releaseWake(); nativeDndBitir();
+    widgetBildir(true);
+    save(); render();
+    return;
+  }
+
+  /* Planlanan ile yaşanan ayrı durur (tide): plannedMs hedef, actualMs net odak,
+     interruptions molaların {start, end} pencereleri. Eski kayıtlarda yoktur;
+     okuyan taraf undefined görüp stats(se).net'e düşer. */
+  se.plannedMs = se.mode === "pomodoro" ? (Number(se.target) || 25) * 60000 : 0;
+  se.actualMs = st.net;
+  se.interruptions = kesintiAraliklari(se);
+
   const isPomoKirik = se.mode === "pomodoro" && se.target > 0 && st.net < (se.target * 60000 - 15000);
 
   const bitisiTamamla = () => {

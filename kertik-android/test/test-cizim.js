@@ -541,6 +541,75 @@ const KAYIT = {
     ok("iptal edilen seans ulaştığı ilerleme yüzdesinde (%40) donar", Math.abs(tazeIptal - Math.round(planN2 * 0.4)) <= 1);
   }
 
+  console.log("\n17) Zamanlayıcı — hoşgörü penceresi, mola bütçesi, kesinti aralıkları");
+  {
+    w.setTab("timer");
+
+    /* (a) 6 saniyelik seans: kayıt oluşmaz, kırık sayılmaz */
+    w.eval(`
+      const se6 = {
+        id: "test_grace_6sn", startedAt: Date.now() - 6000,
+        mode: "stopwatch", target: 0, note: "", isler: [{ taskId: null, at: Date.now() - 6000 }],
+        events: [{ type: "start", at: Date.now() - 6000 }],
+        awayMs: 0, unconfirmedOk: false, edited: false, editedAt: Date.now(), akisV: 4
+      };
+      S.sessions.push(se6);
+      S.active = se6.id;
+      window._once = S.sessions.length;
+      finish();
+    `);
+    ok("6 sn seans S.sessions'a eklenmedi (grace)", w.eval("S.sessions.length") === w.eval("window._once") - 1
+       && !w.eval('S.sessions.some(x => x.id === "test_grace_6sn")'));
+    ok("6 sn seans kırık sayılmadı (kirik işareti yok)", !w.eval('S.sessions.some(x => x.kirik)'));
+    ok("6 sn seans sonrası aktif seans kalmadı", !w.eval("S.active"));
+
+    /* (b) 25 dk kronometre: hak edilen mola 5 dk (300000 ms) */
+    w.eval(`
+      const se25 = {
+        id: "test_butce_25dk", startedAt: Date.now() - 25 * 60000,
+        mode: "stopwatch", target: 0, note: "", isler: [{ taskId: null, at: Date.now() - 25 * 60000 }],
+        events: [{ type: "start", at: Date.now() - 25 * 60000 }],
+        awayMs: 0, unconfirmedOk: false, edited: false, editedAt: Date.now(), akisV: 4
+      };
+      window._se25 = se25;
+    `);
+    const butce = w.eval("hakEdilenMolaMs(window._se25)");
+    ok("25 dk kronometre 5 dk mola hakkı verir (300000 ms)", butce === 300000, "→ " + butce);
+    ok("pomodoro modunda mola bütçesi birikmez (0)",
+       w.eval('hakEdilenMolaMs({ mode: "pomodoro", events: [] })') === 0);
+
+    /* (c) molalı seans: interruptions {start, end} pencerelerini doldurur */
+    w.eval(`
+      const t0 = Date.now() - 30 * 60000;
+      const seMola = {
+        id: "test_mola_kesinti", startedAt: t0,
+        mode: "stopwatch", target: 0, note: "", isler: [{ taskId: null, at: t0 }],
+        events: [
+          { type: "start", at: t0 },
+          { type: "break_start", at: t0 + 5 * 60000 },
+          { type: "break_end", at: t0 + 7 * 60000 },
+          { type: "break_start", at: t0 + 12 * 60000 },
+          { type: "break_end", at: t0 + 13 * 60000 }
+        ],
+        awayMs: 0, unconfirmedOk: false, edited: false, editedAt: Date.now(), akisV: 4
+      };
+      S.sessions.push(seMola);
+      S.active = seMola.id;
+      finish(t0 + 30 * 60000);
+    `);
+    const ksn = w.eval('S.sessions.find(x => x.id === "test_mola_kesinti")');
+    ok("molalı seans kayda geçti (grace dışı)", !!ksn);
+    ok("interruptions iki pencere doldurur",
+       ksn && ksn.interruptions && ksn.interruptions.length === 2,
+       ksn ? JSON.stringify(ksn.interruptions) : "kayıt yok");
+    ok("interruptions {start, end} biçiminde",
+       ksn && ksn.interruptions.every(i => typeof i.start === "number" && typeof i.end === "number" && i.end > i.start));
+    ok("actualMs net odak süresi (27 dk = 1620000 ms)", ksn && ksn.actualMs === 1620000, ksn ? "→ " + ksn.actualMs : "");
+    ok("plannedMs kronometrede 0", ksn && ksn.plannedMs === 0);
+    ok("harcanan mola bütçeden düşülür (floor(27dk/5)=324000 − 180000 = 144000)",
+       ksn && w.eval("hakEdilenMolaMs(S.sessions.find(x => x.id === 'test_mola_kesinti'))") === 144000);
+  }
+
   console.log("\n" + pass + " geçti, " + fail + " kaldı");
   process.exit(fail ? 1 : 0);
 })().catch(e => { console.error(e); process.exit(1); });

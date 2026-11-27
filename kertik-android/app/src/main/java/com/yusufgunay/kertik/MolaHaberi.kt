@@ -15,6 +15,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -68,19 +69,25 @@ object MolaHaberi {
         val bas = kok.optLong("bas", 0L)
         val liste = kok.optJSONArray("haberler") ?: return
         val am = ctx.getSystemService(AlarmManager::class.java) ?: return
-        val simdi = System.currentTimeMillis()
+        /* Monoton saat: duvar saati (kullanıcı ayarı, NTP düzeltmesi) kayarsa bile
+           kurulan an kaymaz. Sayfa anı duvar saatiyle verir; buradaki fark
+           (deltaMs) monoton saate taşınır. */
+        val simdiWall = System.currentTimeMillis()
+        val simdiMono = SystemClock.elapsedRealtime()
         for (i in 0 until minOf(liste.length(), EN_COK)) {
             val h = liste.optJSONObject(i) ?: continue
-            val an = h.optLong("at", 0L)
+            val anWall = h.optLong("at", 0L)
             val baslik = h.optString("baslik", "")
-            if (an <= simdi || baslik.isBlank()) continue
+            val deltaMs = anWall - simdiWall
+            if (deltaMs <= 0L || baslik.isBlank()) continue
+            val tetikMono = simdiMono + deltaMs
             val pi = alarmNiyeti(ctx, i, baslik, h.optString("alt", ""), bas)
             try {
                 val kesin = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || am.canScheduleExactAlarms()
-                if (kesin) am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, an, pi)
-                else am.setWindow(AlarmManager.RTC_WAKEUP, an, PENCERE_MS, pi)
+                if (kesin) am.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, tetikMono, pi)
+                else am.setWindow(AlarmManager.ELAPSED_REALTIME_WAKEUP, tetikMono, PENCERE_MS, pi)
             } catch (e: SecurityException) {
-                try { am.setWindow(AlarmManager.RTC_WAKEUP, an, PENCERE_MS, pi) } catch (e2: Exception) {}
+                try { am.setWindow(AlarmManager.ELAPSED_REALTIME_WAKEUP, tetikMono, PENCERE_MS, pi) } catch (e2: Exception) {}
             } catch (e: Exception) {
                 // kurulamadıysa mola yine sayılır; sadece haber gelmez
             }
