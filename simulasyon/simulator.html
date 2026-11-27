@@ -694,6 +694,12 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
 .session-notes-box:focus-within{
   opacity:1;
 }
+/* Sakin HUD: odak sürerken 8 sn hareketsizlikte ikincil yüzeyler sönümlenir;
+   ana sayaç ve bitir düğmesi her zaman okunaklı kalır. İlk dokunuş yalnız
+   görünürlüğü geri getirir (sönen düğmeler dokunuşu yutmaz). */
+.ikincil-hud{transition:opacity 250ms ease}
+body.sakin-hud .ikincil-hud{opacity:.22;pointer-events:none}
+body:not(.sakin-hud) .ikincil-hud{opacity:1;transition:opacity 250ms ease}
 .session-note-input-row{
   width:100%;
   display:flex;
@@ -979,7 +985,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
 <div id="app">
   <!-- SAYAÇ -->
   <section id="timerPage" class="page on">
-    <div class="modes">
+    <div class="modes ikincil-hud">
       <div class="seg" id="modeSeg">
         <div class="knob" id="knob"></div>
         <button data-m="stopwatch" class="on">kronometre</button>
@@ -991,7 +997,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
       <div class="tdial">
         <div class="eyebrow-row">
           <div class="eyebrow" id="stateLabel">hazır</div>
-          <button id="btnStandby" class="btn-standby" aria-label="Masaüstü Odak Modu" title="Masaüstü Odak Modu">
+          <button id="btnStandby" class="btn-standby ikincil-hud" aria-label="Masaüstü Odak Modu" title="Masaüstü Odak Modu">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
             </svg>
@@ -1009,17 +1015,17 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
         </div>
       </div>
       <div class="tside">
-        <div id="noteShow"></div>
-        <div class="gorevsec" id="gorevSec"></div>
-        <div id="subLine"></div>
-        <div id="tanitYazi">çalıştıkça bir şeyler oluyor</div>
-        <div class="durs-wrapper" id="dursWrap">
+        <div id="noteShow" class="ikincil-hud"></div>
+        <div class="gorevsec ikincil-hud" id="gorevSec"></div>
+        <div id="subLine" class="ikincil-hud"></div>
+        <div id="tanitYazi" class="ikincil-hud">çalıştıkça bir şeyler oluyor</div>
+        <div class="durs-wrapper ikincil-hud" id="dursWrap">
           <div class="durs" id="durs"></div>
         </div>
         <div class="controls" id="controls"></div>
 
         <!-- Seans İçi Silik Karalama (Aşağıda, Ekranda Yığılmayan Posta Kutusu) -->
-        <div id="sessionNotesBox" class="session-notes-box">
+        <div id="sessionNotesBox" class="session-notes-box ikincil-hud">
           <div class="session-note-input-row">
             <input type="text" id="sessionNoteInput" placeholder="aklına bir şey gelirse yaz…" maxlength="240" autocomplete="off">
           </div>
@@ -1055,7 +1061,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--accent)}
     <div id="setBody"></div>
   </section>
 
-  <nav>
+  <nav class="ikincil-hud">
     <button data-tab="timer" class="on">sayaç</button>
     <button data-tab="tasks">görevler</button>
     <button data-tab="log">kayıt</button>
@@ -1406,6 +1412,54 @@ function stats(se, ref) {
 }
 const activeSession = () => S.active ? S.sessions.find(x => x.id === S.active) : null;
 
+/* ---------- Pil dostu kare aralığı, sakin HUD ve OLED koruması ----------
+   Kare aralığı düşük bellekli cihazlarda 42 ms (~24 fps), normalde 33 ms
+   (~30 fps). Sakin HUD: odak sürerken 8 sn hareketsizlikte ikincil yüzeyler
+   0.25 sn'de sönümlenir, ilk dokunuş geri getirir. OLED: yalnız aktif seansta
+   ve ekran görünürken ana kadran 30 sn'de bir 2 sn'lik yumuşak kaymayla
+   yer değiştirir (yanık izi engeli), seans bitince sıfırlanır. */
+const SEFER_FPS_ARALIK = (() => {
+  const mem = Number(navigator.deviceMemory || 6);
+  const cpu = Number(navigator.hardwareConcurrency || 6);
+  return (mem <= 3 || cpu <= 4) ? 42 : 33;
+})();
+
+let _sakinHudZamanlayici = null;
+function sakinHudSifirla() {
+  document.body.classList.remove("sakin-hud");
+  clearTimeout(_sakinHudZamanlayici);
+  _sakinHudZamanlayici = null;
+  const se = activeSession();
+  if (!se || stats(se).onBreak) return;
+  _sakinHudZamanlayici = setTimeout(() => {
+    const a = activeSession();
+    if (a &amp;&amp; !stats(a).onBreak) document.body.classList.add("sakin-hud");
+  }, 8000);
+}
+
+let _oledZamanlayici = null;
+function oledKaydir() {
+  const d = document.querySelector("#timerPage .tdial");
+  if (!d) return;
+  const dx = Math.round((Math.random() * 6 - 3) * 10) / 10;
+  const dy = Math.round((Math.random() * 10 - 5) * 10) / 10;
+  d.style.transition = "transform 2000ms ease-in-out";
+  d.style.transform = "translate3d(" + dx + "px, " + dy + "px, 0)";
+}
+function oledSifirla() {
+  clearInterval(_oledZamanlayici);
+  _oledZamanlayici = null;
+  const d = document.querySelector("#timerPage .tdial");
+  if (d) d.style.transform = "translate3d(0, 0, 0)";
+}
+function oledGuncelle() {
+  if (activeSession() &amp;&amp; document.visibilityState === "visible") {
+    if (!_oledZamanlayici) _oledZamanlayici = setInterval(oledKaydir, 30000);
+  } else {
+    oledSifirla();
+  }
+}
+
 /* Hoşgörü penceresi: seans başlayıp ilk 10 saniyede bırakılırsa hiç yaşanmamış
    sayılır. Yanlış dokunuşla açılan seans kırık kayıt ve ceza sesi üretmez;
    sessizce silinir. (focus-friend: GRACE_PERIOD_IN_SECONDS = 10) */
@@ -1515,6 +1569,7 @@ function startSession() {
 
   if (typeof tanitKapat === "function") tanitKapat(true);
   save(); requestWake(); if (S.settings.dnd) nativeDndBaslat(); render();
+  sakinHudSifirla(); oledGuncelle();
   /* Bildirim izni ilk seansta isteniyor — açılışta değil. İzin verilmezse
      uygulama aynen çalışır, sadece bildirim çubuğunda sayaç olmaz. */
   if (NATIVE) {
@@ -1527,6 +1582,7 @@ function takeBreak() {
   const se = activeSession(); if (!se) return;
   if (stats(se).onBreak) return;
   push(se, "break_start"); touch(se); sesCalMaddi("mola"); buzz("mola"); save(); render();
+  sakinHudSifirla();
   molaHaberiKur(se);
 }
 function resume() {
@@ -1542,6 +1598,7 @@ function doResume(se, at) {
   push(se, "break_end", at); touch(se);
   lastMilestone = Math.floor(stats(se).net / 60000 / (S.settings.milestone || 1e9));
   sesCalMaddi("devam"); buzz("devam"); save(); render();
+  sakinHudSifirla();
 }
 function finish(at) {
   const se = activeSession(); if (!se) return;
@@ -1559,6 +1616,7 @@ function finish(at) {
     S.sessions = S.sessions.filter(x => x.id !== se.id);
     S.active = null; releaseWake(); nativeDndBitir();
     widgetBildir(true);
+    sakinHudSifirla(); oledSifirla();
     save(); render();
     return;
   }
@@ -1576,6 +1634,7 @@ function finish(at) {
     if (typeof toggleStandby === "function" &amp;&amp; standbyAcik) toggleStandby(false);
     S.active = null; releaseWake();
     nativeDndBitir();
+    sakinHudSifirla(); oledSifirla();
     save(); render();
     const thr = S.settings.longSessionAsk;
     if (thr > 0 &amp;&amp; st.net >= thr * 60000) askAway(se);
@@ -10499,7 +10558,7 @@ const MASA = (() => {
   function adimDongu(ts) {
     if ((tab !== "timer" &amp;&amp; tab !== "log") || document.visibilityState === "hidden") return;
     const nowTs = performance.now();
-    if (nowTs - ST.sonKareTs < 33) {
+    if (nowTs - ST.sonKareTs < SEFER_FPS_ARALIK) {
       ST.animId = requestAnimationFrame(adimDongu);
       return;
     }
@@ -10616,6 +10675,12 @@ if (S.active) {
   } else S.active = null;
 }
 render();
+/* Sakin HUD uyanma kancaları: her dokunuş/tuş sönmüş yüzeyleri geri getirir.
+   Pasif dinleyici; ilk dokunuş yalnız görünürlüğü açar, düğme tetiklemez. */
+["pointerdown", "keydown", "touchstart"].forEach(ev =>
+  document.addEventListener(ev, sakinHudSifirla, { passive: true }));
+sakinHudSifirla();
+oledGuncelle();
 nativeBildir(true);
 widgetBildir(true);
 /* ilk açılış tanıtımı — arayüz oturduktan sonra, bir kez */
@@ -10632,6 +10697,7 @@ autoSync(true);
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") { autoSync(); akisTanitim(); }
   else if (!S.active) autoSync();
+  oledGuncelle();
 });
 window.addEventListener("online", () => autoSync());
 </script>
