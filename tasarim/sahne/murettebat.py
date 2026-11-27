@@ -820,11 +820,17 @@ def uzuv(arm, kok, orta, uc_kemik, hedef, kutup, baslangic=None):
     bpy.context.view_layer.update()
 
 
-def kol(arm, side, hedef, kutup=None, kavra_yon=None):
+def kol(arm, side, hedef, kutup=None, kavra_yon=None, clav_kalk=0.0, clav_geri=0.0):
     pb = arm.pose.bones
     sx = 1.0 if side == ".L" else -1.0
     if "clavicle" + side in pb:
         pb["clavicle" + side].matrix_basis = Matrix.Identity(4)
+        if abs(clav_kalk) > 0.01 or abs(clav_geri) > 0.01:
+            bpy.context.view_layer.update()
+            if abs(clav_kalk) > 0.01:
+                kadro._rotate(arm, "clavicle" + side, Quaternion(Vector((0, 1, 0)), math.radians(-sx * clav_kalk)))
+            if abs(clav_geri) > 0.01:
+                kadro._rotate(arm, "clavicle" + side, Quaternion(Vector((0, 0, 1)), math.radians(sx * clav_geri)))
     # First adduct from horizontal T-pose to natural hanging-at-side stance so shoulder/bicep roll
     # is 100% anatomical before flexing toward the target; elbow pole points down, back and outward.
     kt = kutup if kutup is not None else (sx * 0.38, 0.38, -0.85)
@@ -1048,15 +1054,15 @@ def avuc(arm, side):
     return k1
 
 
-def kol_kavra(p, kalip, side, hedef_avuc, kutup=None, parmak_kapat=True):
+def kol_kavra(p, kalip, side, hedef_avuc, kutup=None, parmak_kapat=True, clav_kalk=0.0, clav_geri=0.0):
     """Pose arm and close fingers so the interior grip centre of the closed fist (avuc) lands
     directly on hedef_avuc (the cork rod handle axis)."""
     arm = p["arm"]
-    kol(arm, side, hedef_avuc, kutup=kutup)
+    kol(arm, side, hedef_avuc, kutup=kutup, clav_kalk=clav_kalk, clav_geri=clav_geri)
     if parmak_kapat:
         el_uygula(p, kalip, side)
     d_avuc = avuc(arm, side) - arm.pose.bones["wrist" + side].head
-    kol(arm, side, Vector(hedef_avuc) - d_avuc, kutup=kutup)
+    kol(arm, side, Vector(hedef_avuc) - d_avuc, kutup=kutup, clav_kalk=clav_kalk, clav_geri=clav_geri)
     if parmak_kapat:
         el_uygula(p, kalip, side)
 
@@ -1346,122 +1352,143 @@ SIZMA = 1.0 / (1.5 * FPS)  # captured hand/rod offsets leak back to the framing 
 
 
 def _neon_hedef(faz, u):
-    """RDR2-paced task-space fishing choreography (boat-local coordinates):
-    durdur -> atis (anticipation dip + wind-up + whip release + follow-through)
-    -> bekle (base_reel_idle living micro-motion + nibble alert)
-    -> vurus (torso-leads-arm crisp hook set)
-    -> cekis (RDR2 lateral counter-lean resist + pump & reel crank)
-    -> al (lift, swing over wooden bucket, unhook drop) -> son (proud settle)."""
+    """Full-body expressive RDR2 fishing choreography (boat-local coordinates):
+    Returns (egim_one, don_z, egim_yan, clav_kalk, clav_geri, bas_don, bas_y, el_R, el_L, yon).
+    Uses full athletic trunk commitment (forward/back lean, torso twist, lateral counter-lean,
+    shoulder heave) and brings the rod tip directly over the wooden bucket during landing."""
     s_u = u * u * (3 - 2 * u)
-    egim_one, don_z, bas_don, bas_y = 2.0, 0.0, -10.0, 4.0
+    egim_one, don_z, egim_yan = 4.0, 0.0, 0.0
+    clav_kalk, clav_geri = 0.0, 0.0
+    bas_don, bas_y = -10.0, 4.0
     el_R, yon, el_L = EL_TABAN.copy(), YON_TABAN.copy(), None
     if faz == "durdur":
-        egim_one = 2.5 - 1.5 * s_u
-        don_z = -4.0 * math.sin(math.pi * s_u)
+        egim_one = 5.0 - 2.0 * s_u
+        don_z = -5.0 * math.sin(math.pi * s_u)
+        egim_yan = -1.5 * math.sin(math.pi * s_u)
         bas_don = -12.0 + 4.0 * s_u
-        bas_y = 4.0
-        yon = Vector((-0.70, 0.40, 0.58)).normalized()
-        el_R = Vector((-0.07, -1.48, 1.35))
+        bas_y = 5.0
+        yon = Vector((-0.72, 0.40, 0.56)).normalized()
+        el_R = Vector((-0.09, -1.48, 1.35))
     elif faz == "atis":
-        # RDR2 cast_intro -> cast_action -> cast_exit with pre-cast dip anticipation & follow-through
+        # Big athletic RDR2 cast: anticipation dip -> deep shoulder wind-up -> explosive forward whip -> settle
         if u < 0.14:
             q = u / 0.14; q = q * q * (3 - 2 * q)
-            egim_one, don_z = lerp(1.0, 3.2, q), lerp(0.0, -3.5, q)
-            bas_don, bas_y = lerp(-8.0, -11.0, q), lerp(3.0, 5.0, q)
-            yon = Vector((-0.70, 0.40, 0.58)).lerp(Vector((-0.73, 0.41, 0.54)), q).normalized()
-            el_R = Vector((-0.07, -1.48, 1.35)).lerp(Vector((-0.09, -1.48, 1.32)), q)
+            egim_one, don_z, egim_yan = lerp(3.0, 9.5, q), lerp(0.0, -6.0, q), lerp(0.0, -2.5, q)
+            clav_kalk, clav_geri = lerp(0.0, -2.0, q), 0.0
+            bas_don, bas_y = lerp(-8.0, -13.0, q), lerp(4.0, 8.0, q)
+            yon = Vector((-0.72, 0.40, 0.56)).lerp(Vector((-0.78, 0.40, 0.48)), q).normalized()
+            el_R = Vector((-0.09, -1.48, 1.35)).lerp(Vector((-0.14, -1.46, 1.28)), q)
         elif u < 0.46:
             q = (u - 0.14) / 0.32; q = q * q * (3 - 2 * q)
-            egim_one, don_z = lerp(3.2, -7.8, q), lerp(-3.5, 11.0, q)
-            bas_don, bas_y = lerp(-11.0, -1.0, q), lerp(5.0, -9.0, q)
-            yon = Vector((-0.73, 0.41, 0.54)).lerp(Vector((-0.38, 0.26, 0.89)), q).normalized()
-            el_R = Vector((-0.09, -1.48, 1.32)).lerp(Vector((-0.02, -1.51, 1.48)), q)
-        elif u < 0.80:
-            q = (u - 0.46) / 0.34; q = q * q * (3 - 2 * q)
-            egim_one, don_z = lerp(-7.8, 5.8, q), lerp(11.0, -5.5, q)
-            bas_don, bas_y = lerp(-1.0, -15.0, q), lerp(-9.0, 7.5, q)
-            yon = Vector((-0.38, 0.26, 0.89)).lerp(Vector((-0.77, 0.43, 0.47)), q).normalized()
-            el_R = Vector((-0.02, -1.51, 1.48)).lerp(Vector((-0.10, -1.48, 1.31)), q)
+            egim_one, don_z, egim_yan = lerp(9.5, -16.5, q), lerp(-6.0, 22.0, q), lerp(-2.5, 7.5, q)
+            clav_kalk, clav_geri = lerp(-2.0, 9.5, q), lerp(0.0, 7.0, q)
+            bas_don, bas_y = lerp(-13.0, 6.0, q), lerp(8.0, -12.0, q)
+            yon = Vector((-0.78, 0.40, 0.48)).lerp(Vector((-0.24, 0.22, 0.94)), q).normalized()
+            el_R = Vector((-0.14, -1.46, 1.28)).lerp(Vector((0.05, -1.56, 1.54)), q)
+        elif u < 0.78:
+            q = (u - 0.46) / 0.32; q = q * q * (3 - 2 * q)
+            egim_one, don_z, egim_yan = lerp(-16.5, 16.0, q), lerp(22.0, -14.0, q), lerp(7.5, -5.0, q)
+            clav_kalk, clav_geri = lerp(9.5, 1.0, q), lerp(7.0, -4.0, q)
+            bas_don, bas_y = lerp(6.0, -18.0, q), lerp(-12.0, 10.0, q)
+            yon = Vector((-0.24, 0.22, 0.94)).lerp(Vector((-0.84, 0.36, 0.40)), q).normalized()
+            el_R = Vector((0.05, -1.56, 1.54)).lerp(Vector((-0.20, -1.42, 1.30)), q)
         else:
-            q = (u - 0.80) / 0.20; q = q * q * (3 - 2 * q)
-            egim_one, don_z = lerp(5.8, 3.5, q), lerp(-5.5, -2.0, q)
-            bas_don, bas_y = lerp(-15.0, -14.0, q), lerp(7.5, 6.0, q)
-            yon = Vector((-0.77, 0.43, 0.47)).lerp(Vector((-0.74, 0.42, 0.52)), q).normalized()
-            el_R = Vector((-0.10, -1.48, 1.31)).lerp(Vector((-0.08, -1.48, 1.33)), q)
+            q = (u - 0.78) / 0.22; q = q * q * (3 - 2 * q)
+            egim_one, don_z, egim_yan = lerp(16.0, 5.5, q), lerp(-14.0, -2.0, q), lerp(-5.0, 0.0, q)
+            clav_kalk, clav_geri = lerp(1.0, 0.0, q), lerp(-4.0, 0.0, q)
+            bas_don, bas_y = lerp(-18.0, -14.0, q), lerp(10.0, 6.0, q)
+            yon = Vector((-0.84, 0.36, 0.40)).lerp(Vector((-0.74, 0.42, 0.52)), q).normalized()
+            el_R = Vector((-0.20, -1.42, 1.30)).lerp(Vector((-0.10, -1.48, 1.34)), q)
     elif faz == "bekle":
-        # Living base_reel_idle weight shift + subtle attentive rod micro-twitches on nibbles
+        # Alive base_reel_idle weight shift, attentive tracking, subtle nibble twitches
         sal = math.sin(u * math.tau * 2.0)
         sal2 = math.cos(u * math.tau * 1.0)
-        egim_one = 3.5 + 1.0 * sal + 0.5 * sal2
-        don_z = -2.0 + 2.2 * sal2
-        bas_don = -14.0 + 3.0 * math.sin(u * math.tau * 1.5)
-        bas_y = 6.0 + 1.8 * sal
-        yon = Vector((-0.74, 0.42 + 0.015 * sal2, 0.52 + 0.028 * sal)).normalized()
-        el_R = Vector((-0.08, -1.48 + 0.010 * sal2, 1.33 + 0.015 * sal))
+        egim_one = 5.5 + 1.8 * sal + 1.2 * sal2
+        don_z = -2.0 + 4.5 * sal2
+        egim_yan = 2.2 * math.sin(u * math.tau * 1.0)
+        bas_don = -14.0 + 5.0 * math.sin(u * math.tau * 1.5)
+        bas_y = 6.5 + 2.5 * sal
+        yon = Vector((-0.74, 0.42 + 0.025 * sal2, 0.52 + 0.035 * sal)).normalized()
+        el_R = Vector((-0.10 + 0.015 * sal, -1.48 + 0.020 * sal2, 1.34 + 0.020 * sal))
     elif faz == "vurus":
-        # Torso leads arm by slight phase advance for weighty RDR2 hook-set
-        u_t = min(1.0, u * 1.12); v_t = math.sin(math.pi * (u_t * u_t * (3 - 2 * u_t)))
+        # Explosive full-body hook set: torso snaps hard backward -19 deg, shoulders brace, arms haul high
+        u_t = min(1.0, u * 1.15); v_t = math.sin(math.pi * (u_t * u_t * (3 - 2 * u_t)))
         v_ = math.sin(math.pi * s_u)
-        egim_one = 3.5 - 10.5 * v_t
-        don_z = -2.0 + 8.5 * v_t
-        bas_don = -12.0 + 5.0 * v_
-        bas_y = 6.0 - 12.0 * v_
-        yon = YON_TABAN.lerp(Vector((-0.56, 0.39, 0.73)), v_).normalized()
-        el_R = EL_TABAN.lerp(Vector((-0.04, -1.48, 1.47)), v_)
+        egim_one = 6.0 - 25.0 * v_t
+        don_z = -2.0 + 18.0 * v_t
+        egim_yan = 7.0 * v_t
+        clav_kalk = 9.5 * v_t; clav_geri = 7.5 * v_t
+        bas_don = -13.0 + 8.0 * v_
+        bas_y = 6.5 - 16.0 * v_
+        yon = YON_TABAN.lerp(Vector((-0.46, 0.34, 0.82)), v_).normalized()
+        el_R = Vector((-0.10, -1.48, 1.34)).lerp(Vector((0.04, -1.54, 1.54)), v_)
     elif faz == "cekis":
-        # RDR2 fishing rhythm: first half lateral counter-lean fight (resist_lt/rt), second half pump + reel
-        if u < 0.42:
-            q = u / 0.42
+        # Real RDR2 tug-of-war: heavy lateral counter-lean + bracing, then big rhythmic pump & visible reel crank
+        if u < 0.44:
+            q = u / 0.44
             yan_sal = math.sin(q * math.tau * 1.5)
-            egim_one = -3.8 + 2.4 * math.cos(q * math.tau)
-            don_z = 9.5 * yan_sal
-            bas_don = -10.0 - 5.0 * yan_sal
-            bas_y = -2.5 + 3.2 * math.cos(q * math.tau)
-            yon = Vector((-0.67, 0.42 + 0.16 * yan_sal, 0.61)).normalized()
-            el_R = Vector((-0.07, -1.48 + 0.055 * yan_sal, 1.41))
+            cekm = 0.5 + 0.5 * math.cos(q * math.tau * 1.5)
+            egim_one = -14.5 + 5.5 * math.cos(q * math.tau)
+            don_z = 20.0 * yan_sal
+            egim_yan = 10.5 * yan_sal
+            clav_kalk = 7.5 + 2.5 * cekm; clav_geri = 6.5
+            bas_don = -10.0 - 8.0 * yan_sal
+            bas_y = -6.0 + 5.0 * math.cos(q * math.tau)
+            yon = Vector((-0.62, 0.38 + 0.24 * yan_sal, 0.66)).normalized()
+            el_R = Vector((0.02 - 0.04 * abs(yan_sal), -1.48 + 0.12 * yan_sal, 1.46 + 0.05 * cekm))
             el_L = el_R - yon * 0.15
         else:
-            q = (u - 0.42) / 0.58
+            q = (u - 0.44) / 0.56
             pompa = 0.5 - 0.5 * math.cos(q * math.tau * 2.0)
-            egim_one = lerp(3.2, -5.5, pompa)
-            don_z = -2.0 + 4.5 * pompa
-            bas_don = -12.0
-            bas_y = lerp(4.5, -7.5, pompa)
-            yon = Vector((-0.70, 0.42, 0.57)).lerp(Vector((-0.57, 0.40, 0.72)), pompa).normalized()
-            el_R = Vector((-0.08, -1.48, 1.35)).lerp(Vector((-0.05, -1.48, 1.47)), pompa)
-            # Left hand circles smoothly around the spinning reel crank synchronized with MakaraKol
-            makara = Vector((0.0, 0.025 * math.sin(q * math.tau * 5.0), 0.025 * math.cos(q * math.tau * 5.0)))
-            el_L = el_R - yon * 0.13 + makara
+            egim_one = lerp(10.5, -16.5, pompa)
+            don_z = lerp(-6.0, 12.0, pompa)
+            egim_yan = lerp(-3.0, 6.0, pompa)
+            clav_kalk = lerp(1.0, 8.5, pompa); clav_geri = lerp(-1.0, 6.0, pompa)
+            bas_don = lerp(-16.0, -8.0, pompa)
+            bas_y = lerp(8.0, -11.0, pompa)
+            yon = Vector((-0.76, 0.40, 0.50)).lerp(Vector((-0.48, 0.34, 0.81)), pompa).normalized()
+            el_R = Vector((-0.14, -1.44, 1.32)).lerp(Vector((0.03, -1.52, 1.54)), pompa)
+            # Left hand visibly cranks the spinning reel handle in a 4.4 cm orbit
+            makara = Vector((0.012 * math.cos(q * math.tau * 5.0),
+                             0.042 * math.sin(q * math.tau * 5.0),
+                             0.042 * math.cos(q * math.tau * 5.0)))
+            el_L = el_R - yon * 0.14 + makara
     elif faz == "al":
-        if u < 0.42:
-            q = u / 0.42; q = q * q * (3 - 2 * q)
-            egim_one, don_z = lerp(-3.5, -6.2, q), lerp(2.0, -5.0, q)
-            bas_don, bas_y = lerp(-10.0, -16.0, q), lerp(-6.0, -2.0, q)
-            yon = Vector((-0.60, 0.40, 0.69)).lerp(Vector((-0.49, 0.36, 0.80)), q).normalized()
-            el_R = Vector((-0.06, -1.48, 1.44)).lerp(Vector((-0.04, -1.46, 1.50)), q)
-        elif u < 0.76:
-            q = (u - 0.42) / 0.34; q = q * q * (3 - 2 * q)
-            egim_one, don_z = lerp(-6.2, 5.2, q), lerp(-5.0, -11.5, q)
-            bas_don, bas_y = lerp(-16.0, -20.0, q), lerp(-2.0, 11.5, q)
-            yon = Vector((-0.49, 0.36, 0.80)).lerp(Vector((-0.58, 0.40, 0.71)), q).normalized()
-            el_R = Vector((-0.04, -1.46, 1.50)).lerp(Vector((-0.07, -1.46, 1.40)), q)
+        # Lift catch cleanly, swing whole torso & rod inward so rod tip hangs directly over wooden bucket (-0.42, -0.86)
+        if u < 0.34:
+            q = u / 0.34; q = q * q * (3 - 2 * q)
+            egim_one, don_z, egim_yan = lerp(-12.0, -15.0, q), lerp(6.0, -8.0, q), lerp(4.0, -2.0, q)
+            clav_kalk, clav_geri = lerp(6.0, 8.5, q), lerp(4.0, 3.0, q)
+            bas_don, bas_y = lerp(-10.0, -18.0, q), lerp(-8.0, -6.0, q)
+            yon = Vector((-0.56, 0.36, 0.74)).lerp(Vector((-0.34, 0.30, 0.89)), q).normalized()
+            el_R = Vector((0.00, -1.46, 1.48)).lerp(Vector((0.04, -1.38, 1.50)), q)
+        elif u < 0.66:
+            q = (u - 0.34) / 0.32; q = q * q * (3 - 2 * q)
+            egim_one, don_z, egim_yan = lerp(-15.0, 5.0, q), lerp(-8.0, -24.0, q), lerp(-2.0, -6.5, q)
+            clav_kalk, clav_geri = lerp(8.5, 3.0, q), lerp(3.0, -1.0, q)
+            bas_don, bas_y = lerp(-18.0, -24.0, q), lerp(-6.0, 10.0, q)
+            # Rod tip uc_b settles directly over bucket (-0.42, -0.86)!
+            yon = Vector((-0.34, 0.30, 0.89)).lerp(Vector((-0.23, 0.25, 0.94)), q).normalized()
+            el_R = Vector((0.04, -1.38, 1.50)).lerp(Vector((0.04, -1.34, 1.46)), q)
         else:
-            q = (u - 0.76) / 0.24; q = q * q * (3 - 2 * q)
-            egim_one, don_z = lerp(5.2, 2.0, q), lerp(-11.5, -4.0, q)
-            bas_don, bas_y = lerp(-20.0, -12.0, q), lerp(11.5, 4.0, q)
-            yon = Vector((-0.58, 0.40, 0.71)).lerp(Vector((-0.68, 0.40, 0.60)), q).normalized()
-            el_R = Vector((-0.07, -1.46, 1.40)).lerp(Vector((-0.07, -1.48, 1.36)), q)
+            q = (u - 0.66) / 0.34; q = q * q * (3 - 2 * q)
+            egim_one, don_z, egim_yan = lerp(5.0, 9.5, q), lerp(-24.0, -16.0, q), lerp(-6.5, -3.5, q)
+            clav_kalk, clav_geri = lerp(3.0, 0.0, q), 0.0
+            bas_don, bas_y = lerp(-24.0, -18.0, q), lerp(10.0, 16.0, q)
+            yon = Vector((-0.23, 0.25, 0.94)).lerp(Vector((-0.48, 0.34, 0.81)), q).normalized()
+            el_R = Vector((0.04, -1.34, 1.46)).lerp(Vector((-0.05, -1.42, 1.38)), q)
         el_L = el_R - yon * 0.15
     elif faz == "son":
-        egim_one = 2.0
-        don_z = -4.0 * (1.0 - 0.5 * s_u)
-        bas_don = -12.0 + 18.0 * s_u
-        bas_y = 2.0 - 2.0 * s_u
-        yon = Vector((-0.68, 0.40, 0.60)).normalized()
-        el_R = Vector((-0.07, -1.48, 1.36))
+        egim_one = lerp(9.5, 2.5, s_u)
+        don_z = lerp(-16.0, 4.0, s_u)
+        egim_yan = lerp(-3.5, 0.0, s_u)
+        bas_don = lerp(-18.0, 14.0, s_u)       # looks down at bucket then glances warmly toward Latif
+        bas_y = lerp(16.0, 2.0, s_u)
+        yon = Vector((-0.48, 0.34, 0.81)).lerp(Vector((-0.66, 0.40, 0.63)), s_u).normalized()
+        el_R = Vector((-0.05, -1.42, 1.38)).lerp(Vector((-0.08, -1.48, 1.36)), s_u)
     if el_L is None:
         el_L = el_R - yon * 0.15
-    return egim_one, don_z, bas_don, bas_y, el_R, el_L, yon
+    return egim_one, don_z, egim_yan, clav_kalk, clav_geri, bas_don, bas_y, el_R, el_L, yon
 
 
 def balik_tut(ekip, kok, yeke_pivot, f0=1, harman=None, yavas=1.4):
@@ -1524,30 +1551,34 @@ def balik_tut(ekip, kok, yeke_pivot, f0=1, harman=None, yavas=1.4):
     kok_r0 = kok.rotation_euler.copy(); kok_z0 = kok.location.z
 
     # Step 1: Sample raw task-space targets across the full sequence
-    ham = {k: [] for k in ("egim_one", "don_z", "bas_don", "bas_y", "el_R", "el_L", "yon", "ac", "izle")}
+    ham = {k: [] for k in ("egim_one", "don_z", "egim_yan", "clav_kalk", "clav_geri",
+                           "bas_don", "bas_y", "el_R", "el_L", "yon", "ac", "izle")}
     izle_cur = 0.0
     for i, (faz, u) in enumerate(akis):
-        e1, d1, bd1, b1, r1, l1, y1 = _neon_hedef(faz, u)
-        ham["egim_one"].append(e1); ham["don_z"].append(d1)
+        e1, d1, ey1, ck1, cg1, bd1, b1, r1, l1, y1 = _neon_hedef(faz, u)
+        ham["egim_one"].append(e1); ham["don_z"].append(d1); ham["egim_yan"].append(ey1)
+        ham["clav_kalk"].append(ck1); ham["clav_geri"].append(cg1)
         ham["bas_don"].append(bd1); ham["bas_y"].append(b1)
         ham["el_R"].append(r1); ham["el_L"].append(l1); ham["yon"].append(y1)
         if faz == "durdur":
             ac = 24.0 * (u * u * (3 - 2 * u))
         else:
-            ac = 24.0 - 5.0 * min(1.0, i / 200.0) + 1.4 * math.sin(i * 0.09)
+            ac = 24.0 - 5.0 * min(1.0, i / 200.0) + 2.2 * math.sin(i * 0.09)
         ham["ac"].append(ac)
-        izle_h = {"durdur": 0.1, "atis": 0.4, "bekle": 0.5, "vurus": 0.9, "cekis": 1.0, "al": 1.0, "son": 0.8}[faz]
-        izle_cur = izle_h if i == 0 else izle_cur + (izle_h - izle_cur) * 0.08
+        izle_h = {"durdur": 0.1, "atis": 0.45, "bekle": 0.55, "vurus": 0.95, "cekis": 1.0, "al": 1.0, "son": 0.85}[faz]
+        izle_cur = izle_h if i == 0 else izle_cur + (izle_h - izle_cur) * 0.10
         ham["izle"].append(izle_cur)
 
-    # Step 2: Gaussian low-pass in TASK SPACE BEFORE IK so transitions are weighty and hands stay locked
+    # Step 2: Gaussian low-pass in TASK SPACE BEFORE IK (preserves crisp cast/hook-set punch while smoothing phase seams)
     for k_, sg_, ss_ in (
-        ("egim_one", 2.2, 5.0), ("don_z", 2.2, 5.0), ("bas_don", 2.5, 5.0), ("bas_y", 2.5, 5.0),
-        ("el_R", 2.0, 4.5), ("el_L", 2.0, 4.5), ("yon", 2.0, 4.5), ("ac", 2.0, 4.0), ("izle", 2.5, 4.5),
+        ("egim_one", 1.8, 4.2), ("don_z", 1.8, 4.2), ("egim_yan", 2.0, 4.2),
+        ("clav_kalk", 2.0, 4.0), ("clav_geri", 2.0, 4.0),
+        ("bas_don", 2.2, 4.5), ("bas_y", 2.2, 4.5),
+        ("el_R", 1.6, 3.8), ("el_L", 1.6, 3.8), ("yon", 1.6, 3.8), ("ac", 2.0, 4.0), ("izle", 2.4, 4.5),
     ):
-        ham[k_] = yumusat_liste(ham[k_], sg_, sinir_idx, ss_, 7.0)
+        ham[k_] = yumusat_liste(ham[k_], sg_, sinir_idx, ss_, 6.0)
 
-    # Step 3: Solve exact anatomical trunk + head + dual-hand IK at every frame and keyframe all bones
+    # Step 3: Solve exact anatomical 3-axis trunk + clavicle + head + dual-hand IK at every frame
     kayit = []
     sinirlar = [f0 + idx for idx in sinir_idx]
     sc = bpy.context.scene
@@ -1556,40 +1587,51 @@ def balik_tut(ekip, kok, yeke_pivot, f0=1, harman=None, yavas=1.4):
         sc.frame_set(f)
         ph = math.tau * i / (4.0 * FPS)
         # 1. Hull riding the Aegean swell
-        kok.rotation_euler = (kok_r0.x + math.radians(0.9) * math.cos(ph),
-                              kok_r0.y + math.radians(1.6) * math.sin(ph), kok_r0.z)
-        kok.location.z = kok_z0 + 0.035 * math.sin(ph - 0.4)
+        kok.rotation_euler = (kok_r0.x + math.radians(1.0) * math.cos(ph),
+                              kok_r0.y + math.radians(1.8) * math.sin(ph), kok_r0.z)
+        kok.location.z = kok_z0 + 0.04 * math.sin(ph - 0.4)
         kok.keyframe_insert("rotation_euler", frame=f); kok.keyframe_insert("location", index=2, frame=f)
 
-        # 2. Elder brother (Yusuf): clean untwisted seated trunk, bounded head, locked dual-hand IK
-        nefes_a = 1.2 * math.sin(ph * 2.0 + 0.6)
+        # 2. Elder brother (Yusuf): full 3-axis spine (pitch, twist, lateral lean) + clavicle heave + locked dual-hand IK
+        nefes_a = 1.4 * math.sin(ph * 2.0 + 0.6)
         dik_otur(a, ham["egim_one"][i] + nefes_a)
         dz = ham["don_z"][i]
-        for sp_b, pay in (("spine03", 0.55), ("spine02", 0.45)):
+        dyan = ham["egim_yan"][i]
+        for sp_b, pay in (("spine05", 0.20), ("spine04", 0.30), ("spine03", 0.30), ("spine02", 0.20)):
             if sp_b in pba:
-                kadro._rotate(a, sp_b, Quaternion(Vector((0, 0, 1)), math.radians(dz * pay)))
+                if abs(dz) > 0.01:
+                    kadro._rotate(a, sp_b, Quaternion(Vector((0, 0, 1)), math.radians(dz * pay)))
+                if abs(dyan) > 0.01:
+                    kadro._rotate(a, sp_b, Quaternion(Vector((0, 1, 0)), math.radians(dyan * pay)))
         bas(a, ham["bas_don"][i], ham["bas_y"][i])
         bpy.context.view_layer.update()
 
         yon = ham["yon"][i].normalized()
         el_R_h = ham["el_R"][i]
         el_L_h = ham["el_L"][i]
-        kol_kavra(abi, ekip["kavra_a"], ".R", ic_a(el_R_h), parmak_kapat=False)
-        kol_kavra(abi, ekip["kavra_a"], ".L", ic_a(el_L_h), parmak_kapat=False)
+        ck_i, cg_i = ham["clav_kalk"][i], ham["clav_geri"][i]
+        kol_kavra(abi, ekip["kavra_a"], ".R", ic_a(el_R_h), parmak_kapat=False, clav_kalk=ck_i, clav_geri=cg_i)
+        kol_kavra(abi, ekip["kavra_a"], ".L", ic_a(el_L_h), parmak_kapat=False, clav_kalk=ck_i * 0.85, clav_geri=cg_i * 0.75)
         _anahtarla(a, ust_a, f)
-        gulus_a = {"vurus": 0.45, "cekis": 0.38, "al": 0.50 + 0.38 * min(1.0, u * 2.2), "son": 0.88}.get(faz, 0.22)
+        gulus_a = {"vurus": 0.45, "cekis": 0.38, "al": 0.55 + 0.35 * min(1.0, u * 2.2), "son": 0.90}.get(faz, 0.22)
         _gulus_anahtar(abi, gulus_a, f)
 
-        # 3. Younger brother (Latif): steadies tiller with left hand, right hand on thigh, watches Yusuf
+        # 3. Younger brother (Latif): lively helm counter-lean, leans forward eagerly during fight & cheers at catch
         izle = ham["izle"][i]
-        nefes_k = 1.1 * math.sin(ph * 2.5)
-        dik_otur(c, 1.5 + 2.5 * izle + nefes_k)
-        bas(c, -24.0 - 16.0 * izle, 4.5 * izle)
+        nefes_k = 1.4 * math.sin(ph * 2.5)
+        k_ileri = 2.0 + 10.0 * izle + nefes_k
+        if faz in ("al", "son"):
+            k_ileri += 2.5 * math.sin(i * 0.22)
+        dik_otur(c, k_ileri)
+        if "spine03" in pbk:
+            kadro._rotate(c, "spine03", Quaternion(Vector((0, 0, 1)), math.radians(-10.0 * izle)))
+        k_egik = 6.0 * izle + (4.0 * math.sin(i * 0.25) if faz == "son" else 0.0)
+        bas(c, -22.0 - 20.0 * izle, k_egik)
         bpy.context.view_layer.update()
         hedef_yeke = pv + Matrix.Rotation(math.radians(ham["ac"][i]), 4, "Z") @ v0
         kol_kavra(kardes, ekip["kavra_k"], ".L", ic_k(hedef_yeke), parmak_kapat=False)
         _anahtarla(c, ust_k, f)
-        gulus_k = {"vurus": 0.55, "cekis": 0.60, "al": 0.65 + 0.25 * min(1.0, u * 2.5), "son": 0.88}.get(faz, 0.30)
+        gulus_k = {"vurus": 0.55, "cekis": 0.65, "al": 0.72 + 0.20 * min(1.0, u * 2.5), "son": 0.92}.get(faz, 0.30)
         _gulus_anahtar(kardes, gulus_k, f)
 
         kayit.append(dict(f=f, faz=faz, u=u,

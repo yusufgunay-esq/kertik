@@ -9683,7 +9683,33 @@ const MASA = (() => {
 
     tekneVeMurettebatCiz(g, bx, by, salinim, pozKod, 1.04, pEtkin, t);
 
-    /* RDR2 tarzı canlı av sekansı: sudan çıkış -> oltada sarkaç gibi sallanma -> kovaya düşüş ve su sıçraması */
+    /* Güvertedeki ahşap kova (en son 6 balık tür rengiyle dolar; 6'dan fazlası orta livaryaya geçer) */
+    if (yakalananlar.length > 0) {
+      g.save();
+      g.translate(bx, by);
+      g.rotate(salinim);
+      const kovaX = -9, kovaY = -12;
+      const kovadaki = yakalananlar.slice(-6);
+      const livaryaSay = Math.max(0, yakalananlar.length - 6);
+      for (let ki = 0; ki < kovadaki.length; ki++) {
+        const bTur = kovadaki[ki];
+        const ofX = (ki - (kovadaki.length - 1) * 0.5) * 2.1;
+        const ofY = -1.6 - (ki % 2) * 1.4;
+        const egimB = -Math.PI * 0.58 + (ki - 2.5) * 0.16;
+        balikTuruCiz(g, bTur, kovaX + ofX, kovaY + ofY, egimB, 0.54, t, ki * 0.9, 0.94);
+      }
+      if (livaryaSay > 0) {
+        g.fillStyle = "rgba(42, 27, 20, 0.72)";
+        g.fillRect(kovaX + 6, kovaY - 6, 20, 9);
+        g.fillStyle = "#F5E7CE";
+        g.font = '600 7.5px -apple-system, BlinkMacSystemFont, sans-serif';
+        g.textAlign = "center"; g.textBaseline = "middle";
+        g.fillText("+" + livaryaSay, kovaX + 16, kovaY - 1.5);
+      }
+      g.restore();
+    }
+
+    /* RDR2 tarzı canlı av sekansı: sudan çıkış -> oltada küresel sarkaç sallanması -> gerçek yerçekimi düşüşü ve kova sıçraması */
     if (!v.onBreak &amp;&amp; vurusVar &amp;&amp; vurusFaz >= 0.14 &amp;&amp; vurusFaz <= 0.96) {
       g.save();
       g.translate(bx, by);
@@ -9691,7 +9717,7 @@ const MASA = (() => {
       const u = cl((vurusFaz - 0.14) / 0.82, 0, 1);
       const oltaUcX = -10, oltaUcY = -44;
       const suCikisX = -32, suCikisY = 6;
-      const kovaX = -8, kovaY = -12;
+      const kovaX = -9, kovaY = -12;
       let fx, fy, bAci;
       if (u < 0.34) {
         /* 1. Faz: Sudan çıkış ve su yüzeyi sıçraması */
@@ -9702,40 +9728,56 @@ const MASA = (() => {
         bAci = -Math.PI * 0.45 + Math.sin(t * 14) * 0.22;
         g.strokeStyle = "rgba(255, 255, 255, 0.55)"; g.lineWidth = 0.9;
         g.beginPath(); g.ellipse(suCikisX, suCikisY, 4 + q * 12, (4 + q * 12) * 0.28, 0, 0, TAM); g.stroke();
-      } else if (u < 0.72) {
-        /* 2. Faz: Oltanın ucunda sarkaç gibi sallanma ve çırpınma */
-        const q = (u - 0.34) / 0.38;
-        const sonum = 1 - q * 0.45;
-        const sarkac = Math.sin(t * 7.5) * 6.5 * sonum;
-        fx = oltaUcX - 2 + sarkac;
-        fy = oltaUcY + 18 + Math.abs(Math.cos(t * 7.5)) * 2.2;
-        bAci = -Math.PI * 0.5 + (sarkac / 10) + Math.sin(t * 18) * 0.18;
+      } else if (u < 0.70) {
+        /* 2. Faz: Oltanın ucunda gerçek sarkaç yayı + düşen su damlaları */
+        const q = (u - 0.34) / 0.36;
+        const sonum = 1 - q * 0.42;
+        const theta = Math.sin(t * 7.2) * 0.38 * sonum;
+        const L_ip = 18.5;
+        fx = oltaUcX + Math.sin(theta) * L_ip;
+        fy = oltaUcY + Math.cos(theta) * L_ip;
+        bAci = -Math.PI * 0.5 + theta * 1.15 + Math.sin(t * 18) * 0.16;
+        g.fillStyle = "rgba(232, 248, 252, 0.72)";
+        for (let dr = 0; dr < 2; dr++) {
+          const dPhase = (t * 2.6 + dr * 0.5) % 1;
+          g.beginPath();
+          g.ellipse(fx + (dr - 0.5) * 2.4, fy + 4 + dPhase * dPhase * 15, 0.75, 1.5 + dPhase * 1.4, 0, 0, TAM);
+          g.fill();
+        }
       } else {
-        /* 3. Faz: Misinadan kurtulup güvertedeki ahşap kovaya düşüş ve kovadan su sıçraması */
-        const q = (u - 0.72) / 0.28;
-        const qs = Math.min(1, q / 0.62);
-        fx = lerp(oltaUcX - 2, kovaX, qs);
-        fy = lerp(oltaUcY + 18, kovaY, qs * qs) - Math.sin(qs * Math.PI) * 5;
-        bAci = lerp(-Math.PI * 0.5, Math.PI * 0.38, qs);
-        if (q >= 0.52) {
-          const spU = (q - 0.52) / 0.48;
-          g.fillStyle = "rgba(255, 255, 255, " + (0.85 * (1 - spU)).toFixed(2) + ")";
-          for (let d = 0; d < 6; d++) {
-            const dAci = -Math.PI * (0.18 + (d / 5) * 0.64);
-            const dR = (3 + (d % 2) * 3) + spU * 11;
+        /* 3. Faz: Gerçek yerçekimi düşüşü (g*t^2), suya çarpma sıçraması ve sönümlü su içi sekmesi */
+        const q = (u - 0.70) / 0.30;
+        const dusU = Math.min(1, q / 0.48);
+        const y0 = oltaUcY + 18.5;
+        if (q < 0.48) {
+          fx = lerp(oltaUcX, kovaX, dusU);
+          fy = y0 + (kovaY - y0) * (dusU * dusU);
+          bAci = lerp(-Math.PI * 0.5, Math.PI * 0.42, dusU * dusU);
+        } else {
+          const spU = (q - 0.48) / 0.52;
+          const sekme = Math.exp(-spU * 4.2) * Math.sin(spU * Math.PI * 2.2) * 3.4;
+          fx = kovaX;
+          fy = kovaY + sekme;
+          bAci = Math.PI * 0.42;
+          g.fillStyle = "rgba(235, 249, 255, " + (0.88 * (1 - spU)).toFixed(2) + ")";
+          for (let d = 0; d < 8; d++) {
+            const dAci = -Math.PI * (0.14 + (d / 7) * 0.72);
+            const dR = (2.5 + (d % 3) * 2.2) + spU * 13;
             const dx = kovaX + Math.cos(dAci) * dR;
-            const dy = kovaY - 2 + Math.sin(dAci) * dR + spU * spU * 9;
-            g.beginPath(); g.arc(dx, dy, 1.35 * (1 - spU * 0.4), 0, TAM); g.fill();
+            const dy = kovaY - 2 + Math.sin(dAci) * dR + spU * spU * 11;
+            g.beginPath(); g.ellipse(dx, dy, 0.9 * (1 - spU * 0.4), (1.8 + spU * 1.2) * (1 - spU * 0.35), dAci + Math.PI * 0.5, 0, TAM); g.fill();
           }
-          g.strokeStyle = "rgba(255, 255, 255, " + (0.65 * (1 - spU)).toFixed(2) + ")";
+          g.strokeStyle = "rgba(255, 255, 255, " + (0.68 * (1 - spU)).toFixed(2) + ")";
           g.lineWidth = 0.9;
-          g.beginPath(); g.ellipse(kovaX, kovaY - 1, 3 + spU * 7, 1.2 + spU * 2.4, 0, 0, TAM); g.stroke();
+          g.beginPath(); g.ellipse(kovaX, kovaY - 1, 3 + spU * 8.5, 1.2 + spU * 2.8, 0, 0, TAM); g.stroke();
         }
       }
-      if (u < 0.78) {
-        g.strokeStyle = pEtkin.kopuk; g.lineWidth = 0.95;
-        g.beginPath(); g.moveTo(oltaUcX, oltaUcY); g.quadraticCurveTo(lerp(oltaUcX, fx, 0.5), lerp(oltaUcY, fy, 0.55), fx, fy); g.stroke();
+      if (u < 0.74) {
+        g.strokeStyle = pEtkin.kopuk; g.lineWidth = 0.9;
+        g.beginPath(); g.moveTo(oltaUcX, oltaUcY); g.lineTo(fx, fy); g.stroke();
         balikTuruCiz(g, aktifTur, fx, fy, bAci, 1.08, t, 0, 1);
+      } else if (u < 0.92) {
+        balikTuruCiz(g, aktifTur, fx, fy, bAci, 0.85, t, 0, cl(1 - (u - 0.82) / 0.10, 0, 1));
       }
       g.restore();
     }

@@ -822,11 +822,12 @@ def tekne(yelken=1.0):
     for i in range(NS):
         df.append((2 * i, 2 * i + 1, 2 * i + 3, 2 * i + 2))
     gv = mesh_nesne("Guverte", dv, df, M["guverte"]); gv.parent = kok
-    # rails along the sheer
+    # rails along the sheer (smooth NURBS)
     for yan in (-1, 1):
         cu = bpy.data.curves.new("Kupeste", "CURVE"); cu.dimensions = "3D"
-        cu.bevel_depth = 0.07; cu.bevel_resolution = 2
-        sp_ = cu.splines.new("POLY"); sp_.points.add(len(serenler) - 1)
+        cu.bevel_depth = 0.07; cu.bevel_resolution = 4; cu.resolution_u = 8
+        sp_ = cu.splines.new("NURBS"); sp_.points.add(len(serenler) - 1)
+        sp_.order_u = 4; sp_.use_endpoint_u = True
         for k, (b, yy, zs) in enumerate(serenler):
             sp_.points[k].co = (yan * b * 1.01, yy, zs + 0.03, 1)
         ob = bpy.data.objects.new("Kupeste", cu); bagla(ob); ob.parent = kok
@@ -1211,12 +1212,13 @@ def _bezier_fcurves(nesneler):
             fc.update()
 
 
-def serit(ad, n, r, mat, uc_oran=1.0):
-    """An animatable rod/line: a smooth endpoint-clamped NURBS curve whose points are keyed every frame."""
+def serit(ad, n, r, mat, uc_oran=1.0, tip="NURBS"):
+    """An animatable rod/line: smooth endpoint-clamped NURBS curve (or taut POLY for guide-threaded line)."""
     cu = bpy.data.curves.new(ad, "CURVE"); cu.dimensions = "3D"
     cu.bevel_depth = r; cu.bevel_resolution = 4; cu.resolution_u = 10; cu.use_fill_caps = True
-    sp_ = cu.splines.new("NURBS"); sp_.points.add(n - 1)
-    sp_.order_u = min(4, n); sp_.use_endpoint_u = True
+    sp_ = cu.splines.new(tip); sp_.points.add(n - 1)
+    if tip == "NURBS":
+        sp_.order_u = min(4, n); sp_.use_endpoint_u = True
     for k in range(n):
         sp_.points[k].radius = 1.0 + (uc_oran - 1.0) * k / max(1, n - 1)
     ob = bpy.data.objects.new(ad, cu); bagla(ob); ob.parent = TK
@@ -1232,27 +1234,44 @@ def serit_anahtar(ob, noktalar, f):
 
 
 def kova(merkez):
-    """A wooden pail on the deck with aged iron hoops and sea water inside."""
+    """A full Aegean wooden catch pail on the deck with aged iron hoops and sea water inside."""
     z0 = murettebat.guverte_z(merkez[1])
     M.setdefault("kova_cember", duz_malzeme("KovaCember", "#3A312A", 0.55, 0.35))
-    bpy.ops.mesh.primitive_cone_add(vertices=36, radius1=0.145, radius2=0.175, depth=0.29,
-                                    location=(merkez[0], merkez[1], z0 + 0.145), end_fill_type="NOTHING")
+    bpy.ops.mesh.primitive_cone_add(vertices=36, radius1=0.175, radius2=0.215, depth=0.31,
+                                    location=(merkez[0], merkez[1], z0 + 0.155), end_fill_type="NOTHING")
     k_ = bpy.context.active_object; k_.name = "Kova"
-    k_.modifiers.new("Kalin", "SOLIDIFY").thickness = 0.016
+    k_.modifiers.new("Kalin", "SOLIDIFY").thickness = 0.017
     k_.data.materials.append(M["ahsap"]); k_.parent = TK
     for p in k_.data.polygons:
         p.use_smooth = True
-    for zz in (0.06, 0.23):
-        bpy.ops.mesh.primitive_torus_add(major_radius=0.150 + zz * 0.095, minor_radius=0.0075,
+    for zz in (0.065, 0.245):
+        bpy.ops.mesh.primitive_torus_add(major_radius=0.180 + zz * 0.115, minor_radius=0.008,
                                          major_segments=36, minor_segments=12,
                                          location=(merkez[0], merkez[1], z0 + zz))
         c_ = bpy.context.active_object; c_.data.materials.append(M["kova_cember"]); c_.parent = TK
         for p in c_.data.polygons:
             p.use_smooth = True
-    bpy.ops.mesh.primitive_circle_add(vertices=36, radius=0.160, fill_type="NGON",
-                                      location=(merkez[0], merkez[1], z0 + 0.19))
+    bpy.ops.mesh.primitive_circle_add(vertices=36, radius=0.198, fill_type="NGON",
+                                      location=(merkez[0], merkez[1], z0 + 0.21))
     s_ = bpy.context.active_object; s_.data.materials.append(M["deniz"]); s_.parent = TK
     return Vector((merkez[0], merkez[1], z0))
+
+
+def kova_doldur(kv, baliklar_mod):
+    """Layer 3 distinct previously caught Aegean species inside the wooden catch bucket so the
+    pail visually fills up with a multi-species haul (Barbun, Mercan, Uskumru)."""
+    dizilim = (
+        ("barbun",  0.22, Vector((-0.065,  0.045, 0.22)), (math.radians(-58), math.radians(-18), math.radians(125))),
+        ("mercan",  0.28, Vector(( 0.060,  0.055, 0.23)), (math.radians(-62), math.radians( 22), math.radians(-35))),
+        ("uskumru", 0.27, Vector((-0.055, -0.065, 0.24)), (math.radians(-55), math.radians(-12), math.radians(210))),
+    )
+    for idx_k, (tur_k, boy_k, ofs, rot) in enumerate(dizilim):
+        try:
+            ob_k = baliklar_mod.yap(tur_k, boy_k, ebeveyn=TK, ad=f"KovaBalik_{idx_k}_{tur_k}")
+            ob_k.location = kv + ofs
+            ob_k.rotation_euler = rot
+        except Exception:
+            pass
 
 
 def sicrama(ad, damla_say=8, kalin=0.008, ebeveyn=True):
@@ -1430,7 +1449,7 @@ def olta_takimi():
             pl.use_smooth = True
         g.data.materials.append(M["makara"]); g.parent = TK
         kil.append(g)
-    ic = serit("MisinaIc", 2 + len(KILAVUZ), 0.0013, _misina_malzeme())
+    ic = serit("MisinaIc", 2 + len(KILAVUZ), 0.0014, _misina_malzeme(), tip="POLY")
     return sap, kil, ic
 
 
@@ -1484,11 +1503,35 @@ def _damla_dusur(d_, p0, v0, f_bas, sure=16, z_taban=0.05):
     d_.scale = (0, 0, 0); d_.keyframe_insert("scale", frame=bitti + 1)
 
 
+def _sarkac_adim(p, v, piv0, piv1, L_uzun, dt_kare, sub=16, damp=0.996, itme=Vector((0, 0, 0))):
+    """Advance a 3D taut-string spherical pendulum hanging directly from moving rod tip piv0 -> piv1
+    using exact 480 Hz Cartesian constraint projection (zero gimbal lock, exact rope length)."""
+    dt_s = dt_kare / sub
+    g_v = Vector((0.0, 0.0, -9.81)) + itme
+    for sv in range(1, sub + 1):
+        piv = piv0.lerp(piv1, sv / sub)
+        v = (v + g_v * dt_s) * damp
+        p = p + v * dt_s
+        d = p - piv
+        dl = d.length
+        if dl > 1e-6:
+            n = d / dl
+            p = piv + n * L_uzun
+            # Remove radial velocity component along the taut string (exact pendulum constraint)
+            vr = v.dot(n)
+            v = v - n * vr
+    return p, v
+
+
 def balik_sahnesi(tur="cipura", boy=0.34):
     """The elder brother casts, waits, strikes, fights and lands a fish; Latif keeps the boat stopped.
-    Physics-driven RDR2 pass: 2nd-order damped Euler-Bernoulli cantilever rod beam, 20-node 240 Hz
-    Position-Based Verlet fishing line, damped spherical pendulum for the swinging catch, surface
-    struggle splashes (scr_mg_fish_struggle), fish drips (scr_mg_fishing_drips), and spinning reel."""
+    Unified zero-blur physics engine:
+    1. 2nd-order damped Euler-Bernoulli cantilever rod beam (cast whip + fight bend + unhook recoil).
+    2. 480 Hz Cartesian spherical pendulum hanging DIRECTLY from real elastic rod tip uc_b (pre-cast
+       bobber swing, lifted swinging fish over bucket, post-drop empty hook swing — zero phantom pivot!).
+    3. True g=-9.81 m/s^2 unblurred free-fall drop into the multi-species catch bucket with elastic
+       water-surface buoyancy dip & rebound + 14 velocity-stretched glossy splash streaks.
+    4. 48-iteration 240 Hz Position-Based Verlet fishing line + taut local-normal guide-threaded line."""
     import baliklar
     baliklar.isik(GUNES, V["gunes_guc"], sis=(V["sis"], V["pus"]))
     kayit = murettebat.balik_tut(EKIP, TK, YEKE_PIVOT, 1)
@@ -1507,15 +1550,17 @@ def balik_sahnesi(tur="cipura", boy=0.34):
     N_OLTA, N_MIS = 16, 20
     olta = serit("Olta", N_OLTA, 0.0102, M["olta_govde"], 0.22)
     misina = serit("Misina", N_MIS, 0.0032, _misina_malzeme())
-    kv = kova((-0.32, -0.92))
+    kv = kova((-0.42, -0.86))
+    kova_doldur(kv, baliklar)
+    z_kova_su = kv.z + 0.21
     bal = baliklar.yap(tur, boy, ebeveyn=TK)
     ag = boy / (1 + bal["kuyruk"]) * 0.5                # body centre -> mouth
     su1 = sicrama("Sicrama1", 10, ebeveyn=False)
     su2 = sicrama("Sicrama2", 10, ebeveyn=False)
     su_muc1 = sicrama("SicramaMuc1", 9, ebeveyn=False)
     su_muc2 = sicrama("SicramaMuc2", 9, ebeveyn=False)
-    su_kova = sicrama("SicramaKova", 12, kalin=0.007, ebeveyn=True)
-    damlalar_bal = _damla_havuzu("BalikDamla", 8)
+    su_kova = sicrama("SicramaKova", 14, kalin=0.007, ebeveyn=True)
+    damlalar_bal = _damla_havuzu("BalikDamla", 10)
 
     # Sample the hull's motion once so world-space sea physics matches the rolling boat
     TKM = {}
@@ -1524,17 +1569,14 @@ def balik_sahnesi(tur="cipura", boy=0.34):
         TKM[f_] = TK.matrix_world.copy()
 
     def deniz_xy(f_, p_):
-        """World point on the open sea under a boat-local point (z is filled per frame by sicrat's zf)."""
         w_ = TKM[min(max(f_, 0), F_ + 1)] @ Vector((p_.x, p_.y, 0.0))
         return Vector((w_.x, w_.y, 0.0))
 
     def su_kilidi(f_, p_, w_=1.0):
-        """Boat-local point whose height is measured from the rendered swell instead of the hull's plane."""
         w0 = TKM[min(max(f_, 0), F_ + 1)] @ Vector((p_.x, p_.y, 0.0))
         return p_ - Vector((0, 0, (w0.z - dalga_z(w0.x, w0.y, f_)) * w_))
 
     def su_z_yerel(f_, p_):
-        """Boat-local z height of the ocean wave surface directly beneath boat-local point p_."""
         w0 = TKM[min(max(f_, 0), F_ + 1)] @ Vector((p_.x, p_.y, 0.0))
         return dalga_z(w0.x, w0.y, f_) - w0.z
 
@@ -1546,297 +1588,365 @@ def balik_sahnesi(tur="cipura", boy=0.34):
     uc_ = son_atis["el_R"] + son_atis["yon"] * OB
     yatay = Vector((son_atis["yon"].x, son_atis["yon"].y, 0)).normalized()
     W = uc_ + yatay * 2.15; W.z = 0.02
-    yakin = uc_ + yatay * 0.30; yakin.z = -0.34         # under the rod tip, beside the hull
+    yakin = uc_ + yatay * 0.32; yakin.z = -0.32         # under the rod tip, beside the hull
     sicradi = set()
     iz = [sicrama(f"Iz{i}", 0, kalin=0.010, ebeveyn=False) for i in range(10)]
     iz_ara, iz_say = round(12 * KS), 0
     sam = samandira()
-    DURTME = (0.58, 0.71, 0.84)                         # nibbles before the bite: the float dips, a small ring opens
+    DURTME = (0.58, 0.71, 0.84)
 
-    # Pre-solve real damped spherical pendulum for the lifted swinging fish in phase "al" (u in 0.0..0.68)
-    kova_ustu = kv + Vector((0.02, -0.02, 0.96))
-    L_pend = 0.66
-    al_idx = [i for i, k in enumerate(kayit) if k["faz"] == "al"]
-    piv_map = {}
-    for idx in al_idx:
-        k = kayit[idx]; u = k["u"]
-        uc_i = k["el_R"] + k["yon"] * OB
-        p_su = yakin + Vector((0.0, 0.0, L_pend))
-        p_asi = uc_i + Vector((0.0, 0.0, -0.06))
-        p_kv = kova_ustu + Vector((0.0, 0.0, L_pend))
-        if u < 0.24:
-            q = u / 0.24; q = q * q * (3 - 2 * q)
-            piv = p_su.lerp(p_asi, q)
-        elif u < 0.56:
-            q = (u - 0.24) / 0.32; q = q * q * (3 - 2 * q)
-            piv = p_asi.lerp(p_kv, q)
-        else:
-            piv = p_kv.copy()
-        piv_map[idx] = piv
-    # Integrate 2D spherical pendulum (th_x, th_y) at 8 sub-steps/frame driven by pivot accel + fish thrash
-    pend_sonuc = {}
-    th_x, th_y, om_x, om_y = 0.14, -0.10, 1.35, -0.95
-    sub_p = 8
-    dt_p = DT / sub_p
-    p_rel, v_rel = kova_ustu - Vector((0, 0, ag)), Vector((0, 0, 0))
-    for n_pos, idx in enumerate(al_idx):
-        k = kayit[idx]; u = k["u"]; f = k["f"]
-        piv_c = piv_map[idx]
-        piv_p = piv_map[al_idx[max(0, n_pos - 1)]]
-        piv_n = piv_map[al_idx[min(len(al_idx) - 1, n_pos + 1)]]
-        a_piv = (piv_n - 2.0 * piv_c + piv_p) / (DT * DT)
-        if a_piv.length > 14.0:
-            a_piv = a_piv.normalized() * 14.0
-        if u < 0.68:
-            t_cur = n_pos * DT
-            # Lively fish tail-kick impulses decaying slightly as it settles over the bucket
-            thrash = max(0.25, 1.0 - 0.72 * u)
-            tau_x = 3.2 * math.sin(t_cur * 14.0) * thrash
-            tau_y = 2.4 * math.cos(t_cur * 11.5 + 0.6) * thrash
-            for _ in range(sub_p):
-                ax = -(9.81 / L_pend) * math.sin(th_x) - 1.35 * om_x - (a_piv.x / L_pend) * math.cos(th_x) + tau_x
-                ay = -(9.81 / L_pend) * math.sin(th_y) - 1.35 * om_y - (a_piv.y / L_pend) * math.cos(th_y) + tau_y
-                om_x += ax * dt_p; om_y += ay * dt_p
-                th_x = max(-0.58, min(0.58, th_x + om_x * dt_p))
-                th_y = max(-0.58, min(0.58, th_y + om_y * dt_p))
-            mouth = piv_c + Vector((L_pend * math.sin(th_x), L_pend * math.sin(th_y),
-                                    -L_pend * math.cos(th_x) * math.cos(th_y)))
-            pend_sonuc[idx] = (mouth, th_x, th_y, om_x, om_y)
-            p_rel = mouth - Vector((0, 0, ag))
-            v_rel = Vector((L_pend * om_x * math.cos(th_x), L_pend * om_y * math.cos(th_y), -0.35))
-        else:
-            pend_sonuc[idx] = (kova_ustu.copy(), 0.0, 0.0, 0.0, 0.0)
-
-    # Pass 1: Build raw prop targets across all phases + trigger splashes & fish drips
-    damla_say = 0
-    for idx, k in enumerate(kayit):
-        f, faz, u = k["f"], k["faz"], k["u"]
-        el, yon = k["el_R"], k["yon"]
-        uc = el + yon * OB
-        sallan = Vector((0.024 * math.sin(f * 0.26 / KS), 0.012 * math.cos(f * 0.21 / KS), -0.32))
-        gerilim, sarkma = 0.0, 0.0
-        bal_yer, bal_don, bal_hal = Vector((W.x, W.y, -1.2)), (0, 0, 0), None
-        if faz in ("durdur", "son") or (faz == "atis" and u < 0.52):
-            uc_nokta = uc + sallan
-        elif faz == "atis":                                     # lure flies out in a crisp parabolic cast arc
-            q = (u - 0.52) / 0.48
-            uc_nokta = (uc + sallan).lerp(W, q) + Vector((0, 0, 1.48 * q * (1 - q)))
-            sarkma = 0.18 * math.sin(math.pi * q)
-            if q > 0.96 and "atis" not in sicradi:
-                sicrat(su1, deniz_xy(f, W), f, round(18 * KS), 0.65); sicradi.add("atis")
-        elif faz == "bekle":
-            dip = sum(math.exp(-((u - c_) / 0.022) ** 2) for c_ in DURTME)
-            uc_nokta = W + Vector((0.015 * math.sin(f * 0.16 / KS), 0.01 * math.cos(f * 0.13 / KS),
-                                   0.014 * math.sin(f * 0.22 / KS) - 0.055 * dip))
-            sarkma, gerilim = 0.36, 0.03 + 0.055 * dip
-            for c_ in DURTME:
-                if u >= c_ and ("durt", c_) not in sicradi:
-                    sicrat(iz[iz_say % len(iz)], deniz_xy(f, W), f, round(18 * KS), 0.44)
-                    iz_say += 1; sicradi.add(("durt", c_))
-            th = -2.5 * math.pi * (1 - u)
-            r_ = 1.3 - 1.05 * u
-            bal_yer = W + Vector((r_ * math.cos(th), r_ * math.sin(th), 0))
-            bal_yer.z = -1.2 + 0.8 * min(1.0, u / 0.3) + 0.15 * max(0.0, (u - 0.8) / 0.2)
-            bal_don, bal_hal = (0, 0, th), "yuz"
-        elif faz == "vurus":
-            uc_nokta = W + Vector((0.12 * math.sin(f * 0.48 / KS), 0.04 * math.cos(f * 0.36 / KS),
-                                   -0.16 * min(1.0, u / 0.16)))
-            gerilim = 0.28 + 0.32 * math.sin(math.pi * u)
-            if "vurus" not in sicradi:
-                sicrat(su2, deniz_xy(f, W), f, round(16 * KS), 0.58); sicradi.add("vurus")
-            bal_yer = W + Vector((0.12 * math.sin(f * 0.48 / KS), 0, -0.13)); bal_hal = "hizli"
-        elif faz == "cekis":
-            yan = Vector((-yatay.y, yatay.x, 0)) * (0.52 * math.sin(u * math.tau * 1.85))
-            uc_nokta = W.lerp(yakin, u ** 1.25) + yan * (1.0 - 0.85 * u)
-            uc_nokta.z = min(uc_nokta.z, -0.08 - 0.24 * u)
-            gerilim = 0.42 + 0.14 * math.sin(f * 0.38 / KS) + 0.06 * math.sin(f * 0.92 / KS)
-            bal_yer = uc_nokta - Vector((0, 0, 0.18)); bal_hal = "hizli"
-            # RDR2 scr_mg_fish_struggle: active surface struggle splashes while fighting/reeling
-            if u >= 0.22 and "muc1" not in sicradi:
-                sicrat(su_muc1, deniz_xy(f, uc_nokta), f, round(18 * KS), 0.72); sicradi.add("muc1")
-            if u >= 0.56 and "muc2" not in sicradi:
-                sicrat(su_muc2, deniz_xy(f, uc_nokta), f, round(18 * KS), 0.68); sicradi.add("muc2")
-        else:                                                   # al: spherical pendulum lift & swing, gravity drop into bucket
-            mouth_p, th_x, th_y, om_x, om_y = pend_sonuc[idx]
-            if u < 0.68:
-                uc_nokta = mouth_p
-                gerilim = (0.38 * (1.0 - min(1.0, u / 0.24)) + 0.22 + 0.07 * math.sin(f * 0.88 / KS))
-                if uc_nokta.z > 0.02 and "cik" not in sicradi:
-                    sicrat(su1, deniz_xy(f, uc_nokta), f, round(22 * KS), 0.98); sicradi.add("cik")
-                bal_yer = uc_nokta - Vector((0, 0, ag))
-                # Physical tilt directly from pendulum angle + lively fish yaw thrash
-                bal_don = (math.radians(90) + th_y * 1.15, -th_x * 1.15,
-                           math.radians(28.0) * math.sin(f * 0.62 / KS) * (1.0 - 0.35 * u))
-                bal_hal = "cirpin"
-                # RDR2 scr_mg_fishing_drips: sparkling water drops falling off the lifted swinging fish
-                if 0.14 <= u <= 0.64 and (f % 6 == 0):
-                    d_ = damlalar_bal[damla_say % len(damlalar_bal)]
-                    damla_say += 1
-                    v_drop = Vector((L_pend * om_x * 0.35, L_pend * om_y * 0.35, -0.35))
-                    _damla_dusur(d_, bal_yer + Vector((0.0, 0.0, -0.10)), v_drop, f, sure=16, z_taban=kv.z + 0.06)
-            elif u < 0.84:
-                q = (u - 0.68) / 0.16
-                # Smooth recoil of line tip upward after unhook while fish drops under gravity into the bucket
-                uc_nokta = kova_ustu.lerp(uc + sallan, q * q * (3 - 2 * q))
-                gerilim = 0.20 * (1.0 - q)
-                q_fall = q * q
-                b_hedef = kv + Vector((0.02, -0.02, 0.25))
-                bal_yer = p_rel.lerp(b_hedef, q_fall) + Vector((v_rel.x * 0.06 * q * (1 - q),
-                                                                v_rel.y * 0.06 * q * (1 - q), 0.0))
-                bal_don = (math.radians(90 - 156 * q_fall), math.radians(16 * q_fall), math.radians(22 * q_fall))
-                bal_hal = "cirpin" if q < 0.65 else "asili"
-                if q >= 0.82 and "kova_su" not in sicradi:
-                    sicrat(su_kova, kv, f, round(20 * KS), 0.74, z0=kv.z + 0.24)
-                    sicradi.add("kova_su")
-            else:
-                uc_nokta = uc + sallan
-                bal_yer = kv + Vector((0.02, -0.02, 0.25))
-                bal_don = (math.radians(-66), math.radians(16), math.radians(22))
-                bal_hal = "asili"
-        if faz == "son":
-            bal_yer = kv + Vector((0.02, -0.02, 0.26)); bal_don = (math.radians(-66), math.radians(16), math.radians(22)); bal_hal = "asili"
-        alt = (faz, min(4, int(u / 0.18)) if faz == "al" else 0)
-        k.update(uc_nokta=uc_nokta, gerilim=gerilim, sarkma=sarkma, bal_yer=bal_yer,
-                 sam_d=0.45 if faz in ("cekis", "al") else 0.0,
-                 bal_don=Vector(bal_don), bal_hal=bal_hal, alt=alt)
-
-    # Pass 2: Smooth prop channels across phase transitions (preserving crisp cast & strike dynamics)
-    sin_i = [i for i in range(1, N_K) if kayit[i]["alt"] != kayit[i - 1]["alt"]]
-    for ad_, sg_, ss_ in (("uc_nokta", 1.4, 3.8), ("gerilim", 2.4, 4.0), ("sarkma", 2.8, 4.0),
-                          ("sam_d", 2.8, 4.0), ("bal_yer", 1.1, 3.6), ("bal_don", 1.4, 4.5)):
-        yum = murettebat.yumusat_liste([k[ad_] for k in kayit], sg_ * KS, sin_i, ss_ * KS, 6.0 * KS)
-        for k, v_ in zip(kayit, yum):
-            k[ad_] = v_
-
-    # Pass 3: 2nd-Order Damped Elastic Euler-Bernoulli Cantilever Rod Beam Solver
+    # Pass 1: Precompute tension & approximate underwater pull vector for the elastic cantilever beam
     uc_ham = [k["el_R"] + k["yon"] * OB for k in kayit]
+    ger_ham, ref_ham = [], []
+    for i, k in enumerate(kayit):
+        f, faz, u = k["f"], k["faz"], k["u"]
+        uc = uc_ham[i]
+        if faz == "bekle":
+            dip = sum(math.exp(-((u - c_) / 0.022) ** 2) for c_ in DURTME)
+            g_ = 0.03 + 0.06 * dip; r_ = W.copy()
+        elif faz == "vurus":
+            g_ = 0.32 + 0.36 * math.sin(math.pi * u); r_ = W + Vector((0, 0, -0.18))
+        elif faz == "cekis":
+            yan = Vector((-yatay.y, yatay.x, 0)) * (0.55 * math.sin(u * math.tau * 1.85))
+            r_ = W.lerp(yakin, u ** 1.25) + yan * (1.0 - 0.85 * u)
+            r_.z = min(r_.z, -0.10 - 0.24 * u)
+            g_ = 0.46 + 0.16 * math.sin(f * 0.42 / KS) + 0.06 * math.sin(f * 0.96 / KS)
+        elif faz == "al" and u < 0.64:
+            # Real weight of the fish pulling rod tip down + thrash vibration, dropping to 0 on unhook!
+            g_ = 0.36 * (1.0 - min(1.0, u / 0.24)) + 0.22 + 0.065 * math.sin(f * 0.92 / KS)
+            r_ = uc - Vector((0, 0, 1.4))
+        else:
+            g_ = 0.0; r_ = uc - Vector((0, 0, 1.0))
+        ger_ham.append(g_); ref_ham.append(r_)
+
+    # Smooth rod-tip acceleration (central 2nd difference) for authentic cast-whip inertia
     a_tip = []
     for i in range(N_K):
         p_ = uc_ham[max(0, i - 1)]; c_ = uc_ham[i]; n_ = uc_ham[min(N_K - 1, i + 1)]
         acc = (n_ - 2.0 * c_ + p_) / (DT * DT)
-        if acc.length > 22.0:
-            acc = acc.normalized() * 22.0
+        if acc.length > 26.0:
+            acc = acc.normalized() * 26.0
         a_tip.append(acc)
-    a_tip = murettebat.yumusat_liste(a_tip, 1.5, [], 0.0, 4.0)
+    a_tip = murettebat.yumusat_liste(a_tip, 1.4, [], 0.0, 4.0)
 
-    deflect_list = []
+    # Pass 2: 2nd-Order Damped Elastic Euler-Bernoulli Cantilever Rod Beam -> exact uc_b_all[i]
+    olta_n_all, uc_b_all = [], []
     d_cur, v_cur = Vector((0, 0, 0)), Vector((0, 0, 0))
-    omega_r, zeta_r, sub_r = 15.5, 0.26, 4
+    omega_r, zeta_r, sub_r = 15.5, 0.24, 4
     dt_r = DT / sub_r
     for i, k in enumerate(kayit):
-        f = k["f"]; el, yon = k["el_R"], k["yon"]
+        el, yon = k["el_R"], k["yon"]
         uc = uc_ham[i]
-        uc_n_locked = su_kilidi(f, k["uc_nokta"], min(1.0, max(0.0, (0.6 - k["uc_nokta"].z) / 0.3)))
-        k["uc_nokta_locked"] = uc_n_locked
-        cek = uc_n_locked - uc
+        cek = ref_ham[i] - uc
         cek_dik = cek - yon * cek.dot(yon)
         cek_dik = cek_dik.normalized() if cek_dik.length > 1e-4 else Vector((0, 0, -1))
         a_perp = a_tip[i] - yon * a_tip[i].dot(yon)
-        # Target elastic deflection = static line tension bend + inertial cast/strike whip lag
-        hedef_d = cek_dik * (k["gerilim"] * 0.80) - a_perp * 0.030
-        if hedef_d.length > 0.90:
-            hedef_d = hedef_d.normalized() * 0.90
+        hedef_d = cek_dik * (ger_ham[i] * 0.84) - a_perp * 0.036
+        if hedef_d.length > 0.95:
+            hedef_d = hedef_d.normalized() * 0.95
         for _ in range(sub_r):
             acc_d = (omega_r * omega_r) * (hedef_d - d_cur) - (2.0 * zeta_r * omega_r) * v_cur
             v_cur += acc_d * dt_r
             d_cur += v_cur * dt_r
         d_perp = d_cur - yon * d_cur.dot(yon)
-        if d_perp.length > 0.95:
-            d_perp = d_perp.normalized() * 0.95
-        deflect_list.append(d_perp.copy())
-
-    # Pass 4: Keyframe elastic Euler-Bernoulli rod, 240 Hz Verlet fishing line, reel crank, float & fish
-    P_ver = None
-    P_prev = None
-    L_rest_cur = 0.5
-    uc_b_prev = None
-    uc_n_prev = None
-    makara_aci = 0.0
-    for i, k in enumerate(kayit):
-        f, faz, u = k["f"], k["faz"], k["u"]
-        el, yon = k["el_R"], k["yon"]
-        uc_nokta = k["uc_nokta_locked"]
-        bal_yer, bal_don = k["bal_yer"], tuple(k["bal_don"])
-        if faz in ("bekle", "vurus", "cekis") or (faz == "atis" and bal_yer.z < -0.5):
-            bal_yer = su_kilidi(f, bal_yer)
-
-        # Elastic Euler-Bernoulli cantilever beam profile: phi(u_s) = 0.5 * u_s^2 * (3 - u_s) + arc-length shortening
-        d_vec = deflect_list[i]
-        d_len = d_vec.length
+        if d_perp.length > 0.98:
+            d_perp = d_perp.normalized() * 0.98
+        d_len = d_perp.length
         olta_n = []
         for j in range(N_OLTA):
             s_ = j / (N_OLTA - 1)
             u_s = max(0.0, (s_ - 0.14) / 0.86)
             phi = 0.5 * u_s * u_s * (3.0 - u_s)
             kisal = -0.34 * (d_len * d_len / max(0.5, OB)) * (u_s * u_s)
-            p_b = el - yon * OS + yon * ((OS + OB) * s_ + kisal) + d_vec * phi
-            olta_n.append(p_b)
+            olta_n.append(el - yon * OS + yon * ((OS + OB) * s_ + kisal) + d_perp * phi)
+        olta_n_all.append(olta_n)
+        uc_b_all.append(olta_n[-1].copy())
+
+    # Pass 3: True Unblurred Physics Simulation for Lure, Swinging Pendulum Fish & Gravity Bucket Drop!
+    L_serbest = 0.44
+    p_uc = uc_b_all[0] + Vector((0.0, 0.0, -L_serbest))
+    v_uc = Vector((0.0, 0.0, 0.0))
+    p_cast0, v_cast0 = p_uc.copy(), Vector((0.0, 0.0, 0.0))
+    cast_basladi = False
+
+    # State variables for the landed fish in "al" & "son"
+    al_basladi = False
+    L_al0 = 1.8
+    L_hang_hedef = 1.55
+    p_bal_f = yakin.copy()
+    v_bal_f = Vector((0.0, 0.0, 0.0))
+    serbest_dustu = False
+    suya_degdi = False
+    bob_z, bob_vz = z_kova_su, 0.0
+    hedef_kova_xy = Vector((kv.x + 0.03, kv.y - 0.01))
+    fall_t = 0.0
+    p_drop0, v_drop0 = Vector((0, 0, 0)), Vector((0, 0, 0))
+    drop_sure_est = 0.36
+    damla_say = 0
+
+    for i, k in enumerate(kayit):
+        f, faz, u = k["f"], k["faz"], k["u"]
+        uc_b0 = uc_b_all[max(0, i - 1)]
+        uc_b1 = uc_b_all[i]
+        bal_yer, bal_don, bal_hal = Vector((W.x, W.y, -1.2)), (0.0, 0.0, 0.0), "yuz"
+        sam_d = 0.0
+
+        if faz == "durdur" or (faz == "atis" and u < 0.48):
+            # REAL 480 Hz gravity pendulum for the dangling bobber/lure!
+            p_uc, v_uc = _sarkac_adim(p_uc, v_uc, uc_b0, uc_b1, L_serbest, DT, sub=16, damp=0.995)
+            uc_nokta = p_uc.copy()
+            cast_basladi = False
+        elif faz == "atis":
+            # Crisp parabolic cast flight launching directly from the swinging pendulum release state
+            if not cast_basladi:
+                p_cast0 = p_uc.copy()
+                cast_basladi = True
+            q = (u - 0.48) / 0.52
+            w_su = su_kilidi(f, W)
+            uc_nokta = p_cast0.lerp(w_su, q) + Vector((0.0, 0.0, 1.55 * q * (1.0 - q)))
+            p_uc = uc_nokta.copy()
+            if q > 0.96 and "atis" not in sicradi:
+                sicrat(su1, deniz_xy(f, W), f, round(18 * KS), 0.68); sicradi.add("atis")
+        elif faz == "bekle":
+            dip = sum(math.exp(-((u - c_) / 0.022) ** 2) for c_ in DURTME)
+            uc_nokta = su_kilidi(f, W + Vector((0.018 * math.sin(f * 0.16 / KS), 0.012 * math.cos(f * 0.13 / KS),
+                                                0.014 * math.sin(f * 0.22 / KS) - 0.060 * dip)))
+            for c_ in DURTME:
+                if u >= c_ and ("durt", c_) not in sicradi:
+                    sicrat(iz[iz_say % len(iz)], deniz_xy(f, W), f, round(18 * KS), 0.45)
+                    iz_say += 1; sicradi.add(("durt", c_))
+            th = -2.5 * math.pi * (1 - u)
+            r_ = 1.3 - 1.05 * u
+            bal_yer = su_kilidi(f, W + Vector((r_ * math.cos(th), r_ * math.sin(th),
+                                               -1.2 + 0.8 * min(1.0, u / 0.3) + 0.15 * max(0.0, (u - 0.8) / 0.2))))
+            bal_don, bal_hal = (0.0, 0.0, th), "yuz"
+        elif faz == "vurus":
+            uc_nokta = su_kilidi(f, W + Vector((0.14 * math.sin(f * 0.48 / KS), 0.05 * math.cos(f * 0.36 / KS),
+                                                -0.18 * min(1.0, u / 0.16))))
+            if "vurus" not in sicradi:
+                sicrat(su2, deniz_xy(f, W), f, round(16 * KS), 0.62); sicradi.add("vurus")
+            bal_yer = su_kilidi(f, W + Vector((0.14 * math.sin(f * 0.48 / KS), 0.0, -0.14)))
+            bal_hal = "hizli"
+        elif faz == "cekis":
+            yan = Vector((-yatay.y, yatay.x, 0)) * (0.55 * math.sin(u * math.tau * 1.85))
+            uc_n = W.lerp(yakin, u ** 1.25) + yan * (1.0 - 0.85 * u)
+            uc_n.z = min(uc_n.z, -0.08 - 0.24 * u)
+            uc_nokta = su_kilidi(f, uc_n)
+            bal_yer = uc_nokta - Vector((0.0, 0.0, 0.18))
+            bal_hal = "hizli"; sam_d = 0.45
+            if u >= 0.22 and "muc1" not in sicradi:
+                sicrat(su_muc1, deniz_xy(f, uc_nokta), f, round(18 * KS), 0.74); sicradi.add("muc1")
+            if u >= 0.56 and "muc2" not in sicradi:
+                sicrat(su_muc2, deniz_xy(f, uc_nokta), f, round(18 * KS), 0.70); sicradi.add("muc2")
+            p_bal_f = uc_nokta.copy()
+        elif faz == "al":
+            if not al_basladi:
+                al_basladi = True
+                p_bal_f = p_bal_f.copy()
+                v_bal_f = Vector((0.2, 0.2, 1.4))
+                L_al0 = max(1.2, (p_bal_f - uc_b1).length)
+                # Target line length at release so fish hangs ~0.62 m cleanly above the bucket water
+                al_son_i = max(idx_ for idx_, k_ in enumerate(kayit) if k_["faz"] == "al" and k_["u"] <= 0.64)
+                L_hang_hedef = max(1.05, uc_b_all[al_son_i].z - (z_kova_su + 0.68))
+
+            if u < 0.64:
+                # REAL 480 Hz spherical pendulum hanging DIRECTLY from moving elastic rod tip uc_b!
+                q_reel = min(1.0, u / 0.48)
+                q_s = q_reel * q_reel * (3.0 - 2.0 * q_reel)
+                L_cur = L_al0 + (L_hang_hedef - L_al0) * q_s
+                # Fish tail thrash lateral impulse (real swing oscillation!)
+                thr = max(0.20, 1.0 - 0.78 * (u / 0.64))
+                itme_bal = Vector((4.2 * math.sin(f * 0.55 / KS) * thr,
+                                   3.2 * math.cos(f * 0.47 / KS) * thr, 0.0))
+                # Gentle aerodynamic stabilization near release so fish lands squarely in the bucket mouth
+                damp_p = 0.994 if u < 0.48 else 0.980
+                p_bal_f, v_bal_f = _sarkac_adim(p_bal_f, v_bal_f, uc_b0, uc_b1, L_cur, DT, sub=16, damp=damp_p, itme=itme_bal)
+                # Gently guide XY toward bucket center only in final 0.16s (hand steadying/aiming line)
+                if u > 0.48:
+                    q_aim = (u - 0.48) / 0.16
+                    err_xy = Vector((hedef_kova_xy.x - p_bal_f.x, hedef_kova_xy.y - p_bal_f.y, 0.0))
+                    p_bal_f += err_xy * (0.14 * q_aim)
+                    # Re-project onto exact sphere around uc_b1 so rope stays 100% taut!
+                    d_fix = p_bal_f - uc_b1
+                    if d_fix.length > 1e-5:
+                        p_bal_f = uc_b1 + d_fix.normalized() * L_cur
+
+                uc_nokta = p_bal_f.copy()
+                sam_d = 0.42
+                if uc_nokta.z > su_z_yerel(f, uc_nokta) + 0.03 and "cik" not in sicradi:
+                    sicrat(su1, deniz_xy(f, uc_nokta), f, round(22 * KS), 1.0); sicradi.add("cik")
+
+                # Align fish body axis directly with the taut fishing line string (mouth up along string!)
+                ip_yon = (uc_b1 - p_bal_f).normalized()
+                bal_yer = p_bal_f - ip_yon * ag
+                eg_x = math.atan2(-ip_yon.y, max(0.15, ip_yon.z))
+                eg_y = math.atan2(ip_yon.x, max(0.15, ip_yon.z))
+                bal_don = (math.radians(90) + eg_x * 1.15, eg_y * 1.15,
+                           math.radians(32.0) * math.sin(f * 0.65 / KS) * thr)
+                bal_hal = "cirpin"
+
+                # RDR2 scr_mg_fishing_drips: sparkling water drops falling off the lifted swinging fish
+                if 0.12 <= u <= 0.62 and (f % 5 == 0):
+                    d_ = damlalar_bal[damla_say % len(damlalar_bal)]
+                    damla_say += 1
+                    v_drop = Vector((v_bal_f.x * 0.35, v_bal_f.y * 0.35, -0.30))
+                    _damla_dusur(d_, bal_yer + Vector((0.0, 0.0, -0.10)), v_drop, f, sure=16, z_taban=kv.z + 0.08)
+
+                # Keep light-pendulum state synchronized in case next frame is unhook!
+                p_uc = uc_nokta.copy(); v_uc = v_bal_f.copy()
+            else:
+                # UNHOOKED! True g=-9.81 m/s^2 FREE-FALL into wooden bucket + damped water-surface bounce!
+                if not serbest_dustu:
+                    serbest_dustu = True
+                    p_drop0 = bal_yer.copy()
+                    dz_drop = max(0.15, p_drop0.z - (z_kova_su + 0.04))
+                    drop_sure_est = math.sqrt(2.0 * dz_drop / 9.81)
+                    # Horizontal velocity aimed straight into bucket water over exact gravity fall duration
+                    v_drop0 = Vector(((hedef_kova_xy.x - p_drop0.x) / max(0.12, drop_sure_est),
+                                      (hedef_kova_xy.y - p_drop0.y) / max(0.12, drop_sure_est),
+                                      min(-0.15, v_bal_f.z * 0.35)))
+                    fall_t = 0.0
+                    # Empty hook + bobber recoils upward cleanly onto free light pendulum from uc_b
+                    L_serbest = 0.56
+                    p_uc = uc_b1 + (p_bal_f - uc_b1).normalized() * L_serbest
+                    v_uc = v_bal_f * 0.45 + Vector((0.0, 0.0, 0.85))
+
+                # 1. Empty hook/bobber swings freely on real gravity pendulum from uc_b
+                p_uc, v_uc = _sarkac_adim(p_uc, v_uc, uc_b0, uc_b1, L_serbest, DT, sub=16, damp=0.993)
+                uc_nokta = p_uc.copy()
+                sam_d = 0.14
+
+                # 2. Fish falls under REAL g=-9.81 m/s^2 gravity, splashes hard, dips & bobs back up!
+                if not suya_degdi:
+                    fall_t += DT
+                    p_now = p_drop0 + v_drop0 * fall_t + Vector((0.0, 0.0, -0.5 * 9.81 * fall_t * fall_t))
+                    q_rot = min(1.0, fall_t / max(0.12, drop_sure_est))
+                    bal_don = (math.radians(90 - 156 * (q_rot * q_rot)),
+                               math.radians(18 * q_rot),
+                               math.radians(28 * q_rot))
+                    bal_hal = "cirpin"
+                    if p_now.z <= z_kova_su + 0.05:
+                        suya_degdi = True
+                        bob_z = z_kova_su + 0.04
+                        bob_vz = v_drop0.z - 9.81 * fall_t     # real impact velocity entering bucket water!
+                        bal_yer = Vector((hedef_kova_xy.x, hedef_kova_xy.y, bob_z))
+                        if "kova_su" not in sicradi:
+                            sicrat(su_kova, kv, f, round(22 * KS), 0.82, z0=z_kova_su + 0.03)
+                            sicradi.add("kova_su")
+                    else:
+                        bal_yer = p_now
+                else:
+                    # Damped buoyancy plunge & rebound settling naturally on top of the catch haul!
+                    z_dinlen = z_kova_su + 0.055
+                    for _ in range(4):
+                        dt_b = DT / 4.0
+                        acc_b = (15.0 * 15.0) * (z_dinlen - bob_z) - (2.0 * 0.42 * 15.0) * bob_vz
+                        bob_vz += acc_b * dt_b
+                        bob_z += bob_vz * dt_b
+                    bob_z = max(kv.z + 0.14, bob_z)
+                    bal_yer = Vector((hedef_kova_xy.x, hedef_kova_xy.y, bob_z))
+                    bal_don = (math.radians(-66), math.radians(18), math.radians(28))
+                    bal_hal = "asili"
+        else:                                                   # son: relaxed settle, empty bobber gently swinging
+            p_uc, v_uc = _sarkac_adim(p_uc, v_uc, uc_b0, uc_b1, L_serbest, DT, sub=16, damp=0.992)
+            uc_nokta = p_uc.copy(); sam_d = 0.14
+            z_dinlen = z_kova_su + 0.055
+            for _ in range(4):
+                dt_b = DT / 4.0
+                acc_b = (15.0 * 15.0) * (z_dinlen - bob_z) - (2.0 * 0.42 * 15.0) * bob_vz
+                bob_vz += acc_b * dt_b
+                bob_z += bob_vz * dt_b
+            bal_yer = Vector((hedef_kova_xy.x, hedef_kova_xy.y, max(kv.z + 0.14, bob_z)))
+            bal_don = (math.radians(-66), math.radians(18), math.radians(28))
+            bal_hal = "asili"
+
+        k.update(uc_nokta_sim=uc_nokta, bal_yer_sim=bal_yer, bal_don_sim=bal_don,
+                 bal_hal=bal_hal, sam_d=sam_d)
+
+    # Pass 4: Keyframe elastic rod, flush local-normal guides + POLY MisinaIc, 48-iter 240Hz Verlet Misina,
+    # rotating reel crank, float & fish (ZERO Gaussian blur on physical gravity/pendulum!)
+    P_ver = None
+    P_prev = None
+    L_rest_cur = L_serbest
+    uc_b_prev = None
+    uc_n_prev = None
+    makara_aci = 0.0
+    for i, k in enumerate(kayit):
+        f, faz, u = k["f"], k["faz"], k["u"]
+        el, yon = k["el_R"], k["yon"]
+        olta_n = olta_n_all[i]
+        uc_b = uc_b_all[i]
+        uc_nokta = k["uc_nokta_sim"]
+        bal_yer = k["bal_yer_sim"]
+        bal_don = k["bal_don_sim"]
+
         serit_anahtar(olta, olta_n, f)
-        uc_b = olta_n[-1]
 
         # Grip, reel & animated rotating crank
         don_q = yon.to_track_quat("Y", "Z")
         sap.location = el; sap.rotation_euler = don_q.to_euler()
         sap.keyframe_insert("location", frame=f); sap.keyframe_insert("rotation_euler", frame=f)
         if makara_kol is not None:
-            if faz == "cekis" and u >= 0.42:
-                makara_aci += math.tau * 5.0 / max(1, round(96 * 0.58))
-            elif faz == "al" and u < 0.25:
-                makara_aci += 0.18
+            if faz == "cekis" and u >= 0.44:
+                makara_aci += math.tau * 5.0 / max(1, round(96 * 0.56))
+            elif faz == "al" and u < 0.35:
+                makara_aci += 0.24
             makara_kol.rotation_euler = (makara_aci, 0.0, 0.0)
             makara_kol.keyframe_insert("rotation_euler", index=0, frame=f)
 
-        # Six smooth guide rings + threaded internal monofilament line
+        # Six smooth guide rings seated flush along the CURVED blank local normal + razor-straight POLY MisinaIc
         alt_y = don_q @ Vector((0, 0, -1))
-        ic_n = [el + don_q @ Vector((0.0, -0.02, -0.062 + 0.025))]
+        ic_n = [el + don_q @ Vector((0.0, -0.02, -0.062 + 0.024))]
         for g, (s_g, r_g) in zip(kilavuzlar, KILAVUZ):
             pn, tn = _egri_nokta(olta_n, s_g)
-            merkez = pn + alt_y * (0.0102 * (1 - 0.78 * s_g) + r_g + 0.004)
+            n_g = alt_y - tn * alt_y.dot(tn)
+            n_g = n_g.normalized() if n_g.length > 1e-4 else alt_y
+            merkez = pn + n_g * (0.0102 * (1.0 - 0.78 * s_g) + r_g + 0.001)
             g.location = merkez
             g.rotation_euler = tn.to_track_quat("Z", "Y").to_euler()
             g.keyframe_insert("location", frame=f); g.keyframe_insert("rotation_euler", frame=f)
-            ic_n.append(merkez + alt_y * (r_g * 0.6))
+            ic_n.append(merkez)
         ic_n.append(uc_b)
         serit_anahtar(ic_misina, ic_n, f)
 
-        # 20-Node Position-Based Verlet Rope Solver (8 sub-steps/frame = 240 Hz)
+        # 20-Node 240 Hz Position-Based Verlet Rope Solver (48 PBD iterations/sub-step -> zero rubbery droop!)
+        dist_c = max(0.15, (uc_nokta - uc_b).length)
         if P_ver is None:
             P_ver = [uc_b.lerp(uc_nokta, j / (N_MIS - 1)) for j in range(N_MIS)]
             P_prev = [p.copy() for p in P_ver]
             uc_b_prev = uc_b.copy(); uc_n_prev = uc_nokta.copy()
-            L_rest_cur = max(0.25, (uc_nokta - uc_b).length * 1.02)
+            L_rest_cur = dist_c * 1.0005
         else:
-            dist_c = max(0.18, (uc_nokta - uc_b).length)
-            if faz == "atis" and u >= 0.52:
-                q_c = (u - 0.52) / 0.48
-                hedef_L = dist_c * (1.03 + 0.14 * math.sin(math.pi * q_c))
+            if faz == "atis" and u >= 0.48:
+                q_c = (u - 0.48) / 0.52
+                hedef_L = dist_c * (1.02 + 0.13 * math.sin(math.pi * q_c))
             elif faz == "bekle":
-                hedef_L = dist_c * 1.055
+                hedef_L = dist_c * 1.045
             elif faz in ("vurus", "cekis"):
-                hedef_L = dist_c * 1.0005
-            elif faz == "al":
-                hedef_L = dist_c * 1.004
+                hedef_L = dist_c * 1.0002
             else:
-                hedef_L = dist_c * 1.015
-            L_rest_cur += (hedef_L - L_rest_cur) * (0.55 if faz in ("vurus", "cekis", "atis") else 0.25)
-            seg_len = max(0.012, L_rest_cur / (N_MIS - 1))
+                # Pendulum phases (durdur, atis wind-up, al, son): taut real pendulum string!
+                hedef_L = dist_c * 1.0004
+            L_rest_cur += (hedef_L - L_rest_cur) * (0.75 if faz != "bekle" else 0.30)
+            seg_len = max(0.008, L_rest_cur / (N_MIS - 1))
             sub_v = 8
             dt_v = DT / sub_v
             grav_v = Vector((0.0, 0.0, -9.81)) * (dt_v * dt_v)
             su_yuz = su_z_yerel(f, uc_nokta)
+            taut_faz = faz in ("vurus", "cekis", "durdur", "son") or faz == "al" or (faz == "atis" and u < 0.48)
             for sv in range(1, sub_v + 1):
                 al_s = sv / sub_v
                 p_start = uc_b_prev.lerp(uc_b, al_s)
                 p_end = uc_n_prev.lerp(uc_nokta, al_s)
                 P_ver[0] = p_start.copy(); P_prev[0] = p_start.copy()
                 P_ver[-1] = p_end.copy(); P_prev[-1] = p_end.copy()
-                damp = 0.965 if faz in ("vurus", "cekis") else 0.985
+                damp = 0.92 if taut_faz else 0.985
                 for m_i in range(1, N_MIS - 1):
                     vel_m = (P_ver[m_i] - P_prev[m_i]) * damp
                     P_prev[m_i] = P_ver[m_i].copy()
                     P_ver[m_i] = P_ver[m_i] + vel_m + grav_v
-                # Gauss-Seidel distance constraints
-                for _ in range(18):
+                # 48 Gauss-Seidel iterations -> inextensible, zero-sag taut fishing line!
+                for _ in range(48):
                     P_ver[0] = p_start
                     P_ver[-1] = p_end
                     for m_i in range(N_MIS - 1):
@@ -1853,19 +1963,18 @@ def balik_sahnesi(tur="cipura", boy=0.34):
                             corr = delta * (0.5 * diff)
                             P_ver[m_i] += corr
                             P_ver[m_i + 1] -= corr
-                    # Gentle ocean surface buoyancy during waiting phase so line kisses waves cleanly
                     if faz == "bekle":
                         for m_i in range(3, N_MIS - 1):
-                            if P_ver[m_i].z < su_yuz + 0.015:
-                                P_ver[m_i].z = su_yuz + 0.015
+                            if P_ver[m_i].z < su_yuz + 0.014:
+                                P_ver[m_i].z = su_yuz + 0.014
             uc_b_prev = uc_b.copy(); uc_n_prev = uc_nokta.copy()
         serit_anahtar(misina, P_ver, f)
 
-        # Bobber / float aligned with the terminal Verlet segment tangent
+        # Bobber / float sits cleanly along the terminal Verlet line segment
         boy_ = P_ver[-2] - P_ver[-1]
-        sam.location = uc_nokta + boy_.normalized() * k["sam_d"] if boy_.length > 1e-4 else uc_nokta
-        dik_ = Vector((0, 0, 1)).lerp(boy_.normalized() if boy_.length > 1e-4 else Vector((0, 0, 1)),
-                                      min(1.0, k["sam_d"] / 0.45))
+        b_dir = boy_.normalized() if boy_.length > 1e-4 else Vector((0, 0, 1))
+        sam.location = uc_nokta + b_dir * k["sam_d"]
+        dik_ = Vector((0, 0, 1)).lerp(b_dir, min(1.0, k["sam_d"] / 0.42))
         sam.rotation_euler = dik_.to_track_quat("Z", "Y").to_euler()
         sam.keyframe_insert("location", frame=f); sam.keyframe_insert("rotation_euler", frame=f)
 
@@ -1912,10 +2021,10 @@ def balik_sahnesi(tur="cipura", boy=0.34):
         baliklar.canlandir(bal2, "yuz", bekle_f[0], bekle_f[-1], faz=0.3, hiz=1.0 / KS)
         baliklar.canlandir(bal2, "hizli", bekle_f[-1] + 1, vurus_f[0] + round(50 * KS), hiz=1.0 / KS)
 
-    # Silk-smooth Bezier AUTO_CLAMPED F-curves across all animated armatures & props
+    # Smooth Bezier F-curves on camera/armatures/rod/line (leaving bal's gravity drop & impact crisp!)
     _bezier_fcurves([TK, EKIP["abi"]["arm"], EKIP["kardes"]["arm"], sap, makara_kol,
-                     olta, misina, ic_misina, sam, bal, bal2, bpy.data.objects.get("Yeke")] + kilavuzlar)
-    print("BALIK_SAHNESI", F_, "kare (NURBS + 240Hz Verlet + Euler-Bernoulli + Pendulum + RDR2 VFX)",
+                     olta, misina, ic_misina, sam, bal2, bpy.data.objects.get("Yeke")] + kilavuzlar)
+    print("BALIK_SAHNESI", F_, "kare (480Hz Pendulum + g=-9.81 Free-Fall + 48-iter Verlet + Multi-Fish Bucket)",
           [(h_, a_, b_) for h_, a_, b_ in seg])
     ilk = {}
     for k in kayit:
