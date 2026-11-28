@@ -105,7 +105,7 @@ Uyarılar:
 - `test-arayuz.js` ve `test-uctan-uca.js`: eski gömülü anahtar mimarisini test ediyorlar.
   Yetki artık native tarafta `Identity.AuthorizationClient` ile alınıyor.
 - `test-odak.js` "Tanıtım günde bir kez" dört kontrolü.
-- `test-dil.js` iki kontrolü: on üç dilde bazı anahtarlar eksik, bir ölü anahtar var.
+- `test-dil.js` bir kontrolü: HEAD'den gelen yedi ölü anahtar (`ph_ne_calisiyorsun`, `btn_resmi_gor`, `btn_kopyala`, `btn_kopyalandi`, `btn_secildi`, `sy_yok`, `kalan_daha`); dinamik kullanımı saymayan regex'in yanlış pozitifi olabilir. Eksik anahtar denetimi ses çevirileri 15 dile eklenince yeşile döndü.
 - `tema`, `yedek indirme`, `dnd` testleri `MainActivity.kt` okuyor; Kotlin erişimi olmadan koşmaz.
 
 ---
