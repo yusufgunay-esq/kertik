@@ -2433,7 +2433,7 @@ const EGE_SES = (() => {
       tekne:  { vol: 0.22, mute: true  }  /* ahşap tirhandil gövde ritmi */
     }
   };
-  let ctx = null, masterGain = null, nodes = null, duckZaman = null;
+  let ctx = null, masterGain = null, nodes = null, duckZaman = null, kapanmaZaman = null;
 
   /* Kayıtlı ayar varsa üstüne bindir; eksik alan varsayılanda kalır. */
   try {
@@ -2495,7 +2495,7 @@ const EGE_SES = (() => {
       lfo.connect(lfoG); lfoG.connect(flt.frequency);
       src.connect(flt); flt.connect(g); g.connect(masterGain);
       src.start(); lfo.start();
-      return { src, flt, g, lfo };
+      return { src, flt, g, lfo, lfoG };
     };
     nodes = {
       dalga:  kanalKur("lowpass",  340, 0.9, 0.11, 140),
@@ -2557,13 +2557,44 @@ const EGE_SES = (() => {
     duckZaman = setTimeout(() => { if (durum.acik) rampa(masterGain.gain, durum.master, 0.2); }, 200);
   }
 
+  /* Mola ortam sesi getirmez. Kor acikAyarla'da da var; baslat()'ı doğrudan
+     çağıran yollar (init, pasif dokunuş dinleyicisi) moladayken sessiz kalır. */
+  function moladaMi() {
+    try {
+      const se = (typeof activeSession === "function") ? activeSession() : null;
+      return !!(se &amp;&amp; stats(se).onBreak);
+    } catch (e) { return false; }
+  }
+
   function baslat() {
+    if (moladaMi()) return;
+    clearTimeout(kapanmaZaman);
     durum.acik = true;
     kur();
     if (ctx &amp;&amp; ctx.state === "suspended") { try { ctx.resume().catch(() => {}); } catch (e) {} }
     guncelle(FADE_SN);
   }
-  function durdur() { durum.acik = false; guncelle(FADE_SN); }
+
+  function durdur() {
+    durum.acik = false;
+    guncelle(FADE_SN);
+    /* Sönüm bittikten sonra düğümleri tümüyle sök: seans kapalıyken
+       BufferSource/LFO'lar sayfa boyu CPU/pil yakmasın. Yeniden açılışta
+       kur() zinciri sıfırdan kurulur. ctx ön efektlerle paylaşımlı;
+       askıya alınmaz. */
+    clearTimeout(kapanmaZaman);
+    kapanmaZaman = setTimeout(() => {
+      if (durum.acik || !nodes) return;
+      for (const n of Object.values(nodes)) {
+        try { n.src.stop(); } catch (e) {}
+        try { n.lfo.stop(); } catch (e) {}
+        try { n.src.disconnect(); n.flt.disconnect(); n.g.disconnect(); n.lfo.disconnect(); n.lfoG.disconnect(); } catch (e) {}
+      }
+      nodes = null;
+      try { if (masterGain) masterGain.disconnect(); } catch (e) {}
+      masterGain = null;
+    }, FADE_SN * 1000 + 120);
+  }
   return { durum, baslat, durdur, ayarla, acikAyarla, guncelle, duck };
 })();
 
