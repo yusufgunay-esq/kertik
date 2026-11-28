@@ -106,7 +106,7 @@ Uyarılar:
   Yetki artık native tarafta `Identity.AuthorizationClient` ile alınıyor.
 - `test-odak.js` "Tanıtım günde bir kez" dört kontrolü.
 - `test-dil.js` bir kontrolü: HEAD'den gelen yedi ölü anahtar (`ph_ne_calisiyorsun`, `btn_resmi_gor`, `btn_kopyala`, `btn_kopyalandi`, `btn_secildi`, `sy_yok`, `kalan_daha`); dinamik kullanımı saymayan regex'in yanlış pozitifi olabilir. Eksik anahtar denetimi ses çevirileri 15 dile eklenince yeşile döndü.
-- `tema`, `yedek indirme`, `dnd` testleri `MainActivity.kt` okuyor; Kotlin erişimi olmadan koşmaz.
+- `tema` ve `dnd` 2026-11-28'de kapatıldı: tema'nın sahte DOM'una `getBoundingClientRect` ve `document.body` eklendi (akisBosluk/sakinHudSifirla), dnd'nin iki iddiası güncel ZenPolicy sözleşmesine çevrildi ve köprü kontrolü CRLF'e dayanıklı yapıldı. `npm test` artık 15/15 tam yeşil; yukarıdaki diğer kırmızılar yalnız `npm test:all` kapsamında.
 
 ---
 

@@ -29,6 +29,11 @@ function ortamKur(baslangicDark = false, storageGirdi = null) {
   }
 
   const mockDoc = {
+    /* sakinHudSifirla() açılışta document.body'ye dokunuyor */
+    body: {
+      style: {},
+      classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false }
+    },
     documentElement: {
       classList: {
         add: (c) => classList.add(c),
@@ -54,6 +59,8 @@ function ortamKur(baslangicDark = false, storageGirdi = null) {
       return {
         offsetLeft: 0, offsetWidth: 100, style: {},
         setAttribute: () => {}, getAttribute: () => null,
+        /* akisBosluk() kadranın yerini ölçer; sahte elemanda ölçü yok → genişlik 0 */
+        getBoundingClientRect: () => ({ left: 0, top: 0, width: 0, height: 0 }),
         classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
         querySelectorAll: () => []
       };

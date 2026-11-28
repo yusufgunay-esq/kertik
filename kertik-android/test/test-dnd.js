@@ -24,8 +24,8 @@ ok("DND orijinal filtre SharedPreferences'a kaydediliyor (yedek yol)", mainKt.in
 ok("Öncelikli odak modu (INTERRUPTION_FILTER_PRIORITY) kullanılıyor", mainKt.includes("INTERRUPTION_FILTER_PRIORITY"));
 ok("onCreate içinde yetim kalmış DND durumunu kurtarma mekanizması var", mainKt.includes("Yetim kalmış DND durumunu temizle"));
 ok("Kopru sınıfında dndBaslat ve dndBitir JavascriptInterface olarak kayıtlı",
-   mainKt.includes("@JavascriptInterface\n        fun dndBaslat()") &&
-   mainKt.includes("@JavascriptInterface\n        fun dndBitir()"));
+   /@JavascriptInterface\s+fun dndBaslat\(\)/.test(mainKt) &&
+   /@JavascriptInterface\s+fun dndBitir\(\)/.test(mainKt));
 
 console.log("\n1b) Kertik'in kendi modu (AutomaticZenRule)");
 ok("AutomaticZenRule ile sistemde kendi adıyla ayrı bir mod oluşturuluyor", mainKt.includes("AutomaticZenRule("));
@@ -33,8 +33,8 @@ ok("Mod adı \"Kertik\" olarak kayıtlı (kullanıcının kendi Rahatsız Etmeyi
 ok("Kural kimliği kalıcı olarak saklanıyor (KEY_ZEN_KURAL_ID)", mainKt.includes("KEY_ZEN_KURAL_ID"));
 ok("Kural durumu setAutomaticZenRuleState ile açılıp kapatılıyor", mainKt.includes("setAutomaticZenRuleState"));
 ok("Kural silinmiş/bulunamıyorsa yeniden oluşturuluyor", mainKt.includes("nm.getAutomaticZenRule(mevcut)"));
-ok("API 28 öncesi için Policy ataması güvenli sürüm kontrolüyle yapılıyor", mainKt.includes("Build.VERSION.SDK_INT >= Build.VERSION_CODES.P"));
-ok("Sadece alarmlar geçebiliyor (PRIORITY_CATEGORY_ALARMS)", mainKt.includes("PRIORITY_CATEGORY_ALARMS"));
+ok("ZenPolicy yalnız Q+ sürümlerde atanıyor, altında güvenli yedek yol var", mainKt.includes("Build.VERSION.SDK_INT < Build.VERSION_CODES.Q"));
+ok("Sadece alarmlar geçebiliyor (ZenPolicy.allowAlarms, mesajlar kapalı)", mainKt.includes("ZenPolicy.Builder()") && mainKt.includes(".allowAlarms(true)") && mainKt.includes("PEOPLE_TYPE_NONE"));
 ok("Kural oluşturulamazsa eski küresel filtreye sessizce yedek düşülüyor", mainKt.includes("Yedek yol: kural mekanizması"));
 ok("Yetim kalma durumu artık zen kuralını da kapatıyor (KEY_ZEN_AKTIF)", mainKt.includes("KEY_ZEN_AKTIF"));
 
